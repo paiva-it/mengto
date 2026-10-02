@@ -1,6 +1,6 @@
 # mengto — web design skills, shown by example
 
-A local gallery of the 91 web-design agent skills from
+A gallery of the 91 web-design agent skills from
 [Meng To's **Skills** collection](https://github.com/MengTo/skills/tree/main/agent-skills/web-design).
 Each skill gets one example page, built by an AI coding agent that loaded the skill and followed it.
 The home page lists every skill as a card: a preview of its example page (it plays live on hover),
@@ -104,9 +104,10 @@ results.
 | [Iconify](https://iconify.design) (`iconify-icon`) | icon and logo rendering | Vjacheslav Trushkin | MIT |
 | [Playwright](https://playwright.dev) | previews and self-checks | Microsoft | Apache-2.0 |
 
-**About Shaders:** this project is a personal, non-commercial study that runs locally. Its
-`add-shader-cursor-trail` and `shaders-cursor-ripples` pages use Shaders under its free tier.
-A public or commercial deployment of those pages needs a Shaders Pro or Team license.
+**About Shaders:** this repository is non-commercial. It exists so that people interested in
+Meng To's skills can see worked examples. Its `add-shader-cursor-trail` and
+`shaders-cursor-ripples` pages use Shaders under its free tier for personal and non-commercial
+use. If you reuse those pages in commercial work, you need your own Shaders license.
 
 ### Icons and logos
 
@@ -139,3 +140,9 @@ Plus Jakarta Sans, Schibsted Grotesk and Silkscreen.
 
 If you own something here that is not credited correctly, open an issue and it will be fixed or
 removed.
+
+## License
+
+[MIT](LICENSE) © 2026 Rafael Paiva, covering the code and example pages in this repository.
+Third-party parts keep their own terms, as listed under [Credits](#credits): the skills (MIT,
+Meng To), the libraries, fonts, icons, and the photos listed in [CREDITS.md](CREDITS.md).

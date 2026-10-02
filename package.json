@@ -45,5 +45,7 @@
       "esbuild",
       "sharp"
     ]
-  }
+  },
+  "license": "MIT",
+  "private": true
 }
