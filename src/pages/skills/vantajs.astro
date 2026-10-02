@@ -1,0 +1,508 @@
+---
+import '../../styles/global.css';
+import BackPill from '../../components/BackPill.astro';
+
+// Volta — a night school for aerial circus arts in a converted tram depot in Porto.
+// The hero canvas is one Vanta WAVES field read as hanging silk; each apparatus retunes it via setOptions.
+const rigs = [
+  {
+    id: 'silks', n: '01', name: 'Silks', accent: '#f472b6',
+    vanta: { color: 0x5c0c37, shininess: 72, waveHeight: 22, waveSpeed: 0.55, zoom: 0.82 },
+    spec: [['Fabric', '14 m nylon tricot'], ['Drop', '6.2 m'], ['Per rig', '2 students'], ['Level', 'Absolute beginner']],
+    blurb: 'Two lengths of stretch fabric, a foot lock and a lot of patience. Most people climb the full nine metres by week five.',
+    hours: 'Mon + Wed · 18:30',
+  },
+  {
+    id: 'trapeze', n: '02', name: 'Static trapeze', accent: '#c084fc',
+    vanta: { color: 0x34103f, shininess: 40, waveHeight: 13, waveSpeed: 0.9, zoom: 1.0 },
+    spec: [['Bar', '60 cm oak, taped'], ['Ropes', '2 × 3.1 m'], ['Per rig', '1 student'], ['Level', 'Beginner']],
+    blurb: 'A bar that does not swing, so you can find every balance point on it: hip, knee pit, the back of the neck, one ankle.',
+    hours: 'Tue · 19:00',
+  },
+  {
+    id: 'lyra', n: '03', name: 'Lyra', accent: '#fb7185',
+    vanta: { color: 0x6b1220, shininess: 96, waveHeight: 17, waveSpeed: 1.1, zoom: 0.9 },
+    spec: [['Hoop', '90 cm steel'], ['Spin', 'Swivel, free'], ['Per rig', '1 student'], ['Level', 'Improver']],
+    blurb: 'A steel ring on a swivel. Strength first, then shapes, then the spin you were warned about on day one.',
+    hours: 'Thu · 18:30',
+  },
+  {
+    id: 'wire', n: '04', name: 'Low wire', accent: '#93c5fd',
+    vanta: { color: 0x22202e, shininess: 130, waveHeight: 4, waveSpeed: 0.35, zoom: 1.15 },
+    spec: [['Cable', '9 mm steel, 6 m span'], ['Height', '1.1 m'], ['Per rig', '3 students'], ['Level', 'Any']],
+    blurb: 'Six metres of tensioned cable at hip height. Slow feet, soft knees, eyes on the far post and never on the wire.',
+    hours: 'Wed · 20:15',
+  },
+];
+const weeks = [
+  ['01–03', 'Ground and grip', 'Conditioning, wrist and shoulder prep, inverts from the floor. You leave every session tired and unbruised.'],
+  ['04–06', 'Climbs and locks', 'Russian climb, foot locks, hip keys. The first time you hang by your own wrap, nine metres up.'],
+  ['07–09', 'Drops and rolls', 'Controlled falls on the fabric and the bar, always over a 30 cm crash mat and with a spotter at the rig.'],
+  ['10–12', 'Your three minutes', 'Sequence, music, light. Every student builds a short act for the showcase on Saturday 20 December.'],
+];
+const payload = JSON.stringify(rigs.map(({ id, accent, vanta }) => ({ id, accent, vanta })));
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Volta — School of Aerial &amp; Circus Arts, Porto</title>
+    <meta name="description" content="A night school for aerial arts in an old Porto tram depot. Silks, trapeze, lyra and low wire for adults, twelve weeks a term." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  </head>
+  <body style={`--accent:${rigs[0].accent}`}>
+    <a class="skip" href="#main">Skip to content</a>
+
+    <header class="top shell">
+      <a class="brand" href="#main" aria-label="Volta, home"><i aria-hidden="true"></i>Volta</a>
+      <span class="top-sub">School of Aerial &amp; Circus Arts · Porto</span>
+      <nav aria-label="Sections">
+        <a href="#apparatus">Apparatus</a>
+        <a href="#term">The term</a>
+        <a href="#trial" class="nav-cta">Trial class</a>
+      </nav>
+    </header>
+
+    <main id="main">
+      <section class="hero" aria-labelledby="hero-title">
+        <div id="silk" class="silk" aria-hidden="true"></div>
+        <div class="scrim" aria-hidden="true"></div>
+
+        <div class="hero-grid shell">
+          <div class="hero-copy">
+            <p class="eyebrow mono">Term II · opens Tuesday 14 October</p>
+            <h1 id="hero-title">Learn to fall <em>upward.</em></h1>
+            <p class="lede">
+              Volta is a night school for aerial arts in an old tram depot on Rua do Heroísmo. Adults,
+              no experience needed, twelve weeks a term — taught by people who still perform.
+            </p>
+            <div class="ctas">
+              <a class="btn btn-solid" href="#trial">Book a €18 trial class</a>
+              <a class="btn btn-ghost" href="#apparatus">See the apparatus</a>
+            </div>
+          </div>
+
+          <aside class="console" aria-labelledby="console-title">
+            <div class="console-head mono">
+              <span id="console-title">Rig 3 · tonight</span>
+              <span class="live"><i aria-hidden="true"></i><span id="rig-status">Rigged</span></span>
+            </div>
+            <div class="rig-picker" role="group" aria-label="Choose an apparatus — retunes the background">
+              {rigs.map((r, i) => (
+                <button type="button" class="rig-btn" data-rig={r.id} aria-pressed={i === 0 ? 'true' : 'false'}>
+                  <span class="mono">{r.n}</span>{r.name}
+                </button>
+              ))}
+            </div>
+            {rigs.map((r, i) => (
+              <dl class="spec" data-spec={r.id} hidden={i !== 0}>
+                {r.spec.map(([k, v]) => (
+                  <div><dt class="mono">{k}</dt><dd>{v}</dd></div>
+                ))}
+              </dl>
+            ))}
+            <p class="console-foot mono" id="canvas-readout">Vanta WAVES · height 22 · shine 72</p>
+          </aside>
+        </div>
+
+        <ul class="meta-strip shell mono" aria-label="Studio facts">
+          <li><span>Ceiling</span>11.0 m clear</li>
+          <li><span>Rigging points</span>6 × 2.4 kN</li>
+          <li><span>Class size</span>Max 8</li>
+          <li><span>Hours</span>Mon–Thu 18:00–22:30</li>
+        </ul>
+      </section>
+
+      <section id="apparatus" class="band shell" aria-labelledby="app-title">
+        <div class="band-head">
+          <p class="eyebrow mono">Four apparatus, one depot</p>
+          <h2 id="app-title">Pick what you hang from.</h2>
+          <p class="band-lede">Every term student gets one main apparatus and open practice on the other three every Thursday after 21:00.</p>
+        </div>
+        <ol class="cards">
+          {rigs.map((r) => (
+            <li class="card" style={`--c:${r.accent}`}>
+              <span class="card-n mono">{r.n}</span>
+              <h3>{r.name}</h3>
+              <p>{r.blurb}</p>
+              <p class="card-hours mono">{r.hours}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section id="term" class="band shell" aria-labelledby="term-title">
+        <div class="band-head">
+          <p class="eyebrow mono">Twelve weeks, one act</p>
+          <h2 id="term-title">How a term goes.</h2>
+        </div>
+        <ol class="weeks">
+          {weeks.map(([w, t, d]) => (
+            <li>
+              <span class="mono wk">Weeks {w}</span>
+              <h3>{t}</h3>
+              <p>{d}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section id="trial" class="trial shell" aria-labelledby="trial-title">
+        <div>
+          <p class="eyebrow mono">Saturdays · 10:00 and 11:30</p>
+          <h2 id="trial-title">Ninety minutes, one rig, no commitment.</h2>
+          <p class="band-lede">Wear leggings and a long-sleeved top — fabric burns. If you sign up for the term the same day, the €18 comes off the €340.</p>
+        </div>
+        <a class="btn btn-solid" href="mailto:ola@volta-circo.pt?subject=Trial%20class">Book a trial class</a>
+      </section>
+    </main>
+
+    <footer class="foot shell mono">
+      <span>Volta · Rua do Heroísmo 312, 4300-259 Porto</span>
+      <span>Spotters on every rig, every class.</span>
+    </footer>
+
+    <BackPill />
+    <script type="application/json" id="rig-data" set:html={payload} />
+  </body>
+</html>
+
+<script>
+  import * as THREE from 'three';
+  // ponytail: vanta's ESM source takes THREE as an option, so no window.THREE global is needed.
+  import WAVES from 'vanta/src/vanta.waves.js';
+
+  type Opts = { color: number; shininess: number; waveHeight: number; waveSpeed: number; zoom: number };
+  type Rig = { id: string; accent: string; vanta: Opts };
+
+  const rigs: Rig[] = JSON.parse(document.getElementById('rig-data')!.textContent || '[]');
+  const el = document.getElementById('silk')!;
+  const hero = el.closest('.hero') as HTMLElement;
+  const readout = document.getElementById('canvas-readout')!;
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const BG = 0x080a0f;
+
+  const hasWebGL = (() => {
+    try {
+      const c = document.createElement('canvas');
+      return !!(c.getContext('webgl2') || c.getContext('webgl'));
+    } catch {
+      return false;
+    }
+  })();
+
+  // Vanta multiplies DPR by 1/scale: this caps the canvas at 1.5× on retina/phones.
+  const scale = Math.max(1, devicePixelRatio / 1.5);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let effect: any = null;
+
+  if (hasWebGL) {
+    try {
+      effect = WAVES({
+        el,
+        THREE,
+        ...rigs[0].vanta,
+        backgroundColor: BG,
+        mouseControls: !reduced,
+        touchControls: false,
+        gyroControls: false,
+        minHeight: 200,
+        minWidth: 200,
+        scale,
+        scaleMobile: scale,
+      });
+      // Vanta's lights predate three r155 physical units: the point light decays to nothing at this
+      // distance, so the silk reads flat. Drop its decay so the sheen comes back.
+      effect?.scene?.traverse((o: THREE.Object3D) => {
+        if ((o as THREE.PointLight).isPointLight) {
+          const p = o as THREE.PointLight;
+          p.decay = 0;
+          p.intensity = 1.1;
+        }
+        if ((o as THREE.AmbientLight).isAmbientLight) (o as THREE.AmbientLight).intensity = 1.6;
+      });
+      if (!effect?.renderer) effect = null;
+      tintSheen(rigs[0].accent);
+    } catch {
+      effect = null;
+    }
+  }
+  if (effect) hero.classList.add('has-canvas');
+
+  // Phong's default specular is grey, which reads as plastic: tint the sheen with the rig's accent.
+  function tintSheen(hex: string) {
+    effect?.plane?.material?.specular?.set(hex).multiplyScalar(0.4);
+  }
+
+  // --- run / pause: offscreen, hidden tab, reduced motion -----------------
+  let inView = true;
+  let running = !!effect;
+
+  function stop() {
+    if (!effect || !running) return;
+    cancelAnimationFrame(effect.req);
+    running = false;
+  }
+  function start() {
+    if (!effect || running || reduced) return;
+    effect.prevNow = performance.now(); // no time jump after a pause
+    running = true;
+    effect.animationLoop();
+  }
+  function sync() {
+    if (inView && document.visibilityState === 'visible') start();
+    else stop();
+  }
+  // Reduced motion: let the camera settle without advancing time, draw once, stay still.
+  function still() {
+    if (!effect) return;
+    for (let i = 0; i < 160; i++) effect.onUpdate();
+    effect.renderer.render(effect.scene, effect.camera);
+  }
+
+  if (effect) {
+    if (reduced) {
+      stop();
+      requestAnimationFrame(still);
+    } else {
+      new IntersectionObserver(([e]) => {
+        inView = e.isIntersecting;
+        sync();
+      }).observe(hero);
+      document.addEventListener('visibilitychange', sync);
+    }
+    window.addEventListener('pagehide', () => effect?.destroy(), { once: true });
+  }
+
+  // --- apparatus picker: setOptions, eased ---------------------------------
+  const buttons = [...document.querySelectorAll<HTMLButtonElement>('.rig-btn')];
+  const specs = [...document.querySelectorAll<HTMLElement>('[data-spec]')];
+  let tween = 0;
+
+  function setReadout(o: Opts) {
+    readout.textContent = `Vanta WAVES · height ${Math.round(o.waveHeight)} · shine ${Math.round(o.shininess)}`;
+  }
+
+  function retune(to: Opts) {
+    if (!effect) return setReadout(to);
+    cancelAnimationFrame(tween);
+    const from: Opts = { ...effect.options };
+    const cFrom = new THREE.Color(from.color);
+    const cTo = new THREE.Color(to.color);
+    const c = new THREE.Color();
+    if (reduced) {
+      effect.setOptions(to);
+      setReadout(to);
+      return still();
+    }
+    const t0 = performance.now();
+    const D = 1100;
+    const step = (now: number) => {
+      const k = Math.min(1, (now - t0) / D);
+      const e = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+      const lerp = (a: number, b: number) => a + (b - a) * e;
+      const speed = lerp(from.waveSpeed, to.waveSpeed);
+      // WAVES phase is waveSpeed × t: rescale t so a speed change morphs the cloth instead of jumping it.
+      if (effect.t && effect.options.waveSpeed) effect.t *= effect.options.waveSpeed / speed;
+      const o: Opts = {
+        color: c.copy(cFrom).lerp(cTo, e).getHex(),
+        shininess: lerp(from.shininess, to.shininess),
+        waveHeight: lerp(from.waveHeight, to.waveHeight),
+        waveSpeed: speed,
+        zoom: lerp(from.zoom, to.zoom),
+      };
+      effect.setOptions(o);
+      setReadout(o);
+      if (k < 1) tween = requestAnimationFrame(step);
+    };
+    tween = requestAnimationFrame(step);
+  }
+
+  buttons.forEach((b) =>
+    b.addEventListener('click', () => {
+      const rig = rigs.find((r) => r.id === b.dataset.rig);
+      if (!rig) return;
+      buttons.forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+      specs.forEach((s) => (s.hidden = s.dataset.spec !== rig.id));
+      document.body.style.setProperty('--accent', rig.accent);
+      tintSheen(rig.accent);
+      retune(rig.vanta);
+    }),
+  );
+</script>
+
+<style is:global>
+  :root {
+    --bg: #080a0f;
+    --panel: rgba(18, 21, 29, 0.72);
+    --ink: #f2f5f7;
+    --muted: #929aa7;
+    --line: rgba(255, 255, 255, 0.14);
+    --sans: 'Inter Tight', ui-sans-serif, system-ui, sans-serif;
+    --mono: 'IBM Plex Mono', ui-monospace, monospace;
+    color-scheme: dark;
+  }
+  html { background: var(--bg); scroll-behavior: smooth; }
+  body {
+    margin: 0; min-width: 320px; background: var(--bg); color: var(--ink);
+    font-family: var(--sans); -webkit-font-smoothing: antialiased; overflow-x: clip;
+  }
+  .mono { font-family: var(--mono); }
+  .shell { width: min(1320px, calc(100% - 48px)); margin-inline: auto; }
+  a { color: inherit; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
+  .skip { position: absolute; left: -9999px; top: 8px; z-index: 50; padding: 8px 12px; background: var(--ink); color: var(--bg); }
+  .skip:focus { left: 12px; }
+
+  /* ---------- top bar ---------- */
+  .top {
+    position: absolute; inset: 0 0 auto 0; z-index: 5; display: flex; align-items: center; gap: 24px;
+    padding: 22px 0 18px; border-bottom: 1px solid var(--line);
+    font-size: 11px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase;
+  }
+  .brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font-size: 13px; letter-spacing: 0.2em; }
+  .brand i { width: 9px; height: 9px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 22px var(--accent); transition: background 0.8s, box-shadow 0.8s; }
+  .top-sub { color: var(--muted); }
+  .top nav { margin-left: auto; display: flex; gap: 22px; align-items: center; }
+  .top nav a { text-decoration: none; color: var(--muted); transition: color 0.2s; }
+  .top nav a:hover { color: var(--ink); }
+  .top nav .nav-cta { color: var(--ink); border: 1px solid var(--line); padding: 8px 14px; border-radius: 999px; background: var(--panel); backdrop-filter: blur(10px); }
+
+  /* ---------- hero ---------- */
+  .hero {
+    position: relative; min-height: max(100svh, 680px); display: flex; flex-direction: column; justify-content: flex-end;
+    padding: 120px 0 0; isolation: isolate; overflow: hidden;
+    /* fallback when WebGL is unavailable: a still, folded crimson cloth */
+    background:
+      radial-gradient(120% 80% at 80% 30%, #5c0c37 0%, transparent 60%),
+      repeating-linear-gradient(100deg, rgba(255, 255, 255, 0.035) 0 2px, transparent 2px 46px),
+      var(--bg);
+  }
+  .hero.has-canvas { background: var(--bg); }
+  .silk { position: absolute; inset: 0; z-index: -2; }
+  .silk canvas { display: block; }
+  .scrim {
+    position: absolute; inset: 0; z-index: -1; pointer-events: none;
+    background:
+      linear-gradient(180deg, rgba(8, 10, 15, 0.82) 0%, rgba(8, 10, 15, 0) 22%, rgba(8, 10, 15, 0) 52%, rgba(8, 10, 15, 0.88) 100%),
+      linear-gradient(90deg, rgba(8, 10, 15, 0.7) 0%, rgba(8, 10, 15, 0.2) 48%, rgba(8, 10, 15, 0) 70%);
+  }
+  .hero-grid {
+    display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 48px; align-items: end;
+    padding-bottom: 44px;
+  }
+  .eyebrow { margin: 0 0 18px; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+  h1 {
+    margin: 0; font-size: clamp(56px, 9.4vw, 150px); line-height: 0.88; letter-spacing: -0.055em; font-weight: 600;
+    max-width: 9ch; text-wrap: balance;
+  }
+  h1 em { font-style: normal; color: var(--accent); transition: color 0.8s; }
+  .lede { max-width: 46ch; margin: 28px 0 0; font-size: 17px; line-height: 1.55; color: #c9ced6; }
+  .ctas { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
+  .btn {
+    display: inline-flex; align-items: center; min-height: 46px; padding: 0 20px; border-radius: 999px;
+    font-size: 14px; font-weight: 600; text-decoration: none; transition: transform 0.2s, background 0.2s, border-color 0.2s;
+  }
+  .btn-solid { background: var(--ink); color: var(--bg); }
+  .btn-solid:hover { transform: translateY(-1px); background: #fff; }
+  .btn-ghost { border: 1px solid var(--line); background: var(--panel); backdrop-filter: blur(10px); }
+  .btn-ghost:hover { border-color: var(--accent); }
+
+  .console {
+    border: 1px solid var(--line); border-radius: 18px; background: var(--panel);
+    backdrop-filter: blur(16px) saturate(1.2); -webkit-backdrop-filter: blur(16px) saturate(1.2);
+    padding: 18px; box-shadow: 0 30px 80px -30px rgba(0, 0, 0, 0.8);
+  }
+  .console-head { display: flex; justify-content: space-between; font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+  .live { display: inline-flex; align-items: center; gap: 7px; color: var(--ink); }
+  .live i { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 10px var(--accent); animation: pulse 2.4s ease-in-out infinite; }
+  @keyframes pulse { 50% { opacity: 0.35; } }
+  .rig-picker { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 16px 0; }
+  .rig-btn {
+    display: flex; align-items: baseline; gap: 8px; padding: 10px 12px; border-radius: 10px; cursor: pointer;
+    border: 1px solid var(--line); background: rgba(255, 255, 255, 0.02); color: var(--muted);
+    font: 500 13.5px var(--sans); text-align: left; transition: border-color 0.2s, color 0.2s, background 0.2s;
+  }
+  .rig-btn .mono { font-size: 10px; opacity: 0.7; }
+  .rig-btn:hover { color: var(--ink); border-color: rgba(255, 255, 255, 0.3); }
+  .rig-btn[aria-pressed='true'] { color: var(--ink); border-color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, transparent); }
+  .spec { margin: 0; display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--line); }
+  .spec[hidden] { display: none; }
+  .spec div { padding: 12px 0 10px; border-bottom: 1px solid var(--line); }
+  .spec div:nth-child(odd) { padding-right: 12px; border-right: 1px solid var(--line); }
+  .spec div:nth-child(even) { padding-left: 12px; }
+  .spec dt { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+  .spec dd { margin: 5px 0 0; font-size: 14px; font-weight: 500; }
+  .console-foot { margin: 14px 0 0; font-size: 10.5px; color: var(--muted); letter-spacing: 0.02em; }
+
+  .meta-strip {
+    list-style: none; margin: 0 auto; padding: 18px 0 26px; display: grid; grid-template-columns: repeat(4, 1fr);
+    border-top: 1px solid var(--line); font-size: 12px; color: var(--ink);
+  }
+  .meta-strip li { display: flex; flex-direction: column; gap: 6px; }
+  .meta-strip span { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+
+  /* ---------- content bands ---------- */
+  .band { padding: 120px 0 40px; }
+  .band-head { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 48px; align-items: end; margin-bottom: 48px; }
+  .band-head .eyebrow { grid-column: 1 / -1; margin: 0; }
+  h2 { margin: 0; font-size: clamp(36px, 5vw, 68px); line-height: 0.95; letter-spacing: -0.045em; font-weight: 600; }
+  .band-lede { margin: 0; max-width: 48ch; font-size: 16px; line-height: 1.6; color: var(--muted); }
+  .cards { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .card {
+    position: relative; padding: 24px 22px 22px; border: 1px solid var(--line); border-radius: 16px;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--c) 9%, transparent), transparent 60%), #0d1017;
+    display: flex; flex-direction: column; min-height: 300px;
+  }
+  .card::before { content: ''; position: absolute; left: 22px; right: 22px; top: 0; height: 1px; background: linear-gradient(90deg, var(--c), transparent); }
+  .card-n { font-size: 11px; color: var(--c); letter-spacing: 0.1em; }
+  .card h3 { margin: 40px 0 12px; font-size: 26px; letter-spacing: -0.03em; font-weight: 600; }
+  .card p { margin: 0; font-size: 14.5px; line-height: 1.6; color: var(--muted); }
+  .card .card-hours { margin-top: auto; padding-top: 22px; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink); }
+
+  .weeks { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+  .weeks li { display: grid; grid-template-columns: 160px minmax(0, 1fr) minmax(0, 1.3fr); gap: 24px; padding: 26px 0; border-bottom: 1px solid var(--line); align-items: baseline; }
+  .weeks .wk { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); transition: color 0.8s; }
+  .weeks h3 { margin: 0; font-size: 24px; font-weight: 600; letter-spacing: -0.03em; }
+  .weeks p { margin: 0; color: var(--muted); line-height: 1.6; font-size: 15px; }
+
+  .trial {
+    margin-top: 100px; margin-bottom: 40px; padding: 48px; border: 1px solid var(--line); border-radius: 24px;
+    display: flex; justify-content: space-between; align-items: end; gap: 32px;
+    background: radial-gradient(80% 140% at 100% 0%, color-mix(in srgb, var(--accent) 18%, transparent), transparent 60%), #0d1017;
+  }
+  .trial h2 { max-width: 16ch; font-size: clamp(32px, 4vw, 54px); margin-bottom: 18px; }
+  .trial .btn { flex: none; }
+  .foot { display: flex; justify-content: space-between; gap: 16px; padding: 24px 0 80px; border-top: 1px solid var(--line); font-size: 11px; color: var(--muted); letter-spacing: 0.04em; }
+
+  /* ---------- responsive ---------- */
+  @media (max-width: 1100px) {
+    .top-sub { display: none; }
+    .cards { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 860px) {
+    .shell { width: calc(100% - 32px); }
+    .top nav a:not(.nav-cta) { display: none; }
+    .hero { padding-top: 100px; }
+    .hero-grid { grid-template-columns: minmax(0, 1fr); gap: 28px; padding-bottom: 28px; }
+    .scrim { background: linear-gradient(180deg, rgba(8, 10, 15, 0.75) 0%, rgba(8, 10, 15, 0.1) 22%, rgba(8, 10, 15, 0.55) 55%, rgba(8, 10, 15, 0.95) 100%); }
+    .lede { font-size: 16px; margin-top: 20px; }
+    .meta-strip { grid-template-columns: 1fr 1fr; row-gap: 16px; }
+    .band { padding-top: 80px; }
+    .band-head { grid-template-columns: minmax(0, 1fr); }
+    .weeks li { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+    .trial { flex-direction: column; align-items: flex-start; padding: 28px 22px; }
+    .foot { flex-direction: column; }
+  }
+  @media (max-width: 560px) {
+    .cards { grid-template-columns: minmax(0, 1fr); }
+    .card { min-height: 0; }
+    .card h3 { margin-top: 24px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { transition: none !important; animation: none !important; }
+  }
+</style>

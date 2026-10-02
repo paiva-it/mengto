@@ -1,0 +1,7 @@
+{
+  "title": "Corner Diagonals",
+  "kind": "website",
+  "category": "Effects & details",
+  "concept": "Setline Surf School: a dawn-patrol surf school site where every button, slot picker, readout, lesson card, timeline block and the dark seven-day swell board share one chamfer family (8 / 14 / 24 px, top-left + bottom-right with mirrored counterparts) over a drifting sunrise-and-sea gradient.",
+  "notes": "Pure CSS clip-path polygons, no libraries. Bordered surfaces are a 1px gradient shell plus an inner fill on the same polygon (inner cut reduced by the border so the diagonal stroke keeps its weight). Buttons clip themselves, so the hit area follows the chamfer; focus grows an outset variable on the same polygon to expose a chamfered ring instead of a clipped rectangular outline. Slot picker is a keyboard radiogroup synced to the booking form. Reduced motion stops the gradient drift."
+}

@@ -1,0 +1,7 @@
+{
+  "title": "High Contrast Skeuomorphic Clean",
+  "kind": "website",
+  "category": "Design systems",
+  "concept": "Open Core: the public console for Vessmark's car-free old town — a molded black instrument shell on a pale page, with a live loop map, air and tram instruments, resident requests, the four-step charter and a street search.",
+  "notes": "Vanilla Astro, no extra deps. One mint signal accent (#74f0a7) on a monochrome system; Instrument Sans + JetBrains Mono. District tabs (arrow keys) retint the map cells and vitals; NO₂ hour slider, request checkboxes, notification switches and street search are live. Cyclists move via SVG animateMotion and a faint 2D-canvas dust field drifts in the shell; both freeze under prefers-reduced-motion, and the dust pauses offscreen."
+}

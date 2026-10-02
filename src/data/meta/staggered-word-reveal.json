@@ -1,0 +1,7 @@
+{
+  "title": "Staggered Word Reveal",
+  "kind": "section",
+  "category": "Motion & scroll",
+  "concept": "Isobath, a two-person cartographic studio in Port Varra: a contour-lined hero where the headline rises word by word, beside a 'how a sheet is made' panel that plays a four-step sequence — soundings, contours, names, print — with a Replay control, carried through method, quote, plan-chest and commission sections.",
+  "notes": "Vanilla IntersectionObserver per the skill: opacity 0 / translateY(20px) → rest, 0.8s cubic-bezier(0.16,1,0.3,1), 0.07s per word, threshold 0.2 with -10% bottom margin, once only. Splitter walks text nodes so a decorative accent span survives; original text on aria-label, words aria-hidden; split after document.fonts.ready. Replay resets with transitions off, then replays. Reduced motion: static text, map layers shown, Replay hidden."
+}

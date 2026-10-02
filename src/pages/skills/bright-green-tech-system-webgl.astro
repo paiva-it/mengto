@@ -1,0 +1,613 @@
+---
+import '../../styles/global.css';
+import BackPill from '../../components/BackPill.astro';
+
+// The seven huts of the Haute Varena traverse, index-aligned with the WebGL hut nodes.
+const huts = [
+  { short: 'Sorell', name: 'Capanna Sorell', alt: '2 214', beds: 34, held: 22, warden: 'M. Gisler', kind: 'Staffed' },
+  { short: 'Furgga', name: 'Furgga Hut', alt: '2 641', beds: 46, held: 39, warden: 'A. Imboden', kind: 'Staffed' },
+  { short: 'Tessa', name: 'Rifugio Tessa', alt: '2 870', beds: 48, held: 31, warden: 'L. Pedrini', kind: 'Staffed' },
+  { short: 'Lünz', name: 'Bivacco Lünz', alt: '3 112', beds: 12, held: 9, warden: 'Unstaffed', kind: 'Bivouac' },
+  { short: 'Glatthorn', name: 'Glatthorn Hut', alt: '2 958', beds: 40, held: 40, warden: 'R. Zurbriggen', kind: 'Staffed' },
+  { short: 'Orvé', name: "Cabane d'Orvé", alt: '2 506', beds: 52, held: 27, warden: 'C. Fournier', kind: 'Staffed' },
+  { short: 'Varena', name: 'Alp Varena', alt: '1 980', beds: 60, held: 18, warden: 'J. Arnold', kind: 'Staffed' },
+];
+
+const stages = [
+  { n: '01', from: 0, to: 1, km: '7.8', up: '+ 640', down: '− 210', time: '4 h 10', grade: 'T3', note: 'Larch woods, then the first moraine. Water at the Plan Sura spring.' },
+  { n: '02', from: 1, to: 2, km: '9.4', up: '+ 880', down: '− 650', time: '5 h 40', grade: 'T4', note: 'Over the Furgga col on chains. The weather gate decides this one.' },
+  { n: '03', from: 2, to: 3, km: '5.1', up: '+ 520', down: '− 280', time: '4 h 00', grade: 'T5', note: 'Glacier edge to the bivouac. Rope and helmet. Twelve bunks, no warden.' },
+  { n: '04', from: 3, to: 4, km: '6.6', up: '+ 310', down: '− 460', time: '3 h 50', grade: 'T4', note: 'The high crest itself. Longest views of the route, shortest day.' },
+  { n: '05', from: 4, to: 5, km: '8.9', up: '+ 420', down: '− 870', time: '5 h 00', grade: 'T3', note: "Down the Orvé balcony path. Ibex on the scree most mornings." },
+  { n: '06', from: 5, to: 6, km: '10.2', up: '+ 190', down: '− 720', time: '4 h 20', grade: 'T2', note: 'Pastures, a cheese hut, the post bus at 16:12.' },
+];
+
+const network = [
+  ...huts.map((h, i) => ({ ...h, route: true, status: i === 4 ? 'Full' : 'Open', closes: ['12 Oct', '12 Oct', '05 Oct', 'Year-round', '05 Oct', '19 Oct', '26 Oct'][i] })),
+  { name: 'Cabane du Mélèze', alt: '2 302', beds: 38, held: 0, warden: 'S. Rey', kind: 'Staffed', route: false, status: 'Closed', closes: '28 Sep' },
+  { name: 'Rifugio Corna', alt: '2 455', beds: 30, held: 11, warden: 'P. Bettini', kind: 'Staffed', route: false, status: 'Open', closes: '12 Oct' },
+  { name: 'Bivacco Ghiaccio', alt: '3 260', beds: 8, held: 2, warden: 'Unstaffed', kind: 'Bivouac', route: false, status: 'Open', closes: 'Year-round' },
+  { name: 'Wildsee Hut', alt: '2 588', beds: 44, held: 0, warden: 'T. Kalbermatten', kind: 'Staffed', route: false, status: 'Closed', closes: '28 Sep' },
+  { name: 'Alp Ronc', alt: '2 036', beds: 26, held: 14, warden: 'D. Caduff', kind: 'Staffed', route: false, status: 'Open', closes: '26 Oct' },
+  { name: 'Capanna Pizzo Bianco', alt: '2 712', beds: 36, held: 0, warden: 'G. Lurati', kind: 'Staffed', route: false, status: 'Closed', closes: '21 Sep' },
+  { name: 'Cabane des Aiguilles', alt: '2 840', beds: 32, held: 0, warden: 'É. Mayor', kind: 'Staffed', route: false, status: 'Closed', closes: '28 Sep' },
+];
+const open = network.filter((h) => h.status !== 'Closed').length;
+const totalBeds = network.filter((h) => h.status !== 'Closed').reduce((s, h) => s + h.beds, 0);
+const heldBeds = network.reduce((s, h) => s + h.held, 0);
+const active = 2; // Rifugio Tessa; the pressed stage is the one arriving at the next hut (03, Bivacco Lünz)
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Kammlinie — the Varena crest hut ledger</title>
+    <meta name="description" content="Kammlinie links fourteen alpine huts on the Varena crest. One booking holds a bunk in every hut of your traverse and re-checks the weather gate each morning." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    <script is:inline>document.documentElement.classList.add('js');</script>
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <div class="page">
+      <header class="top">
+        <a class="brand" href="#main" aria-label="Kammlinie home"><i aria-hidden="true"></i>KAMMLINIE</a>
+        <nav aria-label="Primary" class="mono">
+          <a href="#traverse">Traverse</a>
+          <a href="#ledger">Ledger</a>
+          <a href="#network">Huts</a>
+          <a href="#book">Book</a>
+        </nav>
+        <p class="mono top-status"><span class="live" aria-hidden="true"></span>{open}/14 huts open<span class="hide-sm">· season closes 26 Oct</span></p>
+      </header>
+
+      <main id="main">
+        <!-- HERO: split console. Content left, ridge viewport right. -->
+        <section class="hero brk" aria-labelledby="hero-title">
+          <div class="h-head">
+            <p class="kicker mono"><span>01</span>Varena crest / live hut ledger</p>
+            <h1 id="hero-title">
+              <span class="ln"><span>The high route,</span></span>
+              <span class="ln"><span><em>held bed by bed.</em></span></span>
+            </h1>
+          </div>
+
+          <div class="h-viz" id="viz">
+            <canvas id="ridge" aria-hidden="true"></canvas>
+            <div class="viz-fallback mono" aria-hidden="true">Static map · WebGL unavailable</div>
+            <div class="hud hud-tl mono" aria-hidden="true">
+              <span class="hud-tag">VIEWPORT 01</span>
+              <span>Varena crest · 1:25 000</span>
+            </div>
+            <div class="hud hud-tr mono" aria-hidden="true">
+              <span>Scan <b id="scan-x">+00.00</b></span>
+              <span>Contours <b>18</b> · Δ 72 m</span>
+            </div>
+            <div class="callout mono" id="callout" aria-hidden="true">
+              <span class="c-dot"></span>
+              <span><b id="c-name">{huts[active].name}</b><br /><span id="c-meta">{huts[active].alt} m · {huts[active].held}/{huts[active].beds} beds</span></span>
+            </div>
+            <div class="hud hud-bl mono" aria-hidden="true">
+              <span><i class="lg lg-hut"></i>Traverse hut</span>
+              <span><i class="lg lg-net"></i>Network hut</span>
+              <span><i class="lg lg-route"></i>Route</span>
+            </div>
+            <div class="hud hud-br mono" aria-hidden="true">46.38° N · 7.91° E</div>
+            <span class="viz-cross" aria-hidden="true"></span>
+          </div>
+
+          <div class="h-body">
+            <p class="lede">
+              Kammlinie links fourteen staffed huts and bivouacs along the Varena crest. One booking holds a bunk in
+              every hut of your traverse, re-checks the weather gate at 05:30 each morning, and moves you a night if a col closes.
+            </p>
+
+            <div class="stagenav" role="group" aria-label="Haute Varena traverse stages">
+              <p class="mono label">Haute Varena · 6 stages · select to focus</p>
+              <ol>
+                {stages.map((s) => (
+                  <li>
+                    <button
+                      type="button"
+                      class="stage-btn mono"
+                      data-hut={s.to}
+                      data-name={huts[s.to].name}
+                      data-meta={`${huts[s.to].alt} m · ${huts[s.to].held}/${huts[s.to].beds} beds`}
+                      aria-pressed={s.to === active + 1 ? 'true' : 'false'}
+                    >
+                      <span class="sn">{s.n}</span>
+                      <span class="st">{huts[s.from].short} → {huts[s.to].short}</span>
+                      <span class="sg">{s.grade}</span>
+                    </button>
+                  </li>
+                ))}
+              </ol>
+            </div>
+
+            <div class="readouts">
+              <div class="mod">
+                <p class="mono label">Bunks held tonight</p>
+                <p class="big mono">{heldBeds}<small>/{totalBeds}</small></p>
+                <div class="rail" aria-hidden="true"><span style={`width:${Math.round((heldBeds / totalBeds) * 100)}%`}></span></div>
+              </div>
+              <div class="mod">
+                <p class="mono label">Weather gate · 05:30</p>
+                <p class="big mono green">OPEN</p>
+                <p class="mono sub">0 °C at 3 400 m · NW 18 km/h</p>
+              </div>
+              <div class="mod mod-cta">
+                <a class="btn btn-solid" href="#book">Hold a traverse</a>
+                <a class="btn btn-line" href="#traverse">Read the stages</a>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- TRAVERSE -->
+        <section class="sec" id="traverse" aria-labelledby="traverse-title">
+          <div class="sec-head" data-reveal>
+            <p class="kicker mono"><span>02</span>The traverse</p>
+            <div>
+              <h2 id="traverse-title">Six days, seven roofs, <em>one ledger line.</em></h2>
+              <p>48 km and 2 960 m of climbing from the larches above Sorell to the post bus at Alp Varena. Each stage is
+                graded on the SAC hiking scale and timed for an unhurried party of four.</p>
+            </div>
+          </div>
+          <ol class="stages">
+            {stages.map((s, i) => (
+              <li class="stage brk" data-reveal style={`--d:${i * 60}ms`}>
+                <div class="stage-top mono">
+                  <span class="sn">STAGE {s.n}</span>
+                  <span class={`grade g-${s.grade}`}>{s.grade}</span>
+                </div>
+                <h3>{huts[s.from].name} <span aria-hidden="true">→</span><span class="sr">to</span> {huts[s.to].name}</h3>
+                <p>{s.note}</p>
+                <dl class="mono">
+                  <div><dt>Dist</dt><dd>{s.km} km</dd></div>
+                  <div><dt>Up</dt><dd>{s.up} m</dd></div>
+                  <div><dt>Down</dt><dd>{s.down} m</dd></div>
+                  <div><dt>Time</dt><dd>{s.time}</dd></div>
+                </dl>
+                <div class="stage-foot mono">
+                  <span>Arrive {huts[s.to].alt} m</span>
+                  <span>{huts[s.to].held}/{huts[s.to].beds}</span>
+                </div>
+                <div class="rail" aria-hidden="true"><span style={`width:${Math.round((huts[s.to].held / huts[s.to].beds) * 100)}%`}></span></div>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        <!-- LEDGER -->
+        <section class="sec" id="ledger" aria-labelledby="ledger-title">
+          <div class="sec-head" data-reveal>
+            <p class="kicker mono"><span>03</span>How the ledger works</p>
+            <div>
+              <h2 id="ledger-title">A booking is a chain. <em>We keep every link.</em></h2>
+              <p>Hut-to-hut trips fail at the weakest night. The ledger treats your six bunks as one object and keeps
+                them consistent when the mountain changes its mind.</p>
+            </div>
+          </div>
+          <div class="ledger">
+            <article class="lmod brk" data-reveal>
+              <p class="mono label"><span class="step">01</span>Hold</p>
+              <h3>All six nights, or none.</h3>
+              <p>Wardens publish beds to the ledger, not to a calendar. We only confirm when every hut on your line can
+                take your party on the right night — no half-booked traverses.</p>
+              <p class="mono kv"><span>Median hold time</span><b>38 s</b></p>
+            </article>
+            <article class="lmod brk is-active" data-reveal style="--d:80ms">
+              <p class="mono label"><span class="step">02</span>Gate</p>
+              <h3>05:30, every morning.</h3>
+              <p>MeteoSwiss freezing level, wind on the cols and the warden's own look out of the window. Three greens
+                open the gate. One red holds the whole party where it slept.</p>
+              <p class="mono kv"><span>Gates held this season</span><b>11 of 118</b></p>
+            </article>
+            <article class="lmod brk" data-reveal style="--d:160ms">
+              <p class="mono label"><span class="step">03</span>Shift</p>
+              <h3>A closed col moves everyone.</h3>
+              <p>When the gate holds, the rest of your chain slides a night and the freed bunks go back to the wardens
+                within the hour. You get one message, in your language.</p>
+              <p class="mono kv"><span>Re-routed nights refunded</span><b>100 %</b></p>
+            </article>
+            <aside class="tips brk" data-reveal style="--d:240ms" aria-labelledby="tips-title">
+              <p class="mono label" id="tips-title"><span class="live" aria-hidden="true"></span>Before you walk</p>
+              <ul>
+                <li><span class="mono">T5</span>Stage 03 needs a rope, two ice screws per party and a helmet each.</li>
+                <li><span class="mono">CHF</span>Huts take cards; Bivacco Lünz takes an honesty box. Bring 30 in coins.</li>
+                <li><span class="mono">RADIO</span>Wardens call the ledger at 06:40 and 18:40. Late? Tell the hut you left.</li>
+              </ul>
+            </aside>
+          </div>
+        </section>
+
+        <!-- NETWORK -->
+        <section class="sec" id="network" aria-labelledby="network-title">
+          <div class="sec-head" data-reveal>
+            <p class="kicker mono"><span>04</span>The network</p>
+            <div>
+              <h2 id="network-title">Fourteen huts, <em>read live.</em></h2>
+              <p>Bunk counts arrive with the wardens' evening radio call. Highlighted rows are on the Haute Varena line.</p>
+            </div>
+          </div>
+          <div class="table-wrap brk" data-reveal>
+            <table>
+              <caption class="sr">Kammlinie huts with altitude, beds held, warden and closing date</caption>
+              <thead class="mono">
+                <tr><th scope="col">Hut</th><th scope="col">Alt (m)</th><th scope="col">Bunks</th><th scope="col" class="hide-sm">Warden</th><th scope="col" class="hide-sm">Closes</th><th scope="col">Status</th></tr>
+              </thead>
+              <tbody>
+                {network.map((h) => (
+                  <tr class={h.route ? 'on-route' : ''}>
+                    <th scope="row">{h.name}<span class="mono kind">{h.kind}</span></th>
+                    <td class="mono">{h.alt}</td>
+                    <td class="mono">
+                      <span class="cell-bar"><span>{h.held}/{h.beds}</span><i aria-hidden="true"><b style={`width:${Math.round((h.held / h.beds) * 100)}%`}></b></i></span>
+                    </td>
+                    <td class="hide-sm">{h.warden}</td>
+                    <td class="mono hide-sm">{h.closes}</td>
+                    <td class="mono"><span class={`status s-${h.status.toLowerCase()}`}><i aria-hidden="true"></i>{h.status}</span></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- BOOK -->
+        <section class="sec" id="book" aria-labelledby="book-title">
+          <div class="book brk" data-reveal>
+            <div class="book-copy">
+              <p class="kicker mono"><span>05</span>Summer 2027 ledger</p>
+              <h2 id="book-title">Opens 15 January, <em>06:00 CET.</em></h2>
+              <p>Wardens publish their beds the week before. Join the list and we'll send the exact minute your chosen
+                traverse goes live — and nothing else.</p>
+              <form class="signup" onsubmit="event.preventDefault(); this.querySelector('output').textContent = 'You are on the list. One message in January.';">
+                <label class="sr" for="email">E-mail address</label>
+                <input id="email" type="email" required placeholder="you@trailhead.ch" autocomplete="email" />
+                <button class="btn btn-solid" type="submit">Notify me</button>
+                <output class="mono" aria-live="polite"></output>
+              </form>
+            </div>
+            <dl class="book-spec mono">
+              <div><dt>Party size</dt><dd>1–8</dd></div>
+              <div><dt>Hold fee</dt><dd>CHF 12 / night</dd></div>
+              <div><dt>Half-board</dt><dd>CHF 78–96</dd></div>
+              <div><dt>Gate refunds</dt><dd class="green">Full</dd></div>
+              <div><dt>Languages</dt><dd>DE · FR · IT · EN</dd></div>
+            </dl>
+          </div>
+        </section>
+      </main>
+
+      <footer class="foot mono">
+        <span><i class="live" aria-hidden="true"></i>KAMMLINIE · Varena Hut Cooperative</span>
+        <span>Ledger build 26.40 · radio 18:40 received</span>
+        <span>Fictional network, for demonstration</span>
+      </footer>
+    </div>
+    <BackPill />
+
+    <script>
+      import { mount } from '../../components/skills/bright-green-tech-system-webgl/ridge';
+
+      const canvas = document.getElementById('ridge') as HTMLCanvasElement;
+      const viz = document.getElementById('viz')!;
+      const callout = document.getElementById('callout')!;
+      const scan = document.getElementById('scan-x')!;
+      const cName = document.getElementById('c-name')!;
+      const cMeta = document.getElementById('c-meta')!;
+
+      let lastScan = '';
+      const ridge = mount(canvas, {
+        onFrame(x, y, beam) {
+          callout.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px)`;
+          const s = (beam >= 0 ? '+' : '−') + Math.abs(beam).toFixed(2).padStart(5, '0');
+          if (s !== lastScan) { scan.textContent = s; lastScan = s; }
+        },
+      });
+      if (!ridge) viz.classList.add('no-gl');
+
+      const buttons = [...document.querySelectorAll<HTMLButtonElement>('.stage-btn')];
+      buttons.forEach((b) =>
+        b.addEventListener('click', () => {
+          buttons.forEach((o) => o.setAttribute('aria-pressed', String(o === b)));
+          cName.textContent = b.dataset.name ?? '';
+          cMeta.textContent = b.dataset.meta ?? '';
+          ridge?.select(Number(b.dataset.hut));
+        }),
+      );
+      // Initial focus matches the pressed stage.
+      const first = buttons.find((b) => b.getAttribute('aria-pressed') === 'true');
+      if (first) {
+        cName.textContent = first.dataset.name ?? '';
+        cMeta.textContent = first.dataset.meta ?? '';
+        ridge?.select(Number(first.dataset.hut));
+      }
+
+      // Fade-up reveals.
+      const io = new IntersectionObserver(
+        (entries) => entries.forEach((e) => e.isIntersecting && (e.target.classList.add('in'), io.unobserve(e.target))),
+        { rootMargin: '0px 0px -8% 0px' },
+      );
+      document.querySelectorAll('[data-reveal]').forEach((el) => io.observe(el));
+    </script>
+
+    <style is:global>
+      :root {
+        --bg: #070909;
+        --panel: #0b0e0e;
+        --panel-2: #101414;
+        --line: rgb(226 255 214 / 0.1);
+        --line-2: rgb(226 255 214 / 0.2);
+        --ink: #edf2ec;
+        --muted: #8c958e;
+        --dim: #5d665f;
+        --green: #b6ff3b;
+        --green-soft: rgb(182 255 59 / 0.14);
+        --sans: 'Geist', ui-sans-serif, system-ui, sans-serif;
+        --mono: 'Geist Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+        color-scheme: dark;
+      }
+      html { background: var(--bg); }
+      body {
+        margin: 0;
+        background:
+          radial-gradient(60% 50% at 78% 8%, rgb(182 255 59 / 0.06), transparent 70%),
+          repeating-linear-gradient(135deg, rgb(255 255 255 / 0.012) 0 1px, transparent 1px 9px),
+          var(--bg);
+        color: var(--ink);
+        font-family: var(--sans);
+        -webkit-font-smoothing: antialiased;
+        overflow-x: clip;
+      }
+      ::selection { background: var(--green); color: #0b0e0e; }
+      a { color: inherit; }
+      :focus-visible { outline: 1.5px solid var(--green); outline-offset: 3px; }
+      .mono { font-family: var(--mono); }
+      .green { color: var(--green); }
+      .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+      .skip { position: absolute; left: 12px; top: -40px; z-index: 50; background: var(--green); color: #000; padding: 8px 12px; font: 600 13px var(--mono); }
+      .skip:focus { top: 12px; }
+      em { font-style: normal; color: var(--green); }
+
+      .page { width: min(1440px, 100%); margin: 0 auto; padding: 0 24px 24px; box-sizing: border-box; }
+
+      /* Corner brackets on any framed module */
+      .brk { position: relative; border: 1px solid var(--line); }
+      .brk::before {
+        content: ''; position: absolute; inset: -1px; pointer-events: none; z-index: 3;
+        --c: var(--line-2); --s: 10px;
+        background:
+          linear-gradient(var(--c), var(--c)) top left / var(--s) 1px no-repeat,
+          linear-gradient(var(--c), var(--c)) top left / 1px var(--s) no-repeat,
+          linear-gradient(var(--c), var(--c)) top right / var(--s) 1px no-repeat,
+          linear-gradient(var(--c), var(--c)) top right / 1px var(--s) no-repeat,
+          linear-gradient(var(--c), var(--c)) bottom left / var(--s) 1px no-repeat,
+          linear-gradient(var(--c), var(--c)) bottom left / 1px var(--s) no-repeat,
+          linear-gradient(var(--c), var(--c)) bottom right / var(--s) 1px no-repeat,
+          linear-gradient(var(--c), var(--c)) bottom right / 1px var(--s) no-repeat;
+      }
+      .hero.brk::before { --c: var(--green); --s: 16px; }
+
+      /* Top bar */
+      .top { display: flex; align-items: center; justify-content: space-between; gap: 24px; height: 64px; border-bottom: 1px solid var(--line); }
+      .brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font: 600 13px/1 var(--mono); letter-spacing: 0.22em; }
+      .brand i { width: 10px; height: 10px; background: var(--green); box-shadow: 0 0 18px var(--green); }
+      .top nav { display: flex; gap: 28px; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; }
+      .top nav a { text-decoration: none; color: var(--muted); }
+      .top nav a:hover { color: var(--ink); }
+      .top-status { margin: 0; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); display: flex; align-items: center; gap: 8px; }
+      .live { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--green); box-shadow: 0 0 10px var(--green); animation: blink 2.4s ease-in-out infinite; flex: none; }
+      @keyframes blink { 50% { opacity: 0.35; } }
+
+      /* Hero console */
+      .hero {
+        margin-top: 20px;
+        display: grid;
+        grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+        grid-template-areas: 'head viz' 'body viz';
+        grid-template-rows: auto 1fr;
+        min-height: calc(100svh - 64px - 44px);
+        background: rgb(11 14 14 / 0.7);
+        backdrop-filter: blur(6px);
+      }
+      .h-head { grid-area: head; padding: 44px 40px 0; border-right: 1px solid var(--line); }
+      .h-body { grid-area: body; padding: 28px 40px 36px; border-right: 1px solid var(--line); display: flex; flex-direction: column; gap: 26px; justify-content: flex-end; }
+      .h-viz { grid-area: viz; position: relative; min-height: 520px; overflow: hidden;
+        background: radial-gradient(80% 70% at 50% 60%, #0d1311, #080b0b); }
+      #ridge { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+
+      .kicker { display: flex; align-items: center; gap: 12px; margin: 0 0 22px; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+      .kicker span { color: var(--bg); background: var(--green); padding: 3px 6px; font-weight: 600; letter-spacing: 0.06em; }
+      h1 { margin: 0; font-weight: 500; font-size: clamp(42px, 4.9vw, 78px); line-height: 0.95; letter-spacing: -0.045em; }
+      h1 .ln { display: block; overflow: hidden; padding-bottom: 0.06em; }
+      h1 .ln > span { display: inline-block; }
+      .lede { margin: 0; color: var(--muted); font-size: 16px; line-height: 1.6; max-width: 46ch; }
+      .label { margin: 0 0 10px; font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--dim); display: flex; align-items: center; gap: 8px; }
+
+      .stagenav ol { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
+      .stage-btn {
+        width: 100%; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px;
+        padding: 11px 12px; background: transparent; color: var(--muted); cursor: pointer; text-align: left;
+        border: 0; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line);
+        font-size: 12px; letter-spacing: 0.02em; transition: background 0.2s, color 0.2s;
+      }
+      .stage-btn:hover { background: rgb(255 255 255 / 0.03); color: var(--ink); }
+      .stage-btn:focus-visible { outline-offset: -3px; }
+      .stage-btn .sn { color: var(--dim); }
+      .stage-btn .st { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .stage-btn .sg { font-size: 10px; padding: 2px 5px; border: 1px solid var(--line-2); }
+      .stage-btn[aria-pressed='true'] { background: var(--green-soft); color: var(--ink); box-shadow: inset 2px 0 0 var(--green); }
+      .stage-btn[aria-pressed='true'] .sn, .stage-btn[aria-pressed='true'] .sg { color: var(--green); border-color: var(--green); }
+
+      .readouts { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--line); }
+      .mod { padding: 14px 16px; }
+      .mod + .mod { border-left: 1px solid var(--line); }
+      .mod .label { margin-bottom: 8px; }
+      .big { margin: 0; font-size: 26px; font-weight: 500; letter-spacing: -0.02em; }
+      .big small { font-size: 14px; color: var(--dim); }
+      .sub { margin: 6px 0 0; font-size: 11px; color: var(--muted); }
+      .rail { height: 3px; background: rgb(255 255 255 / 0.07); margin-top: 12px; }
+      .rail span { display: block; height: 100%; background: var(--green); box-shadow: 0 0 10px rgb(182 255 59 / 0.6); }
+      .mod-cta { grid-column: 1 / -1; border-left: 0 !important; border-top: 1px solid var(--line); display: flex; gap: 10px; flex-wrap: wrap; }
+      .btn { display: inline-flex; align-items: center; justify-content: center; height: 42px; padding: 0 18px; font: 500 13px var(--mono); letter-spacing: 0.04em; text-decoration: none; border: 1px solid var(--line-2); cursor: pointer; transition: background 0.2s, color 0.2s, border-color 0.2s; }
+      .btn-solid { background: var(--green); color: #0a0d0a; border-color: var(--green); }
+      .btn-solid:hover { background: #cbff6e; }
+      .btn-line { background: transparent; color: var(--ink); }
+      .btn-line:hover { border-color: var(--green); color: var(--green); }
+
+      /* Viewport HUD */
+      .hud { position: absolute; z-index: 2; display: flex; flex-direction: column; gap: 4px; font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); pointer-events: none; }
+      .hud b { color: var(--green); font-weight: 500; }
+      .hud-tl { top: 18px; left: 20px; }
+      .hud-tag { color: var(--ink); }
+      .hud-tr { top: 18px; right: 20px; text-align: right; }
+      .hud-bl { bottom: 18px; left: 20px; flex-direction: row; gap: 16px; flex-wrap: wrap; }
+      .hud-br { bottom: 18px; right: 20px; }
+      .lg { display: inline-block; width: 7px; height: 7px; margin-right: 6px; vertical-align: 0; }
+      .lg-hut { background: var(--green); border-radius: 50%; box-shadow: 0 0 8px var(--green); }
+      .lg-net { background: #c4ccc6; border-radius: 50%; opacity: 0.7; }
+      .lg-route { width: 14px; height: 0; border-top: 1px dashed var(--green); vertical-align: 3px; }
+      .viz-cross { position: absolute; inset: 0; pointer-events: none; z-index: 1;
+        background:
+          linear-gradient(var(--line), var(--line)) 50% 0 / 1px 100% no-repeat,
+          linear-gradient(var(--line), var(--line)) 0 50% / 100% 1px no-repeat;
+        opacity: 0.5; mask: linear-gradient(transparent, #000 20%, #000 80%, transparent); }
+      .callout { position: absolute; left: 0; top: 0; z-index: 2; pointer-events: none; display: flex; gap: 8px; align-items: flex-start;
+        font-size: 10.5px; letter-spacing: 0.06em; line-height: 1.5; color: var(--muted); text-transform: uppercase;
+        padding: 0 0 0 0; will-change: transform; }
+      .callout > span:last-child { margin-top: -6px; padding: 6px 9px; background: rgb(8 11 11 / 0.8); border: 1px solid var(--line-2); border-left: 2px solid var(--green); white-space: nowrap; }
+      .callout b { color: var(--ink); font-weight: 500; }
+      .c-dot { width: 7px; height: 7px; margin: -3.5px 0 0 -3.5px; background: var(--green); box-shadow: 0 0 12px var(--green); flex: none; }
+      .viz-fallback { display: none; }
+      .no-gl .viz-fallback { display: grid; place-items: center; position: absolute; inset: 0; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim);
+        background: repeating-radial-gradient(ellipse at 52% 70%, transparent 0 18px, rgb(182 255 59 / 0.18) 18px 19px), #080b0b; }
+      .no-gl .callout { display: none; }
+
+      /* Sections */
+      .sec { padding: 112px 0 0; }
+      .sec-head { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 40px; padding-bottom: 36px; margin-bottom: 36px; border-bottom: 1px solid var(--line); }
+      .sec-head .kicker { align-self: start; padding-top: 10px; }
+      h2 { margin: 0 0 16px; font-weight: 500; font-size: clamp(32px, 3.6vw, 54px); line-height: 1; letter-spacing: -0.04em; max-width: 18ch; }
+      .sec-head p:not(.kicker) { margin: 0; color: var(--muted); font-size: 16px; line-height: 1.6; max-width: 56ch; }
+
+      .stages { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+      .stage { padding: 22px; background: var(--panel); display: flex; flex-direction: column; gap: 12px; transition: border-color 0.25s; }
+      .stage:hover { border-color: var(--line-2); }
+      .stage-top { display: flex; justify-content: space-between; align-items: center; font-size: 11px; letter-spacing: 0.12em; color: var(--dim); }
+      .grade { padding: 2px 6px; border: 1px solid var(--line-2); color: var(--muted); }
+      .g-T5 { color: var(--bg); background: var(--green); border-color: var(--green); }
+      .g-T4 { color: var(--green); border-color: rgb(182 255 59 / 0.5); }
+      .stage h3 { margin: 4px 0 0; font-size: 20px; font-weight: 500; letter-spacing: -0.02em; line-height: 1.2; }
+      .stage h3 span[aria-hidden] { color: var(--green); }
+      .stage > p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.55; flex: 1; }
+      .stage dl { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 6px 0 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+      .stage dl div { padding: 10px 0; }
+      .stage dl div + div { border-left: 1px solid var(--line); padding-left: 10px; }
+      .stage dt { font-size: 10px; color: var(--dim); text-transform: uppercase; letter-spacing: 0.12em; }
+      .stage dd { margin: 4px 0 0; font-size: 13px; white-space: nowrap; }
+      .stage-foot { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); letter-spacing: 0.06em; }
+      .stage .rail { margin-top: 0; }
+
+      .ledger { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+      .lmod, .tips { padding: 24px; background: var(--panel); display: flex; flex-direction: column; }
+      .lmod .label, .tips .label { color: var(--muted); }
+      .step { color: var(--dim); }
+      .lmod.is-active { background: linear-gradient(180deg, rgb(182 255 59 / 0.07), transparent 60%), var(--panel); }
+      .lmod.is-active::before { --c: var(--green); }
+      .lmod.is-active .step { color: var(--green); }
+      .lmod h3 { margin: 10px 0 12px; font-size: 22px; font-weight: 500; letter-spacing: -0.025em; line-height: 1.15; }
+      .lmod > p:not(.label):not(.kv) { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.6; flex: 1; }
+      .kv { display: flex; justify-content: space-between; gap: 12px; margin: 22px 0 0; padding-top: 12px; border-top: 1px dashed var(--line-2); font-size: 11.5px; color: var(--dim); text-transform: uppercase; letter-spacing: 0.06em; }
+      .kv b { color: var(--green); font-weight: 500; }
+      .tips { background: var(--panel-2); }
+      .tips ul { list-style: none; margin: 4px 0 0; padding: 0; display: grid; gap: 14px; }
+      .tips li { font-size: 13.5px; line-height: 1.5; color: var(--ink); display: grid; grid-template-columns: 52px 1fr; gap: 10px; }
+      .tips li span { font-size: 10.5px; color: var(--green); letter-spacing: 0.08em; padding-top: 2px; }
+
+      .table-wrap { background: var(--panel); overflow-x: auto; }
+      table { width: 100%; border-collapse: collapse; font-size: 14px; }
+      thead th { font-size: 10.5px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--dim); text-align: left; padding: 14px 18px; border-bottom: 1px solid var(--line-2); }
+      tbody th, tbody td { padding: 13px 18px; border-bottom: 1px solid var(--line); text-align: left; font-weight: 400; color: var(--muted); }
+      tbody tr:last-child > * { border-bottom: 0; }
+      tbody th { color: var(--ink); font-weight: 500; }
+      .kind { display: block; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim); margin-top: 3px; font-weight: 400; }
+      tr.on-route { background: linear-gradient(90deg, rgb(182 255 59 / 0.05), transparent 50%); }
+      tr.on-route th { box-shadow: inset 2px 0 0 var(--green); }
+      .cell-bar { display: inline-flex; align-items: center; gap: 10px; }
+      .cell-bar span { min-width: 44px; }
+      .cell-bar i { width: 72px; height: 3px; background: rgb(255 255 255 / 0.07); }
+      .cell-bar b { display: block; height: 100%; background: var(--green); }
+      .status { display: inline-flex; align-items: center; gap: 7px; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; }
+      .status i { width: 6px; height: 6px; border-radius: 50%; }
+      .s-open { color: var(--green); } .s-open i { background: var(--green); box-shadow: 0 0 8px var(--green); }
+      .s-full { color: #e9eedf; } .s-full i { background: #e9eedf; }
+      .s-closed { color: var(--dim); } .s-closed i { border: 1px solid var(--dim); }
+
+      .book { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); background:
+          radial-gradient(70% 120% at 0% 100%, rgb(182 255 59 / 0.08), transparent 60%), var(--panel); }
+      .book::before { --c: var(--green); --s: 16px; }
+      .book-copy { padding: 48px 44px; border-right: 1px solid var(--line); }
+      .book-copy > p:not(.kicker) { color: var(--muted); font-size: 16px; line-height: 1.6; max-width: 48ch; margin: 0 0 28px; }
+      .signup { display: flex; flex-wrap: wrap; gap: 10px; max-width: 520px; }
+      .signup input { flex: 1 1 220px; min-width: 0; height: 42px; padding: 0 14px; background: #070909; color: var(--ink); border: 1px solid var(--line-2); font: 14px var(--mono); }
+      .signup input:focus-visible { outline-offset: 0; border-color: var(--green); }
+      .signup output { flex-basis: 100%; font-size: 12px; color: var(--green); min-height: 1em; }
+      .book-spec { margin: 0; padding: 48px 44px; display: grid; align-content: center; }
+      .book-spec div { display: flex; justify-content: space-between; gap: 16px; padding: 13px 0; border-bottom: 1px solid var(--line); font-size: 13px; }
+      .book-spec dt { color: var(--dim); text-transform: uppercase; letter-spacing: 0.1em; font-size: 11px; }
+      .book-spec dd { margin: 0; }
+
+      .foot { margin-top: 80px; padding: 20px 0 8px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--dim); }
+      .foot span { display: inline-flex; align-items: center; gap: 8px; }
+
+      /* Motion: masked line reveal + fade-up, all off under reduced motion */
+      @media (prefers-reduced-motion: no-preference) {
+        h1 .ln > span { animation: rise 0.9s cubic-bezier(0.2, 0.7, 0.1, 1) both; }
+        h1 .ln:nth-child(2) > span { animation-delay: 0.12s; }
+        .h-body > * { animation: fade 0.8s cubic-bezier(0.2, 0.7, 0.1, 1) both; }
+        .h-body > :nth-child(2) { animation-delay: 0.18s; }
+        .h-body > :nth-child(3) { animation-delay: 0.3s; }
+        .hud, .callout { animation: fadeIn 1.2s 0.4s both; }
+        .js [data-reveal] { opacity: 0; transform: translateY(18px); transition: opacity 0.7s cubic-bezier(0.2, 0.7, 0.1, 1) var(--d, 0ms), transform 0.7s cubic-bezier(0.2, 0.7, 0.1, 1) var(--d, 0ms); }
+        .js [data-reveal].in { opacity: 1; transform: none; }
+      }
+      @media (prefers-reduced-motion: reduce) { .live { animation: none; } }
+      @keyframes rise { from { transform: translateY(105%); } }
+      @keyframes fade { from { opacity: 0; transform: translateY(14px); } }
+      @keyframes fadeIn { from { opacity: 0; } }
+
+      /* Responsive */
+      @media (max-width: 1100px) {
+        .top nav { display: none; }
+        .stages { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .ledger { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      }
+      @media (max-width: 860px) {
+        .page { padding: 0 16px 16px; }
+        .hero { grid-template-columns: minmax(0, 1fr); grid-template-areas: 'head' 'viz' 'body'; grid-template-rows: auto auto auto; min-height: 0; margin-top: 14px; }
+        .h-head { padding: 28px 20px 24px; border-right: 0; border-bottom: 1px solid var(--line); }
+        .h-body { padding: 24px 20px 24px; border-right: 0; border-top: 1px solid var(--line); }
+        .h-viz { min-height: 0; height: 58svh; max-height: 520px; }
+        h1 { font-size: clamp(38px, 11vw, 56px); }
+        .hud-br, .hud-tr span:last-child { display: none; }
+        .sec { padding-top: 80px; }
+        .sec-head { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+        .book { grid-template-columns: minmax(0, 1fr); }
+        .book-copy { border-right: 0; border-bottom: 1px solid var(--line); padding: 32px 22px; }
+        .book-spec { padding: 16px 22px 24px; }
+      }
+      @media (max-width: 620px) {
+        .stagenav ol { grid-template-columns: minmax(0, 1fr); }
+                .stages, .ledger { grid-template-columns: minmax(0, 1fr); }
+        .hide-sm { display: none; }
+        tbody th, tbody td, thead th { padding: 12px 10px; }
+        .cell-bar i { display: none; }
+        .readouts .big { font-size: 22px; }
+        .hud-bl { gap: 10px; font-size: 9.5px; }
+      }
+    </style>
+  </body>
+</html>

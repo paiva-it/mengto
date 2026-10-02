@@ -1,0 +1,238 @@
+---
+import '../../styles/global.css';
+import BackPill from '../../components/BackPill.astro';
+import { HeroActions, ResponseConsole, RetainerPicker } from '../../components/skills/liquid-metal-border/Anneal';
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Anneal — incident response that holds the line</title>
+    <meta name="description" content="Anneal is a 38-person incident response team: on your bridge in 40 minutes, containment in the first hour, and one honest account of what happened." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  </head>
+  <body class="an">
+    <header class="an-nav an-wrap">
+      <a class="an-logo" href="#top" aria-label="Anneal home">
+        <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="9.25" fill="none" stroke="currentColor" stroke-width="1.5" /><circle cx="11" cy="11" r="5" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".55" /><circle cx="11" cy="11" r="1.6" fill="currentColor" /></svg>
+        Anneal
+      </a>
+      <nav aria-label="Primary">
+        <a href="#how">How we respond</a>
+        <a href="#retainers">Retainers</a>
+        <a href="#report">Contact</a>
+      </nav>
+      <a class="an-hotline an-mono" href="tel:+31107990412">+31 10 799 0412</a>
+    </header>
+
+    <main id="top">
+      <section class="an-hero an-wrap">
+        <div class="an-hero-copy">
+          <p class="an-eyebrow an-mono">Incident response · adversary emulation · Rotterdam / Austin</p>
+          <h1>We hold the line while you find out what&nbsp;happened.</h1>
+          <p class="an-lede">Anneal is a 38-person response team. We are on your bridge within 40 minutes of the call, contain the intruder in the first hour, rebuild what they touched, and write the one account your board, insurer and regulator can each actually read.</p>
+          <HeroActions client:load />
+          <p class="an-note an-mono an-dim">Hotline answered by a responder, never a queue · 24/7/365</p>
+        </div>
+        <div class="an-hero-console">
+          <ResponseConsole client:load />
+          <p class="an-caption an-mono an-dim">A real engagement, anonymised. Step through the phases with ← →.</p>
+        </div>
+      </section>
+
+      <section id="how" class="an-section an-wrap">
+        <div class="an-section-head">
+          <p class="an-eyebrow an-mono">How we respond</p>
+          <h2>Heat, then patience. That’s what annealing is.</h2>
+          <p class="an-dim">Metal is annealed by heating it fast and cooling it slowly, so it comes out tougher than it went in. An incident runs the same way: the first hour is all speed, the next week is careful, unglamorous work.</p>
+        </div>
+        <ol class="an-steps">
+          <li><span class="an-mono an-dim">01 · first 40 min</span><h3>Bridge</h3><p>A senior responder joins your call, takes the timeline and says out loud what we’ll do in the next hour.</p></li>
+          <li><span class="an-mono an-dim">02 · first hour</span><h3>Contain</h3><p>Accounts disabled, hosts cut off at the switch, egress closed. We stop the bleeding before we study the wound.</p></li>
+          <li><span class="an-mono an-dim">03 · days 1–5</span><h3>Eradicate</h3><p>Every persistence mechanism found and pulled, every forged credential voided, every endpoint hunted.</p></li>
+          <li><span class="an-mono an-dim">04 · week 2</span><h3>Account</h3><p>One document, three readers: a board brief, an insurer’s chronology and a regulator’s notice, all agreeing.</p></li>
+        </ol>
+      </section>
+
+      <section id="retainers" class="an-section an-wrap">
+        <div class="an-section-head">
+          <p class="an-eyebrow an-mono">Retainers</p>
+          <h2>Know who picks up before you need them to.</h2>
+          <p class="an-dim">Unused hours roll into a purple-team week, so a quiet year still leaves you harder to break into.</p>
+        </div>
+        <RetainerPicker client:load />
+      </section>
+
+      <section id="report" class="an-section an-wrap an-final">
+        <div>
+          <p class="an-eyebrow an-mono">Under attack right now?</p>
+          <h2>Call. Don’t fill in a form.</h2>
+        </div>
+        <div class="an-final-contact">
+          <a class="an-big-tel" href="tel:+31107990412">+31 10 799 0412</a>
+          <p class="an-mono an-dim">EU · answered in Rotterdam</p>
+          <a class="an-big-tel" href="tel:+15125550178">+1 512 555 0178</a>
+          <p class="an-mono an-dim">Americas · answered in Austin</p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="an-foot an-wrap an-mono an-dim">
+      <span>Anneal Response Group B.V. — a fictional firm</span>
+      <span>0 ransoms paid by retained clients since 2019</span>
+    </footer>
+    <BackPill />
+  </body>
+</html>
+
+<style is:global>
+  :root {
+    --an-bg: #0b0b0c;
+    --an-surface: #141416;
+    --an-raised: #1c1c1f;
+    --an-line: rgb(255 255 255 / 0.09);
+    --an-text: #f4f4f5;
+    --an-dim: #8b8b94;
+    --an-signal: #ff5b4d;
+  }
+  html { background: var(--an-bg); }
+  body.an {
+    margin: 0;
+    background:
+      radial-gradient(60rem 40rem at 78% 18%, rgb(255 255 255 / 0.055), transparent 60%),
+      radial-gradient(40rem 30rem at 10% 110%, rgb(255 255 255 / 0.03), transparent 70%),
+      var(--an-bg);
+    color: var(--an-text);
+    font-family: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: clip;
+  }
+  .an a { color: inherit; }
+  .an-mono { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 12px; letter-spacing: 0.02em; }
+  .an-dim { color: var(--an-dim); }
+  .an-wrap { width: min(1280px, 100% - 32px); margin-inline: auto; }
+  @media (min-width: 768px) { .an-wrap { width: min(1280px, 100% - 80px); } }
+
+  /* nav */
+  .an-nav { display: flex; align-items: center; gap: 32px; height: 72px; }
+  .an-logo { display: inline-flex; align-items: center; gap: 10px; font-weight: 600; font-size: 18px; letter-spacing: -0.01em; text-decoration: none; }
+  .an-nav nav { display: none; gap: 28px; margin-left: auto; }
+  .an-nav nav a { color: var(--an-dim); text-decoration: none; font-size: 14px; }
+  .an-nav nav a:hover { color: var(--an-text); }
+  .an-hotline { margin-left: auto; text-decoration: none; padding: 8px 12px; border-radius: 999px; box-shadow: inset 0 0 0 1px var(--an-line); }
+  @media (min-width: 860px) { .an-nav nav { display: flex; } .an-hotline { margin-left: 0; } }
+  .an a:focus-visible, .an button:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+
+  /* hero */
+  .an-hero { display: grid; gap: 48px; padding: 40px 0 72px; align-items: center; }
+  @media (min-width: 1080px) { .an-hero { grid-template-columns: 1fr 560px; gap: 64px; padding: 56px 0 96px; } }
+  .an-eyebrow { color: var(--an-dim); text-transform: uppercase; letter-spacing: 0.08em; font-size: 11px; margin: 0 0 20px; }
+  .an h1 { font-size: clamp(40px, 6.4vw, 76px); line-height: 0.98; letter-spacing: -0.035em; font-weight: 500; margin: 0; max-width: 12ch; text-wrap: balance; }
+  .an-lede { font-size: 17px; line-height: 1.55; color: #c4c4cb; max-width: 50ch; margin: 28px 0 36px; }
+  .an-note { margin: 22px 0 0; }
+  .an-caption { margin: 14px 4px 0; }
+
+  .an-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; }
+  .metal-fx-root.an-cta-frame, .metal-fx-fallback.an-cta-frame { background: #18181b; border-radius: 999px; }
+  .metal-fx-fallback.an-cta-frame { box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.28); }
+  .an-cta {
+    display: inline-flex; align-items: center; gap: 10px; min-height: 52px; padding: 0 26px;
+    border-radius: 999px; background: transparent; border: 0; box-shadow: none;
+    font-weight: 500; font-size: 15px; text-decoration: none; color: #fafafa;
+  }
+  .an-pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--an-signal); box-shadow: 0 0 0 0 rgb(255 91 77 / 0.6); animation: an-pulse 2s infinite; }
+  @keyframes an-pulse { 70% { box-shadow: 0 0 0 8px rgb(255 91 77 / 0); } 100% { box-shadow: 0 0 0 0 rgb(255 91 77 / 0); } }
+  .an-ghost {
+    display: inline-flex; align-items: center; min-height: 52px; padding: 0 24px; border-radius: 999px;
+    background: var(--an-surface); box-shadow: inset 0 0 0 1px var(--an-line); text-decoration: none; font-size: 15px;
+  }
+  .an-ghost:hover { background: var(--an-raised); }
+
+  /* console */
+  .metal-fx-root.an-console-frame, .metal-fx-fallback.an-console-frame {
+    display: flex; width: 100%; border-radius: 22px;
+    background: linear-gradient(180deg, #17171a, #111113);
+    box-shadow: 0 40px 80px -30px rgb(0 0 0 / 0.8), 0 0 0 1px rgb(0 0 0 / 0.6);
+  }
+  .metal-fx-fallback.an-console-frame { box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.16), 0 40px 80px -30px rgb(0 0 0 / 0.8); }
+  .an-console { width: 100%; padding: 26px; background: transparent; border-radius: 22px; box-sizing: border-box; }
+  @media (max-width: 520px) { .an-console { padding: 20px 18px; } }
+  .an-console-head { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; }
+  .an-console-head p { margin: 0; }
+  .an-console-head h2 { font-size: 20px; font-weight: 500; letter-spacing: -0.015em; margin: 8px 0 6px; }
+  .an-status { display: inline-flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 999px; background: rgb(255 91 77 / 0.1); color: #ffb3ab; white-space: nowrap; }
+  .an-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--an-signal); }
+
+  .an-tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin: 24px 0 22px; }
+  .metal-fx-root.an-tab-frame, .metal-fx-fallback.an-tab-frame { display: flex; background: #1a1a1d; border-radius: 999px; transition: background 0.2s; }
+  .an-tab-frame:has([aria-selected='true']) { background: #232327 !important; }
+  .metal-fx-fallback.an-tab-frame { box-shadow: inset 0 0 0 1px var(--an-line); }
+  .metal-fx-fallback.an-tab-frame:has([aria-selected='true']) { box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.5); }
+  .an-tab {
+    width: 100%; min-height: 40px; padding: 0 10px; border-radius: 999px; border: 0; box-shadow: none; background: transparent;
+    color: var(--an-dim); font: 500 14px/1 'Instrument Sans', sans-serif; cursor: pointer;
+  }
+  .an-tab[aria-selected='true'] { color: #fff; font-weight: 600; }
+  @media (max-width: 420px) { .an-tab { font-size: 12.5px; padding: 0 4px; } }
+
+  .an-window { margin: 0 0 12px; }
+  .an-events { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--an-line); }
+  .an-events li { display: grid; grid-template-columns: 56px 1fr; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--an-line); font-size: 14.5px; line-height: 1.45; color: #d6d6dc; }
+  .an-events time { color: var(--an-dim); padding-top: 2px; }
+  .an-metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 18px 0 0; }
+  .an-metrics div { padding: 12px 14px; border-radius: 12px; background: rgb(255 255 255 / 0.03); box-shadow: inset 0 0 0 1px var(--an-line); }
+  .an-metrics dt { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .an-metrics dd { margin: 6px 0 0; font-size: 20px; font-weight: 500; letter-spacing: -0.02em; }
+  @media (max-width: 520px) { .an-metrics dd { font-size: 16px; } .an-metrics div { padding: 10px; } }
+
+  /* sections */
+  .an-section { padding: 88px 0; border-top: 1px solid var(--an-line); }
+  .an-section-head { display: grid; gap: 14px; max-width: 760px; margin-bottom: 48px; }
+  .an-section-head .an-eyebrow { margin: 0; }
+  .an h2 { font-weight: 500; letter-spacing: -0.03em; }
+  .an-section-head h2 { font-size: clamp(30px, 4vw, 48px); line-height: 1.04; margin: 0; text-wrap: balance; }
+  .an-section-head p.an-dim { font-size: 16px; line-height: 1.6; margin: 0; max-width: 60ch; }
+  .an-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 1px; background: var(--an-line); border-radius: 18px; overflow: hidden; }
+  @media (min-width: 760px) { .an-steps { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1080px) { .an-steps { grid-template-columns: repeat(4, 1fr); } }
+  .an-steps li { background: var(--an-bg); padding: 28px 24px 32px; }
+  .an-steps h3 { font-size: 22px; font-weight: 500; letter-spacing: -0.02em; margin: 28px 0 10px; }
+  .an-steps p { margin: 0; color: #b9b9c1; line-height: 1.55; font-size: 15px; }
+
+  .an-plans { display: grid; gap: 16px; }
+  @media (min-width: 900px) { .an-plans { grid-template-columns: repeat(3, 1fr); } }
+  .metal-fx-root.an-plan-frame, .metal-fx-fallback.an-plan-frame { display: flex; width: 100%; background: var(--an-surface); border-radius: 20px; }
+  .an-plan-frame:has([aria-checked='true']) { background: linear-gradient(180deg, #1d1d21, #141416) !important; }
+  .metal-fx-fallback.an-plan-frame { box-shadow: inset 0 0 0 1px var(--an-line); }
+  .metal-fx-fallback.an-plan-frame:has([aria-checked='true']) { box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.5); }
+  .an-plan {
+    display: flex; flex-direction: column; gap: 14px; width: 100%; text-align: left; padding: 26px; border-radius: 20px;
+    background: transparent; border: 0; box-shadow: none; color: var(--an-text); font: inherit; cursor: pointer;
+  }
+  .an-plan-top { display: flex; justify-content: space-between; align-items: center; }
+  .an-plan-name { font-size: 15px; font-weight: 600; }
+  .an-radio { width: 16px; height: 16px; border-radius: 50%; box-shadow: inset 0 0 0 1.5px rgb(255 255 255 / 0.3); }
+  .an-plan[aria-checked='true'] .an-radio { box-shadow: inset 0 0 0 5px #fff; }
+  .an-plan-price { font-size: 44px; font-weight: 500; letter-spacing: -0.04em; }
+  .an-plan-price small { font-size: 14px; letter-spacing: 0; }
+  .an-plan-pitch { color: #b9b9c1; line-height: 1.5; font-size: 15px; min-height: 3em; }
+  .an-plan-lines { display: grid; gap: 8px; padding-top: 14px; border-top: 1px solid var(--an-line); font-size: 14px; color: #d6d6dc; }
+  .an-plan-lines span::before { content: '— '; color: var(--an-dim); }
+  .an-plan-summary { margin: 22px 0 0; color: var(--an-dim); }
+  .an-plan-summary strong { color: var(--an-text); font-weight: 500; }
+
+  .an-final { display: grid; gap: 32px; align-items: end; }
+  @media (min-width: 900px) { .an-final { grid-template-columns: 1fr 1fr; } }
+  .an-final h2 { font-size: clamp(36px, 5vw, 64px); line-height: 1; margin: 0; }
+  .an-final-contact p { margin: 4px 0 20px; }
+  .an-big-tel { font-size: clamp(26px, 3.4vw, 40px); letter-spacing: -0.02em; text-decoration: none; font-weight: 500; }
+  .an-big-tel:hover { text-decoration: underline; text-underline-offset: 6px; text-decoration-thickness: 1px; }
+  .an-foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; padding: 28px 0 72px; border-top: 1px solid var(--an-line); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .an-pulse { animation: none; }
+    .an-tab-frame, .an-plan-frame { transition: none; }
+  }
+</style>

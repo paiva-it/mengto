@@ -1,0 +1,590 @@
+---
+import '../../styles/global.css';
+import BackPill from '../../components/BackPill.astro';
+
+// Loops shown in the hero selector. The canvas + readouts read these through data-* attributes.
+const halls = [
+  { id: 'A', name: 'Hall A · Rjukan', load: 4.8, supply: 32.0, ret: 45.6, flow: 1420, pue: 1.06, state: 'Nominal', locked: false },
+  { id: 'B', name: 'Hall B · Rjukan', load: 6.2, supply: 31.5, ret: 46.8, flow: 1810, pue: 1.05, state: 'Nominal', locked: false },
+  { id: 'C', name: 'Hall C · Notodden', load: 2.1, supply: 33.0, ret: 41.2, flow: 690, pue: 1.09, state: 'Burn-in', locked: false },
+  { id: 'D', name: 'Hall D · Notodden', load: 0, supply: 0, ret: 0, flow: 0, pue: 0, state: 'Q2 2027', locked: true },
+];
+const first = halls[0];
+
+const loop = [
+  ['CF-11', 'Cold plate', 'A skived-copper plate sits on every accelerator and CPU. 0.06 °C/W from junction to water, 1.2 bar drop at full flow.', 'On the silicon'],
+  ['CF-12', 'Rack manifold', 'Dripless quick-disconnects, one pair per server. A tray comes out in eleven seconds without draining the loop.', 'In the rack'],
+  ['CF-13', 'Coolant distribution unit', 'N+1 pumps, 25 µm filtration and a leak model that compares supply and return mass every 200 ms.', 'End of row'],
+  ['CF-14', 'Heat exchange', 'Plate exchangers hand 45 °C water to the Tinn district grid. Dry coolers on the roof take the summer surplus.', 'Outside the wall'],
+];
+
+const spec = [
+  ['Rack density', '40–160 kW', 'per rack, liquid share ≥ 92 %'],
+  ['Supply water', '30–35 °C', 'no compressor, no chiller plant'],
+  ['Return water', '44–48 °C', 'grid-grade, sold not vented'],
+  ['Water use', '0.00 L/kWh', 'sealed loop, filled once'],
+  ['Leak response', '< 400 ms', 'valve closure, per manifold'],
+  ['Retrofit window', '9 nights', 'typical 2 MW hall, live'],
+];
+
+const sites = [
+  ['RJK-A', 'Rjukan, NO', 'Training cluster, 38 racks', '4.8 MW', 'Live since Mar 2025', 'live'],
+  ['RJK-B', 'Rjukan, NO', 'Inference, 52 racks', '6.2 MW', 'Live since Jan 2026', 'live'],
+  ['NTD-C', 'Notodden, NO', 'Research HPC, 18 racks', '2.1 MW', 'Burn-in, week 3 of 6', 'live'],
+  ['LUL-01', 'Luleå, SE', 'Colocation retrofit', '3.4 MW', 'Survey signed', 'muted'],
+  ['NTD-D', 'Notodden, NO', 'Reserved', '7.0 MW', 'Q2 2027', 'muted'],
+];
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Coldframe — Warm-water direct-to-chip cooling</title>
+    <meta name="description" content="Coldframe designs and operates warm-water liquid cooling loops for dense compute halls, and sells the heat to the town." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  </head>
+  <body class="cf">
+    <div class="bloom" aria-hidden="true"></div>
+
+    <header class="top">
+      <div class="wrap top-in">
+        <a class="brand" href="#top" aria-label="Coldframe home">
+          <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><rect x="0.5" y="0.5" width="17" height="17" fill="none" stroke="currentColor" /><rect x="5" y="5" width="8" height="8" fill="currentColor" /></svg>
+          <span>COLDFRAME</span>
+        </a>
+        <nav class="nav mono" aria-label="Primary">
+          <a href="#loop">Loop</a><a href="#spec">Spec</a><a href="#sites">Sites</a><a href="#contact">Contact</a>
+        </nav>
+        <p class="status mono"><i class="dot"></i>Grid export · 9.4 MW</p>
+      </div>
+    </header>
+
+    <main id="top">
+      <!-- ============ HERO SHELL ============ -->
+      <section class="wrap shell" aria-labelledby="hero-h">
+        <span class="sq tl"></span><span class="sq tr"></span><span class="sq bl"></span><span class="sq br"></span>
+        <div class="rail mono"><span>CF-00 / Direct-to-chip</span><span class="hide-sm">Rjukan · 59.88° N</span><span>Rev 26.10</span></div>
+
+        <div class="hero-grid">
+          <div class="cell hero-copy">
+            <div class="scan" aria-hidden="true"></div>
+            <div class="hero-top">
+              <p class="pill mono"><i class="dot"></i>Hall B on the grid · 52 racks live</p>
+              <p class="flowline mono" aria-label="Supply 32 degrees, return 45 degrees, delta 13.6 kelvin"><span>In 32 °C</span><i></i><span>Out 45 °C</span><span class="dt">ΔT 13.6 K</span></p>
+            </div>
+            <div class="hero-main">
+            <p class="eyebrow mono">Liquid cooling for 120 kW racks</p>
+            <h1 id="hero-h" class="display">
+              <span class="ln"><span>Cold plates.</span></span>
+              <span class="ln"><span>Warm water.</span></span>
+              <span class="ln"><span class="dim">No chillers.</span></span>
+            </h1>
+            <p class="lede">We take heat off the silicon at 32&nbsp;°C, carry it out of the hall at 45&nbsp;°C, and sell it to the town's district heating grid instead of venting it to the sky.</p>
+            <div class="ctas">
+              <a class="btn btn-solid" href="#contact"><span>Request a loop survey</span></a>
+              <a class="btn" href="#spec"><span>Read the spec sheet <span aria-hidden="true">→</span></span></a>
+            </div>
+            </div>
+          </div>
+
+          <div class="cell viz">
+            <div class="panel-head mono"><span>CF-01 / Thermal field</span><span id="viz-hall">Hall A</span></div>
+            <canvas id="field" aria-hidden="true"></canvas>
+            <dl class="readout mono" aria-live="polite">
+              <div><dt>Supply</dt><dd><span id="r-supply">{first.supply.toFixed(1)}</span> °C</dd></div>
+              <div><dt>Return</dt><dd><span id="r-return">{first.ret.toFixed(1)}</span> °C</dd></div>
+              <div><dt>Flow</dt><dd><span id="r-flow">{first.flow.toLocaleString('en-US')}</span> L/min</dd></div>
+              <div><dt>Load</dt><dd><span id="r-load">{first.load.toFixed(1)}</span> MW</dd></div>
+            </dl>
+          </div>
+
+          <div class="cell loops">
+            <div class="panel-head mono"><span>CF-02 / Loops</span><span>4 halls</span></div>
+            <ul class="rows" role="list">
+              {halls.map((h, i) => (
+                <li>
+                  <button
+                    class="row"
+                    type="button"
+                    aria-pressed={i === 0 ? 'true' : 'false'}
+                    disabled={h.locked}
+                    data-hall={h.id}
+                    data-name={h.name}
+                    data-load={h.load}
+                    data-supply={h.supply}
+                    data-return={h.ret}
+                    data-flow={h.flow}
+                    data-pue={h.pue}
+                  >
+                    <span class="row-id mono">{h.id}</span>
+                    <span class="row-name">{h.name}</span>
+                    <span class="row-state mono">{h.locked ? '⌧ ' : ''}{h.state}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div class="cell metric">
+            <div class="edge-card">
+              <p class="mono label">CF-03 / Facility PUE</p>
+              <p class="big" id="r-pue">{first.pue.toFixed(2)}</p>
+              <p class="small">Annualised, metered at the utility transformer. Industry median: 1.56.</p>
+              <div class="meter" aria-hidden="true"><i id="pue-bar"></i></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ METRIC STRIP ============ -->
+      <section class="wrap strip" aria-label="Fleet figures">
+        <div><p class="mono label">Heat reused</p><p class="fig">71<small>%</small></p><p class="small">of all rejected heat, sold to Tinn Energi</p></div>
+        <div><p class="mono label">Water consumed</p><p class="fig">0.00<small>L/kWh</small></p><p class="small">closed loop, no evaporative towers</p></div>
+        <div><p class="mono label">Racks cooled</p><p class="fig">108</p><p class="small">across three halls, two towns</p></div>
+        <div><p class="mono label">Unplanned downtime</p><p class="fig">0<small>min</small></p><p class="small">since the first loop was filled</p></div>
+      </section>
+
+      <!-- ============ THE LOOP ============ -->
+      <section id="loop" class="wrap shell" aria-labelledby="loop-h">
+        <span class="sq tl"></span><span class="sq tr"></span><span class="sq bl"></span><span class="sq br"></span>
+        <div class="rail mono"><span>CF-10 / The loop</span><span>4 stages · 1 boundary</span></div>
+        <div class="loop-grid">
+          <div class="cell loop-intro">
+            <h2 id="loop-h" class="h2">Heat travels one sealed path, from the die to the radiator in somebody's kitchen.</h2>
+            <p class="body">Air never carries the load. Fans in the hall only move the 8&nbsp;% that the cold plates cannot reach — memory, NICs, power supplies — so the room stays quiet and the floor stays dry.</p>
+          </div>
+          {loop.map(([code, title, text, where], i) => (
+            <article class={`cell stage s${i}`}>
+              <div class="stage-top mono"><span>{code}</span><span>{where}</span></div>
+              <h3 class="h3">{title}</h3>
+              <p class="body">{text}</p>
+              <span class="stage-n mono" aria-hidden="true">0{i + 1}</span>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <!-- ============ SPEC ============ -->
+      <section id="spec" class="wrap shell" aria-labelledby="spec-h">
+        <span class="sq tl"></span><span class="sq tr"></span><span class="sq bl"></span><span class="sq br"></span>
+        <div class="rail mono"><span>CF-20 / Specification</span><span>Sheet CF-SP-26.10</span></div>
+        <div class="spec-grid">
+          <div class="cell spec-side">
+            <h2 id="spec-h" class="h2">Numbers we put in the contract.</h2>
+            <p class="body">Every figure on this sheet is a service level, not a brochure claim. Miss one for a quarter and the cooling fee for that hall drops by a fifth.</p>
+            <a class="btn" href="#contact"><span>Download CF-SP-26.10 (PDF, 2.4 MB)</span></a>
+          </div>
+          <dl class="cell spec-table">
+            {spec.map(([k, v, note]) => (
+              <div class="spec-row">
+                <dt class="mono">{k}</dt>
+                <dd><span class="spec-v">{v}</span><span class="small">{note}</span></dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      </section>
+
+      <!-- ============ SITES ============ -->
+      <section id="sites" class="wrap shell" aria-labelledby="sites-h">
+        <span class="sq tl"></span><span class="sq tr"></span><span class="sq bl"></span><span class="sq br"></span>
+        <div class="rail mono"><span>CF-30 / Deployments</span><span>Updated 02 Oct 2026</span></div>
+        <div class="cell sites">
+          <h2 id="sites-h" class="h2 sites-h">Where the loops run.</h2>
+          <ul class="site-list" role="list">
+            {sites.map(([code, place, what, mw, when, state]) => (
+              <li class={`site ${state}`}>
+                <span class="mono code">{code}</span>
+                <span class="place">{place}</span>
+                <span class="what">{what}</span>
+                <span class="mono mw">{mw}</span>
+                <span class="mono when">{when}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      <!-- ============ CONTACT ============ -->
+      <section id="contact" class="wrap cta-wrap" aria-labelledby="cta-h">
+        <div class="cta edge-card">
+          <p class="mono label">CF-40 / Loop survey</p>
+          <h2 id="cta-h" class="display cta-h">Bring us a floor plan and a power budget.</h2>
+          <p class="lede">Two engineers, one day on site, and a written answer within a fortnight: what a warm-water loop costs in your hall, how many nights the retrofit takes, and who in your town would buy the heat.</p>
+          <div class="ctas">
+            <a class="btn btn-solid" href="mailto:survey@coldframe.example"><span>survey@coldframe.example</span></a>
+            <a class="btn" href="tel:+4735000000"><span>+47 35 00 00 00</span></a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="wrap foot mono">
+      <span>© 2026 Coldframe AS · Rjukan, Telemark</span>
+      <span>Org. 931 004 117 · ISO 50001</span>
+    </footer>
+
+    <BackPill />
+  </body>
+</html>
+
+<style>
+  :global(html) { background: #050506; scroll-behavior: smooth; }
+  .cf {
+    --bg: #050506;
+    --panel: #0b0b0d;
+    --panel-2: #111114;
+    --line: rgb(255 255 255 / 0.09);
+    --line-2: rgb(255 255 255 / 0.16);
+    --ink: #f2f2f3;
+    --ink-2: #a3a3aa;
+    --ink-3: #6b6b73;
+    --ice: #cfeffd; /* the one sparse accent: status + active cues */
+    --edge: linear-gradient(140deg, rgb(255 255 255 / 0.55), rgb(255 255 255 / 0.06) 38%, rgb(255 255 255 / 0.03) 62%, rgb(255 255 255 / 0.32));
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Geist', ui-sans-serif, system-ui, sans-serif;
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: clip;
+  }
+  .mono { font-family: 'Geist Mono', ui-monospace, monospace; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; }
+  .wrap { width: min(1320px, 100% - 32px); margin-inline: auto; position: relative; }
+  .bloom {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background:
+      radial-gradient(60% 50% at 78% 8%, rgb(255 255 255 / 0.07), transparent 70%),
+      radial-gradient(40% 40% at 10% 90%, rgb(255 255 255 / 0.035), transparent 70%);
+  }
+  main, header, footer { position: relative; z-index: 1; }
+
+  /* ---------- top rail ---------- */
+  .top { border-bottom: 1px solid var(--line); }
+  .top-in { display: flex; align-items: center; justify-content: space-between; gap: 24px; height: 64px; }
+  .brand { display: inline-flex; align-items: center; gap: 10px; color: var(--ink); text-decoration: none; font-weight: 600; letter-spacing: 0.22em; font-size: 13px; }
+  .nav { display: flex; gap: 28px; }
+  .nav a { color: var(--ink-2); text-decoration: none; transition: color 0.2s; }
+  .nav a:hover { color: var(--ink); }
+  .status { display: inline-flex; align-items: center; gap: 8px; color: var(--ink-2); margin: 0; }
+  .dot { width: 6px; height: 6px; background: var(--ice); box-shadow: 0 0 10px var(--ice); animation: pulse 2.4s ease-in-out infinite; }
+  @keyframes pulse { 50% { opacity: 0.35; } }
+
+  /* ---------- shells: rails, overshoot, corner squares ---------- */
+  .shell { margin-top: 72px; }
+  main > .shell:first-child { margin-top: 44px; }
+  .shell { border-inline: 1px solid var(--line-2); border-block: 1px solid var(--line); background: rgb(8 8 10 / 0.6); }
+  .shell::before, .shell::after {
+    content: ''; position: absolute; top: -48px; bottom: -48px; width: 1px; pointer-events: none;
+    background: linear-gradient(transparent, var(--line-2) 48px, var(--line-2) calc(100% - 48px), transparent);
+  }
+  .shell::before { left: -1px; }
+  .shell::after { right: -1px; }
+  .sq { position: absolute; width: 7px; height: 7px; background: var(--bg); border: 1px solid rgb(255 255 255 / 0.6); z-index: 3; }
+  .sq.tl { top: -4px; left: -4px; } .sq.tr { top: -4px; right: -4px; }
+  .sq.bl { bottom: -4px; left: -4px; } .sq.br { bottom: -4px; right: -4px; }
+  .rail { display: flex; justify-content: space-between; gap: 16px; padding: 12px 20px; border-bottom: 1px solid var(--line); color: var(--ink-3); }
+  .rail span:first-child { color: var(--ink-2); }
+  .cell { background: var(--panel); position: relative; }
+
+  /* ---------- border gradient signature ---------- */
+  .edge-card, .btn, .row[aria-pressed='true'] { position: relative; isolation: isolate; }
+  .pill::before, .edge-card::before, .btn::before, .row[aria-pressed='true']::before {
+    content: ''; position: absolute; inset: 0; padding: 1px; border-radius: inherit; pointer-events: none; z-index: -1;
+    background: var(--edge);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    mask-composite: exclude;
+  }
+  .edge-card { border-radius: 14px; background: linear-gradient(180deg, #131317, #0a0a0c); }
+
+  .btn {
+    display: inline-flex; align-items: center; height: 44px; padding: 0 20px; border-radius: 999px;
+    color: var(--ink); text-decoration: none; font-size: 14px; font-weight: 500;
+    background: rgb(255 255 255 / 0.02); transition: background 0.25s, color 0.25s;
+  }
+  .btn:hover { background: rgb(255 255 255 / 0.07); }
+  .btn-solid { background: linear-gradient(180deg, #fafafa, #cfd0d4); color: #08080a; }
+  .btn-solid:hover { background: #fff; }
+  .btn:focus-visible, .row:focus-visible, .nav a:focus-visible, .brand:focus-visible { outline: 1px solid var(--ice); outline-offset: 3px; }
+
+  /* ---------- hero grid (asymmetric) ---------- */
+  .hero-grid {
+    display: grid; gap: 1px; background: var(--line);
+    grid-template-columns: 1.55fr 1fr;
+    grid-template-areas: 'copy viz' 'copy loops' 'copy metric';
+  }
+  .hero-copy { grid-area: copy; padding: 28px 56px 48px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; gap: 56px; }
+  .hero-top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px; position: relative; }
+  .pill { position: relative; isolation: isolate; display: inline-flex; align-items: center; gap: 10px; margin: 0; padding: 9px 14px; border-radius: 999px; color: var(--ink-2); background: rgb(255 255 255 / 0.03); }
+  .flowline { display: flex; align-items: center; gap: 10px; margin: 0; color: var(--ink-3); }
+  .flowline i { width: 56px; height: 1px; background: linear-gradient(90deg, rgb(255 255 255 / 0.15), #fff); position: relative; }
+  .flowline i::after { content: ''; position: absolute; right: -1px; top: -3px; border: 3.5px solid transparent; border-left: 5px solid #fff; border-right: 0; }
+  .flowline .dt { color: var(--ink); padding-left: 10px; border-left: 1px solid var(--line-2); }
+  .viz { grid-area: viz; }
+  .loops { grid-area: loops; }
+  .metric { grid-area: metric; padding: 16px; }
+  .eyebrow { color: var(--ink-2); margin: 0 0 28px; }
+  .display { font-weight: 500; letter-spacing: -0.045em; line-height: 0.95; margin: 0; }
+  h1.display { font-size: clamp(50px, 6.6vw, 100px); }
+  .ln { display: block; overflow: hidden; padding-bottom: 0.14em; margin-bottom: -0.1em; }
+  .ln > span { display: inline-block; animation: rise 1s cubic-bezier(0.2, 0.7, 0.1, 1) both; }
+  .ln:nth-child(2) > span { animation-delay: 0.12s; }
+  .ln:nth-child(3) > span { animation-delay: 0.24s; }
+  @keyframes rise { from { transform: translateY(105%); } }
+  .dim { color: transparent; background: linear-gradient(90deg, #8d8d95, #3a3a40); -webkit-background-clip: text; background-clip: text; }
+  .lede { color: var(--ink-2); font-size: 17px; line-height: 1.6; max-width: 34em; margin: 28px 0 0; font-weight: 300; }
+  .ctas { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 32px; }
+  .scan {
+    position: absolute; left: 0; right: 0; top: 0; height: 1px; pointer-events: none;
+    background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.5) 30%, rgb(255 255 255 / 0.5) 70%, transparent);
+    animation: scan 7s cubic-bezier(0.6, 0, 0.4, 1) infinite;
+    opacity: 0.6;
+  }
+  @keyframes scan { 0% { transform: translateY(0); opacity: 0; } 10%, 85% { opacity: 0.6; } 100% { transform: translateY(640px); opacity: 0; } }
+  .hero-copy::before {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size: 48px 48px;
+    -webkit-mask: radial-gradient(70% 60% at 85% 0%, #000, transparent 75%);
+    mask: radial-gradient(70% 60% at 85% 0%, #000, transparent 75%);
+    opacity: 0.6;
+  }
+
+  .panel-head { display: flex; justify-content: space-between; padding: 14px 20px; color: var(--ink-3); border-bottom: 1px solid var(--line); }
+  .panel-head span:last-child { color: var(--ink-2); }
+  .viz { display: flex; flex-direction: column; }
+  #field { display: block; width: 100%; height: 170px; }
+  .readout { display: grid; grid-template-columns: repeat(4, 1fr); margin: 0; border-top: 1px solid var(--line); }
+  .readout > div { padding: 12px 16px; border-left: 1px solid var(--line); }
+  .readout > div:first-child { border-left: 0; }
+  .readout dt { color: var(--ink-3); font-size: 10px; }
+  .readout dd { margin: 6px 0 0; color: var(--ink); font-size: 13px; letter-spacing: 0.04em; text-transform: none; }
+
+  .rows { list-style: none; margin: 0; padding: 10px; display: grid; gap: 4px; }
+  .row {
+    width: 100%; display: grid; grid-template-columns: 28px 1fr auto; align-items: center; gap: 12px;
+    padding: 11px 12px; border: 1px solid transparent; border-radius: 8px; background: transparent;
+    color: var(--ink-2); font: inherit; font-size: 14px; text-align: left; cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+  }
+  .row:hover:not(:disabled) { background: rgb(255 255 255 / 0.035); color: var(--ink); }
+  .row[aria-pressed='true'] { color: var(--ink); background: rgb(255 255 255 / 0.05); }
+  .row[aria-pressed='true']::after { content: ''; position: absolute; left: -1px; top: 9px; bottom: 9px; width: 2px; background: var(--ice); box-shadow: 0 0 8px rgb(207 239 253 / 0.6); }
+  .row:disabled { cursor: not-allowed; color: var(--ink-3); border: 1px dashed var(--line); }
+  .row-id { color: var(--ink-3); }
+  .row[aria-pressed='true'] .row-id { color: var(--ink); }
+  .row-state { color: var(--ink-3); font-size: 10px; }
+
+  .metric .edge-card { padding: 18px 20px 20px; height: 100%; box-sizing: border-box; }
+  .label { color: var(--ink-3); margin: 0; }
+  .big { font-size: 56px; font-weight: 500; letter-spacing: -0.05em; margin: 10px 0 6px; line-height: 1; }
+  .small { color: var(--ink-3); font-size: 13px; line-height: 1.5; margin: 0; }
+  .meter { height: 2px; margin-top: 16px; background: var(--line); }
+  .meter i { display: block; height: 100%; background: linear-gradient(90deg, rgb(255 255 255 / 0.3), #fff); transition: width 0.6s cubic-bezier(0.2, 0.7, 0.1, 1); }
+
+  /* ---------- strip ---------- */
+  .strip { display: grid; grid-template-columns: repeat(4, 1fr); border-inline: 1px solid var(--line-2); border-bottom: 1px solid var(--line); }
+  .strip > div { padding: 28px 24px; border-left: 1px solid var(--line); }
+  .strip > div:first-child { border-left: 0; }
+  .fig { font-size: 40px; font-weight: 500; letter-spacing: -0.04em; margin: 14px 0 8px; line-height: 1; }
+  .fig small { font-size: 14px; color: var(--ink-3); letter-spacing: 0; margin-left: 4px; font-weight: 400; }
+
+  /* ---------- loop ---------- */
+  .loop-grid { display: grid; gap: 1px; background: var(--line); grid-template-columns: 1.3fr 1fr 1fr; }
+  .loop-intro { grid-row: span 2; padding: 48px 40px; }
+  .h2 { font-size: clamp(28px, 3vw, 40px); font-weight: 500; letter-spacing: -0.035em; line-height: 1.1; margin: 0 0 20px; max-width: 18em; }
+  .h3 { font-size: 20px; font-weight: 500; letter-spacing: -0.02em; margin: 40px 0 10px; }
+  .body { color: var(--ink-2); font-size: 15px; line-height: 1.65; margin: 0; font-weight: 300; max-width: 36em; }
+  .stage { padding: 22px 24px 28px; overflow: hidden; transition: background 0.3s; }
+  .stage:hover { background: var(--panel-2); }
+  .stage-top { display: flex; justify-content: space-between; color: var(--ink-3); }
+  .stage-top span:first-child { color: var(--ink-2); }
+  .stage-n { position: absolute; right: 18px; bottom: 6px; font-size: 64px; letter-spacing: -0.04em; color: rgb(255 255 255 / 0.04); }
+  .stage::after { content: ''; position: absolute; left: 0; top: 0; height: 1px; width: 0; background: linear-gradient(90deg, #fff, transparent); transition: width 0.6s; }
+  .stage:hover::after { width: 100%; }
+
+  /* ---------- spec ---------- */
+  .spec-grid { display: grid; gap: 1px; background: var(--line); grid-template-columns: 1fr 1.6fr; }
+  .spec-side { padding: 48px 40px; display: flex; flex-direction: column; align-items: flex-start; gap: 24px; }
+  .spec-side .h2, .spec-side .body { margin: 0; }
+  .spec-table { margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--line); }
+  .spec-row { background: var(--panel); padding: 24px 28px; }
+  .spec-row dt { color: var(--ink-3); }
+  .spec-row dd { margin: 14px 0 0; display: grid; gap: 6px; }
+  .spec-v { font-size: 30px; font-weight: 500; letter-spacing: -0.035em; }
+
+  /* ---------- sites ---------- */
+  .sites { padding: 40px 40px 32px; }
+  .sites-h { margin-bottom: 28px; }
+  .site-list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+  .site { position: relative; display: grid; grid-template-columns: 90px 1fr 1.4fr 90px 1.2fr; gap: 16px; align-items: center; padding: 18px 16px; border-bottom: 1px solid var(--line); font-size: 15px; transition: background 0.2s; }
+  .site.live::before { content: ''; position: absolute; left: 0; top: 14px; bottom: 14px; width: 2px; background: #fff; }
+  .site.live:hover { background: rgb(255 255 255 / 0.03); }
+  .site.muted { color: var(--ink-3); }
+  .site .code { color: var(--ink-2); }
+  .site .what { color: var(--ink-2); }
+  .site.muted .what, .site.muted .code { color: var(--ink-3); }
+  .site .mw { color: var(--ink); font-size: 12px; }
+  .site.muted .mw { color: var(--ink-3); }
+  .site .when { color: var(--ink-3); text-align: right; font-size: 10px; }
+
+  /* ---------- CTA + footer ---------- */
+  .cta-wrap { margin-top: 72px; }
+  .cta { padding: 64px 56px; overflow: hidden; }
+  .cta::after { content: ''; position: absolute; inset: 0; z-index: -1; border-radius: inherit; background: radial-gradient(50% 80% at 100% 0%, rgb(255 255 255 / 0.08), transparent 70%); }
+  .cta-h { font-size: clamp(36px, 5vw, 72px); margin: 22px 0 0; max-width: 13em; }
+  .foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; padding: 40px 0 96px; color: var(--ink-3); }
+
+  /* ---------- responsive ---------- */
+  @media (max-width: 1080px) {
+    .hero-grid { grid-template-columns: 1fr 1fr; grid-template-areas: 'copy copy' 'viz viz' 'loops metric'; }
+    .hero-copy { padding: 24px 40px 48px; }
+    .loop-grid { grid-template-columns: 1fr 1fr; }
+    .loop-intro { grid-row: auto; grid-column: span 2; }
+    .spec-grid { grid-template-columns: 1fr; }
+    .strip { grid-template-columns: 1fr 1fr; }
+    .strip > div:nth-child(3) { border-left: 0; }
+    .strip > div:nth-child(n + 3) { border-top: 1px solid var(--line); }
+    .site { grid-template-columns: 80px 1fr 1fr 80px; }
+    .site .when { display: none; }
+  }
+  @media (max-width: 680px) {
+    .nav, .hide-sm { display: none; }
+    .shell { margin-top: 56px; }
+    .hero-grid { grid-template-columns: 1fr; grid-template-areas: 'copy' 'viz' 'loops' 'metric'; }
+    .hero-copy { padding: 20px 20px 36px; gap: 40px; }
+    .lede { font-size: 16px; }
+    .readout { grid-template-columns: 1fr 1fr; }
+    .readout > div:nth-child(3) { border-left: 0; }
+    .readout > div:nth-child(n + 3) { border-top: 1px solid var(--line); }
+    .loop-grid { grid-template-columns: 1fr; }
+    .loop-intro { grid-column: auto; padding: 36px 20px; }
+    .stage { padding: 20px; }
+    .stage-n { display: none; }
+    .flowline { display: none; }
+    .spec-side { padding: 36px 20px; }
+    .spec-table { grid-template-columns: 1fr; }
+    .spec-row { padding: 20px; }
+    .sites { padding: 32px 20px 20px; }
+    .site { grid-template-columns: 64px 1fr auto; padding: 16px 12px; row-gap: 4px; }
+    .site .what { grid-column: 2 / -1; grid-row: 2; font-size: 13px; }
+    .strip > div { padding: 22px 16px; }
+    .fig { font-size: 32px; }
+    .cta { padding: 44px 22px; }
+    .rail { padding: 12px 16px; }
+    .btn { max-width: 100%; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    :global(html) { scroll-behavior: auto; }
+    .ln > span, .scan, .dot { animation: none; }
+    .scan { display: none; }
+  }
+</style>
+
+<script>
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const canvas = document.getElementById('field') as HTMLCanvasElement;
+  const ctx = canvas.getContext('2d')!;
+  const $ = (id: string) => document.getElementById(id)!;
+
+  // Field parameters eased toward the selected hall's values.
+  const target = { load: 4.8, delta: 13.6 };
+  const cur = { ...target };
+  let w = 0, h = 0, t = 0, visible = true;
+
+  const resize = () => {
+    const dpr = Math.min(devicePixelRatio || 1, 1.5);
+    w = canvas.clientWidth; h = canvas.clientHeight;
+    canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  };
+
+  // Four "chips" along the field: lines bulge over them, harder with more load.
+  const chips = [0.18, 0.42, 0.66, 0.88];
+
+  const draw = () => {
+    cur.load += (target.load - cur.load) * 0.05;
+    cur.delta += (target.delta - cur.delta) * 0.05;
+    ctx.clearRect(0, 0, w, h);
+
+    // chip footprints on the base line
+    ctx.fillStyle = 'rgba(255,255,255,0.05)';
+    ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+    for (const c of chips) {
+      ctx.fillRect(c * w - 16, h - 14, 32, 8);
+      ctx.strokeRect(c * w - 16 + 0.5, h - 14 + 0.5, 31, 7);
+    }
+
+    const lines = 22;
+    const heat = cur.load / 6.2;
+    for (let i = 0; i < lines; i++) {
+      const f = i / (lines - 1);
+      const base = h - 22 - f * (h - 40);
+      const amp = (1 - f) * 34 * heat + 3;
+      ctx.beginPath();
+      for (let x = 0; x <= w; x += 6) {
+        const u = x / w;
+        let bump = 0;
+        for (const c of chips) bump += Math.exp(-((u - c) ** 2) / 0.004);
+        const wave = Math.sin(u * 9 + t * 0.9 + i * 0.35) * 2.2 + Math.sin(u * 23 - t * 1.4 + i) * 0.9;
+        const y = base - bump * amp + wave * (0.4 + f);
+        x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      }
+      const a = 0.08 + (1 - f) * 0.35 * (0.5 + heat * 0.5);
+      ctx.strokeStyle = `rgba(255,255,255,${a.toFixed(3)})`;
+      ctx.lineWidth = i % 5 === 0 ? 1.1 : 0.7;
+      ctx.stroke();
+    }
+
+    // coolant packets travelling left → right along three lines
+    for (let k = 0; k < 3; k++) {
+      const f = 0.12 + k * 0.28;
+      const base = h - 22 - f * (h - 40);
+      const amp = (1 - f) * 34 * heat + 3;
+      for (let p = 0; p < 5; p++) {
+        const u = ((t * (0.04 + cur.delta * 0.004) + p / 5 + k * 0.13) % 1);
+        let bump = 0;
+        for (const c of chips) bump += Math.exp(-((u - c) ** 2) / 0.004);
+        const y = base - bump * amp;
+        ctx.fillStyle = 'rgba(207,239,253,0.85)';
+        ctx.fillRect(u * w - 6, y - 0.75, 12, 1.5);
+      }
+    }
+  };
+
+  const loop = () => {
+    if (visible) { t += 1 / 60; draw(); }
+    requestAnimationFrame(loop);
+  };
+
+  resize();
+  addEventListener('resize', () => { resize(); if (reduce) draw(); });
+  new IntersectionObserver(([e]) => { visible = e.isIntersecting; }).observe(canvas);
+  if (reduce) { cur.load = target.load; t = 2; draw(); } else { requestAnimationFrame(loop); }
+
+  // ---- hall selector ----
+  const rows = [...document.querySelectorAll<HTMLButtonElement>('.row')];
+  const fmt = (n: number, d = 1) => n.toFixed(d);
+  const select = (btn: HTMLButtonElement) => {
+    rows.forEach((r) => r.setAttribute('aria-pressed', String(r === btn)));
+    const d = btn.dataset;
+    const supply = +d.supply!, ret = +d.return!, pue = +d.pue!;
+    $('viz-hall').textContent = `Hall ${d.hall}`;
+    $('r-supply').textContent = fmt(supply);
+    $('r-return').textContent = fmt(ret);
+    $('r-flow').textContent = (+d.flow!).toLocaleString('en-US');
+    $('r-load').textContent = fmt(+d.load!);
+    $('r-pue').textContent = fmt(pue, 2);
+    // PUE bar: 1.00 = full, 1.56 (industry median) = empty
+    ($('pue-bar') as HTMLElement).style.width = `${Math.max(0, Math.min(1, (1.56 - pue) / 0.56)) * 100}%`;
+    target.load = +d.load!;
+    target.delta = ret - supply;
+    if (reduce) { cur.load = target.load; cur.delta = target.delta; draw(); }
+  };
+  rows.forEach((r) => r.addEventListener('click', () => select(r)));
+  select(rows[0]);
+</script>

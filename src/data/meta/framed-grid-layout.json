@@ -1,0 +1,7 @@
+{
+  "title": "Framed Grid Layout",
+  "kind": "website",
+  "category": "Layout",
+  "concept": "Kerf Studio, a fictional nine-person strategy-game studio in Ghent: every section sits in a 1px framed box with 18px L-shaped corner brackets on one 12-column parent grid over a faint 135° hatch, and the hero's live Tidewright board — a tide flooding a 16×16 archipelago while a red cursor plots a dyke ring — speaks the same square-grid language.",
+  "notes": "Skill tokens used verbatim (#f3f3f0 base, 0.14/0.34 line alphas, 0.035 texture, 16px gap, 18px corners); one coral accent. The playfield is a small 2D-canvas flood-fill sim that pauses off-screen; reduced motion shows one finished frame. Game art is seeded SVG generated at build time. Brackets are background layers, so hovering a game card darkens its brackets without changing border weight."
+}

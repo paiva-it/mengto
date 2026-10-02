@@ -1,0 +1,533 @@
+---
+import '../../styles/global.css';
+import BackPill from '../../components/BackPill.astro';
+
+const readouts = [
+  ['Stage', '04 / 06 · Relume'],
+  ['Rate', '+2.1 s/d', 'rate'],
+  ['Amplitude', '288°', 'amp'],
+  ['Beat error', '0.3 ms', 'beat'],
+  ['Queue', '11 weeks'],
+];
+
+const lumes = [
+  { id: 'c3', label: 'C3', note: 'Super-LumiNova C3, fresh green', rgb: '0.42, 1.0, 0.66', css: '#6dffa9' },
+  { id: 'bgw9', label: 'BGW9', note: 'BGW9, cold blue-white', rgb: '0.5, 0.82, 1.0', css: '#86d0ff' },
+  { id: 'radium', label: 'Old radium', note: 'Aged radium, burnt cream', rgb: '1.0, 0.7, 0.42', css: '#ffb36b' },
+];
+
+const stages = [
+  ['01', 'Intake & photography', 'Every part is photographed before a screw turns, so the watch goes back exactly as it was signed.', '1 day'],
+  ['02', 'Teardown', 'The movement is taken down to 120-odd parts, laid out on a numbered tray, and inspected under 10× for wear.', '4 hours'],
+  ['03', 'Clean & rebuild', 'Ultrasonic baths, pegwood on every jewel, new mainspring, five oils placed by hand where the factory chart says.', '2 days'],
+  ['04', 'Relume', 'Hands and plots are matched to the dial’s own patina in a sample card first. Never brighter than the watch remembers.', '1 day'],
+  ['05', 'Regulate', 'Timed in six positions over five days on the timegrapher, then adjusted until the spread sits inside ±4 s/d.', '5 days'],
+  ['06', 'Case, crystal, return', 'Gaskets, a domed crystal cut to the bezel, a pressure test to 5 bar, and a written report with the readings.', '1 day'],
+];
+
+const ledger = [
+  ['Omega Seamaster 300', '1964', 'Relume to original tritium tone, mainspring', '22 h'],
+  ['Universal Genève Polerouter', '1957', 'Microrotor service, acrylic crystal', '14 h'],
+  ['Heuer Carrera 2447', '1966', 'Valjoux 72 rebuild, pusher gaskets', '31 h'],
+  ['Zodiac Sea Wolf', '1969', 'Bezel insert, relume, crown tube', '9 h'],
+];
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Vey Lume Works — Vintage Watch Restoration</title>
+    <meta
+      name="description"
+      content="Vey Lume Works restores mechanical watches made between 1940 and 1985: movements rebuilt, crystals replaced, lume matched by hand."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..800&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <BackPill />
+
+    <!-- The atmosphere: decorative, fixed behind everything. Fallback gradient shows if WebGL is unavailable. -->
+    <div class="atmo" aria-hidden="true">
+      <div class="atmo-fallback"></div>
+      <canvas id="atmo-canvas"></canvas>
+    </div>
+
+    <header class="bar wrap">
+      <a href="#top" class="brand" id="top">
+        <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true">
+          <circle cx="11" cy="11" r="10" fill="none" stroke="currentColor" stroke-width="1.2"></circle>
+          <circle cx="11" cy="3.6" r="1.4" class="lume-dot"></circle>
+          <circle cx="18.4" cy="11" r="1" fill="currentColor" opacity=".5"></circle>
+          <circle cx="11" cy="18.4" r="1" fill="currentColor" opacity=".5"></circle>
+          <circle cx="3.6" cy="11" r="1" fill="currentColor" opacity=".5"></circle>
+          <path d="M11 11 L11 6.2 M11 11 L14.6 12.6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>
+        </svg>
+        <span>Vey Lume Works</span>
+      </a>
+      <nav aria-label="Primary">
+        <a href="#process">Process</a>
+        <a href="#ledger">Ledger</a>
+        <a href="#book" class="nav-cta">Book a bench slot</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero wrap" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <p class="eyebrow"><span class="pip"></span>Vintage watch restoration · Ghent · since 2011</p>
+          <h1 id="hero-title">Old dials,<br /><span class="accent">relit.</span></h1>
+          <p class="lede">
+            We service mechanical watches made between 1940 and 1985 — movements rebuilt to factory
+            tolerance, crystals and gaskets replaced, and lume restored by hand to match the patina the
+            dial already earned.
+          </p>
+          <div class="ctas">
+            <a class="btn btn-primary" href="#book">Send us your watch</a>
+            <a class="btn btn-ghost" href="#ledger">See the ledger</a>
+          </div>
+        </div>
+
+        <aside class="bench" aria-label="Live bench readout">
+          <div class="bench-head">
+            <span class="live"><span class="live-dot"></span>On the bench now</span>
+            <span class="mono dim">Bench 2</span>
+          </div>
+          <p class="bench-watch">Longines 30L chronograph <span class="dim">· 1961</span></p>
+          <dl class="readouts">
+            {
+              readouts.map(([k, v, id]) => (
+                <div>
+                  <dt>{k}</dt>
+                  <dd data-readout={id}>{v}</dd>
+                </div>
+              ))
+            }
+          </dl>
+        </aside>
+
+        <div class="tuner">
+          <fieldset class="lume-pick">
+            <legend>Lume compound</legend>
+            {
+              lumes.map((l, i) => (
+                <label title={l.note}>
+                  <input type="radio" name="lume" value={l.id} data-rgb={l.rgb} data-css={l.css} checked={i === 0} />
+                  <span class="swatch" style={`--sw:${l.css}`} />
+                  <span>{l.label}</span>
+                </label>
+              ))
+            }
+          </fieldset>
+          <button type="button" class="pause" id="pause" aria-pressed="false">Pause drift</button>
+          <p class="sr-only" id="status" aria-live="polite"></p>
+        </div>
+      </section>
+
+      <section id="process" class="wrap block" aria-labelledby="process-title">
+        <div class="block-head">
+          <p class="eyebrow mono">The six stages</p>
+          <h2 id="process-title">Ten days at the bench, one watch at a time.</h2>
+          <p class="dim">
+            Nothing is batched. A watch is opened, finished and closed before the next tray comes out
+            of the safe.
+          </p>
+        </div>
+        <ol class="stages">
+          {
+            stages.map(([n, name, body, time]) => (
+              <li>
+                <span class="mono n">{n}</span>
+                <h3>{name}</h3>
+                <p>{body}</p>
+                <span class="mono time">{time}</span>
+              </li>
+            ))
+          }
+        </ol>
+      </section>
+
+      <section id="ledger" class="wrap block" aria-labelledby="ledger-title">
+        <div class="block-head">
+          <p class="eyebrow mono">From the ledger · Q3 2026</p>
+          <h2 id="ledger-title">Recently returned.</h2>
+        </div>
+        <div class="ledger" role="table" aria-label="Recently returned watches">
+          <div class="row head" role="row">
+            <span role="columnheader">Watch</span>
+            <span role="columnheader">Year</span>
+            <span role="columnheader">Work</span>
+            <span role="columnheader">Bench hours</span>
+          </div>
+          {
+            ledger.map(([watch, year, work, hours]) => (
+              <div class="row" role="row">
+                <span role="cell" class="w">{watch}</span>
+                <span role="cell" class="mono dim">{year}</span>
+                <span role="cell" class="dim">{work}</span>
+                <span role="cell" class="mono">{hours}</span>
+              </div>
+            ))
+          }
+        </div>
+      </section>
+
+      <section id="book" class="wrap book" aria-labelledby="book-title">
+        <h2 id="book-title">Bench slots open each quarter.</h2>
+        <p class="dim">
+          Next intake: <strong>6 January 2027</strong>. Tell us the reference, the year and what it is
+          doing wrong — we reply with an estimate within a week.
+        </p>
+        <a class="btn btn-primary" href="mailto:bench@veylume.example">Request a slot</a>
+      </section>
+    </main>
+
+    <footer class="wrap foot">
+      <span>Vey Lume Works · Sleepstraat 41, 9000 Gent</span>
+      <span class="mono dim">Tue–Sat · 10:00–18:00</span>
+    </footer>
+
+    <style is:global>
+      :root {
+        --base: #050807;
+        --ink: #e9efeb;
+        --dim: #8c9a93;
+        --line: rgb(255 255 255 / 0.09);
+        --lume: #6dffa9;
+        --display: 'Archivo', ui-sans-serif, system-ui, sans-serif;
+        --mono: 'JetBrains Mono', ui-monospace, monospace;
+        color-scheme: dark;
+      }
+      html { background: var(--base); }
+      body {
+        margin: 0;
+        background: var(--base);
+        color: var(--ink);
+        font: 400 16px/1.55 var(--display);
+        font-variation-settings: 'wdth' 100;
+        -webkit-font-smoothing: antialiased;
+        overflow-x: clip;
+      }
+      a { color: inherit; }
+      .mono { font-family: var(--mono); font-size: 12px; letter-spacing: 0.04em; }
+      .dim { color: var(--dim); }
+      .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+      .wrap { width: min(1360px, 100% - 32px); margin-inline: auto; position: relative; z-index: 1; }
+      :focus-visible { outline: 2px solid var(--lume); outline-offset: 3px; border-radius: 4px; }
+
+      /* Atmosphere layer */
+      .atmo { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+      .atmo canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; opacity: 0; transition: opacity 1.2s ease; }
+      .atmo.ready canvas { opacity: 1; }
+      .atmo-fallback {
+        position: absolute; inset: 0;
+        background:
+          radial-gradient(60% 55% at 88% 96%, color-mix(in srgb, var(--lume) 34%, transparent), transparent 70%),
+          repeating-linear-gradient(90deg, transparent 0 5%, color-mix(in srgb, var(--lume) 5%, transparent) 6.5%, transparent 8%),
+          linear-gradient(to top, color-mix(in srgb, var(--lume) 10%, transparent), transparent 60%),
+          var(--base);
+      }
+      .atmo.ready .atmo-fallback { opacity: 0; transition: opacity 1.2s ease; }
+
+      /* Bar */
+      .bar { display: flex; align-items: center; justify-content: space-between; gap: 16px; height: 72px; border-bottom: 1px solid var(--line); }
+      .brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 600; letter-spacing: 0.01em; font-variation-settings: 'wdth' 112; }
+      .lume-dot { fill: var(--lume); filter: drop-shadow(0 0 4px var(--lume)); }
+      nav { display: flex; gap: 28px; align-items: center; font-size: 14px; }
+      nav a { text-decoration: none; color: var(--dim); transition: color 0.2s; }
+      nav a:hover { color: var(--ink); }
+      nav .nav-cta { color: var(--ink); border: 1px solid var(--line); padding: 8px 14px; border-radius: 999px; background: rgb(255 255 255 / 0.03); }
+
+      /* Hero */
+      .hero {
+        min-height: calc(100svh - 72px);
+        display: grid;
+        grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+        grid-template-rows: 1fr auto;
+        gap: 32px 48px;
+        padding-block: clamp(40px, 7vh, 88px) 32px;
+        box-sizing: border-box;
+      }
+      .hero-copy { align-self: center; }
+      .eyebrow { display: flex; align-items: center; gap: 10px; margin: 0 0 22px; font: 500 12px/1.4 var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim); }
+      .pip { width: 6px; height: 6px; border-radius: 50%; background: var(--lume); box-shadow: 0 0 10px var(--lume); }
+      h1 {
+        margin: 0;
+        font-size: clamp(64px, 10.4vw, 156px);
+        line-height: 0.88;
+        letter-spacing: -0.035em;
+        font-weight: 640;
+        font-variation-settings: 'wdth' 72;
+        text-transform: uppercase;
+      }
+      h1 .accent { color: var(--lume); text-shadow: 0 0 40px color-mix(in srgb, var(--lume) 45%, transparent); }
+      .lede { max-width: 33rem; margin: 28px 0 0; color: #b8c4be; font-size: 17px; }
+      .ctas { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 32px; }
+      .btn { display: inline-flex; align-items: center; height: 46px; padding: 0 20px; border-radius: 999px; text-decoration: none; font-weight: 550; font-size: 15px; transition: transform 0.2s, background 0.2s; }
+      .btn:hover { transform: translateY(-1px); }
+      .btn-primary { background: var(--lume); color: #04100a; box-shadow: 0 0 0 1px color-mix(in srgb, var(--lume) 60%, white), 0 10px 40px -10px color-mix(in srgb, var(--lume) 70%, transparent); }
+      .btn-ghost { border: 1px solid var(--line); background: rgb(255 255 255 / 0.03); }
+
+      .bench {
+        align-self: end;
+        justify-self: end;
+        width: min(100%, 400px);
+        padding: 18px 20px 20px;
+        border: 1px solid rgb(255 255 255 / 0.12);
+        border-radius: 14px;
+        background: rgb(4 7 6 / 0.55);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+      }
+      .bench-head { display: flex; justify-content: space-between; align-items: center; font: 500 11px/1 var(--mono); letter-spacing: 0.12em; text-transform: uppercase; }
+      .live { display: inline-flex; align-items: center; gap: 8px; color: var(--lume); }
+      .live-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; box-shadow: 0 0 8px currentColor; animation: blink 2.4s ease-in-out infinite; }
+      @keyframes blink { 50% { opacity: 0.35; } }
+      .bench-watch { margin: 14px 0 14px; font-size: 19px; font-weight: 550; font-variation-settings: 'wdth' 90; }
+      .readouts { margin: 0; display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--line); }
+      .readouts div { padding: 10px 0 0; }
+      .readouts div:first-child { grid-column: 1 / -1; }
+      .readouts dt { font: 400 10.5px/1.2 var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim); }
+      .readouts dd { margin: 4px 0 0; font: 500 15px/1.2 var(--mono); font-variant-numeric: tabular-nums; }
+
+      .tuner { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 20px; padding-top: 18px; border-top: 1px solid var(--line); }
+      .lume-pick { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; border: 0; margin: 0; padding: 0; }
+      .lume-pick legend { float: left; margin-right: 10px; font: 500 11px/1 var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim); }
+      .lume-pick label { position: relative; display: inline-flex; align-items: center; gap: 8px; padding: 7px 12px; border-radius: 999px; border: 1px solid var(--line); background: rgb(4 7 6 / 0.45); font: 500 12px/1 var(--mono); cursor: pointer; color: var(--dim); transition: color 0.2s, border-color 0.2s; }
+      .lume-pick input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+      .lume-pick label:has(input:checked) { color: var(--ink); border-color: rgb(255 255 255 / 0.28); background: rgb(255 255 255 / 0.04); }
+      .lume-pick label:has(input:focus-visible) { outline: 2px solid var(--lume); outline-offset: 2px; }
+      .swatch { width: 9px; height: 9px; border-radius: 50%; background: var(--sw); box-shadow: 0 0 8px var(--sw); }
+      .pause { font: 500 12px/1 var(--mono); color: #b8c4be; background: rgb(4 7 6 / 0.6); border: 1px solid var(--line); border-radius: 999px; padding: 8px 14px; cursor: pointer; }
+      .pause:hover, .pause[aria-pressed='true'] { color: var(--ink); }
+
+      /* Blocks */
+      .block { padding-block: clamp(80px, 12vw, 140px) 0; }
+      .block-head { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px 48px; align-items: end; margin-bottom: 40px; }
+      .block-head .eyebrow { grid-column: 1 / -1; margin-bottom: 4px; }
+      h2 { margin: 0; font-size: clamp(34px, 4.6vw, 64px); line-height: 0.98; letter-spacing: -0.025em; font-weight: 600; font-variation-settings: 'wdth' 78; }
+      .block-head p.dim { margin: 0; max-width: 30rem; }
+      .stages { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
+      .stages li { display: flex; flex-direction: column; gap: 10px; padding: 24px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); background: rgb(4 7 6 / 0.62); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+      .stages .n { color: var(--lume); }
+      .stages h3 { margin: 0; font-size: 21px; font-weight: 600; font-variation-settings: 'wdth' 88; }
+      .stages p { margin: 0; color: #a9b6b0; font-size: 15px; flex: 1; }
+      .stages .time { color: var(--dim); }
+
+      .ledger { border-top: 1px solid var(--line); background: rgb(4 7 6 / 0.62); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+      .ledger .row { display: grid; grid-template-columns: 1.3fr 0.4fr 1.6fr 0.5fr; gap: 16px; padding: 18px 4px; border-bottom: 1px solid var(--line); align-items: baseline; }
+      .ledger .head { font: 500 11px/1 var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim); }
+      .ledger .w { font-weight: 550; font-size: 17px; }
+      .ledger .row > :last-child { text-align: right; }
+
+      .book { padding-block: clamp(100px, 14vw, 180px) clamp(80px, 10vw, 120px); text-align: center; display: flex; flex-direction: column; align-items: center; gap: 20px; }
+      .book h2 { font-size: clamp(40px, 6vw, 88px); }
+      .book p { max-width: 34rem; margin: 0 0 8px; }
+      .book strong { color: var(--ink); font-weight: 600; }
+      .foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; padding: 24px 0 72px; border-top: 1px solid var(--line); font-size: 14px; }
+
+      @media (max-width: 900px) {
+        .hero { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto; }
+        .bench { justify-self: stretch; width: auto; }
+        .block-head { grid-template-columns: minmax(0, 1fr); }
+        .stages { grid-template-columns: minmax(0, 1fr); }
+      }
+      @media (max-width: 640px) {
+        nav a:not(.nav-cta) { display: none; }
+        .lede { font-size: 16px; }
+        .ledger .row { grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; }
+        .ledger .head { display: none; }
+        .ledger .row > :nth-child(2) { order: 2; text-align: right; }
+        .ledger .row > :nth-child(3) { order: 3; grid-column: 1 / -1; font-size: 14px; }
+        .ledger .row > :nth-child(4) { display: none; }
+        .tuner { justify-content: flex-start; }
+        .lume-pick legend { float: none; width: 100%; margin: 0 0 8px; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .live-dot { animation: none; }
+        .btn, .atmo canvas, .atmo-fallback { transition: none; }
+      }
+    </style>
+
+    <script>
+      // Atmosphere background: 18 drifting vertical light folds + one narrow signal beam,
+      // screen-blended, fading at the top and pooling into a lower-right bloom. Tinted from --lume.
+      const VERT = `attribute vec2 p; void main(){ gl_Position = vec4(p, 0.0, 1.0); }`;
+      const FRAG = `
+precision highp float;
+uniform vec2 uRes;
+uniform float uTime;
+uniform vec3 uTint;
+uniform vec2 uFocus;
+uniform float uDim;
+uniform float uCount;
+
+vec3 screen(vec3 a, vec3 b) { return 1.0 - (1.0 - a) * (1.0 - b); }
+float hash(vec2 p) { return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
+
+void main() {
+  vec2 uv = gl_FragCoord.xy / uRes;          // y = 0 at the bottom
+  float aspect = uRes.x / uRes.y;
+  vec3 base = vec3(0.016, 0.026, 0.023);
+  vec3 acc = vec3(0.0);
+
+  for (int i = 0; i < 18; i++) {
+    float fi = float(i);
+    if (fi >= uCount) break;
+    float seed = fract(sin(fi * 91.345 + 3.1) * 43758.5453);
+    float lane = (fi + 0.5) / uCount * 1.24 - 0.12 + (seed - 0.5) * 0.06;
+    // two slow sines: the fold bends along its height and the whole sheet sways
+    float sway = sin(uv.y * (1.4 + seed * 2.4) + uTime * (0.05 + seed * 0.06) + fi * 1.7) * (0.035 + seed * 0.03)
+               + sin(uTime * (0.025 + seed * 0.02) + fi * 2.9) * 0.045;
+    float d = uv.x - (lane + sway);
+    float w = 0.022 + seed * 0.05;
+    // soft body + thin crease highlight on one side, like lit fabric
+    float body = exp(-d * d / (w * w));
+    float crease = exp(-pow((d + w * 0.45) / (w * 0.16), 2.0)) * 0.55;
+    float vert = mix(0.07, 1.0, pow(clamp(1.0 - uv.y, 0.0, 1.0), 1.3 + seed * 1.2)) * smoothstep(1.0, 0.45, uv.y);
+    float focus = mix(0.16, 1.0, smoothstep(0.05, 1.0, lane));
+    float breathe = 0.78 + 0.22 * sin(uTime * (0.08 + seed * 0.07) + fi * 2.3);
+    float a = (body * 0.34 + crease) * vert * focus * breathe;
+    vec3 tint = mix(uTint, vec3(1.0), 0.12 * seed);
+    acc = screen(acc, tint * a * 0.62);
+  }
+
+  // one narrow moving signal beam
+  float bx = 0.66 + 0.2 * sin(uTime * 0.045) + sin(uv.y * 2.2 + uTime * 0.07) * 0.02;
+  float beam = exp(-pow((uv.x - bx) / 0.0035, 2.0)) * pow(1.0 - uv.y, 1.6) * 0.75;
+  acc = screen(acc, mix(uTint, vec3(1.0), 0.35) * beam);
+
+  // focal bloom, lower right
+  vec2 fp = (uv - uFocus) * vec2(aspect, 1.0);
+  float r2 = dot(fp, fp);
+  float bloom = exp(-r2 * 1.8) * 0.32 + exp(-r2 * 9.0) * 0.3;
+  acc = screen(acc, uTint * bloom);
+
+  vec3 col = screen(base, acc);
+  col += vec3(pow(max(max(acc.r, acc.g), acc.b), 4.0)) * 0.18; // hot core whitens slightly
+  // top-left falloff keeps the headline side dark
+  col *= mix(0.55, 1.0, smoothstep(-0.2, 0.9, uv.x * 0.7 + (1.0 - uv.y) * 0.6));
+  col *= uDim;
+  col += (hash(gl_FragCoord.xy + fract(uTime)) - 0.5) / 255.0 * 2.0; // dither against banding
+  gl_FragColor = vec4(col, 1.0);
+}`;
+
+      const root = document.querySelector<HTMLElement>('.atmo')!;
+      const canvas = document.getElementById('atmo-canvas') as HTMLCanvasElement;
+      const pauseBtn = document.getElementById('pause') as HTMLButtonElement;
+      const status = document.getElementById('status')!;
+      const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+      const tint = [0.42, 1.0, 0.66];
+      let draw: (t: number) => void = () => {};
+
+      const gl = canvas.getContext('webgl', { antialias: false, alpha: false, powerPreference: 'low-power' });
+      if (gl) {
+        const compile = (type: number, src: string) => {
+          const s = gl.createShader(type)!;
+          gl.shaderSource(s, src);
+          gl.compileShader(s);
+          if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s) ?? 'shader');
+          return s;
+        };
+        try {
+          const prog = gl.createProgram()!;
+          gl.attachShader(prog, compile(gl.VERTEX_SHADER, VERT));
+          gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, FRAG));
+          gl.linkProgram(prog);
+          gl.useProgram(prog);
+          gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+          gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+          const loc = gl.getAttribLocation(prog, 'p');
+          gl.enableVertexAttribArray(loc);
+          gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+          const u = (n: string) => gl.getUniformLocation(prog, n);
+          const uRes = u('uRes'), uTime = u('uTime'), uTint = u('uTint'), uFocus = u('uFocus'), uDim = u('uDim'), uCount = u('uCount');
+
+          const resize = () => {
+            // soft field: render below CSS resolution, DPR capped at 1.5
+            const scale = Math.min(devicePixelRatio || 1, 1.5) * 0.7;
+            canvas.width = Math.round(innerWidth * scale);
+            canvas.height = Math.round(innerHeight * scale);
+            gl.viewport(0, 0, canvas.width, canvas.height);
+          };
+          draw = (t) => {
+            const narrow = innerWidth < 700;
+            gl.uniform2f(uRes, canvas.width, canvas.height);
+            gl.uniform1f(uTime, t);
+            gl.uniform3f(uTint, tint[0], tint[1], tint[2]);
+            gl.uniform2f(uFocus, narrow ? 0.95 : 0.9, narrow ? -0.02 : 0.02);
+            gl.uniform1f(uCount, narrow ? 11 : 18);
+            gl.uniform1f(uDim, 1 - 0.4 * Math.min(scrollY / innerHeight, 1));
+            gl.drawArrays(gl.TRIANGLES, 0, 3);
+          };
+          resize();
+          addEventListener('resize', () => { resize(); if (!running) draw(clock); });
+          root.classList.add('ready');
+        } catch (e) {
+          console.warn('atmosphere: WebGL unavailable, keeping CSS fallback', e);
+        }
+      }
+
+      // Slow, meditative clock. Starts mid-drift so the first frame is already composed.
+      let clock = 34;
+      let last = 0;
+      let raf = 0;
+      let running = false;
+      let userPaused = false;
+      const frame = (now: number) => {
+        if (last) clock += Math.min(now - last, 50) / 1000;
+        last = now;
+        draw(clock);
+        raf = requestAnimationFrame(frame);
+      };
+      const start = () => { if (running) return; running = true; last = 0; raf = requestAnimationFrame(frame); };
+      const stop = () => { running = false; cancelAnimationFrame(raf); draw(clock); };
+      const sync = () => (reduced.matches || userPaused || document.hidden ? stop() : start());
+
+      document.addEventListener('visibilitychange', sync);
+      reduced.addEventListener('change', sync);
+      addEventListener('scroll', () => { if (!running) draw(clock); }, { passive: true });
+
+      pauseBtn.addEventListener('click', () => {
+        userPaused = !userPaused;
+        pauseBtn.setAttribute('aria-pressed', String(userPaused));
+        pauseBtn.textContent = userPaused ? 'Resume drift' : 'Pause drift';
+        status.textContent = userPaused ? 'Background motion paused' : 'Background motion resumed';
+        sync();
+      });
+      if (reduced.matches) {
+        pauseBtn.hidden = true;
+      }
+
+      // Lume compound picker retints the folds and the page accent.
+      document.querySelectorAll<HTMLInputElement>('input[name="lume"]').forEach((input) => {
+        input.addEventListener('change', () => {
+          input.dataset.rgb!.split(',').forEach((v, i) => (tint[i] = parseFloat(v)));
+          document.documentElement.style.setProperty('--lume', input.dataset.css!);
+          if (!running) draw(clock);
+          status.textContent = `Lume set to ${input.parentElement?.textContent?.trim()}`;
+        });
+      });
+
+      // Timegrapher readout: small honest jitter around the regulated values.
+      const rate = document.querySelector('[data-readout="rate"]');
+      const amp = document.querySelector('[data-readout="amp"]');
+      if (!reduced.matches && rate && amp) {
+        setInterval(() => {
+          if (document.hidden) return;
+          const r = 2.1 + (Math.random() - 0.5) * 0.6;
+          rate.textContent = `${r >= 0 ? '+' : ''}${r.toFixed(1)} s/d`;
+          amp.textContent = `${Math.round(286 + Math.random() * 4)}°`;
+        }, 1600);
+      }
+
+      draw(clock);
+      sync();
+    </script>
+  </body>
+</html>

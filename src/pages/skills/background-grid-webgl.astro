@@ -1,0 +1,489 @@
+---
+import '../../styles/global.css';
+import BackPill from '../../components/BackPill.astro';
+
+const tonight = [
+  { hall: 'Leith', climbers: 41, set: 'Orange circuit', status: 'Reset 18:00' },
+  { hall: 'Kreuzberg', climbers: 63, set: 'Comp wall', status: 'Open' },
+  { hall: 'Ghent', climbers: 22, set: 'Slab cave', status: 'Open' },
+];
+
+const halls = [
+  { city: 'Edinburgh', name: 'Leith', walls: '1,180 m²', problems: 214, hours: '07–01', note: 'The original. Old bonded warehouse, 4.6 m walls, the cave everyone talks about.' },
+  { city: 'Berlin', name: 'Kreuzberg', walls: '1,620 m²', problems: 302, hours: '07–01', note: 'Our biggest floor. A competition wall reset every second Tuesday for the league.' },
+  { city: 'Ghent', name: 'Dok Noord', walls: '940 m²', problems: 168, hours: '08–00', note: 'Slab-heavy and quiet before ten. The sauna is not a rumour.' },
+  { city: 'Lyon', name: 'Confluence', walls: '1,050 m²', problems: 190, hours: '07–00', note: 'Steep board room with the 40° Moon set and a 25° spray wall beside it.' },
+  { city: 'Porto', name: 'Bonfim', walls: '880 m²', problems: 151, hours: '08–01', note: 'Under a 1920s glass roof — the grid is lit by the street after dark.' },
+  { city: 'Oslo', name: 'Grünerløkka', walls: '1,240 m²', problems: 226, hours: '06–00', note: 'Opens at six for the shift crowd. Coffee is on before the lights.' },
+];
+
+const facts = [
+  ['200 mm', 'bolt pattern, every hall'],
+  ['Tue', 'new sets land at 18:00'],
+  ['V0–V12', 'graded the same in six cities'],
+  ['01:00', 'last entry, most nights'],
+];
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Holdfast — Bouldering on one grid</title>
+    <meta name="description" content="Holdfast runs six late-night bouldering halls drilled on the same 200 mm bolt grid. A WebGL perspective grid drifts underneath the page." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <canvas id="grid" aria-hidden="true"></canvas>
+    <div class="veil" aria-hidden="true"></div>
+
+    <header class="nav">
+      <a class="brand" href="#top" aria-label="Holdfast home">
+        <span class="mark" aria-hidden="true"></span>HOLDFAST
+      </a>
+      <nav aria-label="Primary">
+        <a href="#halls">Halls</a>
+        <a href="#halls">Sets</a>
+        <a href="#join">Membership</a>
+      </nav>
+      <a class="btn btn-ghost" href="#join">Day pass €14</a>
+    </header>
+
+    <main id="top">
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow"><span class="dot"></span>Six halls · one grid · open till 1 a.m.</p>
+          <h1>Every wall<br />starts as<br /><em>a grid.</em></h1>
+          <p class="lede">
+            Holdfast drills all six of its bouldering halls on the same 200&nbsp;mm grid. Learn how one
+            wall reads and you can read them all — your membership, your projects and your beta travel with you.
+          </p>
+          <div class="ctas">
+            <a class="btn btn-solid" href="#join">Start a membership</a>
+            <a class="btn btn-ghost" href="#halls">Find a hall</a>
+          </div>
+        </div>
+
+        <aside class="board" aria-label="Tonight across the halls">
+          <div class="board-head">
+            <span>TONIGHT</span><span>21:40 CET</span>
+          </div>
+          <ul>
+            {tonight.map((r) => (
+              <li>
+                <span class="b-hall">{r.hall}</span>
+                <span class="b-num">{r.climbers}<small> on the mats</small></span>
+                <span class="b-set">{r.set}</span>
+                <span class="b-status">{r.status}</span>
+              </li>
+            ))}
+          </ul>
+        </aside>
+
+        <dl class="facts">
+          {facts.map(([v, l]) => (
+            <div><dt>{v}</dt><dd>{l}</dd></div>
+          ))}
+        </dl>
+      </section>
+
+      <section id="halls" class="halls">
+        <div class="section-head">
+          <p class="eyebrow"><span class="dot"></span>The halls</p>
+          <h2>Same grid. Six floors.</h2>
+          <p>Each hall is set by its own crew, but the holds bolt into the same pattern — so a V5 in Porto asks the same questions as a V5 in Oslo.</p>
+        </div>
+        <ol class="hall-grid">
+          {halls.map((h, i) => (
+            <li class="hall">
+              <div class="hall-top">
+                <span class="idx">{String(i + 1).padStart(2, '0')}</span>
+                <span class="city">{h.city}</span>
+              </div>
+              <h3>{h.name}</h3>
+              <p>{h.note}</p>
+              <dl>
+                <div><dt>Wall</dt><dd>{h.walls}</dd></div>
+                <div><dt>Problems</dt><dd>{h.problems}</dd></div>
+                <div><dt>Hours</dt><dd>{h.hours}</dd></div>
+              </dl>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section id="join" class="join">
+        <div>
+          <p class="eyebrow"><span class="dot"></span>Membership</p>
+          <h2>One card. Every hall.</h2>
+        </div>
+        <div class="plans">
+          <div class="plan">
+            <span class="plan-name">Off-peak</span>
+            <span class="plan-price">€39<small>/mo</small></span>
+            <span class="plan-note">Weekdays before 16:00 and after 22:00.</span>
+          </div>
+          <div class="plan plan-hi">
+            <span class="plan-name">Anytime</span>
+            <span class="plan-price">€58<small>/mo</small></span>
+            <span class="plan-note">All six halls, all hours, two guest passes a month.</span>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="foot">
+      <span>Holdfast Climbing Halls</span>
+      <span>Chalk is free. Brushes are on the wall. Please brush your ticks.</span>
+    </footer>
+
+    <BackPill />
+
+    <script>
+      import { mount } from '../../components/skills/background-grid-webgl/grid';
+      const c = document.getElementById('grid') as HTMLCanvasElement | null;
+      if (c) mount(c);
+    </script>
+
+    <style>
+      :global(html) {
+        --ink: #0c0d0c;
+        --chalk: #e7e8e3;
+        --muted: #8d918a;
+        --line: rgb(231 232 227 / 0.12);
+        --accent: #ff6a3d;
+        background: var(--ink);
+        scroll-behavior: smooth;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        :global(html) { scroll-behavior: auto; }
+      }
+      :global(body) {
+        margin: 0;
+        font-family: 'Archivo', ui-sans-serif, system-ui, sans-serif;
+        color: var(--chalk);
+        background: radial-gradient(120% 70% at 50% 46%, #1b1c1a 0%, var(--ink) 62%);
+        background-attachment: fixed;
+        -webkit-font-smoothing: antialiased;
+        overflow-x: hidden;
+      }
+      #grid {
+        position: fixed;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        display: block;
+        z-index: 0;
+      }
+      /* horizon haze + top/bottom vignette; also the no-WebGL fallback carries the mood */
+      .veil {
+        position: fixed;
+        inset: 0;
+        z-index: 1;
+        pointer-events: none;
+        background:
+          radial-gradient(60% 18% at 50% 42%, rgb(255 106 61 / 0.09), transparent 70%),
+          linear-gradient(to bottom, rgb(12 13 12 / 0.9) 0%, transparent 22%, transparent 70%, rgb(12 13 12 / 0.55) 100%);
+      }
+      :global(.no-webgl) .veil {
+        background:
+          repeating-linear-gradient(90deg, var(--line) 0 1px, transparent 1px 64px),
+          radial-gradient(60% 18% at 50% 42%, rgb(255 106 61 / 0.09), transparent 70%);
+        mask-image: linear-gradient(to bottom, transparent 40%, #000);
+      }
+
+      .nav, main, .foot { position: relative; z-index: 2; }
+
+      .nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+        padding: 22px clamp(16px, 4vw, 56px);
+      }
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 800;
+        font-stretch: 125%;
+        letter-spacing: 0.06em;
+        font-size: 15px;
+        color: var(--chalk);
+        text-decoration: none;
+      }
+      .mark {
+        width: 18px;
+        height: 18px;
+        border: 1.5px solid var(--chalk);
+        border-radius: 3px;
+        background:
+          linear-gradient(var(--chalk), var(--chalk)) center / 1.5px 100% no-repeat,
+          linear-gradient(var(--chalk), var(--chalk)) center / 100% 1.5px no-repeat;
+        position: relative;
+      }
+      .mark::after {
+        content: '';
+        position: absolute;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--accent);
+        right: 1px;
+        top: 1px;
+      }
+      .nav nav { display: flex; gap: 32px; }
+      .nav nav a {
+        color: var(--muted);
+        text-decoration: none;
+        font-size: 14px;
+        transition: color 0.2s;
+      }
+      .nav nav a:hover { color: var(--chalk); }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        height: 44px;
+        padding: 0 20px;
+        border-radius: 4px;
+        font: 500 14px/1 'Archivo', sans-serif;
+        text-decoration: none;
+        white-space: nowrap;
+        transition: background 0.2s, border-color 0.2s, color 0.2s;
+      }
+      .btn-solid { background: var(--chalk); color: var(--ink); }
+      .btn-solid:hover { background: #fff; }
+      .btn-ghost {
+        color: var(--chalk);
+        border: 1px solid rgb(231 232 227 / 0.22);
+        background: rgb(12 13 12 / 0.35);
+        backdrop-filter: blur(6px);
+      }
+      .btn-ghost:hover { border-color: rgb(231 232 227 / 0.5); }
+      a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        margin: 0;
+        font: 500 12px/1.4 'JetBrains Mono', ui-monospace, monospace;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--accent);
+        box-shadow: 0 0 10px var(--accent);
+        flex: none;
+      }
+
+      /* HERO */
+      .hero {
+        min-height: calc(100svh - 88px);
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 360px;
+        grid-template-rows: 1fr auto;
+        gap: 40px 48px;
+        padding: clamp(24px, 6vh, 72px) clamp(16px, 4vw, 56px) 32px;
+        box-sizing: border-box;
+      }
+      .hero-copy { align-self: center; max-width: 760px; }
+      h1 {
+        margin: 22px 0 24px;
+        font-weight: 700;
+        font-stretch: 112%;
+        font-size: clamp(48px, 7.4vw, 112px);
+        line-height: 0.9;
+        letter-spacing: -0.035em;
+      }
+      h1 em {
+        font-style: normal;
+        font-weight: 300;
+        font-stretch: 125%;
+        color: var(--chalk);
+        letter-spacing: -0.02em;
+        text-decoration: underline;
+        text-decoration-color: var(--accent);
+        text-decoration-thickness: 0.06em;
+        text-underline-offset: 0.12em;
+      }
+      .lede {
+        max-width: 520px;
+        margin: 0 0 32px;
+        font-size: 17px;
+        line-height: 1.6;
+        color: #b7bab3;
+      }
+      .ctas { display: flex; gap: 12px; flex-wrap: wrap; }
+
+      .board {
+        align-self: center;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        background: rgb(16 17 16 / 0.62);
+        backdrop-filter: blur(10px);
+        font-family: 'JetBrains Mono', ui-monospace, monospace;
+      }
+      .board-head {
+        display: flex;
+        justify-content: space-between;
+        padding: 14px 18px;
+        font-size: 11px;
+        letter-spacing: 0.12em;
+        color: var(--muted);
+        border-bottom: 1px solid var(--line);
+      }
+      .board ul { list-style: none; margin: 0; padding: 0; }
+      .board li {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 4px 12px;
+        padding: 14px 18px;
+        border-bottom: 1px solid var(--line);
+        font-size: 12px;
+      }
+      .board li:last-child { border-bottom: 0; }
+      .b-hall { font: 600 15px/1.2 'Archivo', sans-serif; font-stretch: 112%; }
+      .b-num { text-align: right; font-size: 15px; color: var(--chalk); }
+      .b-num small { font-size: 10px; color: var(--muted); }
+      .b-set { color: var(--muted); }
+      .b-status { text-align: right; color: var(--accent); }
+
+      .facts {
+        grid-column: 1 / -1;
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        margin: 0;
+        border-top: 1px solid var(--line);
+      }
+      .facts div { padding: 18px 0 0; }
+      .facts div + div { padding-left: 20px; border-left: 1px solid var(--line); }
+      .facts dt { font: 600 22px/1 'Archivo', sans-serif; font-stretch: 112%; }
+      .facts dd {
+        margin: 8px 0 0;
+        font: 400 11px/1.4 'JetBrains Mono', monospace;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      /* HALLS */
+      .halls, .join {
+        padding: clamp(72px, 12vh, 140px) clamp(16px, 4vw, 56px);
+        background: linear-gradient(to bottom, transparent, rgb(12 13 12 / 0.82) 120px);
+      }
+      .section-head { max-width: 640px; margin-bottom: 48px; }
+      h2 {
+        margin: 16px 0 16px;
+        font-weight: 700;
+        font-stretch: 112%;
+        font-size: clamp(34px, 4.4vw, 60px);
+        line-height: 0.95;
+        letter-spacing: -0.03em;
+      }
+      .section-head > p:last-child { color: #a9aca4; line-height: 1.6; margin: 0; }
+      .hall-grid {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        border-top: 1px solid var(--line);
+        border-left: 1px solid var(--line);
+      }
+      .hall {
+        padding: 24px;
+        border-right: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+        background: rgb(16 17 16 / 0.5);
+        transition: background 0.25s;
+      }
+      .hall:hover { background: rgb(28 29 27 / 0.75); }
+      .hall-top {
+        display: flex;
+        justify-content: space-between;
+        font: 500 11px/1 'JetBrains Mono', monospace;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      .hall:hover .idx { color: var(--accent); }
+      h3 {
+        margin: 40px 0 10px;
+        font-weight: 600;
+        font-stretch: 112%;
+        font-size: 26px;
+        letter-spacing: -0.02em;
+      }
+      .hall p { margin: 0 0 24px; color: #a9aca4; font-size: 14px; line-height: 1.55; min-height: 4.65em; }
+      .hall dl { display: flex; gap: 20px; margin: 0; padding-top: 16px; border-top: 1px dashed var(--line); }
+      .hall dt { font: 400 10px/1 'JetBrains Mono', monospace; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+      .hall dd { margin: 6px 0 0; font: 500 14px/1 'JetBrains Mono', monospace; }
+
+      /* JOIN */
+      .join {
+        background: rgb(12 13 12 / 0.82);
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+        gap: 48px;
+        align-items: end;
+        padding-top: 40px;
+      }
+      .plans { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+      .plan {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding: 24px;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        background: rgb(16 17 16 / 0.7);
+      }
+      .plan-hi { border-color: rgb(255 106 61 / 0.45); }
+      .plan-name { font: 500 11px/1 'JetBrains Mono', monospace; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+      .plan-hi .plan-name { color: var(--accent); }
+      .plan-price { font: 700 40px/1 'Archivo', sans-serif; font-stretch: 112%; letter-spacing: -0.03em; }
+      .plan-price small { font-size: 14px; font-weight: 400; color: var(--muted); letter-spacing: 0; }
+      .plan-note { font-size: 14px; color: #a9aca4; line-height: 1.5; }
+
+      .foot {
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 8px 24px;
+        padding: 28px clamp(16px, 4vw, 56px) 80px;
+        border-top: 1px solid var(--line);
+        background: var(--ink);
+        font: 400 11px/1.5 'JetBrains Mono', monospace;
+        letter-spacing: 0.06em;
+        color: var(--muted);
+      }
+
+      @media (max-width: 1000px) {
+        .hero { grid-template-columns: minmax(0, 1fr); }
+        .board { max-width: 480px; width: 100%; }
+        .hall-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .join { grid-template-columns: minmax(0, 1fr); }
+      }
+      @media (max-width: 640px) {
+        .nav nav { display: none; }
+        .nav .btn { height: 38px; padding: 0 14px; font-size: 13px; }
+        .hero { min-height: 0; padding-top: 32px; }
+        .lede { font-size: 16px; }
+        .facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .facts div:nth-child(3) { padding-left: 0; border-left: 0; }
+        .facts div:nth-child(n + 3) { padding-top: 18px; }
+        .hall-grid { grid-template-columns: minmax(0, 1fr); }
+        .hall p { min-height: 0; }
+        .plans { grid-template-columns: minmax(0, 1fr); }
+      }
+    </style>
+  </body>
+</html>

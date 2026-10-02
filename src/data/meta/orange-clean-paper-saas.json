@@ -1,0 +1,7 @@
+{
+  "title": "Orange Clean Paper SaaS",
+  "kind": "website",
+  "category": "Design systems",
+  "concept": "Firecrest, a forest fire watch platform: a warm paper split onboarding card (stepped form beside a live topo map where tower bearings cross over a plume under floating glass cards), then a bento of pillars, a minute-by-minute plume timeline, per-tower plans and a CTA.",
+  "notes": "Pure CSS/SVG, no runtime deps beyond Google Fonts (Inter, Inter Tight). Contours generated at build time. Masked headline reveal, gently bobbing cards, camera sweep and dashed bearings; hero loops pause off-screen; prefers-reduced-motion shows everything static."
+}

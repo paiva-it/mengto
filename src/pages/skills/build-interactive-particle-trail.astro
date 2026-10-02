@@ -1,0 +1,964 @@
+---
+import '../../styles/global.css';
+import BackPill from '../../components/BackPill.astro';
+
+const bakes = [
+  {
+    n: '01',
+    days: 'Tue – Thu',
+    name: 'Alder Row country loaf',
+    body: 'Forty-hour sourdough, 20 % stoneground rye from the Halden mill, a crust that crackles for the length of the street.',
+    out: 'Out at 6:40',
+    price: '£5.20',
+  },
+  {
+    n: '02',
+    days: 'Friday',
+    name: 'Three-strand milk braid',
+    body: 'The one on the bench above. Brushed twice with egg and cream, plaited by whoever got in first, gone by eleven.',
+    out: 'Out at 7:10',
+    price: '£6.00',
+  },
+  {
+    n: '03',
+    days: 'Sat – Sun',
+    name: 'Cardamom knots',
+    body: 'Laminated dough, hand-ground green cardamom and a sugar syrup that sets glassy. Six to a tray, one tray per hour.',
+    out: 'Hourly from 8:00',
+    price: '£3.40',
+  },
+];
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Mill & Morrow — Flour Trace</title>
+    <meta name="description" content="Mill & Morrow, a neighbourhood bakehouse on Alder Row. Run a finger across the bench and lift the flour." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <main>
+      <section class="hero" id="bench" aria-labelledby="hero-title">
+        <canvas class="hero__canvas" aria-hidden="true"></canvas>
+        <div class="hero__ghost" aria-hidden="true">MORROW</div>
+
+        <header class="hero__bar">
+          <span class="brand"><span class="brand__dot" aria-hidden="true"></span>Mill &amp; Morrow</span>
+          <span class="hours">Bakehouse · 14 Alder Row · Tue–Sun 6:30–14:00</span>
+        </header>
+
+        <div class="hero__copy">
+          <h1 id="hero-title">Flour in the air<br />by four.</h1>
+          <p class="hero__lede">
+            Run a finger across the bench. A slow knead and a quick dust shed the same line — every grain is spaced by
+            distance, never by the clock.
+          </p>
+        </div>
+
+        <figure class="card">
+          <div class="card__img">
+            <img
+              src="https://images.unsplash.com/photo-1509440159596-0249088772ff?w=900&q=80&auto=format&fit=crop"
+              alt="Crusty loaves cooling on a floured wooden board"
+              width="900"
+              height="600"
+              loading="eager"
+            />
+          </div>
+          <figcaption>
+            <span class="card__eyebrow">Proving now</span>
+            <span class="card__title">Rye &amp; fennel,<br />out at 7:10.</span>
+          </figcaption>
+        </figure>
+
+        <p class="hero__hint">Move, draw or tap across the bench</p>
+
+        <div class="panel">
+          <div class="panel__row">
+            <div>
+              <p class="panel__kicker">Flour trace 04</p>
+              <p class="panel__title">Distance keeps the rhythm.</p>
+            </div>
+            <button type="button" class="panel__btn" id="dust-btn">Dust the bench</button>
+          </div>
+          <ul class="panel__stats" aria-label="Trace settings">
+            <li>7u spacing</li>
+            <li>620 grains</li>
+            <li>52 grain burst</li>
+          </ul>
+          <p class="sr-only" aria-live="polite" id="dust-status"></p>
+        </div>
+      </section>
+
+      <section class="week" aria-labelledby="week-title">
+        <div class="week__head">
+          <p class="week__kicker">This week on the bench</p>
+          <h2 id="week-title">Three doughs, one oven,<br />and a street that queues.</h2>
+        </div>
+        <ol class="week__list">
+          {
+            bakes.map((b) => (
+              <li class="bake">
+                <div class="bake__top">
+                  <span class="bake__n">{b.n}</span>
+                  <span class="bake__days">{b.days}</span>
+                </div>
+                <h3>{b.name}</h3>
+                <p>{b.body}</p>
+                <div class="bake__foot">
+                  <span>{b.out}</span>
+                  <span>{b.price}</span>
+                </div>
+              </li>
+            ))
+          }
+        </ol>
+        <footer class="week__foot">
+          <span>Order by 20:00 the night before — we hold it till noon.</span>
+          <a href="#bench">Back to the bench ↑</a>
+        </footer>
+      </section>
+    </main>
+    <BackPill />
+
+    <style>
+      :root {
+        --rye: #5f5850;
+        --rye-deep: #4a443d;
+        --rye-light: #8b8274;
+        --flour: #f4efe6;
+        --ink: #2a2520;
+        --crust: #b4743e;
+        --butter: #f1dc8f;
+        --muted: rgb(244 239 230 / 0.66);
+      }
+      html,
+      body {
+        margin: 0;
+        background: var(--rye-deep);
+        color: var(--flour);
+        font-family: 'Lexend', ui-sans-serif, system-ui, sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
+      }
+
+      /* ---------- hero ---------- */
+      .hero {
+        position: relative;
+        min-height: max(100svh, 640px);
+        overflow: hidden;
+        isolation: isolate;
+        touch-action: pan-y;
+        background:
+          radial-gradient(ellipse 70% 42% at 50% 104%, rgb(196 184 163 / 0.55), transparent 70%),
+          radial-gradient(ellipse 60% 70% at 70% 30%, rgb(120 111 99 / 0.55), transparent 70%),
+          linear-gradient(180deg, #5b544c 0%, var(--rye) 55%, #6c6458 100%);
+      }
+      .hero::before {
+        /* faint bench grain: vertical boards, like the guide lines in the reference */
+        content: '';
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        background: repeating-linear-gradient(
+          90deg,
+          transparent 0 calc(25% - 1px),
+          rgb(255 255 255 / 0.035) calc(25% - 1px) 25%
+        );
+      }
+      .hero__canvas {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        display: block;
+        z-index: 1;
+      }
+      .hero__ghost {
+        position: absolute;
+        left: 50%;
+        bottom: -0.2em;
+        transform: translateX(-50%);
+        font-weight: 300;
+        font-size: clamp(120px, 21vw, 340px);
+        letter-spacing: 0.08em;
+        line-height: 1;
+        color: rgb(244 239 230 / 0.07);
+        white-space: nowrap;
+        pointer-events: none;
+        z-index: 0;
+      }
+      .hero__bar {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 28px clamp(20px, 3vw, 44px) 0;
+        font-size: 13px;
+        letter-spacing: 0.02em;
+        color: var(--muted);
+      }
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--flour);
+        font-weight: 500;
+        font-size: 15px;
+      }
+      .brand__dot {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: var(--butter);
+        box-shadow: 0 0 12px rgb(241 220 143 / 0.7);
+      }
+      .hero__copy {
+        position: relative;
+        z-index: 2;
+        display: grid;
+        grid-template-columns: auto minmax(0, 300px);
+        gap: 28px;
+        align-items: start;
+        padding: clamp(36px, 6vh, 64px) clamp(20px, 3vw, 44px) 0;
+        max-width: 960px;
+        pointer-events: none;
+      }
+      h1 {
+        margin: 0;
+        font-weight: 400;
+        font-size: clamp(44px, 5.4vw, 84px);
+        line-height: 0.98;
+        letter-spacing: -0.035em;
+      }
+      .hero__lede {
+        margin: 8px 0 0;
+        font-size: 16px;
+        font-weight: 300;
+        line-height: 1.5;
+        color: var(--muted);
+      }
+      .card {
+        position: absolute;
+        z-index: 2;
+        top: clamp(200px, 26vh, 250px);
+        left: 58%;
+        width: clamp(260px, 22vw, 320px);
+        margin: 0;
+        padding: 14px 14px 26px;
+        border-radius: 34px;
+        background: var(--flour);
+        color: var(--ink);
+        box-shadow:
+          0 1px 0 rgb(255 255 255 / 0.6) inset,
+          0 30px 60px -24px rgb(30 24 18 / 0.55),
+          0 10px 20px -10px rgb(30 24 18 / 0.35);
+      }
+      .card__img {
+        border-radius: 22px;
+        overflow: hidden;
+        aspect-ratio: 3 / 2;
+        background: #d9cfbf;
+      }
+      .card__img img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+      .card figcaption {
+        display: grid;
+        gap: 6px;
+        padding: 18px 8px 0;
+      }
+      .card__eyebrow {
+        font-size: 12px;
+        color: #7c7366;
+      }
+      .card__title {
+        font-size: 24px;
+        font-weight: 600;
+        line-height: 1.08;
+        letter-spacing: -0.02em;
+      }
+      .hero__hint {
+        position: absolute;
+        z-index: 2;
+        left: clamp(20px, 3vw, 44px);
+        bottom: 28px;
+        margin: 0;
+        font-size: 11px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: rgb(244 239 230 / 0.58);
+        pointer-events: none;
+      }
+      .panel {
+        position: absolute;
+        z-index: 3;
+        right: clamp(16px, 2.4vw, 32px);
+        bottom: clamp(88px, 13vh, 120px);
+        width: min(380px, calc(100% - 32px));
+        padding: 16px 16px 14px;
+        border-radius: 20px;
+        background: rgb(38 33 28 / 0.82);
+        backdrop-filter: blur(14px);
+        border: 1px solid rgb(244 239 230 / 0.1);
+        box-sizing: border-box;
+      }
+      .panel__row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+      }
+      .panel__kicker {
+        margin: 0 0 6px;
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--butter);
+      }
+      .panel__title {
+        margin: 0;
+        font-size: 15px;
+        font-weight: 500;
+      }
+      .panel__btn {
+        flex: none;
+        font: inherit;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--ink);
+        background: var(--flour);
+        border: 0;
+        border-radius: 14px;
+        padding: 12px 16px;
+        cursor: pointer;
+        box-shadow: 0 0 0 3px rgb(241 220 143 / 0.0);
+        transition:
+          box-shadow 0.2s,
+          transform 0.15s;
+      }
+      .panel__btn:hover {
+        box-shadow: 0 0 0 3px rgb(241 220 143 / 0.55);
+      }
+      .panel__btn:active {
+        transform: scale(0.97);
+      }
+      .panel__btn:focus-visible {
+        outline: none;
+        box-shadow:
+          0 0 0 2px var(--ink),
+          0 0 0 5px var(--butter);
+      }
+      .panel__stats {
+        display: flex;
+        gap: 18px;
+        margin: 14px 0 0;
+        padding: 12px 0 0;
+        list-style: none;
+        border-top: 1px solid rgb(244 239 230 / 0.1);
+        font-size: 11px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: rgb(244 239 230 / 0.6);
+      }
+
+      /* ---------- week ---------- */
+      .week {
+        background: var(--flour);
+        color: var(--ink);
+        padding: clamp(64px, 10vw, 128px) clamp(20px, 3vw, 44px) 40px;
+      }
+      .week__head {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+        gap: 24px;
+        align-items: end;
+      }
+      .week__kicker {
+        margin: 0;
+        font-size: 12px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: #7c7366;
+      }
+      h2 {
+        margin: 0;
+        font-weight: 400;
+        font-size: clamp(32px, 4vw, 56px);
+        line-height: 1.02;
+        letter-spacing: -0.03em;
+      }
+      .week__list {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+        margin: clamp(40px, 6vw, 72px) 0 0;
+        padding: 0;
+        list-style: none;
+      }
+      .bake {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        padding: 22px;
+        border-radius: 26px;
+        background: #ebe4d8;
+      }
+      .bake:nth-child(2) {
+        background: var(--rye);
+        color: var(--flour);
+      }
+      .bake__top,
+      .bake__foot {
+        display: flex;
+        justify-content: space-between;
+        font-size: 12px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        opacity: 0.7;
+      }
+      .bake__n {
+        font-weight: 600;
+      }
+      .bake h3 {
+        margin: 28px 0 0;
+        font-size: 24px;
+        font-weight: 500;
+        letter-spacing: -0.02em;
+        line-height: 1.1;
+      }
+      .bake p {
+        margin: 0;
+        font-size: 15px;
+        font-weight: 300;
+        line-height: 1.55;
+        opacity: 0.85;
+        flex: 1;
+      }
+      .bake__foot {
+        padding-top: 14px;
+        border-top: 1px solid currentColor;
+        border-top-color: rgb(127 118 104 / 0.3);
+        opacity: 0.85;
+      }
+      .week__foot {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 12px;
+        margin-top: 56px;
+        padding: 20px 0 64px;
+        border-top: 1px solid rgb(42 37 32 / 0.12);
+        font-size: 14px;
+        color: #6e665a;
+      }
+      .week__foot a {
+        color: var(--ink);
+        text-underline-offset: 4px;
+      }
+      .week__foot a:focus-visible {
+        outline: 2px solid var(--crust);
+        outline-offset: 4px;
+        border-radius: 4px;
+      }
+
+      /* ---------- responsive ---------- */
+      @media (max-width: 1080px) {
+        .card {
+          left: auto;
+          right: clamp(16px, 3vw, 44px);
+        }
+      }
+      @media (max-width: 860px) {
+        .hero__copy {
+          grid-template-columns: minmax(0, 1fr);
+          gap: 14px;
+        }
+        .hero__lede {
+          max-width: 34ch;
+          margin: 0;
+        }
+        .hours {
+          display: none;
+        }
+        .card {
+          top: auto;
+          left: 20px;
+          right: auto;
+          bottom: 196px;
+          width: 210px;
+          padding: 10px 10px 16px;
+          border-radius: 26px;
+        }
+        .card__img {
+          border-radius: 18px;
+        }
+        .card figcaption {
+          padding: 12px 6px 0;
+        }
+        .card__title {
+          font-size: 18px;
+        }
+        .panel {
+          right: 16px;
+          bottom: 24px;
+        }
+        .hero__hint {
+          bottom: 210px;
+          display: none;
+        }
+        .week__head,
+        .week__list {
+          grid-template-columns: minmax(0, 1fr);
+        }
+        h2 br {
+          display: none;
+        }
+      }
+      @media (max-width: 420px) {
+        .panel__stats {
+          gap: 12px;
+          font-size: 10px;
+        }
+        .panel__btn {
+          padding: 11px 13px;
+        }
+      }
+      @media (max-height: 700px) and (max-width: 860px) {
+        .card {
+          display: none;
+        }
+      }
+    </style>
+
+    <script>
+      import * as THREE from 'three';
+
+      // Landed defaults from the skill — do not tune these casually.
+      const SPACING = 7; // world units (1 unit = 1 CSS px on the bench plane)
+      const FRAME_CAP = 14;
+      const IDLE_INTERVAL = 0.055;
+      const POOL = 620;
+      const LIFE = 1.6;
+      const BURST = 52;
+      const BURST_SPREAD = 2.5;
+      const DPR_CAP = 2;
+
+      const hero = document.querySelector<HTMLElement>('.hero')!;
+      const canvas = hero.querySelector<HTMLCanvasElement>('.hero__canvas')!;
+      const button = document.getElementById('dust-btn') as HTMLButtonElement;
+      const status = document.getElementById('dust-status')!;
+
+      const params = new URLSearchParams(location.search);
+      const reduced =
+        params.get('reduced') === '1' || matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      // ---------- renderer / scene ----------
+      const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+      renderer.setClearColor(0x000000, 0);
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 0.92;
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(32, 1, 1, 6000);
+
+      scene.add(new THREE.HemisphereLight(0xfff3dd, 0x3a3027, 1.4));
+      const sun = new THREE.DirectionalLight(0xffe2b8, 2.6);
+      sun.position.set(-400, 700, 600);
+      scene.add(sun);
+      const rim = new THREE.DirectionalLight(0xcfd8ff, 0.8);
+      rim.position.set(500, 200, -400);
+      scene.add(rim);
+
+      // ---------- procedural three-strand braid (the loaf) ----------
+      const loaf = new THREE.Group();
+      scene.add(loaf);
+      const crust = new THREE.MeshStandardMaterial({ color: 0x9c5a2b, roughness: 0.66, metalness: 0.0 });
+      const crustGlaze = new THREE.MeshStandardMaterial({ color: 0xa9662f, roughness: 0.5, metalness: 0.0 });
+      const strandGeos: THREE.BufferGeometry[] = [];
+
+      const buildLoaf = (len: number, amp: number, radius: number) => {
+        strandGeos.splice(0).forEach((g) => g.dispose());
+        loaf.clear();
+        const turns = 3.2;
+        for (let k = 0; k < 3; k++) {
+          const off = (k * Math.PI * 2) / 3;
+          const pts: THREE.Vector3[] = [];
+          for (let i = 0; i <= 160; i++) {
+            const t = i / 160;
+            const env = Math.pow(Math.sin(Math.PI * (0.04 + t * 0.92)), 0.6);
+            const phi = t * turns * Math.PI * 2 + off;
+            pts.push(
+              new THREE.Vector3((t - 0.5) * len, Math.sin(phi) * amp * env, Math.sin(2 * phi) * amp * 0.55 * env),
+            );
+          }
+          const curve = new THREE.CatmullRomCurve3(pts);
+          const tubular = 220;
+          const radial = 28;
+          const geo = new THREE.TubeGeometry(curve, tubular, 1, radial, false);
+          // ponytail: TubeGeometry has one radius; taper by scaling each ring around its spine point.
+          const pos = geo.attributes.position as THREE.BufferAttribute;
+          const c = new THREE.Vector3();
+          const v = new THREE.Vector3();
+          for (let i = 0; i < pos.count; i++) {
+            const u = Math.floor(i / (radial + 1)) / tubular;
+            curve.getPointAt(u, c);
+            const r = radius * (0.25 + 0.75 * Math.pow(Math.sin(Math.PI * u), 0.45));
+            v.fromBufferAttribute(pos, i).sub(c).multiplyScalar(r).add(c);
+            pos.setXYZ(i, v.x, v.y, v.z);
+          }
+          geo.computeVertexNormals();
+          strandGeos.push(geo);
+          loaf.add(new THREE.Mesh(geo, k === 1 ? crustGlaze : crust));
+        }
+      };
+
+      // ---------- particle pool ----------
+      const origins = new Float32Array(POOL * 3);
+      const velocities = new Float32Array(POOL * 3);
+      const births = new Float32Array(POOL).fill(-1e4);
+      const randoms = new Float32Array(POOL * 2);
+      const geometry = new THREE.BufferGeometry();
+      const aPos = new THREE.BufferAttribute(origins, 3).setUsage(THREE.DynamicDrawUsage);
+      const aVel = new THREE.BufferAttribute(velocities, 3).setUsage(THREE.DynamicDrawUsage);
+      const aBirth = new THREE.BufferAttribute(births, 1).setUsage(THREE.DynamicDrawUsage);
+      const aRand = new THREE.BufferAttribute(randoms, 2).setUsage(THREE.DynamicDrawUsage);
+      geometry.setAttribute('position', aPos);
+      geometry.setAttribute('aVelocity', aVel);
+      geometry.setAttribute('aBirth', aBirth);
+      geometry.setAttribute('aRandom', aRand);
+
+      const sprite = (() => {
+        const c = document.createElement('canvas');
+        c.width = c.height = 64;
+        const g = c.getContext('2d')!;
+        const grad = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+        grad.addColorStop(0, 'rgba(255,255,255,1)');
+        grad.addColorStop(0.22, 'rgba(255,255,255,0.85)');
+        grad.addColorStop(0.5, 'rgba(255,255,255,0.22)');
+        grad.addColorStop(1, 'rgba(255,255,255,0)');
+        g.fillStyle = grad;
+        g.fillRect(0, 0, 64, 64);
+        const t = new THREE.CanvasTexture(c);
+        t.colorSpace = THREE.SRGBColorSpace;
+        return t;
+      })();
+
+      const material = new THREE.ShaderMaterial({
+        transparent: true,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+        toneMapped: false,
+        uniforms: {
+          uTime: { value: 0 },
+          uLife: { value: LIFE },
+          uSize: { value: 13 },
+          uDpr: { value: 1 },
+          uMap: { value: sprite },
+          uColor: { value: new THREE.Color(0xfff4de) },
+        },
+        vertexShader: /* glsl */ `
+          attribute vec3 aVelocity;
+          attribute float aBirth;
+          attribute vec2 aRandom;
+          uniform float uTime, uLife, uSize, uDpr;
+          varying float vAlpha;
+          void main() {
+            float age = uTime - aBirth;
+            float u = age / uLife;
+            if (u < 0.0 || u > 1.0) {
+              gl_Position = vec4(2.0, 2.0, 2.0, 1.0);
+              gl_PointSize = 0.0;
+              vAlpha = 0.0;
+              return;
+            }
+            vec3 p = position + aVelocity * age * (1.0 - 0.34 * u)
+                   + vec3(sin(aRandom.y * 6.283 + age * 2.6) * 22.0 * u, 46.0 * age, 0.0);
+            vAlpha = smoothstep(0.0, 0.09, u) * (1.0 - smoothstep(0.40, 1.0, u));
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0);
+            gl_PointSize = aRandom.x * uSize * uDpr;
+          }
+        `,
+        fragmentShader: /* glsl */ `
+          uniform sampler2D uMap;
+          uniform vec3 uColor;
+          varying float vAlpha;
+          void main() {
+            float a = texture2D(uMap, gl_PointCoord).a * vAlpha;
+            if (a < 0.003) discard;
+            // additive blend is (SRC_ALPHA, ONE) on colour but (ONE, ONE) on alpha: emit straight colour
+            gl_FragColor = vec4(uColor, a);
+          }
+        `,
+      });
+      const points = new THREE.Points(geometry, material);
+      points.frustumCulled = false;
+      points.renderOrder = 2;
+      scene.add(points);
+
+      let head = 0;
+      let dirty = false;
+      let elapsed = 0;
+
+      const spawn = (p: THREE.Vector3, spread = 1, age = 0) => {
+        const i = head;
+        head = (head + 1) % POOL;
+        origins[i * 3] = p.x + (Math.random() - 0.5) * 6 * spread;
+        origins[i * 3 + 1] = p.y + (Math.random() - 0.5) * 6 * spread;
+        origins[i * 3 + 2] = p.z;
+        velocities[i * 3] = (Math.random() - 0.5) * 34 * spread;
+        velocities[i * 3 + 1] = (Math.random() * 0.8 - 0.2) * 30 * spread;
+        velocities[i * 3 + 2] = (Math.random() - 0.5) * 20;
+        births[i] = elapsed - age;
+        randoms[i * 2] = 0.5 + Math.random() * 0.65;
+        randoms[i * 2 + 1] = Math.random();
+        dirty = true;
+      };
+
+      const upload = () => {
+        if (!dirty) return;
+        aPos.needsUpdate = aVel.needsUpdate = aBirth.needsUpdate = aRand.needsUpdate = true;
+        dirty = false;
+      };
+
+      // ---------- interaction plane ----------
+      const plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
+      const raycaster = new THREE.Raycaster();
+      const ndc = new THREE.Vector2();
+      const hit = new THREE.Vector3();
+      const current = new THREE.Vector3();
+      const previous = new THREE.Vector3();
+      const lerped = new THREE.Vector3();
+      let hasPrevious = false;
+      let hasPointer = false;
+      let idle = 0;
+      let W = 1;
+      let H = 1;
+
+      const resolve = (clientX: number, clientY: number, out: THREE.Vector3) => {
+        const r = canvas.getBoundingClientRect();
+        if (!r.width || !r.height) return false;
+        ndc.set(((clientX - r.left) / r.width) * 2 - 1, -((clientY - r.top) / r.height) * 2 + 1);
+        raycaster.setFromCamera(ndc, camera);
+        return raycaster.ray.intersectPlane(plane, out) !== null;
+      };
+
+      const emit = (dt: number) => {
+        if (!hasPrevious) {
+          previous.copy(current);
+          hasPrevious = true;
+          spawn(current);
+          return;
+        }
+        const distance = current.distanceTo(previous);
+        const count = Math.min(FRAME_CAP, Math.floor(distance / SPACING));
+        for (let i = 1; i <= count; i++) {
+          lerped.lerpVectors(previous, current, i / count);
+          spawn(lerped);
+        }
+        if (count) {
+          previous.copy(current);
+          idle = 0;
+        } else if ((idle += dt) > IDLE_INTERVAL) {
+          spawn(current); // a resting hand trickles; it does not pump
+          idle = 0;
+        }
+      };
+
+      // Real pointer replaces the composed "baker's hand" sweep once it arrives.
+      let userActive = false;
+      const onMove = (e: PointerEvent) => {
+        if (!resolve(e.clientX, e.clientY, hit)) {
+          hasPointer = hasPrevious = false;
+          return;
+        }
+        if (!userActive) {
+          userActive = true;
+          hasPrevious = false;
+        }
+        current.copy(hit);
+        hasPointer = true;
+      };
+      const onLeave = () => {
+        hasPointer = false;
+        hasPrevious = false; // re-entry must not bridge from the stale exit point
+      };
+      hero.addEventListener('pointermove', onMove);
+      hero.addEventListener('pointerdown', onMove);
+      hero.addEventListener('pointerleave', onLeave);
+      hero.addEventListener('pointercancel', onLeave);
+
+      // ---------- composed sweep (attract mode, before the user touches the bench) ----------
+      let ghostT = 0;
+      const ghostPoint = (t: number) => {
+        const r = canvas.getBoundingClientRect();
+        // a lazy figure-eight through the open bench, left of the card and above the loaf
+        const x = r.left + r.width * (0.4 + 0.32 * Math.sin(t * 1.6));
+        const [cy, ay] = r.width < 760 ? [0.42, 0.045] : [0.5, 0.11]; // phones: the band between copy and card
+        const y = r.top + r.height * (cy + ay * Math.sin(t * 3.2 + 0.6) + 0.4 * ay * Math.cos(t * 1.6));
+        return resolve(x, y, current);
+      };
+
+      // ---------- reduced-motion still ----------
+      const seedStill = (dense: boolean) => {
+        births.fill(-1e4);
+        head = 0;
+        const n = dense ? 420 : 200;
+        const r = canvas.getBoundingClientRect();
+        for (let i = 0; i < n; i++) {
+          const t = i / n;
+          const x = r.left + r.width * (0.08 + 0.84 * t);
+          const y = r.top + r.height * (0.66 - 0.2 * Math.sin(t * Math.PI * 1.15) + 0.05 * Math.sin(t * 9));
+          if (!resolve(x, y, hit)) continue;
+          spawn(hit, dense ? 1.8 : 1, 0.12 + Math.random() * (dense ? 0.9 : 0.55) + (1 - t) * 0.35);
+        }
+      };
+      const drawStill = () => {
+        upload();
+        renderer.render(scene, camera);
+      };
+
+      // ---------- burst ----------
+      const burst = () => {
+        if (reduced) {
+          seedStill(true);
+          drawStill();
+          status.textContent = 'A denser dusting settles over the bench.';
+          return;
+        }
+        const b = button.getBoundingClientRect();
+        const cr = canvas.getBoundingClientRect();
+        // aim at the bench just above-left of the control, clamped inside the hero
+        const x = Math.max(cr.left + 40, b.left + b.width / 2 - Math.min(160, cr.width * 0.25));
+        const y = Math.max(cr.top + 40, b.top - 60);
+        if (!resolve(x, y, hit)) return;
+        for (let i = 0; i < BURST; i++) spawn(hit, BURST_SPREAD);
+        status.textContent = `${BURST} grains of flour lifted off the bench.`;
+      };
+      button.addEventListener('click', burst);
+
+      // ---------- sizing ----------
+      const layout = () => {
+        const r = hero.getBoundingClientRect();
+        W = Math.max(1, Math.round(r.width));
+        H = Math.max(1, Math.round(r.height));
+        renderer.setPixelRatio(Math.min(devicePixelRatio || 1, DPR_CAP));
+        renderer.setSize(W, H, false);
+        material.uniforms.uDpr.value = renderer.getPixelRatio();
+        camera.aspect = W / H;
+        // place the camera so the z=0 bench plane maps 1 world unit to 1 CSS px
+        camera.position.set(0, 0, H / 2 / Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)));
+        camera.lookAt(0, 0, 0);
+        camera.updateProjectionMatrix();
+
+        const mobile = W < 760;
+        const len = mobile ? W * 2.1 : W * 1.25;
+        const amp = mobile ? 34 : Math.min(70, W * 0.045);
+        const radius = mobile ? 40 : Math.min(84, W * 0.054);
+        buildLoaf(len, amp, radius);
+        loaf.position.set(mobile ? W * 0.1 : W * 0.08, -H * (mobile ? 0.3 : 0.33), -radius * 2.2);
+        loaf.rotation.set(0.5, mobile ? -0.18 : -0.12, mobile ? 0.22 : 0.16);
+        loaf.scale.set(1, 0.82, 1);
+        hasPrevious = false;
+        if (reduced) {
+          seedStill(false);
+          drawStill();
+        }
+      };
+      const ro = new ResizeObserver(layout);
+      ro.observe(hero);
+      layout();
+
+      // ---------- loop + lifecycle ----------
+      let raf = 0;
+      let last = 0;
+      let onScreen = true;
+
+      const frame = (now: number) => {
+        raf = requestAnimationFrame(frame);
+        const dt = Math.min(1 / 30, last ? (now - last) / 1000 : 0);
+        last = now;
+        elapsed += dt;
+        if (!userActive) {
+          ghostT += dt;
+          if (ghostPoint(ghostT)) emit(dt);
+        } else if (hasPointer) {
+          emit(dt);
+        }
+        loaf.rotation.y += Math.sin(elapsed * 0.3) * 0.00025;
+        material.uniforms.uTime.value = elapsed;
+        upload();
+        renderer.render(scene, camera);
+      };
+      const start = () => {
+        if (reduced || raf || document.hidden || !onScreen) return;
+        last = 0; // reset time after resume — no jump
+        raf = requestAnimationFrame(frame);
+      };
+      const stop = () => {
+        cancelAnimationFrame(raf);
+        raf = 0;
+      };
+
+      const io = new IntersectionObserver(([entry]) => {
+        onScreen = entry.isIntersecting;
+        onScreen ? start() : stop();
+      });
+      io.observe(hero);
+      const onVisibility = () => (document.hidden ? stop() : start());
+      document.addEventListener('visibilitychange', onVisibility);
+
+      if (reduced) {
+        material.uniforms.uTime.value = elapsed;
+        drawStill();
+      } else {
+        // composed trace on the very first frame, so the bench is never empty
+        for (let i = 0; i < 90; i++) {
+          ghostT = -1.4 + (i / 90) * 1.4;
+          if (ghostPoint(ghostT)) spawn(current, 1, -ghostT);
+        }
+        ghostT = 0;
+        hasPrevious = false;
+        start();
+      }
+
+      addEventListener('pageshow', (e) => e.persisted && start());
+      addEventListener('pagehide', (e) => {
+        if (e.persisted) return stop(); // bfcache: pause only, start() resumes on show
+        stop();
+        ro.disconnect();
+        io.disconnect();
+        document.removeEventListener('visibilitychange', onVisibility);
+        hero.removeEventListener('pointermove', onMove);
+        hero.removeEventListener('pointerdown', onMove);
+        hero.removeEventListener('pointerleave', onLeave);
+        hero.removeEventListener('pointercancel', onLeave);
+        button.removeEventListener('click', burst);
+        geometry.dispose();
+        material.dispose();
+        sprite.dispose();
+        strandGeos.forEach((g) => g.dispose());
+        crust.dispose();
+        crustGlaze.dispose();
+        renderer.dispose();
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,609 @@
+---
+import '../../styles/global.css';
+import BackPill from '../../components/BackPill.astro';
+
+// The three beams of the hero, in the order the shader draws them. `dir` is in screen space
+// (x right, y DOWN); the shader flips y. `at` is how far along the beam (css px) the label sits.
+const beams = [
+  { id: 'in', dir: [-1, -0.42], at: 250, label: 'Invoices in', value: '€6 240 · Sept' },
+  { id: 'tax', dir: [1, -0.56], at: 190, label: 'Tax reserve', value: '28 % · €1 747' },
+  { id: 'pay', dir: [0, 1], at: 210, label: 'Pay yourself', value: '€3 400 on the 1st' },
+];
+
+const lines = [
+  {
+    n: '01',
+    title: 'Invoices in',
+    body: 'Send the invoice from Seamline and the client pays a reference that belongs to it. When the money lands, we already know whose it is and what it was for.',
+    stat: '11 days',
+    statLabel: 'median time to paid, down from 34',
+  },
+  {
+    n: '02',
+    title: 'Tax reserve',
+    body: 'A cut goes to a locked pocket the second each payment clears, sized from your own bracket, not a flat guess. April stops being a month you dread.',
+    stat: '28 %',
+    statLabel: 'set aside on each payment, recalculated quarterly',
+  },
+  {
+    n: '03',
+    title: 'Pay yourself',
+    body: 'What is left after tax and runway becomes a salary: the same amount, on the same day, whether this was a feast month or a famine one.',
+    stat: '€3 400',
+    statLabel: 'steady pay, smoothed over a 6-month runway',
+  },
+];
+
+const statement = [
+  ['02 Sep', 'Halde Studio', 'Brand system, phase 2', '€2 800', '€784', '€416', '€1 600'],
+  ['09 Sep', 'Okapi Transit', 'Wayfinding audit', '€1 450', '€406', '€244', '€800'],
+  ['16 Sep', 'Fennel & Rye', 'Menu photography', '€640', '€179', '€161', '€300'],
+  ['24 Sep', 'Marrow Labs', 'Pitch deck, 14 slides', '€1 350', '€378', '€272', '€700'],
+];
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Seamline — The business account where every payment meets its purpose</title>
+    <meta
+      name="description"
+      content="Seamline is a business account for freelancers: every invoice payment is split into tax, runway and your own pay the moment it lands."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <BackPill />
+
+    <header class="hero" id="top">
+      <canvas class="lasers" aria-hidden="true"></canvas>
+      <div class="lasers-fallback" aria-hidden="true"></div>
+
+      <div class="frame" aria-hidden="true">
+        <i class="tick tl"></i><i class="tick tr"></i><i class="tick bl"></i><i class="tick br"></i>
+      </div>
+
+      <nav class="nav">
+        <a href="#top" class="brand" aria-label="Seamline home">
+          <span class="brand-mark" aria-hidden="true"></span>
+          Seamline
+        </a>
+        <div class="nav-links">
+          <a href="#lines">How it splits</a>
+          <a href="#statement">Statement</a>
+          <a href="#open">Pricing</a>
+        </div>
+        <a href="#open" class="nav-cta">Open account <span aria-hidden="true">→</span></a>
+      </nav>
+
+      <ul class="beam-labels" aria-label="Where this month's money went">
+        {
+          beams.map((b) => (
+            <li class={`beam-label beam-${b.id}`} data-dir={b.dir.join(',')} data-at={b.at}>
+              <span class="beam-label-k">{b.label}</span>
+              <span class="beam-label-v">{b.value}</span>
+            </li>
+          ))
+        }
+      </ul>
+
+      <div class="hero-copy">
+        <p class="status"><span class="dot" aria-hidden="true"></span>Split on arrival · 0.4 s</p>
+        <h1>
+          Every euro<br />
+          <span class="dim">meets its</span><br />
+          purpose here.
+        </h1>
+        <p class="lede">
+          Seamline is the business account for freelancers that catches each invoice payment and splits it into
+          tax, runway and your own pay at the instant it lands — so you always know which money is actually yours.
+        </p>
+        <div class="actions">
+          <a href="#open" class="btn">Open an account</a>
+          <div class="meta">
+            <span>Free to start</span>
+            <strong>No card fee in the EU</strong>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section class="lines" id="lines">
+        <div class="section-head">
+          <p class="eyebrow">Three lines, one junction</p>
+          <h2>Income, tax and pay used to live in three apps and a spreadsheet. Now they meet at one point.</h2>
+        </div>
+        <ol class="line-grid">
+          {
+            lines.map((l, i) => (
+              <li class="line-card">
+                <svg class="corner" viewBox="0 0 120 80" aria-hidden="true">
+                  <line x1="70" y1="34" x2={i === 0 ? 4 : 70} y2={i === 0 ? 6 : 34} class={i === 0 ? 'on' : ''} />
+                  <line x1="70" y1="34" x2={i === 1 ? 118 : 70} y2={i === 1 ? 2 : 34} class={i === 1 ? 'on' : ''} />
+                  <line x1="70" y1="34" x2="70" y2={i === 2 ? 80 : 34} class={i === 2 ? 'on' : ''} />
+                  <line x1="70" y1="34" x2="4" y2="6" class="ghost" />
+                  <line x1="70" y1="34" x2="118" y2="2" class="ghost" />
+                  <line x1="70" y1="34" x2="70" y2="80" class="ghost" />
+                  <circle cx="70" cy="34" r="3" />
+                </svg>
+                <span class="line-n">{l.n}</span>
+                <h3>{l.title}</h3>
+                <p>{l.body}</p>
+                <div class="line-stat">
+                  <strong>{l.stat}</strong>
+                  <span>{l.statLabel}</span>
+                </div>
+              </li>
+            ))
+          }
+        </ol>
+      </section>
+
+      <section class="statement" id="statement">
+        <div class="section-head">
+          <p class="eyebrow">A month on the line</p>
+          <h2>September, as Seamline saw it. Four invoices, four splits, zero end-of-quarter surprises.</h2>
+        </div>
+        <div class="table-wrap" role="region" aria-label="September statement" tabindex="0">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Landed</th>
+                <th scope="col">Client</th>
+                <th scope="col" class="hide-sm">Work</th>
+                <th scope="col" class="num">Paid</th>
+                <th scope="col" class="num">Tax</th>
+                <th scope="col" class="num hide-sm">Runway</th>
+                <th scope="col" class="num">You</th>
+              </tr>
+            </thead>
+            <tbody>
+              {
+                statement.map((r) => (
+                  <tr>
+                    <td class="mono">{r[0]}</td>
+                    <td>{r[1]}</td>
+                    <td class="muted hide-sm">{r[2]}</td>
+                    <td class="num mono">{r[3]}</td>
+                    <td class="num mono muted">{r[4]}</td>
+                    <td class="num mono muted hide-sm">{r[5]}</td>
+                    <td class="num mono accent">{r[6]}</td>
+                  </tr>
+                ))
+              }
+            </tbody>
+            <tfoot>
+              <tr>
+                <th scope="row" colspan="2">September</th>
+                <td class="hide-sm"></td>
+                <td class="num mono">€6 240</td>
+                <td class="num mono">€1 747</td>
+                <td class="num mono hide-sm">€1 093</td>
+                <td class="num mono accent">€3 400</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </section>
+
+      <section class="open" id="open">
+        <div class="open-seam" aria-hidden="true"></div>
+        <div class="open-copy">
+          <p class="eyebrow">Pricing</p>
+          <h2>€9 a month. Flat, whatever you invoice.</h2>
+          <p>
+            Unlimited invoices, three pockets, a Mastercard debit card and a quarterly tax report your accountant can
+            read in one sitting. Your first two months are on us.
+          </p>
+          <a href="#top" class="btn">Open an account in 8 minutes</a>
+        </div>
+        <dl class="open-facts">
+          <div><dt>Deposits protected</dt><dd>up to €100 000</dd></div>
+          <div><dt>Currencies held</dt><dd>EUR · GBP · USD · CHF</dd></div>
+          <div><dt>Payouts</dt><dd>SEPA Instant, 24/7</dd></div>
+        </dl>
+      </section>
+    </main>
+
+    <footer class="foot">
+      <span>Seamline</span>
+      <span class="muted">A fictional product, built to demonstrate the corner-lasers skill.</span>
+    </footer>
+
+    <style is:global>
+      :root {
+        --bg: #0a0a0b;
+        --surface: #121214;
+        --line: rgb(255 255 255 / 0.08);
+        --text: #f3f3ef;
+        --muted: #8b8b85;
+        --accent: #c8f542;
+        --sans: 'Geist', ui-sans-serif, system-ui, sans-serif;
+        --mono: 'Geist Mono', ui-monospace, monospace;
+      }
+      html { background: var(--bg); color-scheme: dark; }
+      body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--sans); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+      a { color: inherit; }
+    </style>
+
+    <style>
+      /* ---------- hero ---------- */
+      .hero { position: relative; min-height: max(100svh, 680px); overflow: hidden; isolation: isolate; }
+      .lasers, .lasers-fallback { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; }
+      .lasers-fallback { display: none; }
+      .hero.no-gl .lasers { display: none; }
+      .hero.no-gl .lasers-fallback {
+        display: block;
+        background:
+          radial-gradient(circle at var(--ex, 66%) var(--ey, 42%), #fff 0 2px, rgb(200 245 66 / 0.55) 4px, rgb(200 245 66 / 0.12) 60px, transparent 340px),
+          var(--bg);
+      }
+
+      .frame { position: absolute; inset: 88px 32px 32px; border: 1px solid var(--line); pointer-events: none; }
+      .tick { position: absolute; width: 7px; height: 7px; background: var(--text); }
+      .tick.tl { left: -4px; top: -4px; } .tick.tr { right: -4px; top: -4px; }
+      .tick.bl { left: -4px; bottom: -4px; } .tick.br { right: -4px; bottom: -4px; }
+
+      .nav { position: relative; display: flex; align-items: center; gap: 32px; height: 88px; padding: 0 56px; }
+      .brand { display: flex; align-items: center; gap: 12px; font-weight: 500; font-size: 17px; letter-spacing: -0.01em; text-decoration: none; }
+      .brand-mark { position: relative; width: 22px; height: 22px; }
+      .brand-mark::before, .brand-mark::after { content: ''; position: absolute; background: var(--text); }
+      .brand-mark::before { left: 10px; top: 10px; width: 12px; height: 2px; }
+      .brand-mark::after { left: 10px; top: 10px; width: 2px; height: 12px; }
+      .brand-mark { background: radial-gradient(circle at 11px 11px, #fff 0 2px, var(--accent) 3px, transparent 7px); }
+      .nav-links { display: flex; gap: 28px; margin-left: auto; font-family: var(--mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; }
+      .nav-links a { color: var(--muted); text-decoration: none; transition: color 0.2s; }
+      .nav-links a:hover, .nav-links a:focus-visible { color: var(--text); }
+      .nav-cta {
+        font-family: var(--mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; text-decoration: none;
+        padding: 10px 16px; border: 1px solid rgb(255 255 255 / 0.16); background: rgb(255 255 255 / 0.04);
+        clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+        transition: background 0.2s, border-color 0.2s;
+      }
+      .nav-cta:hover, .nav-cta:focus-visible { background: rgb(200 245 66 / 0.12); border-color: rgb(200 245 66 / 0.5); }
+
+      .beam-labels { list-style: none; margin: 0; padding: 0; position: absolute; inset: 0; pointer-events: none; }
+      .beam-label {
+        position: absolute; left: 0; top: 0; display: flex; flex-direction: column; gap: 4px;
+        padding: 9px 12px 9px 14px; font-family: var(--mono); white-space: nowrap;
+        background: rgb(10 10 11 / 0.55); border: 1px solid rgb(255 255 255 / 0.1);
+        backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+        opacity: 0; transition: opacity 0.8s ease 0.6s;
+      }
+      .beam-label.placed { opacity: 1; }
+      .beam-label::before { content: ''; position: absolute; left: -1px; top: -1px; bottom: -1px; width: 2px; background: var(--accent); }
+      .beam-label-k { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+      .beam-label-v { font-size: 13px; color: var(--text); }
+
+      .hero-copy { position: absolute; left: 72px; bottom: 76px; width: min(560px, 46vw); }
+      .status {
+        display: inline-flex; align-items: center; gap: 10px; margin: 0 0 28px; padding: 6px 12px;
+        font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted);
+        border: 1px solid var(--line); border-radius: 999px; background: rgb(255 255 255 / 0.02);
+      }
+      .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 10px var(--accent); animation: blink 2.4s ease-in-out infinite; }
+      @keyframes blink { 50% { opacity: 0.35; } }
+      h1 { margin: 0; font-weight: 400; font-size: clamp(48px, 6.4vw, 92px); line-height: 0.98; letter-spacing: -0.045em; }
+      h1 .dim { color: #6f6f6a; }
+      .lede { margin: 28px 0 0; max-width: 470px; padding-left: 16px; border-left: 1px solid rgb(255 255 255 / 0.14); color: #b4b4ae; font-size: 16px; line-height: 1.6; }
+      .actions { display: flex; align-items: center; gap: 28px; margin-top: 32px; }
+      .btn {
+        display: inline-block; padding: 14px 22px; font-size: 15px; font-weight: 500; text-decoration: none;
+        color: #0a0a0b; background: var(--accent);
+        clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+        transition: filter 0.2s, transform 0.2s;
+      }
+      .btn:hover { filter: brightness(1.08); transform: translateY(-1px); }
+      .btn:focus-visible, .nav-cta:focus-visible, .nav-links a:focus-visible, .brand:focus-visible, .table-wrap:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+      .meta { display: flex; flex-direction: column; gap: 4px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; }
+      .meta span { color: var(--muted); }
+      .meta strong { font-weight: 500; color: var(--accent); }
+
+      /* ---------- sections ---------- */
+      main { position: relative; }
+      section { padding: 128px 72px; border-top: 1px solid var(--line); }
+      .section-head { display: grid; grid-template-columns: 1fr 2fr; gap: 48px; align-items: start; margin-bottom: 64px; }
+      .eyebrow { margin: 6px 0 0; font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); }
+      h2 { margin: 0; font-weight: 400; font-size: clamp(28px, 3.2vw, 44px); line-height: 1.12; letter-spacing: -0.03em; max-width: 880px; }
+
+      .line-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid var(--line); }
+      .line-card { position: relative; padding: 36px 32px 32px; border-left: 1px solid var(--line); display: flex; flex-direction: column; }
+      .line-card:first-child { border-left: 0; }
+      .corner { width: 120px; height: 80px; margin-bottom: 28px; overflow: visible; }
+      .corner line { stroke: rgb(255 255 255 / 0.1); stroke-width: 1; }
+      .corner line.on { stroke: var(--accent); stroke-width: 1.5; filter: drop-shadow(0 0 4px var(--accent)); }
+      .corner circle { fill: #fff; filter: drop-shadow(0 0 6px var(--accent)); }
+      .line-n { font-family: var(--mono); font-size: 11px; color: var(--muted); letter-spacing: 0.1em; }
+      h3 { margin: 10px 0 12px; font-size: 22px; font-weight: 500; letter-spacing: -0.02em; }
+      .line-card p { margin: 0; color: #a3a39d; line-height: 1.6; font-size: 15px; }
+      .line-stat { margin-top: auto; padding-top: 32px; display: flex; flex-direction: column; gap: 6px; }
+      .line-stat strong { font-family: var(--mono); font-weight: 400; font-size: 32px; letter-spacing: -0.03em; }
+      .line-stat span { font-size: 13px; color: var(--muted); }
+
+      .table-wrap { overflow-x: auto; border: 1px solid var(--line); background: rgb(255 255 255 / 0.015); }
+      table { width: 100%; border-collapse: collapse; font-size: 15px; }
+      th, td { padding: 18px 24px; text-align: left; border-bottom: 1px solid var(--line); white-space: nowrap; }
+      thead th { font-family: var(--mono); font-weight: 400; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+      tfoot th, tfoot td { border-bottom: 0; font-weight: 500; }
+      tfoot th { font-family: var(--mono); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+      .num { text-align: right; }
+      .mono { font-family: var(--mono); font-size: 14px; }
+      .muted { color: var(--muted); }
+      .accent { color: var(--accent); }
+      tbody tr { transition: background 0.2s; }
+      tbody tr:hover { background: rgb(200 245 66 / 0.04); }
+
+      .open { position: relative; isolation: isolate; display: grid; grid-template-columns: 1.4fr 1fr; gap: 64px; align-items: end; overflow: hidden; }
+      /* CSS echo of the hero: one emitter on the section seam, a beam each way along the border, one down */
+      .open-seam {
+        position: absolute; inset: 0; pointer-events: none; z-index: -1;
+        background:
+          radial-gradient(circle at 82% 0, #fff 0 1.5px, rgb(200 245 66 / 0.6) 3px, rgb(200 245 66 / 0.22) 16px, rgb(200 245 66 / 0.07) 90px, rgb(200 245 66 / 0.02) 220px, transparent 400px),
+          linear-gradient(to left, transparent, rgb(200 245 66 / 0.85) 18%, transparent 80%) 0 0 / 100% 1px no-repeat,
+          linear-gradient(to bottom, rgb(200 245 66 / 0.8), transparent 55%) 82% 0 / 1px 100% no-repeat;
+      }
+      .open-copy p:not(.eyebrow) { margin: 20px 0 32px; max-width: 520px; color: #a3a39d; line-height: 1.6; }
+      .open-copy h2 { margin-top: 20px; }
+      .open-facts { margin: 0; display: grid; gap: 0; border: 1px solid var(--line); background: rgb(10 10 11 / 0.9); }
+      .open-facts div { display: flex; justify-content: space-between; gap: 16px; padding: 18px 20px; border-top: 1px solid var(--line); }
+      .open-facts div:first-child { border-top: 0; }
+      .open-facts dt { font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); align-self: center; }
+      .open-facts dd { margin: 0; font-family: var(--mono); font-size: 14px; text-align: right; }
+
+      .foot { display: flex; justify-content: space-between; gap: 16px; padding: 28px 72px 40px; border-top: 1px solid var(--line); font-size: 13px; }
+
+      /* ---------- responsive ---------- */
+      @media (max-width: 1024px) {
+        .nav-links { display: none; }
+        .nav-cta { margin-left: auto; }
+        .hero-copy { width: min(560px, 60vw); }
+        .line-grid { grid-template-columns: 1fr; }
+        .line-card { border-left: 0; border-top: 1px solid var(--line); }
+        .line-card:first-child { border-top: 0; }
+        .open { grid-template-columns: 1fr; }
+      }
+      @media (max-width: 720px) {
+        .hero { min-height: max(100svh, 760px); }
+        .nav { padding: 0 20px; height: 72px; }
+        .frame { inset: 72px 12px 12px; }
+        .nav-cta { padding: 9px 12px; font-size: 11px; }
+        .hero-copy { left: 24px; right: 24px; bottom: 40px; width: auto; }
+        .status { margin-bottom: 20px; }
+        h1 { font-size: clamp(42px, 12.5vw, 56px); }
+        .lede { font-size: 15px; margin-top: 20px; }
+        .actions { gap: 18px; margin-top: 24px; flex-wrap: wrap; }
+        .beam-label { padding: 7px 10px 7px 12px; }
+        .beam-label-v { font-size: 12px; }
+        section { padding: 88px 20px; }
+        .section-head { grid-template-columns: 1fr; gap: 16px; margin-bottom: 40px; }
+        table { font-size: 13px; }
+        th, td { padding: 13px 7px; }
+        th:first-child, td:first-child { padding-left: 12px; }
+        th:last-child, td:last-child { padding-right: 12px; }
+        .mono { font-size: 12px; }
+        thead th { font-size: 10px; letter-spacing: 0.08em; }
+        .hide-sm { display: none; }
+        .foot { padding: 24px 20px 72px; flex-direction: column; }
+        .open-seam { background-size: auto, 100% 1px, 0 0; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .dot { animation: none; }
+        .beam-label, .btn, .nav-cta { transition: none; }
+      }
+    </style>
+
+    <script>
+      // Corner lasers: three thin beams leave one off-centre emitter like the edges of a room corner
+      // (two ceiling seams + the vertical seam). Line-distance falloff keeps each core ~1 px and
+      // white-hot; halo, haze and bloom are tinted from --accent and concentrated at the junction.
+      const VERT = `attribute vec2 p; void main(){ gl_Position = vec4(p, 0.0, 1.0); }`;
+      const FRAG = `
+precision highp float;
+uniform vec2 uRes;      // device px
+uniform float uScale;   // device px per css px
+uniform float uTime;
+uniform vec2 uEmit;     // device px, origin bottom-left
+uniform vec3 uAccent;
+uniform vec2 uDir[3];   // unit vectors, y up
+
+float hash(vec2 p) { return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
+float noise(vec2 p) {
+  vec2 i = floor(p), f = fract(p);
+  vec2 u = f * f * (3.0 - 2.0 * f);
+  return mix(mix(hash(i), hash(i + vec2(1, 0)), u.x), mix(hash(i + vec2(0, 1)), hash(i + vec2(1, 1)), u.x), u.y);
+}
+float fbm(vec2 p) {
+  float v = 0.0, a = 0.5;
+  for (int i = 0; i < 4; i++) { v += a * noise(p); p = p * 2.03 + 11.7; a *= 0.5; }
+  return v;
+}
+float cross2(vec2 a, vec2 b) { return a.x * b.y - a.y * b.x; }
+
+void main() {
+  vec2 p = gl_FragCoord.xy;
+  vec2 v = (p - uEmit) / uScale;           // css px from the emitter
+  float r = length(v);
+  float breathe = 0.92 + 0.08 * sin(uTime * 0.7);
+  vec3 col = vec3(0.0);
+
+  // room planes: ceiling between the two upper seams, walls either side of the vertical seam
+  float ceil = step(0.0, cross2(uDir[1], v)) * step(0.0, cross2(v, uDir[0]));
+  float leftWall = (1.0 - ceil) * step(v.x, 0.0);
+  float plane = mix(mix(0.7, 1.0, leftWall), 0.4, ceil);
+
+  // volumetric haze, pooled around the emitter and drifting slowly
+  float n = fbm(v * 0.0045 + vec2(uTime * 0.018, -uTime * 0.012));
+  float haze = (0.08 + 0.6 * n * n) * exp(-r / 420.0) + 0.03 * exp(-r / 1400.0);
+  col += uAccent * haze * plane * 0.42;
+  // light washing each wall from the junction
+  col += uAccent * exp(-r / 220.0) * plane * 0.07;
+
+  for (int i = 0; i < 3; i++) {
+    vec2 d = uDir[i];
+    float t = max(dot(v, d), 0.0);
+    float dist = length(v - d * t);
+    float fi = float(i);
+    float fade = 0.3 + 0.7 * exp(-t / 620.0);
+    // faint packets of energy travelling outward along the seam
+    float packet = pow(max(sin(t * 0.009 - uTime * 0.8 + fi * 2.1), 0.0), 18.0);
+    float shimmer = 0.9 + 0.1 * sin(uTime * 1.3 + fi * 1.7 + t * 0.02);
+    float core = exp(-dist * dist / 0.55);
+    float halo = exp(-dist / 3.5) * 0.45 + exp(-dist / 18.0) * 0.12;
+    float volume = exp(-dist / 90.0) * 0.03;
+    float k = fade * shimmer * breathe;
+    col += vec3(1.0) * core * k * (1.1 + packet * 1.4);
+    col += uAccent * (halo * (1.0 + packet * 0.8) + volume) * k;
+  }
+
+  // emitter: the brightest point in the frame
+  float hot = exp(-r * r / 10.0) * 4.0;
+  float bloom = exp(-r / 9.0) * 1.3 + exp(-r / 55.0) * 0.6 + exp(-r / 200.0) * 0.22;
+  float streak = exp(-abs(v.y) / 1.4) * exp(-abs(v.x) / 220.0) * 0.5;
+  col += vec3(1.0) * hot * breathe;
+  col += mix(uAccent, vec3(1.0), 0.35) * (bloom + streak) * breathe;
+
+  col = 1.0 - exp(-col * 1.15);            // filmic-ish roll-off keeps the core white-hot
+  vec2 uv = p / uRes;
+  col *= 1.0 - 0.45 * pow(length((uv - 0.5) * vec2(1.1, 1.0)), 2.2);
+  col = max(col, vec3(0.039, 0.039, 0.043));
+  col += (hash(p + fract(uTime) * 37.0) - 0.5) / 255.0 * 3.0;
+  gl_FragColor = vec4(col, 1.0);
+}`;
+
+      const hero = document.querySelector<HTMLElement>('.hero')!;
+      const canvas = hero.querySelector<HTMLCanvasElement>('.lasers')!;
+      const labels = [...hero.querySelectorAll<HTMLElement>('.beam-label')];
+      const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+
+      // Emitter position as a fraction of the hero; dirs in screen space (y down), from the labels' data.
+      const emitterFor = (w: number) => (w < 720 ? [0.6, 0.22] : w < 1024 ? [0.68, 0.33] : [0.665, 0.4]);
+      const dirs = labels.map((el) => {
+        const [x, y] = el.dataset.dir!.split(',').map(Number);
+        const len = Math.hypot(x, y);
+        return [x / len, y / len];
+      });
+
+      const hexToRgb = (hex: string) => {
+        const h = hex.trim().replace('#', '');
+        return [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16) / 255);
+      };
+      const accent = hexToRgb(getComputedStyle(document.documentElement).getPropertyValue('--accent') || '#c8f542');
+
+      let emit = [0, 0];
+      const placeLabels = () => {
+        const w = hero.clientWidth;
+        const h = hero.clientHeight;
+        const [fx, fy] = emitterFor(w);
+        emit = [fx * w, fy * h];
+        hero.style.setProperty('--ex', `${fx * 100}%`);
+        hero.style.setProperty('--ey', `${fy * 100}%`);
+        const scale = w < 720 ? 0.42 : 1;
+        labels.forEach((el, i) => {
+          const at = Number(el.dataset.at) * scale;
+          const [dx, dy] = dirs[i];
+          const x = emit[0] + dx * at;
+          const y = emit[1] + dy * at;
+          // sit beside the beam, on the side away from the emitter's other seams
+          const lw = el.offsetWidth;
+          const lh = el.offsetHeight;
+          let left = dx === 0 ? x + 14 : x - lw / 2;
+          let top = dx === 0 ? y - lh / 2 : y + 14;
+          left = Math.max(12, Math.min(w - lw - 12, left));
+          top = Math.max(80, top);
+          el.style.transform = `translate(${Math.round(left)}px, ${Math.round(top)}px)`;
+          el.classList.add('placed');
+        });
+      };
+
+      const gl = canvas.getContext('webgl', { antialias: false, premultipliedAlpha: false });
+      const compile = (g: WebGLRenderingContext, type: number, src: string) => {
+        const s = g.createShader(type)!;
+        g.shaderSource(s, src);
+        g.compileShader(s);
+        if (!g.getShaderParameter(s, g.COMPILE_STATUS)) throw new Error(g.getShaderInfoLog(s) ?? 'shader');
+        return s;
+      };
+
+      let draw: (time: number) => void = () => {};
+      let resizeGl = () => {};
+      try {
+        if (!gl) throw new Error('no webgl');
+        const prog = gl.createProgram()!;
+        gl.attachShader(prog, compile(gl, gl.VERTEX_SHADER, VERT));
+        gl.attachShader(prog, compile(gl, gl.FRAGMENT_SHADER, FRAG));
+        gl.linkProgram(prog);
+        if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog) ?? 'link');
+        gl.useProgram(prog);
+        const buf = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+        const loc = gl.getAttribLocation(prog, 'p');
+        gl.enableVertexAttribArray(loc);
+        gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+        const u = (n: string) => gl.getUniformLocation(prog, n);
+        const uRes = u('uRes'), uScale = u('uScale'), uTime = u('uTime'), uEmit = u('uEmit'), uAccent = u('uAccent'), uDir = u('uDir');
+        gl.uniform3fv(uAccent, accent);
+        // shader is y-up: flip each direction's y
+        gl.uniform2fv(uDir, new Float32Array(dirs.flatMap(([x, y]) => [x, -y])));
+        let dpr = 1;
+        resizeGl = () => {
+          // ponytail: dpr capped at 1.5 — the haze is soft and the core is 1 css px either way
+          dpr = Math.min(devicePixelRatio || 1, 1.5);
+          canvas.width = Math.round(hero.clientWidth * dpr);
+          canvas.height = Math.round(hero.clientHeight * dpr);
+          gl.viewport(0, 0, canvas.width, canvas.height);
+          gl.uniform2f(uRes, canvas.width, canvas.height);
+          gl.uniform1f(uScale, dpr);
+        };
+        draw = (time) => {
+          gl.uniform1f(uTime, time);
+          gl.uniform2f(uEmit, emit[0] * dpr, canvas.height - emit[1] * dpr);
+          gl.drawArrays(gl.TRIANGLES, 0, 3);
+        };
+      } catch (err) {
+        console.warn('corner-lasers: WebGL unavailable, showing static fallback', err);
+        hero.classList.add('no-gl');
+      }
+
+      const layout = () => {
+        placeLabels();
+        resizeGl();
+      };
+      layout();
+      document.fonts?.ready.then(placeLabels);
+      new ResizeObserver(layout).observe(hero);
+
+      // Render loop: only while the hero is on screen and the tab is visible; one still frame for reduced motion.
+      let visible = true;
+      let raf = 0;
+      const start = performance.now();
+      const STILL = 6.2; // a moment where a packet is mid-beam
+      const frame = (now: number) => {
+        draw((now - start) / 1000);
+        raf = visible && !reduced.matches && !document.hidden ? requestAnimationFrame(frame) : 0;
+      };
+      const kick = () => {
+        if (reduced.matches) {
+          draw(STILL);
+        } else if (!raf && visible && !document.hidden) {
+          raf = requestAnimationFrame(frame);
+        }
+      };
+      new IntersectionObserver(([e]) => {
+        visible = e.isIntersecting;
+        kick();
+      }).observe(hero);
+      document.addEventListener('visibilitychange', kick);
+      reduced.addEventListener('change', kick);
+      new ResizeObserver(() => reduced.matches && draw(STILL)).observe(hero);
+      kick();
+    </script>
+  </body>
+</html>

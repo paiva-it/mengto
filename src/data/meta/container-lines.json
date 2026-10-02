@@ -1,0 +1,7 @@
+{
+  "title": "Container Lines",
+  "kind": "website",
+  "category": "Layout",
+  "concept": "Leafhold, a fictional single-estate tea importer in Rotterdam: a warm-paper catalogue site where two 1px guides mark the 1120 px container from nav to footer, each band's full-bleed hairline is pinned by 6 px corner squares where it crosses them, and every grid (lot table, gardens, brewing panel, route) divides along the same edges.",
+  "notes": "Guides are ::before/::after on the page shell (and repeated on the dark brewing band in light ink), positioned with 100% rather than 100vw so a scrollbar never misaligns them. A live readout under the nav reports the measured container width. Lines draw in on load; reduced motion shows them static. Photos from Unsplash."
+}

@@ -1,0 +1,7 @@
+{
+  "title": "Mouse-driven Orbit",
+  "kind": "section",
+  "category": "3D & WebGL",
+  "concept": "Ondo Roasters: an independent roastery's hero where a procedural coffee branch, ripening cherries and roasted beans turn toward the pointer in a shallow damped orbit while a sage bough drifts behind the copy.",
+  "notes": "Three.js, no mesh files (beans are creased spheres, leaves bent shapes, branches tubes). One normalized target damped at 0.055/60 Hz, split into camera -26/+16 with a 42 % carried look-at, near yaw 0.055 / pitch 0.026, far yaw 0.030; DOM copy and card parallax from the same pair. Touch keeps the centre pose; pointer leave eases home. Keyboard X/Y sliders and a Motion toggle with a live region. Reduced motion or ?reduced=1 shows the x=.28, y=-.12 still and the sliders pick stills without easing. ?shot holds a three-quarter pose for the card capture. Renders only while easing; pauses offscreen and hidden."
+}

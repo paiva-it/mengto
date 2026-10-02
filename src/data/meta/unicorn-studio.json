@@ -1,0 +1,7 @@
+{
+  "title": "Unicorn Studio",
+  "kind": "section",
+  "category": "3D & WebGL",
+  "concept": "Tel Varesh Survey, a fictional excavation: a full-bleed radar section of eighteen soil horizons with a sweeping GPR beam lighting hyperbolic returns over buried finds, embedded the Unicorn Studio way and followed by a live field-budget panel for the SDK's scale, DPI and FPS knobs.",
+  "notes": "No Unicorn Studio project ID was available, so both scenes are a local WebGL2 fragment shader that honours the SDK's container contract (data-us-scale/-dpi/-fps/-lazyload/-production, sized containers) and its authoring events (appear, scroll, hover, mousemove). Append ?us=PROJECT_ID to swap the hero for a real project loaded from the jsDelivr UMD SDK (v1.4.29, unverified offline). Two scenes per page, the second lazy-loaded; FPS-capped loop pauses offscreen and when hidden; reduced motion draws one still frame; static CSS strata fallback without WebGL."
+}

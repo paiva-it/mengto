@@ -1,0 +1,7 @@
+{
+  "title": "Dither Background",
+  "kind": "section",
+  "category": "Backgrounds & atmosphere",
+  "concept": "Orca Massif Rescue: a volunteer mountain rescue team's site set over a fixed 4×4 Bayer-dithered field where a monochrome massif sits under drifting cloud masses, with a live callout board and Clear / Spindrift / Whiteout conditions that ease the cloud density.",
+  "notes": "Canvas 2D following the skill recipe (Bayer 4×4, six-step near-black to white palette, fbm clouds + wave drift, off-axis vignette); adds a per-column ridge line, lit west face and valley fog. Drawn at one pixel per cell and upscaled with image-rendering: pixelated (7 px cells, 6 px on phones), ~30 fps, paused when hidden; the massif sinks as you scroll. Reduced motion renders a single still frame and redraws on scroll or mode change. No WebGL or CDN dependencies."
+}

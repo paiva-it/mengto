@@ -1,0 +1,449 @@
+---
+import '../../styles/global.css';
+import BackPill from '../../components/BackPill.astro';
+
+// Contour rings for an island: r(θ) wobbles with a few sines so each ring reads hand-surveyed.
+const contours = (cx: number, cy: number, rings: number, step: number, seed: number) =>
+  Array.from({ length: rings }, (_, i) => {
+    const base = step * (i + 1);
+    const pts = Array.from({ length: 73 }, (_, k) => {
+      const t = (k / 72) * Math.PI * 2;
+      const r =
+        base *
+        (1 + 0.16 * Math.sin(3 * t + seed + i * 0.22) + 0.08 * Math.cos(5 * t - seed * 1.7) + 0.04 * Math.sin(9 * t + i));
+      return `${(cx + r * Math.cos(t) * 1.25).toFixed(1)},${(cy + r * Math.sin(t)).toFixed(1)}`;
+    });
+    return `M${pts.join('L')}Z`;
+  });
+
+const heroMap = contours(200, 150, 7, 15, 1.2);
+const bgMap = contours(1180, 260, 16, 46, 2.6);
+
+const soundings = [
+  [42, 40, '38'], [92, 26, '41'], [330, 34, '27'], [362, 92, '33'], [310, 236, '19'],
+  [300, 270, '24'], [70, 250, '31'], [30, 160, '44'], [130, 86, '12'], [262, 210, '9'],
+  [168, 264, '17'], [370, 168, '29'],
+] as const;
+
+const steps = [
+  { n: '01', label: 'Sound', text: 'Twelve thousand depths, logged by hand.' },
+  { n: '02', label: 'Contour', text: 'Lines drawn where the numbers agree.' },
+  { n: '03', label: 'Name', text: 'Every rock keeps its local name.' },
+  { n: '04', label: 'Print', text: 'Two colours, one plate, on cotton rag.' },
+];
+
+const method = [
+  { n: 'I', t: 'Survey before style', b: 'We row the water with a lead line and an echo sounder before a single line is inked. Depths come first; the drawing argues with them later.' },
+  { n: 'II', t: 'Fewer marks, read faster', b: 'A harbour master should find the channel in two seconds. Anything that slows that down — decoration, a third colour, a clever font — is cut.' },
+  { n: 'III', t: 'Names from the quay', b: 'Place names come from the people who fish there, spelled the way they say them, checked against the parish records.' },
+];
+
+const sheets = [
+  { id: 'Sheet 07', title: 'Kelder Sound, north approach', spec: '1 : 12 500 · 2 colours · 2025', seed: 0.4 },
+  { id: 'Sheet 11', title: 'The Varra skerries at low water', spec: '1 : 8 000 · 2 colours · 2024', seed: 2.1 },
+  { id: 'Sheet 14', title: 'Hask Point to the old ferry slip', spec: '1 : 20 000 · 1 colour · 2026', seed: 3.7 },
+];
+const sheetMaps = sheets.map((s) => contours(120 + s.seed * 22, 96 + s.seed * 8, 6, 12 + s.seed, s.seed));
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Isobath — Cartographic Studio, Port Varra</title>
+    <meta name="description" content="Isobath is a two-person cartographic studio in Port Varra drawing hand-surveyed coastal charts, printed in two colours on cotton rag." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <script is:inline>document.documentElement.classList.add('js');</script>
+  </head>
+  <body>
+    <svg class="bg-contours" viewBox="0 0 1440 900" preserveAspectRatio="xMaxYMin slice" aria-hidden="true">
+      {bgMap.map((d) => <path d={d} />)}
+    </svg>
+
+    <header class="bar wrap">
+      <a class="brand" href="#top"><span class="dot"></span>Isobath</a>
+      <span class="mono dim hide-sm">Cartographic studio · Port Varra · 60°09′N 1°08′W</span>
+      <a class="mono link" href="#commission">Commission a sheet</a>
+    </header>
+
+    <main id="top">
+      <section class="hero wrap">
+        <p class="mono eyebrow">Survey / Drafting / Two-colour print</p>
+        <h1 class="word-reveal display" data-word-reveal>
+          We chart the coast the way the <span class="accent">tide remembers it.</span>
+        </h1>
+
+        <div class="hero-row">
+          <div class="intro">
+            <p class="lede">
+              Hand-surveyed charts of small harbours, sounds and skerries — drawn for the people who have to steer through them.
+            </p>
+            <dl class="facts">
+              <div><dt class="mono">Sheets in print</dt><dd>14</dd></div>
+              <div><dt class="mono">Depths logged</dt><dd>186k</dd></div>
+              <div><dt class="mono">Plate colours</dt><dd>2</dd></div>
+            </dl>
+          </div>
+
+          <article class="panel" data-sequence aria-labelledby="panel-title">
+            <div class="panel-head">
+              <span class="mono" id="panel-title"><span class="live"></span>How a sheet is made</span>
+              <button class="replay mono" type="button" data-replay>
+                <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8a5 5 0 1 0 1.6-3.7M3 2v3h3" /></svg>
+                Replay sequence
+              </button>
+            </div>
+            <div class="panel-body">
+              <svg class="mini-map" viewBox="0 0 400 300" role="img" aria-label="Chart of Kelder Sound built up in four layers: soundings, contours, names and print border">
+                <g class="map-layer" style="--delay:0.3s">
+                  {soundings.map(([x, y, d]) => <text x={x} y={y} class="sounding">{d}</text>)}
+                </g>
+                <g class="map-layer contours" style="--delay:0.58s">
+                  {heroMap.map((d, i) => <path d={d} class={i === 0 ? 'land' : ''} />)}
+                </g>
+                <g class="map-layer names" style="--delay:0.86s">
+                  <text x="200" y="154" text-anchor="middle">KELDER</text>
+                  <text x="62" y="120" class="it">Hask Pt.</text>
+                  <text x="290" y="58" class="it">Varra Sk.</text>
+                </g>
+                <g class="map-layer frame" style="--delay:1.14s">
+                  <rect x="6" y="6" width="388" height="288" />
+                  <rect x="12" y="12" width="376" height="276" />
+                  <path d="M352 236v-30M352 206l-6 14h12z" class="north" />
+                  <text x="352" y="252" text-anchor="middle">N</text>
+                </g>
+              </svg>
+              <ol class="steps">
+                {steps.map((s, i) => (
+                  <li style={`--delay:${(0.3 + i * 0.28).toFixed(2)}s`}>
+                    <span class="mono step-n">{s.n} — {s.label}</span>
+                    <span class="tick"></span>
+                    <p class="word-reveal step-text" data-word-split>{s.text}</p>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="method wrap" aria-labelledby="method-title">
+        <p class="mono eyebrow">Method</p>
+        <h2 id="method-title" class="word-reveal h2" data-word-reveal>Every sheet starts as a list of depths, not a drawing.</h2>
+        <div class="method-grid">
+          {method.map((m) => (
+            <div class="method-item">
+              <span class="mono roman">{m.n}</span>
+              <h3 class="word-reveal h3" data-word-reveal>{m.t}</h3>
+              <p class="body">{m.b}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section class="quote wrap" aria-label="From the drafting table">
+        <blockquote>
+          <p class="word-reveal quote-text" data-word-reveal>“A good chart is mostly the things you were brave enough to leave out.”</p>
+          <footer class="mono dim">Maren Kjeld, chief draughtsperson — on Sheet 11</footer>
+        </blockquote>
+      </section>
+
+      <section class="sheets wrap" aria-labelledby="sheets-title">
+        <div class="sheets-head">
+          <p class="mono eyebrow">In the plan chest</p>
+          <h2 id="sheets-title" class="word-reveal h2" data-word-reveal>Three sheets, one stretch of water.</h2>
+        </div>
+        <div class="sheet-grid">
+          {sheets.map((s, i) => (
+            <article class="sheet">
+              <svg viewBox="0 0 320 220" aria-hidden="true">
+                <rect x="4" y="4" width="312" height="212" class="sheet-frame" />
+                {sheetMaps[i].map((d, j) => <path d={d} class={j === 0 ? 'land' : ''} />)}
+              </svg>
+              <span class="mono dim">{s.id}</span>
+              <h3 class="word-reveal h3" data-word-reveal>{s.title}</h3>
+              <p class="mono spec">{s.spec}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section class="cta wrap" id="commission" aria-labelledby="cta-title">
+        <h2 id="cta-title" class="word-reveal display cta-title" data-word-reveal>
+          Tell us where the <span class="accent">water is.</span>
+        </h2>
+        <div class="cta-row">
+          <p class="body">We take on four commissions a year — harbour trusts, sailing clubs, and the occasional island that has never been drawn properly.</p>
+          <a class="button" href="mailto:sheets@isobath.example">sheets@isobath.example</a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="foot wrap mono dim">
+      <span>Isobath Cartographic · Port Varra</span>
+      <span>Soundings in metres, reduced to chart datum</span>
+    </footer>
+
+    <BackPill />
+
+    <style>
+      :root {
+        --bg: #0a0f11;
+        --bg-2: #0f171a;
+        --ink: #eef3f4;
+        --ink-2: #a9b6ba;
+        --ink-3: #66767b;
+        --line: rgb(214 236 240 / 0.12);
+        --cyan: #7ee6f2;
+        --cyan-dim: rgb(126 230 242 / 0.35);
+        --ease: cubic-bezier(0.16, 1, 0.3, 1);
+        --sans: 'Inter Tight', ui-sans-serif, system-ui, sans-serif;
+        --mono: 'JetBrains Mono', ui-monospace, monospace;
+      }
+      html { background: var(--bg); scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        color: var(--ink);
+        font-family: var(--sans);
+        background:
+          radial-gradient(60rem 36rem at 78% 8%, rgb(56 120 128 / 0.22), transparent 70%),
+          var(--bg);
+        overflow-x: clip;
+        -webkit-font-smoothing: antialiased;
+      }
+      .wrap { width: min(100% - 32px, 1320px); margin-inline: auto; }
+      @media (min-width: 768px) { .wrap { width: min(100% - 80px, 1320px); } }
+      .mono { font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; }
+      .dim { color: var(--ink-3); }
+      .accent { color: var(--cyan); }
+
+      .bg-contours {
+        position: absolute; inset: 0 0 auto 0; width: 100%; height: 100vh; min-height: 760px;
+        fill: none; stroke: rgb(126 230 242 / 0.06); stroke-width: 1; pointer-events: none;
+        mask-image: linear-gradient(to bottom, #000 40%, transparent);
+      }
+
+      .bar {
+        position: relative; display: flex; align-items: center; justify-content: space-between; gap: 16px;
+        height: 64px; border-bottom: 1px solid var(--line);
+      }
+      .brand {
+        display: inline-flex; align-items: center; gap: 10px; color: var(--ink); text-decoration: none;
+        font-weight: 600; font-size: 15px; letter-spacing: 0.02em;
+      }
+      .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 14px var(--cyan); }
+      .link { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--cyan-dim); padding-bottom: 3px; }
+      .link:hover { border-color: var(--cyan); }
+      @media (max-width: 860px) { .hide-sm { display: none; } }
+
+      .hero { position: relative; padding-top: clamp(32px, 4.5vh, 44px); }
+      .eyebrow { color: var(--ink-2); margin: 0 0 14px; }
+      .display {
+        margin: 0; font-weight: 600; letter-spacing: -0.045em; line-height: 0.95;
+        font-size: clamp(44px, 6.6vw, 100px); max-width: 15ch;
+      }
+      .hero .display { max-width: 13.5ch; }
+
+      .hero-row {
+        display: grid; gap: 28px; margin-top: clamp(24px, 3.4vh, 32px); padding-bottom: 96px;
+      }
+      @media (min-width: 1024px) { .hero-row { grid-template-columns: 4fr 8fr; gap: 40px; align-items: start; } }
+      .lede { margin: 0; color: var(--ink-2); font-size: 18px; line-height: 1.5; max-width: 34ch; }
+      .facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 28px 0 0; border-top: 1px solid var(--line); padding-top: 18px; }
+      .facts dt { color: var(--ink-3); font-size: 10px; }
+      .facts dd { margin: 6px 0 0; font-size: 28px; font-weight: 600; letter-spacing: -0.03em; }
+
+      .panel {
+        border: 1px solid var(--line); border-radius: 18px;
+        background: linear-gradient(180deg, rgb(20 32 36 / 0.85), rgb(12 18 21 / 0.9));
+        box-shadow: 0 30px 80px -40px rgb(0 0 0 / 0.8), inset 0 1px 0 rgb(255 255 255 / 0.04);
+        overflow: hidden;
+      }
+      .panel-head {
+        display: flex; align-items: center; justify-content: space-between; gap: 12px;
+        padding: 12px 14px 12px 18px; border-bottom: 1px solid var(--line); color: var(--ink-2);
+      }
+      .live { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--cyan); margin-right: 10px; vertical-align: 1px; }
+      .replay {
+        display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
+        color: var(--ink); background: rgb(126 230 242 / 0.06); border: 1px solid var(--cyan-dim);
+        border-radius: 999px; padding: 8px 14px; font-size: 10px;
+        transition: background 0.3s var(--ease), border-color 0.3s var(--ease);
+      }
+      .replay svg { width: 13px; height: 13px; fill: none; stroke: var(--cyan); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+      .replay:hover { background: rgb(126 230 242 / 0.14); border-color: var(--cyan); }
+      .replay:focus-visible, .link:focus-visible, .button:focus-visible, .brand:focus-visible { outline: 2px solid var(--cyan); outline-offset: 3px; }
+
+      .panel-body { display: grid; gap: 0; }
+      @media (min-width: 640px) { .panel-body { grid-template-columns: 1.05fr 1fr; } }
+      .mini-map { display: block; width: 100%; height: auto; padding: 14px; border-bottom: 1px solid var(--line); box-sizing: border-box; }
+      @media (min-width: 640px) { .mini-map { border-bottom: 0; border-right: 1px solid var(--line); } }
+      .mini-map text { font-family: var(--mono); fill: var(--ink-3); font-size: 9px; }
+      .mini-map .sounding { fill: var(--ink-2); font-size: 10px; }
+      .contours path { fill: none; stroke: var(--cyan-dim); stroke-width: 1; }
+      .contours path.land { fill: rgb(126 230 242 / 0.12); stroke: var(--cyan); }
+      .names text { fill: var(--ink); font-family: var(--sans); font-size: 12px; letter-spacing: 0.32em; font-weight: 600; }
+      .names text.it { font-style: italic; font-weight: 400; letter-spacing: 0.04em; fill: var(--ink-2); font-size: 11px; }
+      .frame rect { fill: none; stroke: var(--ink-3); stroke-width: 1; }
+      .frame .north { fill: var(--cyan); stroke: var(--cyan); stroke-width: 1; }
+      .frame text { fill: var(--ink-2); }
+
+      .steps { list-style: none; margin: 0; padding: 6px 20px; display: grid; }
+      .steps li { padding: 11px 0; border-bottom: 1px solid var(--line); }
+      .steps li:last-child { border-bottom: 0; }
+      .step-n { color: var(--cyan); font-size: 10px; }
+      .tick {
+        display: block; height: 1px; margin: 9px 0 10px; background: var(--cyan);
+        transform: scaleX(0); transform-origin: left;
+        transition: transform 0.8s var(--ease) var(--delay, 0s);
+      }
+      .step-text { margin: 0; font-size: 19px; line-height: 1.25; font-weight: 500; letter-spacing: -0.015em; }
+
+      /* Staggered word reveal — skill tokens: y 20px → 0, 0.8s, expo-out curve, 0.07s per word, once. */
+      html.js .word-reveal:not(.is-ready) { opacity: 0; }
+      .word-reveal :global(.word-reveal__word) {
+        display: inline-block;
+        opacity: 0;
+        transform: translate3d(0, 20px, 0);
+        transition:
+          opacity 0.8s var(--ease),
+          transform 0.8s var(--ease);
+        transition-delay: calc(var(--delay, 0s) + var(--word-index) * 0.07s);
+        will-change: opacity, transform;
+      }
+      .word-reveal.is-visible :global(.word-reveal__word),
+      [data-sequence].is-visible :global(.word-reveal__word) {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+      }
+      .map-layer { opacity: 0; transition: opacity 0.8s var(--ease) var(--delay, 0s); }
+      [data-sequence].is-visible .map-layer { opacity: 1; }
+      [data-sequence].is-visible .tick { transform: scaleX(1); }
+      [data-sequence].is-resetting *,
+      [data-sequence].is-resetting :global(.word-reveal__word) { transition: none !important; }
+
+      .method { padding: 104px 0 40px; border-top: 1px solid var(--line); }
+      .h2 { margin: 0; font-size: clamp(32px, 4.4vw, 64px); font-weight: 600; letter-spacing: -0.04em; line-height: 1; max-width: 18ch; }
+      .h3 { margin: 10px 0 12px; font-size: 22px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.15; }
+      .body { margin: 0; color: var(--ink-2); font-size: 16px; line-height: 1.6; max-width: 46ch; }
+      .method-grid { display: grid; gap: 36px; margin-top: 56px; }
+      @media (min-width: 900px) { .method-grid { grid-template-columns: repeat(3, 1fr); gap: 40px; } }
+      .method-item { border-top: 1px solid var(--line); padding-top: 20px; }
+      .roman { color: var(--cyan); }
+
+      .quote { padding: 120px 0; }
+      .quote blockquote { margin: 0; border-left: 1px solid var(--cyan); padding-left: clamp(20px, 4vw, 48px); }
+      .quote-text { margin: 0 0 24px; font-size: clamp(30px, 4.6vw, 68px); font-weight: 500; letter-spacing: -0.04em; line-height: 1.04; max-width: 22ch; }
+
+      .sheets { padding: 40px 0 120px; }
+      .sheet-grid { display: grid; gap: 28px; margin-top: 48px; }
+      @media (min-width: 900px) { .sheet-grid { grid-template-columns: repeat(3, 1fr); } }
+      .sheet svg { display: block; width: 100%; height: auto; margin-bottom: 18px; border-radius: 12px; background: var(--bg-2); border: 1px solid var(--line); }
+      .sheet svg path { fill: none; stroke: var(--cyan-dim); }
+      .sheet svg path.land { fill: rgb(126 230 242 / 0.1); stroke: var(--cyan); }
+      .sheet-frame { fill: none; stroke: var(--line); }
+      .spec { color: var(--ink-2); font-size: 10px; margin: 0; }
+
+      .cta { padding: 112px 0 96px; border-top: 1px solid var(--line); }
+      .cta-title { max-width: 12ch; }
+      .cta-row { display: flex; flex-wrap: wrap; gap: 24px 48px; align-items: end; justify-content: space-between; margin-top: 40px; }
+      .button {
+        display: inline-flex; align-items: center; min-height: 48px; padding: 0 22px; border-radius: 999px;
+        background: var(--cyan); color: #04181b; font-weight: 600; text-decoration: none; font-size: 15px;
+        transition: transform 0.3s var(--ease), box-shadow 0.3s var(--ease);
+      }
+      .button:hover { transform: translateY(-1px); box-shadow: 0 10px 30px -10px var(--cyan); }
+
+      .foot { display: flex; flex-wrap: wrap; gap: 12px 32px; justify-content: space-between; padding: 24px 0 88px; border-top: 1px solid var(--line); font-size: 10px; }
+
+      @media (prefers-reduced-motion: reduce) {
+        html { scroll-behavior: auto; }
+        html.js .word-reveal:not(.is-ready),
+        .word-reveal :global(.word-reveal__word),
+        .map-layer, .tick {
+          opacity: 1; transform: none; transition: none;
+        }
+      }
+    </style>
+
+    <!-- ponytail: inline (not bundled) so the reveal never waits on dev-server module loading. -->
+    <script is:inline>
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      // The skill's splitter, extended to walk text nodes so a decorative accent <span> survives.
+      const split = (el) => {
+        if (el.dataset.wordRevealReady === 'true') return;
+        const label = (el.textContent || '').replace(/\s+/g, ' ').trim();
+        const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+        const nodes = [];
+        while (walker.nextNode()) nodes.push(walker.currentNode);
+        let index = 0;
+        for (const node of nodes) {
+          const frag = document.createDocumentFragment();
+          for (const part of (node.textContent || '').split(/(\s+)/)) {
+            if (!part) continue;
+            if (!part.trim()) { frag.append(document.createTextNode(part)); continue; }
+            const word = document.createElement('span');
+            word.className = 'word-reveal__word';
+            word.setAttribute('aria-hidden', 'true');
+            word.style.setProperty('--word-index', String(index++));
+            word.textContent = part;
+            frag.append(word);
+          }
+          node.replaceWith(frag);
+        }
+        el.setAttribute('aria-label', label);
+        el.dataset.wordRevealReady = 'true';
+        el.classList.add('is-ready');
+      };
+
+      const init = () => {
+        const targets = Array.from(document.querySelectorAll('[data-word-reveal], [data-sequence]'));
+        const splits = Array.from(document.querySelectorAll('[data-word-reveal], [data-word-split]'));
+        const replay = document.querySelector('[data-replay]');
+
+        if (reduce || !('IntersectionObserver' in window)) {
+          splits.forEach((el) => el.classList.add('is-ready'));
+          targets.forEach((el) => el.classList.add('is-visible'));
+          if (replay) replay.hidden = true;
+          return;
+        }
+
+        splits.forEach(split);
+        const io = new IntersectionObserver(
+          (entries, obs) => {
+            for (const entry of entries) {
+              if (!entry.isIntersecting) continue;
+              entry.target.classList.add('is-visible');
+              obs.unobserve(entry.target); // once only
+            }
+          },
+          { threshold: 0.2, rootMargin: '0px 0px -10% 0px' },
+        );
+        // Above-the-fold targets play on the next frame instead of waiting for the observer's first
+        // callback, which a busy main thread at load can push back by a second or more.
+        const inView = targets.filter((el) => {
+          const r = el.getBoundingClientRect();
+          return r.top < innerHeight * 0.9 && r.bottom > 0;
+        });
+        targets.filter((el) => !inView.includes(el)).forEach((el) => io.observe(el));
+        requestAnimationFrame(() => requestAnimationFrame(() => inView.forEach((el) => el.classList.add('is-visible'))));
+
+        // Replay is the only way to run a sequence twice: snap back with no transition, then play.
+        replay?.addEventListener('click', () => {
+          const panel = replay.closest('[data-sequence]');
+          if (!panel) return;
+          panel.classList.add('is-resetting');
+          panel.classList.remove('is-visible');
+          void panel.offsetWidth;
+          panel.classList.remove('is-resetting');
+          requestAnimationFrame(() => panel.classList.add('is-visible'));
+        });
+      };
+
+      // split after web fonts land (capped at 300 ms; words are inline-block, so a late font still re-wraps cleanly).
+      Promise.race([document.fonts.ready, new Promise((r) => setTimeout(r, 300))]).then(init, init);
+    </script>
+  </body>
+</html>

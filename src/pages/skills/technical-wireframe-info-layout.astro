@@ -1,0 +1,570 @@
+---
+import '../../styles/global.css';
+import BackPill from '../../components/BackPill.astro';
+
+// Plan-view outlines for the fleet, from the same beam law the 3-D hull uses.
+const plan = (lengthCm: number, beamCm: number, fullness: number) => {
+  const s = 360 / 518;
+  const half = (lengthCm * s) / 2;
+  const n = 48;
+  const top: string[] = [];
+  const bottom: string[] = [];
+  for (let i = 0; i <= n; i++) {
+    const u = -1 + (2 * i) / n;
+    const x = 200 + u * half;
+    const hw = ((beamCm * s) / 2) * Math.pow(Math.max(0, 1 - u * u), fullness);
+    top.push(`${x.toFixed(1)},${(36 - hw).toFixed(1)}`);
+    bottom.unshift(`${x.toFixed(1)},${(36 + hw).toFixed(1)}`);
+  }
+  return { d: `M${top.join(' L')} L${bottom.join(' L')} Z`, half };
+};
+
+const fleet = [
+  {
+    code: 'FM-17', name: 'Fulmar 17', role: 'Expedition', len: 518, beam: 53, kg: '21.4', vol: '318 L', price: '€4,180',
+    note: 'Low aft deck for rolling, three bulkheads, skeg and rudder both fitted. Built for week-long crossings.',
+    wind: [0, 25], range: [25, 45], full: 0.62,
+  },
+  {
+    code: 'PT-15', name: 'Petrel 15', role: 'Day touring', len: 462, beam: 57, kg: '19.0', vol: '265 L', price: '€3,240',
+    note: 'More initial stability, one day hatch, skeg only. The one most of our regulars end up owning.',
+    wind: [0, 18], range: [12, 30], full: 0.58,
+  },
+  {
+    code: 'KW-13', name: 'Kittiwake 13', role: 'Sheltered water', len: 396, beam: 64, kg: '16.2', vol: '210 L', price: '€1,960',
+    note: 'Wide, forgiving and short enough for a hatchback roof. Sized for younger paddlers and calm fjord arms.',
+    wind: [0, 12], range: [4, 18], full: 0.5,
+  },
+].map((k) => ({ ...k, plan: plan(k.len, k.beam, k.full) }));
+
+const schedule = [
+  { l: 'L4', name: 'Hatches + coaming', mat: 'Rubber-sealed covers, carbon coaming lip', kg: 1.3, svc: 'Re-seat covers every season' },
+  { l: 'L3', name: 'Deck shell', mat: '3 mm carbon–aramid, vacuum infused', kg: 6.1, svc: 'Check bungee anchors at 200 h' },
+  { l: 'L2', name: 'Bulkheads + outfitting', mat: 'Closed-cell foam, ratchet backband', kg: 3.4, svc: 'Pressure-test bulkheads yearly' },
+  { l: 'L1', name: 'Hull shell', mat: 'Glass–aramid, 600 g keel strip', kg: 9.8, svc: 'Gelcoat inspection after rock landings' },
+  { l: 'L0', name: 'Skeg + rudder', mat: 'G10 blades, Dyneema control line', kg: 0.8, svc: 'Replace control line every 3 years' },
+];
+const total = schedule.reduce((a, r) => a + r.kg, 0);
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Skerryworks — Fulmar 17 Anatomy</title>
+    <meta name="description" content="Skerryworks, a fjord-side kayak outfitter, takes its expedition sea kayak apart layer by layer before it ever touches the water." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <div class="tex" aria-hidden="true"></div>
+
+    <main>
+      <!-- 01 · Diagnostic view ------------------------------------------------>
+      <section class="hero" id="top" aria-labelledby="hero-title">
+        <div class="frame">
+          <span class="corner tl" aria-hidden="true"></span><span class="corner tr" aria-hidden="true"></span>
+          <span class="corner bl" aria-hidden="true"></span><span class="corner br" aria-hidden="true"></span>
+
+          <header class="hbar">
+            <div class="brand">
+              <p class="meta">SKERRYWORKS · BREKKEVIK · REV 4.2</p>
+              <h1 id="hero-title" class="mask"><span>Fulmar 17 Anatomy</span></h1>
+            </div>
+            <nav class="tabs" aria-label="Layer focus">
+              <button type="button" data-focus="all" aria-pressed="true">All layers</button>
+              <button type="button" data-focus="hull" aria-pressed="false">Hull</button>
+              <button type="button" data-focus="deck" aria-pressed="false">Deck</button>
+              <button type="button" data-focus="outfit" aria-pressed="false">Outfitting</button>
+            </nav>
+            <div class="stress" aria-label="Rated sea state: 4 of 6">
+              <span>SEA STATE</span>
+              <i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i>
+            </div>
+          </header>
+
+          <div class="body">
+            <div class="stage" id="stage">
+              <canvas id="kayak" aria-hidden="true"></canvas>
+              <svg id="wires" class="wires" aria-hidden="true"></svg>
+              <ul class="tags" aria-label="Annotated components">
+                <li class="tag opt" data-anchor="coaming" data-side="l" data-dy="-10" style="--i:0"><b></b><span class="t">COAMING</span><span class="m">L4 · 81 × 42 CM</span></li>
+                <li class="tag" data-anchor="bulkhead" data-side="l" style="--i:2"><b></b><span class="t">BULKHEAD B3</span><span class="m">L2 · 0.42 KG FOAM</span></li>
+                <li class="tag opt" data-anchor="footpeg" data-side="l" data-dy="18" style="--i:4"><b></b><span class="t">FOOTPEG RAIL</span><span class="m">L2 · 14 STOPS</span></li>
+                <li class="tag" data-anchor="skeg" data-side="l" style="--i:5"><b></b><span class="t">SKEG + RUDDER</span><span class="m">L0 · G10 BLADES</span></li>
+                <li class="tag" data-anchor="hatch" data-side="r" style="--i:1"><b class="hot"></b><span class="t">BOW HATCH</span><span class="m">L4 · 64 L DRY</span></li>
+                <li class="tag opt" data-anchor="deck" data-side="r" style="--i:3"><b></b><span class="t">DECK SHELL</span><span class="m">L3 · 3 MM C–ARAMID</span></li>
+                <li class="tag" data-anchor="hull" data-side="r" style="--i:4"><b></b><span class="t">KEEL STRIP</span><span class="m">L1 · 600 G/M²</span></li>
+              </ul>
+              <p class="statement">Every layer checked<br /><em>before the water does.</em></p>
+              <p class="axis" aria-hidden="true">Y-EXPLODE <span id="xf">×1.00</span> · STATION 27 · ISO 12217-3</p>
+            </div>
+
+            <aside class="panel" aria-label="Structural output">
+              <section>
+                <h2 class="ph"><i></i>Structural output</h2>
+                <p class="copy">
+                  We build one sea kayak properly, then take it apart in public. Five layers, three sealed
+                  bulkheads and a hull rated for open crossings — drawn here exactly as it comes out of the mould,
+                  so you know what you are trusting before you sit in it.
+                </p>
+              </section>
+              <section>
+                <h2 class="ph">Mass allocation · {total.toFixed(1)} kg</h2>
+                <ul class="alloc">
+                  {schedule.map((r) => (
+                    <li>
+                      <span class="k">{r.l} {r.name.split(' ')[0].toUpperCase()}</span>
+                      <span class="v">{r.kg.toFixed(1)} KG</span>
+                      <span class="bar" style={`--w:${((r.kg / total) * 100).toFixed(1)}%`}></span>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+              <section class="stream-wrap">
+                <h2 class="ph">Diagnostic stream</h2>
+                <ol class="stream" id="stream"></ol>
+              </section>
+            </aside>
+          </div>
+
+          <footer class="fbar">
+            <div class="modes" role="group" aria-label="View mode">
+              <button type="button" class="ico" data-view="exploded" aria-pressed="true" aria-label="Exploded view">
+                <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5l7-3 7 3-7 3zM3 10l7 3 7-3M3 15l7 3 7-3" /></svg>
+              </button>
+              <button type="button" class="ico" data-view="assembled" aria-pressed="false" aria-label="Assembled view">
+                <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M2 10c3-3 13-3 16 0-3 3-13 3-16 0z M7 10h6" /></svg>
+              </button>
+              <p class="vm"><span>VIEW_MODE</span><strong id="vm">EXPLODED</strong></p>
+            </div>
+            <p class="stats">LOA 5.18 M · BEAM 53 CM · VOL 318 L · 21.4 KG</p>
+            <a class="cta" href="#fitting">
+              <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7" /><path d="M10 3v14M3 10h14" /></svg>
+              Book a fitting
+            </a>
+          </footer>
+        </div>
+      </section>
+
+      <!-- 02 · Layer schedule -------------------------------------------------->
+      <section class="sec" id="schedule" aria-labelledby="sched-title">
+        <div class="sec-head">
+          <p class="idx">02 / LAYER SCHEDULE</p>
+          <h2 id="sched-title">Five layers, each with<br />a service interval.</h2>
+          <p class="lede">Nothing on a Fulmar is sealed in for life. Every part below can be reached with a 10 mm spanner and a free afternoon at the workshop.</p>
+        </div>
+        <div class="table-wrap">
+          <table class="sched">
+            <thead>
+              <tr><th scope="col">Layer</th><th scope="col">Component</th><th scope="col">Material</th><th scope="col">Mass</th><th scope="col">Share</th><th scope="col">Service</th></tr>
+            </thead>
+            <tbody>
+              {schedule.map((r) => (
+                <tr>
+                  <td class="mono">{r.l}</td>
+                  <th scope="row">{r.name}</th>
+                  <td>{r.mat}</td>
+                  <td class="mono">{r.kg.toFixed(1)} kg</td>
+                  <td><span class="bar" style={`--w:${((r.kg / total) * 100).toFixed(1)}%`}></span><span class="mono pct">{Math.round((r.kg / total) * 100)}%</span></td>
+                  <td class="muted">{r.svc}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 03 · Fitting ---------------------------------------------------------->
+      <section class="sec split" id="fitting" aria-labelledby="fit-title">
+        <div class="sec-head">
+          <p class="idx">03 / FIT DIAGNOSTIC</p>
+          <h2 id="fit-title">A fitting is a measurement,<br />not a sales pitch.</h2>
+          <ol class="steps">
+            <li><span class="n">01</span><div><h3>Hip width + seat height</h3><p>We shim the seat in 4 mm foam steps until your hips touch both pads without squeezing.</p></div></li>
+            <li><span class="n">02</span><div><h3>Thigh brace contact</h3><p>Two contact points under the coaming lip, no pressure behind the knee. Edge the boat, then adjust.</p></div></li>
+            <li><span class="n">03</span><div><h3>Footpeg reach</h3><p>The rail has 14 stops, 19 mm apart. We lock it where your knees sit just under the deck.</p></div></li>
+          </ol>
+          <a class="cta" href="mailto:fitting@skerryworks.example">Book 90 minutes on the water →</a>
+        </div>
+        <figure class="xsec">
+          <svg viewBox="0 0 520 380" role="img" aria-labelledby="xsec-t">
+            <title id="xsec-t">Cross-section at the cockpit showing seat, hip pads, thigh braces and the three fitting measurements</title>
+            <g class="g-dim">
+              <path d="M260 40 V350" class="dash" />
+              <path d="M40 160 H480" class="dash" />
+            </g>
+            <path class="g-hi" d="M70 160 C 78 250, 170 302, 260 304 C 350 302, 442 250, 450 160" />
+            <path class="g-mid" d="M84 162 C 92 244, 176 290, 260 292 C 344 290, 428 244, 436 162" />
+            <path class="g-hi" d="M70 160 C 92 130, 128 112, 150 106 L150 94 M450 160 C 428 130, 392 112, 370 106 L370 94" />
+            <path class="g-mid" d="M150 108 Q 170 132, 202 128 M370 108 Q 350 132, 318 128" />
+            <path class="g-hi" d="M176 270 Q 260 288, 344 270" />
+            <path class="g-mid" d="M182 278 Q 260 294, 338 278 M188 285 Q 260 300, 332 285" />
+            <rect class="g-mid" x="168" y="214" width="12" height="52" rx="4" />
+            <rect class="g-mid" x="340" y="214" width="12" height="52" rx="4" />
+            <g class="dim">
+              <path d="M184 238 H336" /><path d="M184 232 v12 M336 232 v12" />
+              <path d="M410 104 V270" /><path d="M404 104 h12 M404 270 h12" />
+              <path d="M202 128 L120 60" class="dash" /><path d="M344 280 L430 330" class="dash" />
+            </g>
+            <circle class="node" cx="202" cy="128" r="4" /><circle class="node" cx="344" cy="280" r="4" />
+            <g class="lbl">
+              <rect x="222" y="220" width="76" height="20" rx="10" /><text x="260" y="234">HIP 36 CM</text>
+              <rect x="420" y="176" width="88" height="20" rx="10" /><text x="464" y="190">DECK 33 CM</text>
+              <rect x="40" y="40" width="112" height="20" rx="10" /><text x="96" y="54">BRACE · 2 POINTS</text>
+              <rect x="392" y="330" width="112" height="20" rx="10" /><text x="448" y="344">SEAT +12 MM SHIM</text>
+            </g>
+          </svg>
+          <figcaption>STATION 14 · LOOKING FORWARD · SCALE 1:6</figcaption>
+        </figure>
+      </section>
+
+      <!-- 04 · Fleet ------------------------------------------------------------>
+      <section class="sec" id="fleet" aria-labelledby="fleet-title">
+        <div class="sec-head">
+          <p class="idx">04 / FLEET</p>
+          <h2 id="fleet-title">Three hulls, one drawing office.</h2>
+          <p class="lede">Same layup, same bulkhead logic, different envelopes. Bars show the conditions each boat is drawn for, not the most it will survive.</p>
+        </div>
+        <div class="fleet">
+          {fleet.map((k) => (
+            <article class="boat">
+              <header><span class="mono">{k.code}</span><span class="mono muted">{k.role.toUpperCase()}</span></header>
+              <svg viewBox="0 0 400 72" class="plan" aria-hidden="true">
+                <path d="M10 36 H390" class="dash" />
+                <path d={k.plan.d} class="g-hi" />
+                <ellipse cx="185" cy="36" rx="30" ry={Math.min(14, k.beam * 0.22)} class="g-mid" />
+                <ellipse cx={200 + k.plan.half * 0.6} cy="36" rx="13" ry="7" class="g-mid" />
+                <ellipse cx={200 - k.plan.half * 0.62} cy="36" rx="16" ry="8" class="g-mid" />
+              </svg>
+              <h3>{k.name}</h3>
+              <p class="muted">{k.note}</p>
+              <dl class="spec">
+                <div><dt>LOA</dt><dd>{(k.len / 100).toFixed(2)} m</dd></div>
+                <div><dt>BEAM</dt><dd>{k.beam} cm</dd></div>
+                <div><dt>MASS</dt><dd>{k.kg} kg</dd></div>
+                <div><dt>VOL</dt><dd>{k.vol}</dd></div>
+              </dl>
+              <div class="env">
+                <p><span>WIND</span><span>{k.wind[0]}–{k.wind[1]} KN</span></p>
+                <span class="track"><i style={`left:${(k.wind[0] / 30) * 100}%;width:${((k.wind[1] - k.wind[0]) / 30) * 100}%`}></i></span>
+                <p><span>DAY RANGE</span><span>{k.range[0]}–{k.range[1]} KM</span></p>
+                <span class="track"><i style={`left:${(k.range[0] / 50) * 100}%;width:${((k.range[1] - k.range[0]) / 50) * 100}%`}></i></span>
+              </div>
+              <footer><span class="mono">FROM {k.price}</span><a href="#fitting">Fit one →</a></footer>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <!-- 05 · Workshop --------------------------------------------------------->
+      <footer class="sec end" aria-labelledby="end-title">
+        <div>
+          <p class="idx">05 / WORKSHOP</p>
+          <h2 id="end-title">Pier 3, Brekkevik harbour.</h2>
+        </div>
+        <dl class="spec wide">
+          <div><dt>OPEN</dt><dd>Tue–Sat · 09:00–17:00</dd></div>
+          <div><dt>DEMO DAY</dt><dd>Saturdays 08:00 · drysuits provided</dd></div>
+          <div><dt>WATER</dt><dd id="water">9 °C · slack tide 11:40</dd></div>
+          <div><dt>CONTACT</dt><dd><a href="mailto:hello@skerryworks.example">hello@skerryworks.example</a></dd></div>
+        </dl>
+        <p class="fine mono">© SKERRYWORKS PADDLE CO. · DRAWN IN BREKKEVIK · ALL FIGURES PER HULL Nº 0412</p>
+      </footer>
+    </main>
+
+    <BackPill />
+
+    <script>
+      import { mount, type Focus } from '../../components/skills/technical-wireframe-info-layout/kayak';
+
+      const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const still = new URLSearchParams(location.search).has('shot');
+      const stage = document.getElementById('stage');
+      const canvas = document.getElementById('kayak');
+      const svg = document.getElementById('wires');
+      if (stage && canvas instanceof HTMLCanvasElement && svg instanceof SVGSVGElement) {
+        const view = mount({ canvas, stage, svg, labels: [...stage.querySelectorAll<HTMLElement>('.tag')], reduced, still });
+
+        const tabs = [...document.querySelectorAll<HTMLButtonElement>('[data-focus]')];
+        for (const b of tabs) b.addEventListener('click', () => {
+          tabs.forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+          view.setFocus(b.dataset.focus as Focus);
+        });
+        const modes = [...document.querySelectorAll<HTMLButtonElement>('[data-view]')];
+        const vm = document.getElementById('vm');
+        for (const b of modes) b.addEventListener('click', () => {
+          modes.forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+          const exploded = b.dataset.view === 'exploded';
+          view.setExplode(exploded);
+          if (vm) vm.textContent = exploded ? "EXPLODED" : "ASSEMBLED";
+          const xf = document.getElementById("xf");
+          if (xf) xf.textContent = exploded ? "×1.00" : "×0.06";
+        });
+      }
+
+      // Diagnostic stream: a rolling log of the bench checks for hull Nº 0412.
+      const lines = [
+        ['HULL', 'keel strip thickness 2.1 mm · nominal'],
+        ['B3', 'bulkhead seal · 0.3 bar held 10 min · pass'],
+        ['DECK', 'void scan, 27 stations · 0 found'],
+        ['SKEG', 'cable deploy force 18 N · pass'],
+        ['HATCH', 'bow cover immersion 30 s · dry'],
+        ['SEAT', 'shim stack +12 mm · logged'],
+        ['RUDDER', 'pedal travel 38 mm each side'],
+        ['HULL', 'gelcoat 0.6 mm · uniform'],
+      ];
+      const stream = document.getElementById('stream');
+      let n = 0;
+      const stamp = (i: number) => {
+        const s = 8 * 3600 + 14 * 60 + i * 37;
+        return [s / 3600, (s / 60) % 60, s % 60].map((v) => String(Math.floor(v)).padStart(2, '0')).join(':');
+      };
+      const add = () => {
+        if (!stream) return;
+        const [k, v] = lines[n % lines.length];
+        const li = document.createElement('li');
+        li.innerHTML = `<time>${stamp(n)}</time><b>${k}</b><span>${v}</span>`;
+        stream.prepend(li);
+        while (stream.children.length > 3) stream.lastElementChild?.remove();
+        n++;
+      };
+      for (let i = 0; i < 3; i++) add();
+      if (!reduced && !still) setInterval(add, 2600);
+    </script>
+
+    <style>
+      :root {
+        --bg: #0a0a0b;
+        --panel: #0e0e10;
+        --line: rgb(255 255 255 / 0.08);
+        --line-2: rgb(255 255 255 / 0.16);
+        --ink: #ececee;
+        --mid: #a1a1aa;
+        --mute: #6b6b73;
+        --mono: 'Geist Mono', ui-monospace, monospace;
+        --sans: 'Geist', ui-sans-serif, system-ui, sans-serif;
+      }
+      html { background: var(--bg); color-scheme: dark; }
+      body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); -webkit-font-smoothing: antialiased; overflow-x: clip; }
+      .tex {
+        position: fixed; inset: 0; pointer-events: none; z-index: 0;
+        background:
+          radial-gradient(rgb(255 255 255 / 0.06) 0.8px, transparent 1.1px) 0 0 / 4px 4px,
+          radial-gradient(120% 80% at 30% 20%, rgb(255 255 255 / 0.035), transparent 60%);
+        mask-image: radial-gradient(90% 70% at 35% 30%, #000 10%, transparent 75%);
+      }
+      main { position: relative; z-index: 1; }
+      .mono { font-family: var(--mono); }
+      .muted { color: var(--mute); }
+      button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+      :focus-visible { outline: 1px solid #fff; outline-offset: 3px; }
+
+      /* ---- hero frame ---- */
+      .hero { padding: 20px; height: 100svh; min-height: 740px; box-sizing: border-box; display: flex; }
+      .frame {
+        position: relative; flex: 1; display: grid; grid-template-rows: auto 1fr auto;
+        border: 1px solid var(--line); background: rgb(14 14 16 / 0.6); min-height: 0;
+      }
+      .corner { position: absolute; width: 14px; height: 14px; border: 1px solid rgb(255 255 255 / 0.4); }
+      .corner.tl { left: -8px; top: -8px; border-right: 0; border-bottom: 0; }
+      .corner.tr { right: -8px; top: -8px; border-left: 0; border-bottom: 0; }
+      .corner.bl { left: -8px; bottom: -8px; border-right: 0; border-top: 0; }
+      .corner.br { right: -8px; bottom: -8px; border-left: 0; border-top: 0; }
+
+      .hbar { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 22px 36px; border-bottom: 1px solid var(--line); }
+      .meta, .ph, .tabs button, .stress, .stats, .vm, .idx, .axis, figcaption, .env, .spec dt, .boat header, .boat footer {
+        font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+      }
+      .meta { margin: 0 0 6px; color: var(--mute); }
+      .mask { margin: 0; font-weight: 400; font-size: 21px; letter-spacing: 0.02em; text-transform: uppercase; overflow: hidden; }
+      .mask span { display: inline-block; animation: rise 1s cubic-bezier(.2,.7,.1,1) both 0.15s; }
+      @keyframes rise { from { transform: translateY(105%); } }
+      .tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+      .tabs button { padding: 8px 12px; color: var(--mute); display: inline-flex; align-items: center; gap: 8px; border-radius: 999px; transition: color .3s; }
+      .tabs button::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: currentColor; opacity: .6; }
+      .tabs button:hover { color: var(--mid); }
+      .tabs button[aria-pressed='true'] { color: #fff; }
+      .tabs button[aria-pressed='true']::before { opacity: 1; box-shadow: 0 0 8px rgb(255 255 255 / .7); }
+      .stress { display: flex; align-items: center; gap: 3px; color: var(--mute); }
+      .stress span { margin-right: 10px; }
+      .stress i { width: 3px; height: 11px; border-radius: 2px; background: rgb(255 255 255 / 0.18); }
+      .stress i.on { background: rgb(255 255 255 / 0.85); }
+
+      .body { display: grid; grid-template-columns: 1fr 340px; min-height: 0; }
+      .stage { position: relative; min-height: 520px; overflow: hidden; }
+      .stage canvas, .wires { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+      .wires { pointer-events: none; overflow: visible; }
+      .wires :global(.conn) { fill: none; stroke: rgb(255 255 255 / 0.38); stroke-width: 1; stroke-dasharray: 3 3; transition: stroke .4s; }
+      .wires :global(.node-ring) { fill: none; stroke: rgb(255 255 255 / 0.55); stroke-width: 1; }
+      .wires :global(.node-dot) { fill: #fff; }
+      .wires :global(.is-dim) { stroke: rgb(255 255 255 / 0.1); }
+      .wires, .tags { animation: fade .8s ease both 0.6s; }
+      .tags { list-style: none; margin: 0; padding: 0; position: absolute; inset: 0; pointer-events: none; }
+      .tag {
+        position: absolute; top: 0; display: grid; grid-template-columns: auto 1fr; column-gap: 8px; align-items: center;
+        padding: 7px 12px 7px 10px; border: 1px solid var(--line-2); border-radius: 10px;
+        background: rgb(12 12 14 / 0.82); backdrop-filter: blur(6px);
+        font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.1em; white-space: nowrap;
+        opacity: 0; animation: fade .6s ease forwards; animation-delay: calc(0.8s + var(--i) * 0.12s);
+        transition: border-color .4s, color .4s;
+      }
+      .tag[data-side='l'] { left: 28px; }
+      .tag[data-side='r'] { right: 28px; }
+      .tag b { grid-row: span 2; width: 6px; height: 6px; border-radius: 50%; border: 1px solid rgb(255 255 255 / .7); }
+      .tag b.hot { background: #fff; box-shadow: 0 0 10px rgb(255 255 255 / .6); }
+      .tag .t { color: var(--ink); }
+      .tag .m { color: var(--mute); font-size: 9.5px; margin-top: 2px; }
+      .tag.is-dim { color: var(--mute); border-color: var(--line); }
+      .tag.is-dim .t { color: var(--mute); }
+      @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+      .statement { position: absolute; left: 36px; bottom: 30px; margin: 0; font-size: 30px; line-height: 1.12; font-weight: 300; letter-spacing: -0.01em; color: var(--ink); }
+      .statement em { font-style: normal; color: var(--mute); }
+      .axis { position: absolute; right: 28px; bottom: 30px; margin: 0; font-size: 9.5px; color: var(--mute); }
+
+      .panel { border-left: 1px solid var(--line); padding: 30px 28px; display: flex; flex-direction: column; gap: 28px; overflow: hidden; background: rgb(255 255 255 / 0.01); }
+      .panel section { margin: 0; }
+      .ph { margin: 0 0 14px; padding-bottom: 12px; border-bottom: 1px solid var(--line); color: var(--mid); font-weight: 400; display: flex; gap: 10px; align-items: center; }
+      .ph i { width: 6px; height: 6px; background: var(--mid); }
+      .copy { margin: 0; font-size: 14px; line-height: 1.6; color: var(--mid); }
+      .alloc { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+      .alloc li { display: grid; grid-template-columns: 1fr auto; row-gap: 7px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; }
+      .alloc .k { color: var(--mid); }
+      .alloc .v { color: var(--ink); }
+      .bar { grid-column: 1 / -1; position: relative; display: block; height: 3px; background: rgb(255 255 255 / 0.06); }
+      .bar::after {
+        content: ''; position: absolute; inset: 0 auto 0 0; width: var(--w);
+        background: repeating-linear-gradient(90deg, rgb(255 255 255 / .75) 0 2px, transparent 2px 4px);
+        transform-origin: left; animation: grow 1.4s cubic-bezier(.2,.7,.1,1) both .9s;
+      }
+      @keyframes grow { from { transform: scaleX(0); } }
+      .stream { list-style: none; margin: 0; padding: 0; display: grid; gap: 9px; font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.04em; }
+      .stream :global(li) { display: grid; grid-template-columns: 62px 52px 1fr; gap: 6px; color: var(--mute); animation: fade .5s ease; }
+      .stream :global(li:first-child) { color: var(--ink); }
+      .stream :global(b) { font-weight: 500; color: var(--mid); }
+
+      .fbar { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 14px 36px; border-top: 1px solid var(--line); }
+      .modes { display: flex; align-items: center; gap: 8px; }
+      .ico { width: 34px; height: 34px; display: grid; place-items: center; border: 1px solid var(--line-2); color: var(--mute); }
+      .ico svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.2; }
+      .ico[aria-pressed='true'] { color: #fff; background: rgb(255 255 255 / 0.06); border-color: rgb(255 255 255 / .35); }
+      .vm { margin: 0 0 0 14px; padding-left: 14px; border-left: 1px solid var(--line-2); display: grid; gap: 3px; color: var(--mute); }
+      .vm strong { font-weight: 400; color: var(--ink); }
+      .stats { margin: 0; color: var(--mute); }
+      .cta {
+        display: inline-flex; align-items: center; gap: 10px; padding: 11px 18px; border: 1px solid var(--line-2);
+        color: var(--ink); text-decoration: none; font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.12em; text-transform: uppercase;
+        transition: background .3s, border-color .3s;
+      }
+      .cta:hover { background: rgb(255 255 255 / 0.06); border-color: rgb(255 255 255 / .4); }
+      .cta svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.2; }
+
+      /* ---- sections ---- */
+      .sec { max-width: 1400px; margin: 0 auto; padding: 120px 56px; border-left: 1px solid var(--line); border-right: 1px solid var(--line); box-sizing: border-box; position: relative; }
+      .sec + .sec { border-top: 1px solid var(--line); }
+      .idx { margin: 0 0 22px; color: var(--mute); }
+      .sec h2 { margin: 0; font-size: clamp(30px, 3.6vw, 46px); line-height: 1.08; font-weight: 300; letter-spacing: -0.015em; }
+      .lede { max-width: 520px; margin: 20px 0 0; color: var(--mid); font-size: 15px; line-height: 1.6; }
+      .sec-head { margin-bottom: 56px; }
+
+      .table-wrap { overflow-x: auto; }
+      .sched { width: 100%; border-collapse: collapse; font-size: 14px; }
+      .sched th, .sched td { text-align: left; padding: 18px 16px 18px 0; border-top: 1px solid var(--line); vertical-align: middle; }
+      .sched thead th { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mute); font-weight: 400; border-top: 0; padding-bottom: 12px; }
+      .sched tbody th { font-weight: 400; color: var(--ink); }
+      .sched td { color: var(--mid); }
+      .sched td:nth-child(5) { width: 180px; }
+      .sched .bar { display: inline-block; width: 120px; vertical-align: middle; }
+      .pct { margin-left: 10px; font-size: 11px; color: var(--mute); }
+      .sched tbody tr { transition: background .3s; }
+      .sched tbody tr:hover { background: rgb(255 255 255 / 0.02); }
+
+      .split { display: grid; grid-template-columns: 1fr 1.1fr; gap: 64px; align-items: center; }
+      .split .sec-head { margin: 0; }
+      .steps { list-style: none; margin: 40px 0 36px; padding: 0; display: grid; gap: 0; }
+      .steps li { display: grid; grid-template-columns: 48px 1fr; padding: 20px 0; border-top: 1px solid var(--line); }
+      .steps .n { font-family: var(--mono); font-size: 11px; color: var(--mute); padding-top: 3px; }
+      .steps h3 { margin: 0 0 6px; font-size: 16px; font-weight: 500; }
+      .steps p { margin: 0; color: var(--mid); font-size: 14px; line-height: 1.55; }
+      .xsec { margin: 0; border: 1px solid var(--line); padding: 24px; background: rgb(255 255 255 / 0.01); }
+      .xsec svg { width: 100%; height: auto; display: block; }
+      figcaption { color: var(--mute); margin-top: 14px; font-size: 10px; }
+      svg .g-hi { fill: none; stroke: rgb(255 255 255 / .9); stroke-width: 1.2; }
+      svg .g-mid { fill: none; stroke: rgb(255 255 255 / .4); stroke-width: 1; }
+      svg .g-dim, svg .dash { fill: none; stroke: rgb(255 255 255 / .2); stroke-width: 1; stroke-dasharray: 3 4; }
+      svg .dim path { fill: none; stroke: rgb(255 255 255 / .5); stroke-width: 1; }
+      svg .dim path.dash { stroke: rgb(255 255 255 / .35); }
+      svg .node { fill: var(--bg); stroke: #fff; stroke-width: 1; }
+      svg .lbl rect { fill: #0e0e10; stroke: rgb(255 255 255 / .25); }
+      svg .lbl text { fill: var(--ink); font-family: var(--mono); font-size: 9.5px; letter-spacing: .1em; text-anchor: middle; }
+
+      .fleet { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--line); }
+      .boat { padding: 28px 28px 24px; border-right: 1px solid var(--line); display: flex; flex-direction: column; gap: 16px; }
+      .boat:first-child { padding-left: 0; }
+      .boat:last-child { border-right: 0; padding-right: 0; }
+      .boat header, .boat footer { display: flex; justify-content: space-between; color: var(--mid); }
+      .boat footer { margin-top: auto; padding-top: 16px; border-top: 1px solid var(--line); }
+      .boat footer a { color: var(--ink); text-decoration: none; }
+      .boat footer a:hover { text-decoration: underline; }
+      .plan { width: 100%; height: auto; margin: 6px 0; }
+      .boat h3 { margin: 0; font-size: 24px; font-weight: 300; }
+      .boat p { margin: 0; font-size: 14px; line-height: 1.55; }
+      .spec { display: grid; grid-template-columns: repeat(4, 1fr); margin: 0; border-top: 1px solid var(--line); }
+      .spec div { padding: 12px 0 0; }
+      .spec dt { color: var(--mute); font-size: 10px; }
+      .spec dd { margin: 4px 0 0; font-size: 14px; color: var(--ink); }
+      .env { display: grid; gap: 8px; color: var(--mute); font-size: 10px; }
+      .boat .env p { font-size: 10.5px; margin: 6px 0 0; display: flex; justify-content: space-between; }
+      .env p span:last-child { color: var(--mid); }
+      .track { position: relative; height: 3px; background: rgb(255 255 255 / 0.06); }
+      .track i { position: absolute; top: 0; bottom: 0; background: repeating-linear-gradient(90deg, rgb(255 255 255 / .7) 0 2px, transparent 2px 4px); }
+
+      .end { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: end; padding-bottom: 100px; }
+      .spec.wide { grid-template-columns: 1fr 1fr; row-gap: 18px; border: 0; }
+      .spec.wide a { color: var(--ink); }
+      .fine { grid-column: 1 / -1; margin: 40px 0 0; font-size: 10px; letter-spacing: .14em; color: var(--mute); border-top: 1px solid var(--line); padding-top: 22px; }
+
+      /* ---- responsive ---- */
+      @media (max-width: 1100px) {
+        .body { grid-template-columns: 1fr 290px; }
+        .stats { display: none; }
+        .statement { font-size: 24px; }
+      }
+      @media (max-width: 860px) {
+        .hero { padding: 12px; }
+        .frame { min-height: 0; }
+        .hbar { flex-wrap: wrap; padding: 18px 18px 14px; gap: 14px; }
+        .stress { display: none; }
+        .tabs { width: 100%; gap: 0; margin-left: -8px; flex-wrap: nowrap; }
+        .tabs button { padding: 6px 8px; font-size: 9.5px; letter-spacing: .06em; gap: 6px; }
+        .hero { height: auto; min-height: 0; }
+        .mask { font-size: 18px; }
+        .body { grid-template-columns: 1fr; }
+        .stage { min-height: 0; height: 62svh; max-height: 560px; }
+        .tag.opt { display: none; }
+        .tag { font-size: 9px; padding: 5px 8px 5px 7px; border-radius: 8px; column-gap: 6px; }
+        .tag .m { font-size: 8px; }
+        .tag[data-side='l'] { left: 10px; }
+        .tag[data-side='r'] { right: 10px; }
+        .statement { left: 18px; bottom: 16px; font-size: 20px; }
+        .axis { display: none; }
+        .panel { border-left: 0; border-top: 1px solid var(--line); padding: 24px 18px; gap: 28px; }
+        .fbar { flex-wrap: wrap; padding: 14px 18px; }
+        .sec { padding: 72px 20px; }
+        .split, .end { grid-template-columns: 1fr; gap: 40px; }
+        .fleet { grid-template-columns: 1fr; }
+        .boat, .boat:first-child, .boat:last-child { padding: 28px 0; border-right: 0; border-bottom: 1px solid var(--line); }
+        .sched thead { display: none; }
+        .sched, .sched tbody, .sched tr, .sched th, .sched td { display: block; }
+        .sched tr { display: grid; grid-template-columns: 40px 1fr auto; column-gap: 12px; padding: 16px 0; border-top: 1px solid var(--line); }
+        .sched th, .sched td { border: 0; padding: 0; }
+        .sched td:nth-child(3), .sched td:nth-child(6) { grid-column: 2 / -1; font-size: 13px; margin-top: 6px; }
+        .sched td:nth-child(5) { grid-column: 2 / -1; width: auto; margin-top: 10px; }
+        .sched td:nth-child(4) { grid-row: 1; grid-column: 3; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after { animation-duration: 0.01ms !important; animation-delay: 0ms !important; transition: none !important; }
+      }
+    </style>
+  </body>
+</html>

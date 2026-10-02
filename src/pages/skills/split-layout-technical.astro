@@ -1,0 +1,641 @@
+---
+import '../../styles/global.css';
+import BackPill from '../../components/BackPill.astro';
+
+const seedlings = 'https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?w=1400&q=75&auto=format&fit=crop';
+
+const specs = [
+  ['63', 'varieties under LED'],
+  ['14', 'racks behind the glass'],
+  ['11 min', 'from rack to plate'],
+  ['0 km', 'between grower and cook'],
+];
+
+const readouts = [
+  ['pH', '5.9', ''],
+  ['EC', '1.62', 'mS'],
+  ['PPFD', '410', 'µmol'],
+  ['H₂O', '19.4', '°C'],
+  ['RH', '64', '%'],
+];
+
+const dishes = [
+  { n: '01', name: 'Butterhead, warm', desc: 'Whole head cut at the table rack, brown butter, smoked eel, sorrel salt.', cell: '1-6', src: 'R03 · T1 · C06', price: '14' },
+  { n: '02', name: 'Red oak & beetroot', desc: 'Oak leaf from tier two, beetroot cured in its own juice, hazelnut, buttermilk.', cell: '2-3', src: 'R03 · T2 · C03', price: '16' },
+  { n: '03', name: 'Basil, three ages', desc: 'Microleaf, day-18 and day-26 Genovese — the same plant tasted at three points in its life.', cell: '3-5', src: 'R03 · T3 · C05', price: '12' },
+  { n: '04', name: 'Mizuna & langoustine', desc: 'Raw langoustine, mizuna cut on order, yuzu kosho, cold dashi poured at the counter.', cell: '4-2', src: 'R03 · T4 · C02', price: '26' },
+  { n: '05', name: 'Pea shoot risotto', desc: 'Carnaroli, pea-shoot juice, shoots cut eleven minutes before the plate leaves.', cell: '2-6', src: 'R07 · T2 · C06', price: '22' },
+  { n: '06', name: 'Strawberry, root & leaf', desc: 'Alpine strawberries from the cellar wall, fermented leaves, sheep yoghurt ice.', cell: '1-1', src: 'R11 · T1 · C01', price: '13' },
+];
+
+const nutrients = [
+  ['Nitrogen', '150', 'ppm'],
+  ['Phosphorus', '50', 'ppm'],
+  ['Potassium', '210', 'ppm'],
+  ['Calcium', '180', 'ppm'],
+  ['Magnesium', '48', 'ppm'],
+  ['Iron (chelated)', '3', 'ppm'],
+];
+
+const spectrum = [
+  ['450 nm', 'Blue', 18],
+  ['3000 K', 'White', 10],
+  ['660 nm', 'Red', 64],
+  ['730 nm', 'Far red', 8],
+];
+
+const cycle = [
+  ['Day 0', 'Sown in rockwool cubes', 'Germination cabinet, 24 °C, dark.'],
+  ['Day 7', 'Moved to the racks', 'Nutrient film starts; 16 h light, 8 h night.'],
+  ['Day 21–35', 'Cut to order', 'Only when a ticket names the plant. Nothing is pre-picked.'],
+  ['Day 36', 'Roots to the compost', 'Spent cubes and roots feed the strawberry wall.'],
+];
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Undercroft — Kitchen & Grow Room, Antwerp</title>
+    <meta name="description" content="Undercroft is a restaurant nine metres below Antwerp that grows its own menu on fourteen hydroponic racks behind the dining room glass." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <a class="skip" href="#harvest">Skip to tonight's harvest</a>
+
+    <!-- 01 · HERO SPLIT -->
+    <header class="shell hero">
+      <section class="panel panel-paper hero-info" aria-labelledby="hero-title">
+        <i class="cm tl"></i><i class="cm tr"></i><i class="cm bl"></i><i class="cm br"></i>
+        <nav class="rail top-rail" aria-label="Primary">
+          <a class="brand" href="#">
+            <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+              <rect x="2.5" y="2.5" width="19" height="19" fill="none" stroke="currentColor" />
+              <path d="M2.5 9h19M2.5 15.5h19" stroke="currentColor" />
+              <circle cx="8" cy="12.3" r="1.6" fill="currentColor" /><circle cx="16" cy="18.8" r="1.6" fill="currentColor" />
+            </svg>
+            <span>Undercroft</span>
+          </a>
+          <ul class="nav">
+            <li><a href="#harvest">Harvest</a></li>
+            <li><a href="#grow">Grow room</a></li>
+            <li><a href="#reserve">Reserve</a></li>
+          </ul>
+          <span class="mono dim hide-sm">ANT · −9.2 M</span>
+        </nav>
+
+        <div class="hero-copy">
+          <p class="mono kicker"><span class="idx">[01]</span> Kitchen &amp; grow room — Antwerp, since 2024</p>
+          <h1 id="hero-title">The menu is<br />still growing.</h1>
+          <p class="lead">
+            Nine metres under the Kloosterstraat, fourteen racks of leaves, herbs and fruit grow behind the dining-room glass.
+            Nothing is picked until you order it. The cook walks to the rack, cuts, and plates.
+          </p>
+          <div class="ctas">
+            <a class="btn btn-ink" href="#reserve">Reserve a table <span aria-hidden="true">→</span></a>
+            <a class="btn btn-line" href="#harvest">Tonight's harvest</a>
+          </div>
+        </div>
+
+        <dl class="spec-strip">
+          {specs.map(([v, l]) => (
+            <div>
+              <dt class="mono dim">{l}</dt>
+              <dd>{v}</dd>
+            </div>
+          ))}
+        </dl>
+      </section>
+
+      <section class="panel panel-dark hero-media" aria-label="Live view of grow room B">
+        <i class="cm tl"></i><i class="cm tr"></i><i class="cm bl"></i><i class="cm br"></i>
+        <canvas id="rack" role="img" aria-label="Rendered view of rack three: four tiers of lettuce, oak leaf, basil and mizuna under pink LED bars, with a survey marker moving between plants ready to cut."></canvas>
+        <div class="rail media-top mono">
+          <span><i class="live"></i>LIVE · GROW ROOM B</span>
+          <span class="hide-sm">RACK 03 / 14</span>
+          <span id="clock">--:--</span>
+        </div>
+        <dl class="readouts mono" aria-label="Grow room sensors">
+          {readouts.map(([k, v, u]) => (
+            <div>
+              <dt>{k}</dt>
+              <dd><span data-jitter={v}>{v}</span><small>{u}</small></dd>
+            </div>
+          ))}
+        </dl>
+      </section>
+    </header>
+
+    <main>
+      <!-- 02 · HARVEST -->
+      <section id="harvest" class="shell split split-harvest" aria-labelledby="harvest-title">
+        <div class="panel panel-paper sticky-col">
+          <i class="cm tl"></i><i class="cm tr"></i><i class="cm bl"></i><i class="cm br"></i>
+          <p class="mono kicker"><span class="idx">[02]</span> Harvest log — Thursday 02 Oct</p>
+          <h2 id="harvest-title">Cut when you order,<br />not before.</h2>
+          <p class="body">
+            Each plate names the rack, tier and cell its leaves came from. Point at a dish to find it on the rack — the cell
+            lights where the cook will cut.
+          </p>
+          <figure class="rackmap" aria-hidden="true">
+            <figcaption class="mono dim"><span>RACK MAP</span><span id="map-label">R03 · T1 · C06</span></figcaption>
+            <div class="cells">
+              {[1, 2, 3, 4].map((t) => [1, 2, 3, 4, 5, 6].map((c) => <span data-cell={`${t}-${c}`}></span>))}
+            </div>
+            <div class="axis mono dim"><span>C01</span><span>C06</span></div>
+          </figure>
+        </div>
+
+        <div class="panel panel-paper list-col">
+          <i class="cm tl"></i><i class="cm tr"></i><i class="cm bl"></i><i class="cm br"></i>
+          <div class="list-head mono dim"><span>No.</span><span>Dish</span><span class="hide-sm">Source</span><span>€</span></div>
+          <ol class="dishes">
+            {dishes.map((d, i) => (
+              <li tabindex="0" data-cell={d.cell} data-src={d.src} class={i === 0 ? 'is-on' : ''}>
+                <span class="mono n">{d.n}</span>
+                <div>
+                  <h3>{d.name}</h3>
+                  <p>{d.desc}</p>
+                  <span class="mono src-sm">{d.src}</span>
+                </div>
+                <span class="mono src hide-sm">{d.src}</span>
+                <span class="price">{d.price}</span>
+              </li>
+            ))}
+          </ol>
+          <p class="mono dim foot-note">Seven-course rack menu €78 · counter seats only · changes nightly with the racks</p>
+        </div>
+      </section>
+
+      <!-- 03 · GROW ROOM -->
+      <section id="grow" class="shell split split-grow" aria-labelledby="grow-title">
+        <div class="panel panel-dark grow-media">
+          <i class="cm tl"></i><i class="cm tr"></i><i class="cm bl"></i><i class="cm br"></i>
+          <div class="frame">
+            <img src={seedlings} alt="Rows of seedlings rising from a dark propagation tray" loading="lazy" width="1400" height="934" />
+            <div class="frame-tint"></div>
+            <span class="mono tag tag-tl">CAB 02 · GERMINATION</span>
+            <span class="mono tag tag-br">DAY 5 · 24.0 °C · DARK</span>
+          </div>
+          <div class="grow-quote">
+            <p>“We stopped buying salad in 2024. The racks taught us what a leaf tastes like on day nineteen and how different it is on day twenty-six.”</p>
+            <span class="mono dim">Ines Verhaegen — head grower &amp; sous-chef</span>
+          </div>
+        </div>
+
+        <div class="panel panel-paper grow-specs">
+          <i class="cm tl"></i><i class="cm tr"></i><i class="cm bl"></i><i class="cm br"></i>
+          <p class="mono kicker"><span class="idx">[03]</span> Grow room — technical parameters</p>
+          <h2 id="grow-title">A kitchen garden, specified.</h2>
+
+          <div class="spec-grid">
+            <div class="spec-block">
+              <h3 class="mono">Nutrient recipe · leafy</h3>
+              <dl class="rows">
+                {nutrients.map(([k, v, u]) => (
+                  <div><dt>{k}</dt><dd class="mono">{v} <small>{u}</small></dd></div>
+                ))}
+              </dl>
+            </div>
+            <div class="spec-block">
+              <h3 class="mono">Light · 16 h photoperiod</h3>
+              <div class="spectrum" role="img" aria-label="Spectrum mix: 18% blue, 10% white, 64% red, 8% far red">
+                {spectrum.map(([, , p], i) => <span class={`s s${i}`} style={`flex:${p}`}></span>)}
+              </div>
+              <dl class="rows">
+                {spectrum.map(([w, n, p]) => (
+                  <div><dt>{n} <span class="mono dim">{w}</span></dt><dd class="mono">{p} %</dd></div>
+                ))}
+              </dl>
+              <h3 class="mono mt">Water</h3>
+              <dl class="rows">
+                <div><dt>Recirculated</dt><dd class="mono">96 %</dd></div>
+                <div><dt>Film depth</dt><dd class="mono">4 mm</dd></div>
+              </dl>
+            </div>
+          </div>
+
+          <ol class="cycle">
+            {cycle.map(([d, t, s]) => (
+              <li>
+                <span class="mono day">{d}</span>
+                <strong>{t}</strong>
+                <span class="dim">{s}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      <!-- 04 · RESERVE -->
+      <section id="reserve" class="shell split split-reserve" aria-labelledby="reserve-title">
+        <div class="panel panel-dark reserve-form">
+          <i class="cm tl"></i><i class="cm tr"></i><i class="cm bl"></i><i class="cm br"></i>
+          <p class="mono kicker on-dark"><span class="idx">[04]</span> Reservations — 28 covers, 8 at the rack</p>
+          <h2 id="reserve-title">Sit by the racks.</h2>
+          <form id="book" novalidate>
+            <div class="field">
+              <label for="f-name" class="mono">Name</label>
+              <input id="f-name" name="name" autocomplete="name" required />
+            </div>
+            <div class="field">
+              <label for="f-email" class="mono">E-mail</label>
+              <input id="f-email" name="email" type="email" autocomplete="email" required />
+            </div>
+            <div class="field half">
+              <label for="f-date" class="mono">Date</label>
+              <input id="f-date" name="date" type="date" required />
+            </div>
+            <div class="field half">
+              <label for="f-guests" class="mono">Guests</label>
+              <select id="f-guests" name="guests">
+                <option>2</option><option>3</option><option>4</option><option>5</option><option>6</option>
+              </select>
+            </div>
+            <fieldset class="field seat">
+              <legend class="mono">Seating</legend>
+              <label><input type="radio" name="seat" value="rack" checked /> <span>Rack counter <small class="mono">8 seats · tasting menu</small></span></label>
+              <label><input type="radio" name="seat" value="room" /> <span>Dining room <small class="mono">20 seats · à la carte</small></span></label>
+            </fieldset>
+            <button class="btn btn-accent" type="submit">Request a table <span aria-hidden="true">→</span></button>
+            <p id="book-status" class="mono status" role="status" aria-live="polite"></p>
+          </form>
+        </div>
+
+        <div class="panel panel-paper reserve-info">
+          <i class="cm tl"></i><i class="cm tr"></i><i class="cm bl"></i><i class="cm br"></i>
+          <div>
+          <p class="mono kicker"><span class="idx">[05]</span> Visit — the cellar door left of the chapel</p>
+          <dl class="info">
+            <div><dt class="mono dim">Address</dt><dd>Kloosterstraat 9, cellar door<br />2000 Antwerp, Belgium</dd></div>
+            <div><dt class="mono dim">Hours</dt><dd>Wed – Sat · 18:30 – 23:00<br />Sunday lunch · 12:30 – 15:00</dd></div>
+            <div><dt class="mono dim">Grow room tours</dt><dd>Saturday 16:00, 40 minutes, free with a booking.</dd></div>
+            <div><dt class="mono dim">Allergies</dt><dd>Tell us when booking — the racks can be adjusted with three weeks' notice.</dd></div>
+          </dl>
+          </div>
+          <div class="coords mono">
+            <span>51.2108° N</span><span>4.3935° E</span><span>−9.2 M</span>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="shell rail foot mono dim">
+      <span>UNDERCROFT · KITCHEN &amp; GROW ROOM</span>
+      <span class="hide-sm">RACKS 14 · VARIETIES 63 · v.10.26</span>
+      <span>© 2026</span>
+    </footer>
+
+    <BackPill />
+
+    <style is:global>
+      :root {
+        --paper: #eceee8;
+        --paper-2: #f5f6f2;
+        --ink: #141816;
+        --ink-2: #4d5550;
+        --dim: #8a918c;
+        --line: rgba(20, 24, 22, 0.14);
+        --dark: #0f1211;
+        --dark-2: #171b19;
+        --line-d: rgba(255, 255, 255, 0.12);
+        --accent: #d2327f;
+        --accent-glow: #ff5caa;
+        --gap: 10px;
+        --pad: clamp(20px, 2.6vw, 40px);
+        --sans: 'Geist', ui-sans-serif, system-ui, sans-serif;
+        --mono: 'Geist Mono', ui-monospace, monospace;
+      }
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        background: var(--paper);
+        color: var(--ink);
+        font-family: var(--sans);
+        font-weight: 400;
+        -webkit-font-smoothing: antialiased;
+        overflow-x: clip;
+      }
+      a { color: inherit; }
+      .skip { position: absolute; left: -999px; top: 8px; z-index: 50; background: var(--ink); color: #fff; padding: 8px 12px; }
+      .skip:focus { left: 8px; }
+      :focus-visible { outline: 1.5px solid var(--accent); outline-offset: 3px; }
+
+      .mono { font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; }
+      .dim { color: var(--dim); }
+      .idx { color: var(--accent); margin-right: 6px; }
+
+      /* ---------- shell + panels ---------- */
+      .shell {
+        display: flex;
+        gap: var(--gap);
+        padding: var(--gap);
+        max-width: 1680px;
+        margin: 0 auto;
+      }
+      .panel {
+        position: relative;
+        flex: 1 1 0;
+        min-width: 0;
+        border: 1px solid var(--line);
+        padding: var(--pad);
+      }
+      /* inset vertical rules: the technical "display surface" frame */
+      .panel::before {
+        content: '';
+        position: absolute;
+        inset: 0 12px;
+        border-left: 1px solid var(--line);
+        border-right: 1px solid var(--line);
+        pointer-events: none;
+      }
+      .panel-paper { background: var(--paper-2); }
+      .panel-dark { background: var(--dark); color: #e9ece9; border-color: #000; }
+      .panel-dark::before { border-color: var(--line-d); }
+      .cm { position: absolute; width: 5px; height: 5px; background: var(--ink); z-index: 3; }
+      .panel-dark .cm { background: rgba(255, 255, 255, 0.7); }
+      .cm.tl { top: -3px; left: -3px; } .cm.tr { top: -3px; right: -3px; }
+      .cm.bl { bottom: -3px; left: -3px; } .cm.br { bottom: -3px; right: -3px; }
+
+      .rail { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+
+      .btn {
+        display: inline-flex; align-items: center; gap: 10px;
+        height: 46px; padding: 0 20px;
+        font: 500 14px/1 var(--sans); letter-spacing: -0.005em;
+        text-decoration: none; border: 1px solid var(--ink); border-radius: 2px;
+        cursor: pointer; transition: background 0.2s, color 0.2s, border-color 0.2s;
+      }
+      .btn-ink { background: var(--ink); color: var(--paper-2); }
+      .btn-ink:hover { background: #2a312d; }
+      .btn-line { background: transparent; color: var(--ink); }
+      .btn-line:hover { background: var(--ink); color: var(--paper-2); }
+      .btn-accent { background: var(--accent); border-color: var(--accent); color: #fff; }
+      .btn-accent:hover { background: #b0266a; }
+
+      h1, h2 { font-weight: 400; letter-spacing: -0.04em; margin: 0; }
+      h1 { font-size: clamp(46px, 5.6vw, 92px); line-height: 0.96; }
+      h2 { font-size: clamp(34px, 3.6vw, 56px); line-height: 1.02; }
+      .kicker { margin: 0 0 22px; color: var(--ink-2); }
+      .kicker.on-dark { color: rgba(255, 255, 255, 0.6); }
+
+      /* ---------- hero ---------- */
+      .hero { height: 100svh; min-height: 680px; max-height: 1100px; }
+      .hero-info { flex: 0.82; display: flex; flex-direction: column; justify-content: space-between; gap: 32px; }
+      .hero-media { flex: 1; padding: 0; overflow: hidden; }
+      .top-rail { position: relative; z-index: 2; }
+      .brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 600; font-size: 15px; letter-spacing: 0.14em; text-transform: uppercase; }
+      .nav { display: flex; gap: 26px; white-space: nowrap; list-style: none; margin: 0; padding: 0; font-size: 14px; }
+      .nav a { text-decoration: none; color: var(--ink-2); }
+      .nav a:hover { color: var(--ink); }
+      .hero-copy { max-width: 560px; }
+      .lead { margin: 28px 0 32px; font-size: 17px; line-height: 1.55; color: var(--ink-2); max-width: 460px; }
+      .ctas { display: flex; flex-wrap: wrap; gap: 10px; }
+      .spec-strip { display: grid; grid-template-columns: repeat(4, 1fr); margin: 0; border-top: 1px solid var(--line); }
+      .spec-strip > div { padding: 16px 14px 0 0; display: flex; flex-direction: column; justify-content: space-between; }
+      .spec-strip > div + div { padding-left: 14px; border-left: 1px solid var(--line); }
+      .spec-strip dt { font-size: 10px; line-height: 1.4; }
+      .spec-strip dd { margin: 8px 0 0; font-size: clamp(22px, 2vw, 30px); letter-spacing: -0.03em; }
+
+      #rack { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+      .media-top { position: absolute; top: 0; left: 0; right: 0; padding: 22px 28px; color: rgba(255, 255, 255, 0.72); z-index: 2; }
+      .live { display: inline-block; width: 6px; height: 6px; margin-right: 10px; background: var(--accent-glow); box-shadow: 0 0 10px var(--accent-glow); vertical-align: 1px; animation: blink 1.6s steps(2) infinite; }
+      @keyframes blink { 50% { opacity: 0.25; } }
+      .readouts {
+        position: absolute; left: 24px; right: 24px; bottom: 24px; z-index: 2; margin: 0;
+        display: grid; grid-template-columns: repeat(5, 1fr);
+        background: rgba(14, 17, 15, 0.66);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      }
+      .readouts > div { padding: 14px 16px; }
+      .readouts > div + div { border-left: 1px solid rgba(255, 255, 255, 0.1); }
+      .readouts dt { color: rgba(255, 255, 255, 0.5); font-size: 10px; }
+      .readouts dd { margin: 6px 0 0; font: 400 22px/1 var(--sans); letter-spacing: -0.02em; color: #fff; text-transform: none; }
+      .readouts small { font-family: var(--mono); font-size: 10px; color: rgba(255, 255, 255, 0.45); margin-left: 4px; }
+
+      /* ---------- split sections ---------- */
+      .split { padding-top: 0; }
+      .body { font-size: 16px; line-height: 1.6; color: var(--ink-2); max-width: 420px; margin: 22px 0 0; }
+
+      .split-harvest .sticky-col { flex: 0.8; align-self: flex-start; position: sticky; top: var(--gap); }
+      .split-harvest .list-col { flex: 1.2; }
+      .rackmap { margin: 40px 0 0; max-width: 360px; }
+      .rackmap figcaption { display: flex; justify-content: space-between; margin-bottom: 10px; }
+      #map-label { color: var(--accent); }
+      .cells { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; padding: 8px; background: var(--dark); }
+      .cells span { aspect-ratio: 1.5; border: 1px solid rgba(255, 255, 255, 0.1); background: #1a1f1c; transition: background 0.25s, box-shadow 0.25s; }
+      .cells span.on { background: var(--accent-glow); border-color: var(--accent-glow); box-shadow: 0 0 14px rgba(255, 92, 170, 0.7); }
+      .axis { display: flex; justify-content: space-between; margin-top: 8px; font-size: 10px; }
+
+      .list-head { display: grid; grid-template-columns: 48px 1fr 150px 48px; padding: 0 0 12px; border-bottom: 1px solid var(--ink); }
+      .list-head span:last-child { text-align: right; }
+      .dishes { list-style: none; margin: 0; padding: 0; }
+      .dishes li {
+        display: grid; grid-template-columns: 48px 1fr 150px 48px; align-items: baseline;
+        padding: 22px 0; border-bottom: 1px solid var(--line); cursor: default; outline-offset: -2px;
+        transition: background 0.2s;
+      }
+      .dishes li:hover, .dishes li.is-on { background: linear-gradient(90deg, rgba(210, 50, 127, 0.06), transparent 70%); }
+      .dishes .n { color: var(--dim); }
+      .dishes li.is-on .n, .dishes li.is-on .src { color: var(--accent); }
+      .dishes h3 { margin: 0; font-size: 21px; font-weight: 500; letter-spacing: -0.02em; }
+      .dishes p { margin: 6px 0 0; font-size: 14.5px; line-height: 1.55; color: var(--ink-2); max-width: 460px; }
+      .dishes .src { color: var(--ink-2); font-size: 10.5px; }
+      .src-sm { display: none; }
+      .dishes .price { text-align: right; font-size: 18px; letter-spacing: -0.02em; }
+      .foot-note { margin: 22px 0 0; }
+
+      .split-grow .grow-media { flex: 1; display: flex; flex-direction: column; gap: var(--pad); }
+      .split-grow .grow-specs { flex: 1; }
+      .frame { position: relative; flex: 1; min-height: 380px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.14); }
+      .frame img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: saturate(0.85) contrast(1.05); }
+      .frame-tint { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(255, 70, 160, 0.16), transparent 45%, rgba(10, 12, 11, 0.5)); mix-blend-mode: screen; }
+      .tag { position: absolute; padding: 6px 9px; background: rgba(12, 14, 13, 0.72); color: rgba(255, 255, 255, 0.82); font-size: 10px; border: 1px solid rgba(255, 255, 255, 0.14); }
+      .tag-tl { top: 14px; left: 14px; } .tag-br { bottom: 14px; right: 14px; }
+      .grow-quote p { margin: 0 0 14px; font-size: clamp(19px, 1.6vw, 24px); line-height: 1.4; letter-spacing: -0.02em; font-weight: 300; max-width: 560px; }
+
+      .spec-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 32px; margin-top: 36px; }
+      .spec-block h3 { margin: 0 0 10px; font-weight: 500; color: var(--ink); }
+      .spec-block h3.mt { margin-top: 26px; }
+      .rows { margin: 0; }
+      .rows > div { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); font-size: 14.5px; }
+      .rows > div:last-child { border-bottom: 1px solid var(--line); }
+      .rows dd { margin: 0; text-transform: none; font-size: 12px; }
+      .rows small { color: var(--dim); }
+      .spectrum { display: flex; height: 10px; margin: 2px 0 12px; gap: 2px; }
+      .spectrum .s0 { background: #6f7773; } .spectrum .s1 { background: #c9cdc8; }
+      .spectrum .s2 { background: var(--accent); } .spectrum .s3 { background: #6a1f43; }
+
+      .cycle { list-style: none; margin: 40px 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--ink); }
+      .cycle li { display: flex; flex-direction: column; gap: 6px; padding: 16px 14px 0 0; font-size: 14px; line-height: 1.45; position: relative; }
+      .cycle li + li { padding-left: 14px; border-left: 1px solid var(--line); }
+      .cycle li::before { content: ''; position: absolute; top: -3px; left: -3px; width: 5px; height: 5px; background: var(--ink); }
+      .cycle li:nth-child(3)::before { background: var(--accent); }
+      .cycle .day { color: var(--accent); }
+      .cycle strong { font-weight: 500; }
+      .cycle .dim { font-size: 13px; }
+
+      .split-reserve .reserve-form { flex: 1.1; }
+      .split-reserve .reserve-info { flex: 0.9; display: flex; flex-direction: column; justify-content: space-between; gap: 40px; }
+      #book { display: grid; grid-template-columns: 1fr 1fr; gap: 18px 14px; margin-top: 36px; max-width: 620px; }
+      .field { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+      .field.half { grid-column: auto; }
+      .field label, .field legend { color: rgba(255, 255, 255, 0.55); font-size: 10px; }
+      .field input:not([type='radio']), .field select {
+        height: 46px; padding: 0 14px; width: 100%;
+        background: var(--dark-2); color: #fff; color-scheme: dark;
+        border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 2px;
+        font: 400 15px var(--sans);
+        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.4);
+      }
+      .field input:focus, .field select:focus { outline: none; border-color: var(--accent-glow); }
+      .field input[aria-invalid='true'] { border-color: #ff7a7a; }
+      .seat { border: 0; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+      .seat legend { margin-bottom: 8px; padding: 0; }
+      .seat label {
+        display: flex; gap: 10px; align-items: flex-start; padding: 14px; cursor: pointer;
+        border: 1px solid rgba(255, 255, 255, 0.14); background: var(--dark-2); font-size: 15px;
+      }
+      .seat label:has(input:checked) { border-color: var(--accent-glow); box-shadow: inset 0 0 0 1px rgba(255, 92, 170, 0.35); }
+      .seat input { accent-color: var(--accent-glow); margin-top: 3px; }
+      .seat small { display: block; margin-top: 4px; color: rgba(255, 255, 255, 0.5); font-size: 10px; }
+      #book .btn { grid-column: 1 / -1; justify-self: start; margin-top: 6px; }
+      .status { grid-column: 1 / -1; margin: 0; min-height: 16px; color: var(--accent-glow); text-transform: none; letter-spacing: 0.02em; font-size: 12px; }
+
+      .info { margin: 0; display: grid; gap: 0; }
+      .info > div { display: grid; grid-template-columns: 170px 1fr; gap: 16px; padding: 18px 0; border-top: 1px solid var(--line); }
+      .info dd { margin: 0; font-size: 16px; line-height: 1.5; }
+      .coords { display: flex; justify-content: space-between; padding-top: 14px; border-top: 1px solid var(--ink); font-size: clamp(13px, 1.3vw, 18px); letter-spacing: 0.02em; }
+
+      .foot { padding: 18px calc(var(--gap) + 16px) 28px; font-size: 10px; }
+
+      /* ---------- responsive ---------- */
+      @media (max-width: 1080px) {
+        .hero { height: auto; max-height: none; flex-direction: column; }
+        .hero-info { flex: none; min-height: 88svh; }
+        .hero-media { flex: none; height: 78svh; min-height: 520px; }
+        .split { flex-direction: column; }
+        .split-harvest .sticky-col { position: relative; top: auto; align-self: stretch; }
+        .frame { min-height: 340px; }
+      }
+      @media (max-width: 640px) {
+        :root { --gap: 6px; --pad: 20px; }
+        .panel::before { inset: 0 8px; }
+        .hide-sm { display: none !important; }
+        .nav { gap: 16px; font-size: 13px; }
+        .nav li:not(:last-child) { display: none; }
+        .nav a { border: 1px solid var(--ink); padding: 8px 12px; color: var(--ink); }
+        .hero-info { min-height: auto; gap: 44px; }
+        .hero-copy { margin-top: 36px; }
+        .lead { font-size: 16px; }
+        .spec-strip { grid-template-columns: 1fr 1fr; }
+        .spec-strip > div:nth-child(3) { padding-left: 0; border-left: 0; }
+        .spec-strip > div:nth-child(n + 3) { border-top: 1px solid var(--line); margin-top: 14px; }
+        .hero-media { height: 82svh; min-height: 560px; }
+        .media-top { padding: 18px 20px; }
+        .readouts { left: 12px; right: 12px; bottom: 12px; grid-template-columns: repeat(3, 1fr); }
+        .readouts > div { padding: 10px 12px; }
+        .readouts > div:nth-child(4) { border-left: 0; }
+        .readouts > div:nth-child(n + 4) { border-top: 1px solid rgba(255, 255, 255, 0.1); }
+        .readouts dd { font-size: 18px; }
+        .list-head, .dishes li { grid-template-columns: 36px 1fr 36px; }
+        .src-sm { display: block; margin-top: 8px; color: var(--ink-2); font-size: 10px; }
+        .dishes li.is-on .src-sm { color: var(--accent); }
+        .dishes h3 { font-size: 18px; }
+        .spec-grid { grid-template-columns: 1fr; gap: 28px; }
+        .cycle { grid-template-columns: 1fr 1fr; row-gap: 18px; }
+        .cycle li:nth-child(3) { padding-left: 0; border-left: 0; }
+        #book, .seat { grid-template-columns: 1fr; }
+        .field.half { grid-column: 1 / -1; }
+        .info > div { grid-template-columns: 1fr; gap: 6px; }
+        .foot { padding: 16px 20px 72px; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        html { scroll-behavior: auto; }
+        .live { animation: none; }
+        * { transition: none !important; }
+      }
+    </style>
+
+    <script>
+      import { startRack } from '../../components/skills/split-layout-technical/rack';
+
+      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const canvas = document.getElementById('rack') as HTMLCanvasElement | null;
+      if (canvas) {
+        startRack(canvas, { reduced });
+      }
+
+      // live rail: clock + sensor jitter
+      const clock = document.getElementById('clock');
+      const tick = () => {
+        if (clock) {
+          clock.textContent = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Brussels' }) + ' CET';
+        }
+      };
+      tick();
+      setInterval(tick, 30000);
+      if (!reduced) {
+        const nodes = [...document.querySelectorAll<HTMLElement>('[data-jitter]')];
+        setInterval(() => {
+          nodes.forEach((n) => {
+            const base = n.dataset.jitter ?? '0';
+            const dec = (base.split('.')[1] ?? '').length;
+            const v = parseFloat(base) * (1 + (Math.random() - 0.5) * 0.012);
+            n.textContent = v.toFixed(dec);
+          });
+        }, 2200);
+      }
+
+      // harvest list ↔ rack map
+      const cells = document.querySelectorAll<HTMLElement>('.cells span');
+      const label = document.getElementById('map-label');
+      const rows = [...document.querySelectorAll<HTMLElement>('.dishes li')];
+      const select = (row: HTMLElement) => {
+        rows.forEach((r) => r.classList.toggle('is-on', r === row));
+        cells.forEach((c) => c.classList.toggle('on', c.dataset.cell === row.dataset.cell));
+        if (label) {
+          label.textContent = row.dataset.src ?? '';
+        }
+      };
+      rows.forEach((r) => {
+        r.addEventListener('mouseenter', () => select(r));
+        r.addEventListener('focus', () => select(r));
+      });
+      if (rows[0]) {
+        select(rows[0]);
+      }
+
+      // booking form: native constraint validation, inline status
+      const form = document.getElementById('book') as HTMLFormElement | null;
+      const status = document.getElementById('book-status');
+      const date = document.getElementById('f-date') as HTMLInputElement | null;
+      if (date) {
+        date.min = new Date().toISOString().slice(0, 10);
+      }
+      form?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const fields = [...form.querySelectorAll<HTMLInputElement>('input[required]')];
+        fields.forEach((f) => f.setAttribute('aria-invalid', String(!f.checkValidity())));
+        const bad = fields.find((f) => !f.checkValidity());
+        if (bad) {
+          bad.focus();
+          if (status) {
+            status.textContent = `Check the ${bad.name} field.`;
+          }
+          return;
+        }
+        const seat = (form.elements.namedItem('seat') as RadioNodeList).value === 'rack' ? 'the rack counter' : 'the dining room';
+        if (status) {
+          status.textContent = `Request held for ${(form.elements.namedItem('guests') as HTMLSelectElement).value} at ${seat}. We confirm by e-mail within the hour.`;
+        }
+        form.reset();
+      });
+    </script>
+  </body>
+</html>

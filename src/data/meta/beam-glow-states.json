@@ -1,0 +1,7 @@
+{
+  "title": "Beam Glow States",
+  "kind": "section",
+  "category": "Components",
+  "concept": "Kettle Hill Observatory & Planetarium's public telescope console, where border beams mark real state only: an ocean pulse-inner while the mount slews, a slow one-lap mono beam on a newly chosen target or saved dome show, a line beam on the ask-the-sky bar for focus and lookup, and a single sunset pulse-outside on the show still in the dome.",
+  "notes": "React islands using the installed border-beam 1.4.1 (skill verified 1.3.0; same props). Wrappers stay mounted and toggle active; states resolved loading > selected > focus. Semantics via aria-busy, aria-selected (listbox), aria-pressed and role=status text; under prefers-reduced-motion all beams are inactive and static outlines carry the state."
+}

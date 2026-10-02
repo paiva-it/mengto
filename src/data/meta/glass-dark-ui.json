@@ -1,0 +1,7 @@
+{
+  "title": "Glass Dark UI",
+  "kind": "website",
+  "category": "Design systems",
+  "concept": "Apsis Orbital, a fictional four-guest space-tourism operator: frosted navy glass panels with the skill's masked 1px blue-violet gradient edge on every surface, from a launch-console hero over an Earth-limb photo to itinerary cards, a family flight-deck dashboard, a training timeline and a native <dialog> booking modal.",
+  "notes": "Pure CSS + a small vanilla script, no dependencies. Uses the skill's exact tokens, .glass-panel and .border-gradient::before mask. A hero 'Glass' control switches Soft / Standard / Solid — Solid is the no-blur fallback (--glass-fill-strong), which also applies automatically via @supports when backdrop-filter is missing. Body text stays at #cbd5e1 or brighter on glass; focus uses a separate #93c5fd outline. Countdown targets a fictional launch date. Photos are Unsplash hotlinks; fonts Geist + Geist Mono from Google Fonts."
+}

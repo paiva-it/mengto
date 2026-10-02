@@ -1,0 +1,7 @@
+{
+  "title": "Wireframe Scan Reveal",
+  "kind": "section",
+  "category": "3D & WebGL",
+  "concept": "Relay Nine, a worker-owned bike courier collective, surveys its procedural Three.js cargo frame: a pale topology cage sweeps in from a low-left origin and the safety-orange steel follows 520 mm behind, then the cage burns off.",
+  "notes": "Bike built in millimetres from tubes, tori, a box crate and merged spokes, so the skill's 520 lag / 135 rim / 950 trail are real frame distances. One world-space origin + radius drives the MeshPhysical/Standard discard (onBeforeCompile) and an additive WireframeGeometry cage parented to each mesh; 3.4 s power-1.35 sweep, cage snaps on over 6 % and fades over the last 28 %, then is disposed and the discard disabled. Replay rebuilds exactly one cage. Reduced motion, ?reduced=1 and ?shot (gallery capture) show the 62 % diagnostic still. Loop only runs during the scan; pauses hidden/offscreen with a fresh time base; DPR capped at 2. Card photo from Unsplash."
+}

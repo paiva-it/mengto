@@ -1,0 +1,422 @@
+---
+import '../../styles/global.css';
+import BackPill from '../../components/BackPill.astro';
+
+// Snowpack profile for the "profile" section — top to bottom, thickness in cm.
+const layers = [
+  { cm: 40, name: 'New snow, wind-packed on lee slopes', tone: 'new' },
+  { cm: 2, name: 'Surface hoar, buried 31 Jan — the weak layer', tone: 'weak' },
+  { cm: 35, name: 'Settled snow, small rounded grains', tone: 'old' },
+  { cm: 6, name: 'Rain crust from 18 Jan', tone: 'crust' },
+  { cm: 70, name: 'Old base, well bonded', tone: 'base' },
+];
+const total = layers.reduce((s, l) => s + l.cm, 0);
+
+const facts = [
+  { k: 'Danger', v: '3', u: 'Considerable', hot: true },
+  { k: 'New snow 24 h', v: '40', u: 'cm' },
+  { k: 'Wind, summits', v: 'SW 45', u: 'km/h' },
+  { k: 'Freezing level', v: '1,400', u: 'm' },
+];
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Northcorrie Avalanche Bulletin — Scroll-Scrubbed Word Reveal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,400..700;1,62..125,400..700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <header class="top">
+      <span class="brand"><span class="flag" aria-hidden="true"></span>Northcorrie Avalanche Bulletin</span>
+      <span class="mono dim">Varden Range · No. 14 · Issued Tue 06:00 CET</span>
+    </header>
+
+    <main>
+      <!-- Pinned reading beat: one bulletin, revealed word by word by native scroll. -->
+      <section class="stage" data-stage aria-labelledby="today-h">
+        <div class="pin">
+          <div class="meta-l mono">
+            <h1 id="today-h" class="label">Today's headline<br />North corries, above 1,900 m</h1>
+            <div class="rail" aria-hidden="true"><span class="rail-fill" data-rail></span></div>
+            <p class="count" aria-hidden="true"><span data-count>0</span> / <span data-total>0</span> words</p>
+          </div>
+
+          <p class="headline" data-reveal="stage">
+            Forty centimetres of new snow fell overnight on a <em>buried layer of surface hoar</em>. On north and
+            east aspects above 1,900&nbsp;metres, a single skier can release a <mark>slab a metre deep</mark>.
+            Keep to low-angle terrain, travel one at a time, and <strong>let today pass</strong>.
+          </p>
+
+          <div class="meta-r mono" aria-hidden="true">
+            <p class="label">Danger level</p>
+            <p class="danger"><span class="lvl">3</span><span>Considerable<br />rising to 4 by noon</span></p>
+            <p class="pct"><span data-pct>0</span><small>%</small></p>
+            <p class="label">Bulletin read</p>
+            <p class="label scroll-hint">Scroll to read · reverse to unread</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- In-flow passage: no pin, same mapping, scrubbed by its own position in the viewport. -->
+      <section class="why" aria-labelledby="why-h">
+        <h2 id="why-h" class="label mono">02 — Why this layer matters</h2>
+        <p class="body" data-reveal="flow">
+          Surface hoar grows on clear, still nights: feathery crystals standing on end like frost on a fence wire.
+          Buried intact, they hold the new snow the way a <em>house of playing cards</em> holds a book. They do
+          not heal in a day. They heal over weeks, and until then the slope above you remembers every cold night
+          of January. Read the <a href="#profile">full snowpack profile</a> before you commit to a line.
+        </p>
+      </section>
+
+      <section id="profile" class="profile" aria-labelledby="profile-h">
+        <div class="profile-head">
+          <h2 id="profile-h" class="label mono">03 — Snowpack profile · Coire Dubh, 2,040 m, NE</h2>
+          <p class="note">Pit dug Monday 15:40. Extended column test: ECTP 14, clean shear on the buried hoar.</p>
+        </div>
+        <div class="pack" role="list">
+          {
+            layers.map((l) => (
+              <div class={`layer ${l.tone}`} role="listitem" style={`flex-grow:${Math.max(l.cm, 7)}`}>
+                <span class="mono cm">{l.cm} cm</span>
+                <span class="lname">{l.name}</span>
+              </div>
+            ))
+          }
+        </div>
+        <p class="mono dim total">Total depth {total} cm</p>
+
+        <dl class="facts">
+          {
+            facts.map((f) => (
+              <div class:list={['fact', { hot: f.hot }]}>
+                <dt class="label mono">{f.k}</dt>
+                <dd>
+                  <span class="v">{f.v}</span> <span class="u mono">{f.u}</span>
+                </dd>
+              </div>
+            ))
+          }
+        </dl>
+      </section>
+    </main>
+
+    <footer class="foot mono dim">
+      <span>Northcorrie Avalanche Bulletin is a fictional forecasting office.</span>
+      <span>Next bulletin 17:00 CET</span>
+    </footer>
+
+    <BackPill />
+
+    <style>
+      :root {
+        --snow: #e8edef;
+        --snow-2: #dde4e7;
+        --ink: #0f171c;
+        --muted: #56656e;
+        --glacier: #24597a;
+        --danger: #b85a06;
+        --danger-bg: #f39a1e;
+        /* Reveal tokens (skill defaults) */
+        --o-min: 0.16;
+        --blur: 7px;
+        --lift: 0.16em;
+      }
+      html { background: var(--snow); }
+      body {
+        margin: 0;
+        color: var(--ink);
+        font-family: 'Archivo', ui-sans-serif, system-ui, sans-serif;
+        font-variation-settings: 'wdth' 100;
+        background:
+          repeating-radial-gradient(ellipse 140% 90% at 88% 112%, transparent 0 46px, rgb(15 23 28 / 0.045) 46px 47px),
+          var(--snow);
+        overflow-x: clip;
+      }
+      .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+      .dim { color: var(--muted); }
+      .label {
+        margin: 0;
+        font: 500 11px/1.55 'JetBrains Mono', ui-monospace, monospace;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      .top {
+        position: fixed; inset: 0 0 auto; z-index: 5;
+        display: flex; justify-content: space-between; gap: 16px; align-items: center;
+        padding: 18px clamp(16px, 3.4vw, 48px);
+        font-size: 12px;
+        border-bottom: 1px solid rgb(15 23 28 / 0.1);
+        background: color-mix(in srgb, var(--snow) 82%, transparent);
+        backdrop-filter: blur(10px);
+      }
+      .brand { display: inline-flex; gap: 10px; align-items: center; font-weight: 600; font-size: 13px; letter-spacing: -0.005em; }
+      .flag { width: 12px; height: 12px; background: var(--danger-bg); clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+
+      /* ── stage ─────────────────────────────────────────── */
+      .stage { position: relative; }
+      .pin {
+        min-height: 100svh;
+        box-sizing: border-box;
+        display: grid;
+        grid-template-columns: minmax(150px, 1fr) minmax(0, 4.2fr) minmax(170px, 1.2fr);
+        gap: clamp(24px, 4vw, 64px);
+        align-items: center;
+        padding: 96px clamp(16px, 3.4vw, 48px) 56px;
+      }
+      :global(.is-scrubbed) .pin { position: sticky; top: 0; height: 100svh; }
+      .meta-l, .meta-r { align-self: stretch; display: flex; flex-direction: column; gap: 14px; padding-block: 24px; }
+      .meta-l { justify-content: space-between; }
+      .rail { position: relative; width: 2px; flex: 1; max-height: 260px; background: rgb(15 23 28 / 0.12); }
+      .rail-fill { position: absolute; inset: 0 0 auto; height: 100%; background: var(--danger-bg); transform-origin: top; transform: scaleY(var(--rp, 1)); }
+      .count { margin: 0; font-size: 12px; font-weight: 500; letter-spacing: 0.06em; }
+
+      .headline {
+        margin: 0;
+        max-width: 19ch;
+        font-size: clamp(2rem, 4.5vw, 4.6rem);
+        line-height: 1.04;
+        font-weight: 560;
+        font-variation-settings: 'wdth' 88;
+        letter-spacing: -0.032em;
+        text-wrap: pretty;
+      }
+      .headline em, .body em { font-style: italic; color: var(--glacier); font-weight: inherit; }
+      .headline mark {
+        background: none; color: var(--danger);
+        text-decoration: underline; text-decoration-thickness: 0.07em; text-underline-offset: 0.12em;
+      }
+      .headline strong { font-weight: 720; }
+
+      .meta-r { justify-content: center; }
+      .danger { display: flex; gap: 12px; align-items: center; margin: 0 0 28px; font-size: 12px; line-height: 1.4; }
+      .lvl {
+        display: grid; place-items: center; width: 44px; height: 44px; flex: none;
+        background: var(--danger-bg); color: var(--ink);
+        font: 700 24px/1 'Archivo', sans-serif;
+        clip-path: polygon(50% 0, 100% 100%, 0 100%); padding-top: 12px; box-sizing: border-box;
+      }
+      .pct { margin: 0; font: 500 clamp(3rem, 6vw, 5.6rem)/0.9 'Archivo', sans-serif; font-variation-settings: 'wdth' 70; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; }
+      .pct small { font-size: 0.4em; margin-left: 4px; color: var(--muted); }
+      .scroll-hint { margin-top: auto; }
+
+      /* ── word tokens ───────────────────────────────────── */
+      :global(.w) {
+        display: inline-block;
+        --wp: 0;
+        opacity: calc(var(--o-min) + (1 - var(--o-min)) * var(--wp));
+        filter: blur(calc(var(--blur) * (1 - var(--wp))));
+        transform: translateY(calc(var(--lift) * (1 - var(--wp))));
+        will-change: opacity, filter, transform;
+      }
+      /* A focused link is never left blurred. */
+      :global(a:focus-visible .w) { opacity: 1; filter: none; transform: none; }
+      /* Inline-block tokens don't inherit a parent's underline: move it onto each word. */
+      :global(.is-scrubbed) .headline mark, :global(.is-scrubbed) .body a { text-decoration: none; }
+      :global(.is-scrubbed) .headline mark :global(.w) {
+        text-decoration: underline; text-decoration-thickness: 0.07em; text-underline-offset: 0.12em;
+      }
+      :global(.is-scrubbed) .body a :global(.w) {
+        text-decoration: underline; text-decoration-color: var(--danger-bg); text-decoration-thickness: 0.08em; text-underline-offset: 0.14em;
+      }
+
+      /* ── in-flow passage ───────────────────────────────── */
+      .why {
+        display: grid; grid-template-columns: minmax(150px, 1fr) minmax(0, 4.2fr) minmax(170px, 1.2fr);
+        gap: clamp(24px, 4vw, 64px);
+        padding: 28vh clamp(16px, 3.4vw, 48px) 30vh;
+        border-top: 1px solid rgb(15 23 28 / 0.1);
+      }
+      .body {
+        margin: 0; max-width: 30ch;
+        font-size: clamp(1.5rem, 2.7vw, 2.6rem); line-height: 1.18; font-weight: 450;
+        letter-spacing: -0.02em; font-variation-settings: 'wdth' 94;
+      }
+      .body a { color: inherit; text-decoration: underline; text-decoration-color: var(--danger-bg); text-decoration-thickness: 0.08em; text-underline-offset: 0.14em; border-radius: 2px; }
+      .body a:focus-visible { outline: 2px solid var(--glacier); outline-offset: 4px; }
+
+      /* ── profile ───────────────────────────────────────── */
+      .profile { padding: 96px clamp(16px, 3.4vw, 48px) 120px; border-top: 1px solid rgb(15 23 28 / 0.1); background: var(--snow-2); }
+      .profile-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px 40px; margin-bottom: 28px; }
+      .note { margin: 0; max-width: 46ch; color: var(--muted); font-size: 15px; line-height: 1.5; }
+      .pack { display: flex; flex-direction: column; height: 420px; border: 1px solid rgb(15 23 28 / 0.18); }
+      .layer { display: flex; align-items: center; gap: 20px; padding: 0 18px; min-height: 30px; border-top: 1px solid rgb(15 23 28 / 0.12); font-size: 14px; }
+      .layer:first-child { border-top: 0; }
+      .layer .cm { width: 56px; flex: none; font-size: 12px; color: var(--muted); }
+      .new { background: #f6f8f9; }
+      .weak { background: var(--danger-bg); font-weight: 600; }
+      .weak .cm { color: var(--ink); }
+      .old { background: #e2e8eb; }
+      .crust { background: #b9c6cd; }
+      .base { background: #c9d3d8; }
+      .total { margin: 10px 0 56px; font-size: 12px; }
+      .facts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; margin: 0; background: rgb(15 23 28 / 0.14); border: 1px solid rgb(15 23 28 / 0.14); }
+      .fact { background: var(--snow); padding: 20px 20px 24px; }
+      .fact dd { margin: 18px 0 0; }
+      .fact .v { font-size: clamp(2rem, 3.4vw, 3rem); font-weight: 560; letter-spacing: -0.03em; font-variation-settings: 'wdth' 80; }
+      .fact .u { font-size: 12px; color: var(--muted); }
+      .fact.hot { background: var(--danger-bg); }
+      .fact.hot .label, .fact.hot .u { color: var(--ink); }
+
+      .foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; padding: 28px clamp(16px, 3.4vw, 48px) 80px; font-size: 11px; letter-spacing: 0.04em; }
+
+      @media (max-width: 900px) {
+        .top .dim { display: none; }
+        .pin, .why { grid-template-columns: minmax(0, 1fr); gap: 20px; align-content: center; }
+        .pin { padding-top: 84px; padding-bottom: 32px; }
+        .meta-l, .meta-r { flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: space-between; padding: 0; gap: 8px 16px; }
+        .rail { display: none; }
+        .meta-r .label:not(.scroll-hint) { display: none; }
+        .danger { margin: 0; }
+        .lvl { width: 34px; height: 34px; font-size: 18px; padding-top: 9px; }
+        .pct { font-size: 2.6rem; }
+        .scroll-hint { margin: 0; width: 100%; }
+        .headline { max-width: none; }
+        .why { padding-block: 18vh 22vh; }
+        .facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .pack { height: 460px; }
+        .layer { gap: 12px; padding: 0 12px; font-size: 13px; }
+        .layer .cm { width: 44px; }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        :global(.w) { opacity: 1; filter: none; transform: none; will-change: auto; }
+      }
+    </style>
+
+    <script>
+      // ponytail: dependency-free scroll measurement + one rAF; GSAP would add nothing for two passages.
+      const SKIP = new Set(['SCRIPT', 'STYLE', 'TEXTAREA', 'INPUT', 'SELECT', 'BUTTON']);
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+      const clamp = (v: number) => Math.min(1, Math.max(0, v));
+      const OVERLAP = 1.22; // each word's window spans 1.22 word-slots → ~22 % overlap with its neighbour
+
+      type Reveal = { el: HTMLElement; original: Node; words: HTMLElement[]; last: number[]; progress: () => number };
+
+      // Walk text nodes only; wrap non-whitespace tokens, keep whitespace nodes exactly.
+      function split(el: HTMLElement): HTMLElement[] {
+        const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, {
+          acceptNode: (n) =>
+            n.parentElement?.closest('[data-no-split]') || SKIP.has(n.parentElement?.tagName ?? '')
+              ? NodeFilter.FILTER_REJECT
+              : NodeFilter.FILTER_ACCEPT,
+        });
+        const nodes: Text[] = [];
+        while (walker.nextNode()) nodes.push(walker.currentNode as Text);
+        const words: HTMLElement[] = [];
+        for (const node of nodes) {
+          const frag = document.createDocumentFragment();
+          for (const part of node.data.split(/(\s+)/)) {
+            if (!part) continue;
+            if (/^\s+$/.test(part)) { frag.append(part); continue; }
+            const span = document.createElement('span');
+            span.className = 'w';
+            span.textContent = part;
+            frag.append(span);
+            words.push(span);
+          }
+          node.replaceWith(frag);
+        }
+        return words;
+      }
+
+      function paint(r: Reveal) {
+        const reveal = clamp(r.progress());
+        const n = r.words.length;
+        const head = reveal * (n - 1 + OVERLAP);
+        r.words.forEach((w, i) => {
+          const local = Math.round(clamp((head - i) / OVERLAP) * 1000) / 1000;
+          if (r.last[i] !== local) { r.last[i] = local; w.style.setProperty('--wp', String(local)); }
+        });
+        return reveal;
+      }
+
+      const stage = document.querySelector<HTMLElement>('[data-stage]')!;
+      const pct = document.querySelector<HTMLElement>('[data-pct]')!;
+      const count = document.querySelector<HTMLElement>('[data-count]')!;
+      const total = document.querySelector<HTMLElement>('[data-total]')!;
+      const rail = document.querySelector<HTMLElement>('[data-rail]')!;
+      const LEAD = 0.36; // the bulletin opens a third read so the first viewport already shows the scrub
+
+      const progressFor: Record<string, (el: HTMLElement) => () => number> = {
+        // Sticky stage: progress across the extra scroll height, starting from LEAD.
+        stage: () => () => {
+          const span = stage.offsetHeight - innerHeight;
+          const raw = span > 0 ? (scrollY - stage.offsetTop) / (span * 0.86) : 1;
+          return LEAD + (1 - LEAD) * raw;
+        },
+        // In-flow passage: from its top at 88 % of the viewport to its bottom at 45 %.
+        flow: (el) => () => {
+          const b = el.getBoundingClientRect();
+          return (innerHeight * 0.88 - b.top) / (b.height + innerHeight * 0.43);
+        },
+      };
+
+      let reveals: Reveal[] = [];
+      let raf = 0;
+
+      const frame = () => {
+        raf = 0;
+        reveals.forEach((r) => {
+          const p = paint(r);
+          if (r.el.dataset.reveal === 'stage') {
+            const read = Math.round(p * r.words.length);
+            pct.textContent = String(Math.round(p * 100));
+            count.textContent = String(read);
+            rail.style.setProperty('--rp', p.toFixed(3));
+          }
+        });
+      };
+      const schedule = () => { if (!raf) raf = requestAnimationFrame(frame); };
+
+      function setup() {
+        if (reduce.matches) {
+          const words = document.querySelector('[data-reveal="stage"]')!.textContent!.trim().split(/\s+/).length;
+          pct.textContent = '100';
+          count.textContent = total.textContent = String(words);
+          return;
+        }
+        reveals = [...document.querySelectorAll<HTMLElement>('[data-reveal]')].map((el) => {
+          const original = el.cloneNode(true);
+          const words = split(el);
+          return { el, original, words, last: [], progress: progressFor[el.dataset.reveal!](el) };
+        });
+        const stageWords = reveals.find((r) => r.el.dataset.reveal === 'stage')!.words.length;
+        total.textContent = String(stageWords);
+        // Reveal span scales with text length, clamped to 120–220 % of the viewport.
+        stage.style.height = `${100 + Math.min(220, Math.max(120, stageWords * 3.4))}svh`;
+        document.documentElement.classList.add('is-scrubbed');
+        addEventListener('scroll', schedule, { passive: true });
+        addEventListener('resize', schedule);
+        frame();
+      }
+
+      // Restore the untouched marked-up subtrees and drop every listener.
+      function teardown() {
+        removeEventListener('scroll', schedule);
+        removeEventListener('resize', schedule);
+        cancelAnimationFrame(raf);
+        raf = 0;
+        reveals.forEach((r) => r.el.replaceWith(r.original));
+        reveals = [];
+        stage.style.height = '';
+        document.documentElement.classList.remove('is-scrubbed');
+      }
+
+      setup();
+      reduce.addEventListener('change', () => {
+        teardown();
+        setup();
+      });
+      document.fonts?.ready.then(schedule);
+      document.addEventListener('astro:before-swap', teardown, { once: true });
+    </script>
+  </body>
+</html>

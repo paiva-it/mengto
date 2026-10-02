@@ -1,0 +1,7 @@
+{
+  "title": "Matter.js",
+  "kind": "section",
+  "category": "Effects & details",
+  "concept": "Silt & Sorrel's Sorrel No. 3 cleansing balm told as its own formula: fourteen ingredients, each a Matter.js body sized by its weight share (oils as circles, butters and clay as blocks, beeswax as a hexagon, extracts as capsules), drop into a bounded tray, settle, and can be picked up to read what they do.",
+  "notes": "matter-js 0.20 with a custom DPR-aware canvas renderer and a fixed 60 Hz Engine.update loop; MouseConstraint drag with Matter's wheel trap removed and touches claimed only when they land on a body, so the page still scrolls on phones. Seeded PRNG makes 'Drop again' a deterministic reset; 'Shake' and 'Pause' controls. Bodies flung out are set back inside. Loop pauses offscreen (IntersectionObserver) and on hidden tabs; prefers-reduced-motion (or ?reduced) pre-settles the tray with no fall."
+}

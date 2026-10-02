@@ -1,0 +1,7 @@
+{
+  "title": "Cobe.js",
+  "kind": "section",
+  "category": "3D & WebGL",
+  "concept": "Ferro Lund Arquitectos: a Lisbon studio's atlas of nine buildings in nine climates, on a limestone cobe globe whose oxide arcs run from the studio to each site; picking a project turns the globe to it and its anchored label lights up.",
+  "notes": "cobe 2.0.1 (installed): no onRender in v2, so the page drives globe.update({phi, theta}) from its own rAF loop, paused offscreen (IntersectionObserver) and on hidden tabs; ResizeObserver feeds update({width, height}), DPR clamped to 2. Marker labels use cobe v2's id-bound CSS anchor positioning (--cobe-<id>, --cobe-visible-<id>) and are hidden where anchor positioning is unsupported. Drag (pointer/touch, pan-y kept) and arrow keys steer; reduced motion disables auto-orbit, easing and the SVG orbit dot. ?shot freezes the Atlantic pose."
+}

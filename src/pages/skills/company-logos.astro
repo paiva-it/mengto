@@ -1,0 +1,515 @@
+---
+import '../../styles/global.css';
+import BackPill from '../../components/BackPill.astro';
+
+// Every logo is a Simple Icons glyph from Iconify, rendered in the same 64x64 box.
+// `hex` is the brand colour, used only on hover/focus (monochrome by default).
+// Optical sizing: square glyphs sit small in the box; wide wordmarks need more width to carry
+// the same visual weight, dense circular seals need less.
+type Logo = { id: string; name: string; hex: string; role: string; stat: string; o: number };
+const WIDE = ['siemens', 'hitachi', 'nokia', 'airbus', 'ibm', 'dhl', 'sap', 'cisco'];
+const DENSE = ['generalelectric', 'bosch', 'volvo', 'ericsson', 'schneiderelectric'];
+const L = (id: string, name: string, hex: string, role: string, stat: string): Logo => ({
+  id, name, hex, role, stat, o: WIDE.includes(id) ? 1.45 : DENSE.includes(id) ? 0.85 : 1,
+});
+const px = (l: Logo, base: number, max = 64) => Math.min(max, Math.round(base * l.o));
+
+const stack: Logo[] = [
+  L('siemens', 'Siemens', '#009999', 'Nacelle drivetrains', '214 units'),
+  L('generalelectric', 'GE', '#0870D8', 'Grid-forming inverters', '38 MVAr'),
+  L('abb', 'ABB', '#FF000F', 'Onshore substations', '6 sites'),
+  L('hitachi', 'Hitachi', '#E60027', 'HVDC export link', '1.2 GW'),
+  L('schneiderelectric', 'Schneider Electric', '#3DCD58', 'SCADA & protection', '9,860 tags'),
+  L('bosch', 'Bosch', '#EA0016', 'Vibration sensors', '3,420 nodes'),
+  L('dji', 'DJI', '#000000', 'Blade inspection drones', '41 sorties/wk'),
+  L('airbus', 'Airbus', '#00205B', 'Met-ocean satellite feed', '15 min cadence'),
+  L('nokia', 'Nokia', '#005AFF', 'Private LTE offshore', '99.98 % up'),
+  L('ericsson', 'Ericsson', '#0082F0', 'Radio backhaul', '62 km span'),
+  L('cisco', 'Cisco', '#1BA0D7', 'Control-room network', '2 redundant cores'),
+  L('ibm', 'IBM', '#052FAD', 'Failure forecasting', '11 day lead'),
+  L('sap', 'SAP', '#0FAAFF', 'Spares & work orders', '1,906 open'),
+  L('caterpillar', 'Caterpillar', '#FFCD11', 'Site earthworks', '3 crews'),
+  L('volvo', 'Volvo', '#003057', 'Heavy-haul transport', '140 t loads'),
+  L('dhl', 'DHL', '#FFCC00', 'Spare-part logistics', '< 36 h to port'),
+];
+const byId = Object.fromEntries(stack.map((s) => [s.id, s]));
+const heroRow = ['siemens', 'generalelectric', 'abb', 'hitachi', 'schneiderelectric', 'dji', 'nokia', 'sap'].map((id) => byId[id]);
+
+// Turbine anatomy callouts: numbered pins on the diagram, logos in the legend.
+const anatomy = [
+  { n: '01', id: 'airbus', part: 'Weather, upstream', copy: 'Satellite wind fields arrive before the gust does, so yaw starts turning early.' },
+  { n: '02', id: 'dji', part: 'Blades, 81 m', copy: 'Drones photograph every leading edge twice a season; erosion is graded, not guessed.' },
+  { n: '03', id: 'siemens', part: 'Nacelle', copy: 'Direct-drive generator, no gearbox to fail at 90 metres above the sea.' },
+  { n: '04', id: 'bosch', part: 'Main bearing', copy: 'Accelerometers listen for the 0.3 Hz hum that precedes a bearing failure.' },
+  { n: '05', id: 'schneiderelectric', part: 'Tower base', copy: 'Protection relays and SCADA talk to the control room every 250 ms.' },
+  { n: '06', id: 'hitachi', part: 'Export cable', copy: 'High-voltage DC carries the whole farm 112 km to shore at under 3 % loss.' },
+];
+
+const turbines = [
+  { x: 120, s: 0.62, d: 7.4, o: 0.35 },
+  { x: 290, s: 0.8, d: 6.1, o: 0.55 },
+  { x: 470, s: 1, d: 5.2, o: 1 },
+  { x: 640, s: 0.74, d: 6.8, o: 0.5 },
+  { x: 780, s: 0.56, d: 8.1, o: 0.3 },
+];
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Brisa North — offshore wind, kept on schedule</title>
+    <meta name="description" content="Brisa North operates 412 turbines across three North Sea farms, and the sixteen suppliers wired into its control room." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  </head>
+  <body class="bn">
+    <BackPill />
+
+    <!-- ============ HERO ============ -->
+    <header class="hero" id="top">
+      <svg class="streams" viewBox="0 0 1440 900" preserveAspectRatio="none" aria-hidden="true">
+        {Array.from({ length: 9 }, (_, i) => (
+          <path
+            d={`M-40 ${150 + i * 72} C 300 ${110 + i * 72}, 520 ${200 + i * 70}, 820 ${150 + i * 72} S 1260 ${120 + i * 74}, 1500 ${170 + i * 70}`}
+            style={`--d:${14 + (i % 4) * 3}s; --delay:-${i * 1.7}s`}
+          />
+        ))}
+      </svg>
+
+      <nav class="nav" aria-label="Primary">
+        <a href="#top" class="brand" aria-label="Brisa North home">
+          <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="2.2" fill="currentColor" /><path d="M12 10 11 1.5h2zM13.8 13l7.4 4.3-1 1.7zM10.2 13l-7.4 4.3 1 1.7z" fill="currentColor" /></svg>
+          BRISA_NORTH
+        </a>
+        <div class="nav-links">
+          <a href="#stack">Stack</a>
+          <a href="#anatomy">Anatomy</a>
+          <a href="#fleet">Fleet</a>
+        </div>
+        <span class="live"><i></i>412 turning</span>
+      </nav>
+
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <p class="chip"><span class="beacon"></span>Dogger Ridge · wind 11.4 m/s WSW</p>
+          <h1>Wind, kept<br /><span>on schedule.</span></h1>
+          <p class="lede">
+            Brisa North operates 412 turbines across three North Sea farms. Sixteen suppliers feed one control room in
+            Aberdeen, so a fault offshore becomes a work order before the blades slow down.
+          </p>
+          <div class="cta-row">
+            <a class="btn" href="#stack">See the stack <span aria-hidden="true">→</span></a>
+            <div class="readout">
+              <span>Output now</span>
+              <strong>2,184 MW</strong>
+            </div>
+            <div class="readout">
+              <span>Availability</span>
+              <strong>97.6 %</strong>
+            </div>
+          </div>
+        </div>
+
+        <figure class="farm" aria-label="Illustration of five offshore turbines turning">
+          <svg viewBox="0 0 900 560" aria-hidden="true">
+            <defs>
+              <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#cfdcd7" />
+                <stop offset="1" stop-color="#eef2ef" stop-opacity="0" />
+              </linearGradient>
+            </defs>
+            <rect x="0" y="470" width="900" height="90" fill="url(#sea)" />
+            <line x1="0" y1="470" x2="900" y2="470" stroke="#9fb0a9" stroke-width="1" />
+            {turbines.map((t) => (
+              <g transform={`translate(${t.x} 470) scale(${t.s})`} opacity={t.o}>
+                <path d="M-7 0 L-3.5 -360 L3.5 -360 L7 0 Z" fill="#fbfcfb" stroke="#8a9b94" stroke-width="1.2" />
+                <rect x="-6" y="-372" width="34" height="14" rx="5" fill="#fbfcfb" stroke="#8a9b94" stroke-width="1.2" />
+                <circle cx="22" cy="-376" r="3" class="aviation" style={`animation-delay:-${t.d / 3}s`} />
+                <g transform="translate(-8 -365)">
+                  <g class="rotor" style={`--spin:${t.d}s`}>
+                    <circle r="190" fill="none" />
+                    {[0, 120, 240].map((a) => (
+                      <path transform={`rotate(${a})`} d="M-4 -6 C -12 -60, -9 -150, -1 -186 L 2 -186 C 6 -140, 8 -60, 5 -6 Z" fill="#fbfcfb" stroke="#8a9b94" stroke-width="1.2" />
+                    ))}
+                    <circle r="8" fill="#fbfcfb" stroke="#8a9b94" stroke-width="1.2" />
+                  </g>
+                </g>
+              </g>
+            ))}
+          </svg>
+          <figcaption>
+            <span>T-217 · Dogger Ridge B</span>
+            <span>Yaw 247° · 14.2 rpm</span>
+          </figcaption>
+        </figure>
+      </div>
+
+      <section class="proof" aria-labelledby="proof-h">
+        <p id="proof-h" class="proof-h">Wired into one control room <span>— 8 of 16 suppliers</span></p>
+        <ul class="logo-row">
+          {heroRow.map((l) => (
+            <li>
+              <a class="logo-cell" href="#stack" style={`--brand:${l.hex}`} aria-label={`${l.name}: ${l.role}`}>
+                <span class="logo-box">
+                  <iconify-icon icon={`simple-icons:${l.id}`} width={px(l, 40, 60)} height={px(l, 40, 60)} aria-hidden="true"></iconify-icon>
+                </span>
+                <span class="logo-role">{l.role}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    </header>
+
+    <main>
+      <!-- ============ STACK GRID ============ -->
+      <section id="stack" class="wrap section" aria-labelledby="stack-h">
+        <div class="sec-head">
+          <p class="eyebrow">01 / The stack</p>
+          <h2 id="stack-h">Sixteen suppliers, <span>one telemetry bus.</span></h2>
+          <p class="sec-lede">
+            Every partner is monochrome until you need to find it. Hover or tab across the grid and the brand colour comes
+            back, along with what that supplier is responsible for right now.
+          </p>
+        </div>
+        <ul class="grid">
+          {stack.map((l, i) => (
+            <li>
+              <a class="cell" href="#stack" style={`--brand:${l.hex}`} aria-label={`${l.name}, ${l.role}, ${l.stat}`}>
+                <span class="cell-top">
+                  <span class="idx">{String(i + 1).padStart(2, '0')}</span>
+                  <span class="dot" aria-hidden="true"></span>
+                </span>
+                <span class="logo-box big">
+                  <iconify-icon icon={`simple-icons:${l.id}`} width={px(l, 44)} height={px(l, 44)} aria-hidden="true"></iconify-icon>
+                </span>
+                <span class="cell-meta">
+                  <strong>{l.role}</strong>
+                  <span>{l.stat}</span>
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <!-- ============ ANATOMY ============ -->
+      <section id="anatomy" class="section anatomy" aria-labelledby="anat-h">
+        <div class="wrap anat-grid">
+          <div class="diagram">
+            <svg viewBox="0 0 420 560" aria-hidden="true">
+              <line x1="0" y1="470" x2="420" y2="470" stroke="#9fb0a9" />
+              <path d="M0 470 Q 105 462 210 470 T 420 470" fill="none" stroke="#c4d1cc" />
+              <path d="M200 470 L204 120 L216 120 L220 470 Z" fill="#fbfcfb" stroke="#7d8f88" />
+              <rect x="196" y="98" width="72" height="26" rx="8" fill="#fbfcfb" stroke="#7d8f88" />
+              <g transform="translate(192 111)">
+                <g class="rotor slow" style="--spin:9s">
+                  <circle r="100" fill="none" />
+                  {[0, 120, 240].map((a) => (
+                    <path transform={`rotate(${a})`} d="M-3 -5 C -8 -35, -6 -80, -1 -98 L 2 -98 C 5 -75, 6 -35, 4 -5 Z" fill="#fbfcfb" stroke="#7d8f88" />
+                  ))}
+                  <circle r="6" fill="#fbfcfb" stroke="#7d8f88" />
+                </g>
+              </g>
+              <path d="M210 470 C 230 520, 330 520, 420 530" fill="none" stroke="#e5482d" stroke-width="1.5" stroke-dasharray="4 5" class="cable" />
+              <path d="M20 60 h60 M30 74 h70 M10 88 h50" stroke="#9fb0a9" stroke-linecap="round" class="gust" />
+            </svg>
+            {[
+              ['01', 12, 13],
+              ['02', 31, 27],
+              ['03', 58, 16.4],
+              ['04', 45.7, 19.8],
+              ['05', 53.8, 78.6],
+              ['06', 78.6, 92],
+            ].map(([n, x, y]) => (
+              <span class="pin" style={`left:${x}%;top:${y}%`}>{n}</span>
+            ))}
+          </div>
+          <div>
+            <p class="eyebrow">02 / Anatomy</p>
+            <h2 id="anat-h">One turbine, <span>six signatures.</span></h2>
+            <ol class="legend">
+              {anatomy.map((a) => {
+                const l = byId[a.id];
+                return (
+                  <li style={`--brand:${l.hex}`}>
+                    <span class="pin static">{a.n}</span>
+                    <span class="logo-box sm">
+                      <iconify-icon icon={`simple-icons:${l.id}`} width={px(l, 26, 34)} height={px(l, 26, 34)} role="img" aria-label={l.name}></iconify-icon>
+                    </span>
+                    <span class="legend-txt">
+                      <strong>{a.part}</strong>
+                      <span>{a.copy}</span>
+                    </span>
+                  </li>
+                );
+              })}
+            </ol>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ FLEET ============ -->
+      <section id="fleet" class="wrap section" aria-labelledby="fleet-h">
+        <div class="sec-head">
+          <p class="eyebrow">03 / Fleet</p>
+          <h2 id="fleet-h">Three farms, <span>one shift pattern.</span></h2>
+        </div>
+        <div class="farms">
+          {[
+            ['Dogger Ridge', '176 turbines', '1,056 MW', '112 km offshore', 'Commissioned 2021'],
+            ['Silver Pit', '142 turbines', '852 MW', '74 km offshore', 'Commissioned 2023'],
+            ['Outer Wash', '94 turbines', '470 MW', '41 km offshore', 'Repowering 2027'],
+          ].map(([name, n, mw, km, note]) => (
+            <article class="farm-card">
+              <h3>{name}</h3>
+              <p class="mw">{mw}</p>
+              <dl>
+                <div><dt>Turbines</dt><dd>{n}</dd></div>
+                <div><dt>Distance</dt><dd>{km}</dd></div>
+                <div><dt>Status</dt><dd>{note}</dd></div>
+              </dl>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section class="wrap closing" aria-labelledby="close-h">
+        <h2 id="close-h">Supplying a North Sea farm? <span>Plug into the bus.</span></h2>
+        <p>Our integration desk onboards one new partner a quarter. Bring an API, a maintenance window and a named engineer.</p>
+        <a class="btn" href="#top">Talk to the integration desk <span aria-hidden="true">→</span></a>
+      </section>
+    </main>
+
+    <footer class="wrap foot">
+      <span>© 2026 Brisa North — a fictional operator.</span>
+      <span>Logos via Simple Icons on Iconify; shown only to demonstrate a logo system.</span>
+    </footer>
+
+    <script>
+      import 'iconify-icon';
+    </script>
+  </body>
+</html>
+
+<style is:global>
+  html { scroll-behavior: smooth; }
+  .bn {
+    --bg: #eef2ef;
+    --paper: #f7f9f7;
+    --ink: #17201c;
+    --mute: #66766f;
+    --line: #d5dfda;
+    --accent: #e5482d;
+    --mono: 'Geist Mono', ui-monospace, monospace;
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Geist', ui-sans-serif, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  .bn a { color: inherit; text-decoration: none; }
+  .bn :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 10px; }
+  .wrap { max-width: 1280px; margin: 0 auto; padding: 0 clamp(16px, 4vw, 48px); }
+
+  /* ---------- hero ---------- */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    padding: 24px clamp(16px, 4vw, 48px) 28px;
+    max-width: 1440px;
+    margin: 0 auto;
+    box-sizing: border-box;
+    isolation: isolate;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0; z-index: -2;
+    background:
+      radial-gradient(60% 50% at 75% 30%, #ffffff 0%, transparent 70%),
+      radial-gradient(40% 40% at 10% 90%, #dfe8e3 0%, transparent 70%);
+  }
+  .streams { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; }
+  .streams path {
+    fill: none; stroke: #b9c8c1; stroke-width: 1; opacity: 0.55;
+    stroke-dasharray: 160 900;
+    animation: flow var(--d) linear infinite; animation-delay: var(--delay);
+  }
+  @keyframes flow { to { stroke-dashoffset: -1060; } }
+
+  .nav {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    margin: 0 auto; width: min(760px, 100%); box-sizing: border-box;
+    padding: 12px 14px 12px 20px; border-radius: 999px;
+    background: rgb(255 255 255 / 0.7); backdrop-filter: blur(12px);
+    border: 1px solid #fff;
+    box-shadow: 0 1px 0 rgb(255 255 255 / 0.9) inset, 0 10px 30px -12px rgb(23 32 28 / 0.18), 0 1px 2px rgb(23 32 28 / 0.06);
+  }
+  .brand { display: flex; align-items: center; gap: 10px; font: 500 13px/1 var(--mono); letter-spacing: 0.06em; }
+  .nav-links { display: flex; gap: 28px; font: 400 12px/1 var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--mute); }
+  .nav-links a:hover { color: var(--ink); }
+  .live { display: flex; align-items: center; gap: 8px; font: 500 11px/1 var(--mono); text-transform: uppercase; letter-spacing: 0.08em; color: var(--mute); padding: 8px 12px; border-radius: 999px; background: var(--bg); }
+  .live i { width: 7px; height: 7px; border-radius: 50%; background: #2f9e6b; box-shadow: 0 0 0 3px rgb(47 158 107 / 0.18); }
+
+  .hero-grid {
+    flex: 1; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+    align-items: center; gap: 32px; padding: 32px 0 12px;
+  }
+  .chip {
+    display: inline-flex; align-items: center; gap: 10px; margin: 0 0 28px;
+    padding: 8px 14px; border-radius: 999px; background: rgb(255 255 255 / 0.75); border: 1px solid var(--line);
+    font: 400 12px/1 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; color: #3a4842;
+  }
+  .beacon { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); animation: blink 2.4s steps(1) infinite; }
+  @keyframes blink { 0%, 60% { opacity: 1; } 61%, 100% { opacity: 0.2; } }
+  .hero h1 {
+    margin: 0; font-weight: 500; font-size: clamp(44px, 6.4vw, 96px); line-height: 0.95; letter-spacing: -0.045em;
+  }
+  .hero h1 span, h2 span { color: #8fa199; }
+  .lede { max-width: 520px; margin: 28px 0 0; font-size: clamp(15px, 1.2vw, 17px); line-height: 1.6; color: #44534c; }
+  .cta-row { display: flex; flex-wrap: wrap; align-items: center; gap: 28px; margin-top: 36px; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 12px; padding: 16px 26px; border-radius: 999px;
+    background: var(--ink); color: #fff !important; font: 500 12px/1 var(--mono); letter-spacing: 0.1em; text-transform: uppercase;
+    box-shadow: 0 1px 0 rgb(255 255 255 / 0.15) inset, 0 12px 24px -10px rgb(23 32 28 / 0.5);
+    transition: transform 0.25s ease;
+  }
+  .btn:hover { transform: translateY(-1px); }
+  .readout { display: grid; gap: 6px; font-family: var(--mono); text-transform: uppercase; }
+  .readout span { font-size: 11px; letter-spacing: 0.1em; color: var(--mute); }
+  .readout strong { font-size: 14px; font-weight: 500; letter-spacing: 0.04em; }
+
+  .farm { margin: 0; position: relative; }
+  .farm svg { width: 100%; height: auto; display: block; max-height: 56vh; }
+  .farm figcaption {
+    display: flex; justify-content: space-between; margin-top: -4px;
+    font: 400 11px/1 var(--mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--mute);
+  }
+  .rotor { transform-box: fill-box; transform-origin: 50% 50%; animation: spin var(--spin) linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .aviation { fill: var(--accent); animation: blink 2s steps(1) infinite; }
+
+  /* ---------- logo system: shared 64x64 box ---------- */
+  .logo-box {
+    width: 64px; height: 64px; flex: none; display: grid; place-items: center;
+    color: #4d5c55; transition: color 0.35s ease, transform 0.35s ease;
+  }
+  .logo-box iconify-icon { display: block; }
+  .logo-box.sm { width: 44px; height: 44px; border-radius: 12px; background: #fff; border: 1px solid var(--line); }
+
+  .proof { border-top: 1px solid var(--line); padding-top: 18px; }
+  .proof-h { margin: 0 0 12px; font: 400 11px/1 var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: #3a4842; }
+  .proof-h span { color: var(--mute); }
+  .logo-row {
+    list-style: none; margin: 0; padding: 0;
+    display: grid; grid-template-columns: repeat(8, minmax(0, 1fr));
+  }
+  .logo-row li + li { border-left: 1px solid var(--line); }
+  .logo-cell { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 6px 4px 8px; }
+  .logo-role {
+    font: 400 10px/1.3 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--mute); text-align: center;
+    opacity: 0.75; transition: opacity 0.3s ease, color 0.3s ease;
+  }
+  .logo-cell:hover .logo-box, .logo-cell:focus-visible .logo-box { color: var(--brand); transform: translateY(-2px); }
+  .logo-cell:hover .logo-role, .logo-cell:focus-visible .logo-role { opacity: 1; color: var(--ink); }
+
+  /* ---------- sections ---------- */
+  .section { padding-top: clamp(80px, 10vw, 140px); }
+  .sec-head { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 48px; align-items: end; margin-bottom: 48px; }
+  .sec-head .eyebrow { grid-column: 1 / -1; }
+  .eyebrow { margin: 0 0 4px; font: 400 12px/1 var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); }
+  h2 { margin: 0; font-weight: 500; font-size: clamp(32px, 4.2vw, 60px); line-height: 1; letter-spacing: -0.04em; }
+  .sec-lede { margin: 0; max-width: 480px; font-size: 16px; line-height: 1.6; color: #44534c; justify-self: end; }
+
+  .grid {
+    list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+    border-top: 1px solid var(--line); border-left: 1px solid var(--line);
+  }
+  .grid li { border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .cell {
+    position: relative; display: flex; flex-direction: column; align-items: center; gap: 18px; height: 100%; box-sizing: border-box;
+    padding: 18px 18px 22px; background: transparent; transition: background 0.3s ease;
+  }
+  .cell-top { align-self: stretch; display: flex; justify-content: space-between; align-items: center; }
+  .idx { font: 400 11px/1 var(--mono); color: var(--mute); }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--line); transition: background 0.3s ease; }
+  .logo-box.big { width: 64px; height: 64px; margin: 6px 0; }
+  .cell-meta { display: grid; gap: 6px; text-align: center; }
+  .cell-meta strong { font-weight: 500; font-size: 14px; letter-spacing: -0.01em; }
+  .cell-meta span { font: 400 11px/1 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--mute); }
+  .cell:hover, .cell:focus-visible { background: #fff; }
+  .cell:hover .logo-box, .cell:focus-visible .logo-box { color: var(--brand); transform: scale(1.06); }
+  .cell:hover .dot, .cell:focus-visible .dot { background: var(--brand); }
+
+  .anatomy { margin-top: clamp(80px, 10vw, 140px); padding-bottom: clamp(80px, 10vw, 140px); background: var(--paper); border-block: 1px solid var(--line); }
+  .anat-grid { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: clamp(32px, 6vw, 96px); align-items: center; }
+  .diagram { position: relative; max-width: 440px; width: 100%; justify-self: center; }
+  .diagram svg { width: 100%; height: auto; display: block; }
+  .cable { animation: flow-c 2.2s linear infinite; }
+  @keyframes flow-c { to { stroke-dashoffset: -18; } }
+  .pin {
+    position: absolute; transform: translate(-50%, -50%);
+    width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center;
+    background: var(--ink); color: #fff; font: 500 10px/1 var(--mono);
+    box-shadow: 0 0 0 5px rgb(229 72 45 / 0.14);
+  }
+  .pin.static { position: static; transform: none; flex: none; background: transparent; color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+  .legend { list-style: none; margin: 36px 0 0; padding: 0; display: grid; gap: 0; }
+  .legend li { display: flex; align-items: center; gap: 16px; padding: 16px 0; border-top: 1px solid var(--line); }
+  .legend li:last-child { border-bottom: 1px solid var(--line); }
+  .legend li:hover .logo-box { color: var(--brand); }
+  .legend-txt { display: grid; gap: 4px; min-width: 0; }
+  .legend-txt strong { font-weight: 500; font-size: 15px; }
+  .legend-txt span { font-size: 14px; line-height: 1.5; color: #55645d; }
+
+  .farms { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+  .farm-card {
+    padding: 28px; border-radius: 20px; background: #fff; border: 1px solid #fff;
+    box-shadow: 0 1px 2px rgb(23 32 28 / 0.05), 0 18px 40px -24px rgb(23 32 28 / 0.25);
+  }
+  .farm-card h3 { margin: 0; font: 400 12px/1 var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--mute); }
+  .mw { margin: 18px 0 24px; font-size: clamp(40px, 4vw, 56px); font-weight: 500; letter-spacing: -0.04em; line-height: 1; }
+  .farm-card dl { margin: 0; display: grid; gap: 0; }
+  .farm-card dl div { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); font-size: 14px; }
+  .farm-card dt { color: var(--mute); }
+  .farm-card dd { margin: 0; text-align: right; }
+
+  .closing { text-align: center; padding-top: clamp(96px, 12vw, 160px); padding-bottom: 96px; display: grid; justify-items: center; gap: 20px; }
+  .closing p { max-width: 520px; margin: 0 0 12px; color: #44534c; line-height: 1.6; }
+  .foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; padding-top: 24px; padding-bottom: 72px; border-top: 1px solid var(--line); font: 400 11px/1.5 var(--mono); color: var(--mute); }
+
+  /* ---------- responsive ---------- */
+  @media (max-width: 1080px) {
+    .logo-role { display: none; }
+  }
+  @media (max-width: 900px) {
+    .hero-grid { grid-template-columns: 1fr; padding-top: 40px; }
+    .farm svg { max-height: none; }
+    .logo-row { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .logo-row li:nth-child(5) { border-left: 0; }
+    .logo-row li:nth-child(n + 5) { border-top: 1px solid var(--line); }
+    .sec-head { grid-template-columns: 1fr; }
+    .sec-lede { justify-self: start; }
+    .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .anat-grid { grid-template-columns: 1fr; }
+    .farms { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 600px) {
+    .nav-links { display: none; }
+    .cta-row { display: grid; grid-template-columns: 1fr 1fr; gap: 24px 20px; }
+    .cta-row .btn { grid-column: 1 / -1; justify-content: center; }
+    .cell { padding: 14px 10px 18px; }
+    .cell-meta strong { font-size: 13px; }
+    .farm figcaption { font-size: 10px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .rotor, .streams path, .cable, .beacon, .aviation { animation: none !important; }
+  }
+</style>

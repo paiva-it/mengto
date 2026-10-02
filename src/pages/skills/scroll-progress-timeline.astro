@@ -1,0 +1,532 @@
+---
+import '../../styles/global.css';
+import BackPill from '../../components/BackPill.astro';
+
+// One ordered list of production stages. The rail, dots, readout and media enhance it;
+// without JS this is still a complete, readable ordered list with real headings.
+type Media = 'script' | 'money' | 'strip' | 'cut' | 'ticket' | 'screens';
+const steps: {
+  id: string; number: string; phase: string; when: string; title: string; body: string; tag: string; media: Media;
+}[] = [
+  {
+    id: 'page', number: '01', phase: 'Page', when: 'Jan 2023 — Apr 2024', media: 'script',
+    title: 'Write it small enough to finish',
+    body: 'Inês Varela wrote eleven drafts in the back office of the salt works her grandfather ran. Each draft lost a location, a character or a night shoot, until the whole story fit inside one season on the lagoon and a budget a cinema co-op could believe.',
+    tag: 'Draft 11 · 102 pages · 3 locations',
+  },
+  {
+    id: 'money', number: '02', phase: 'Money', when: 'May — Oct 2024', media: 'money',
+    title: 'Ask the cinemas first',
+    body: 'Instead of chasing a sales agent, we pitched the people who would actually show it. Fourteen independent cinemas pre-bought screenings, a regional fund matched them, and 312 strangers covered the rest in small, stubborn amounts.',
+    tag: '€184,000 raised · no private equity',
+  },
+  {
+    id: 'shoot', number: '03', phase: 'Shoot', when: '23 days · Nov 2024', media: 'strip',
+    title: 'Twenty-three days, thirty-eight rolls',
+    body: 'We shot on 16mm because the salt reflects everything and film forgives it. One camera, a crew of nine, no lights after the first week — the flats did the bouncing. Every exposed roll went to the lab on the 18:05 bus.',
+    tag: '16mm · 11 h of rushes · 1.66 : 1',
+  },
+  {
+    id: 'cut', number: '04', phase: 'Cut', when: 'Dec 2024 — Apr 2025', media: 'cut',
+    title: 'Lose the scene everyone loved',
+    body: 'Fourteen weeks in a rented flat above a laundrette. The first assembly ran two hours forty-one. The version that works is ninety-four minutes and opens on the shot we nearly threw away: the salt rake at dawn, with nobody holding it.',
+    tag: 'Assembly 161 min → final 94 min',
+  },
+  {
+    id: 'premiere', number: '05', phase: 'Premiere', when: 'Sep 2025', media: 'ticket',
+    title: 'Premiere where the audience argues',
+    body: 'The Salt Year opened Tidewater, a small festival of fiction made by documentary crews — a late slot, a hundred and twenty seats and forty minutes of questions afterwards. Two distributors called the next morning. We kept our territories.',
+    tag: 'World premiere · 3 sold-out screenings',
+  },
+  {
+    id: 'screens', number: '06', phase: 'Screens', when: 'Oct 2025 — Mar 2026', media: 'screens',
+    title: 'Thirty-eight screens, one at a time',
+    body: 'No wide release. The film travels print by print through the cinemas that paid for it first, with Inês or the cinematographer in the room on opening night. It reaches its thirty-eighth screen in March.',
+    tag: '38 cinemas · 6 countries · a Q&A at every opening',
+  },
+];
+
+const showing = [
+  ['Fri 09 Jan', 'Kino Lumen', 'Ghent', 'Inês Varela'],
+  ['Sat 17 Jan', 'Filmhaus Stern', 'Leipzig', 'Rui Antunes, DoP'],
+  ['Thu 29 Jan', 'Cine Marea', 'Cádiz', 'Inês Varela'],
+  ['Fri 06 Feb', 'The Gutter Picturehouse', 'Leeds', 'Rui Antunes, DoP'],
+  ['Wed 18 Feb', 'Le Studio Brun', 'Lyon', 'Inês Varela'],
+  ['Sat 07 Mar', 'Sala Salgado', 'Aveiro', 'The whole crew'],
+];
+
+const cutClips = {
+  V1: [[0, 18], [19, 14], [34, 22], [57, 9], [67, 20], [88, 12]],
+  V2: [[12, 10], [44, 8], [72, 11]],
+  A1: [[0, 33], [34, 40], [75, 25]],
+  A2: [[6, 20], [40, 30], [80, 14]],
+};
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>The Salt Year — From Page to Screen · Nightjar Films</title>
+    <meta name="description" content="A production diary for an independent 16mm feature, told along one scroll-driven progress line." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <a class="skip" href="#timeline">Skip to the timeline</a>
+
+    <main class="wrap">
+      <div class="mbar" aria-hidden="true">
+        <span class="mbar-now"><b data-now-num>01</b> <span data-now-phase>Page</span></span>
+        <span class="mbar-tc" data-tc>00:00:00:00</span>
+        <span class="reel"><span class="reel-fill" data-reel></span></span>
+      </div>
+
+      <aside class="panel">
+        <div class="panel-in">
+          <p class="brand"><span class="rec" aria-hidden="true"></span>Nightjar Films <span class="brand-sub">/ Production diary</span></p>
+
+          <div class="intro">
+            <p class="eyebrow">A 94-minute feature · shot on 16mm</p>
+            <h1>The Salt Year, from page to screen.</h1>
+            <p class="lede">Six stages, 1,140 days, one small film made on a lagoon. The red line is how far you have read — it follows you down, and back up.</p>
+          </div>
+
+          <div class="readout" aria-hidden="true">
+            <div class="readout-top">
+              <span class="label">Now reading</span>
+              <span class="label tc">TC <span data-tc>00:00:00:00</span></span>
+            </div>
+            <p class="now"><span class="now-num" data-now-num>01</span><span data-now-phase>Page</span></p>
+            <span class="reel"><span class="reel-fill" data-reel></span></span>
+          </div>
+
+          <nav class="chapters" aria-label="Production stages">
+            <ol>
+              {steps.map((s) => (
+                <li><a data-nav href={`#step-${s.id}`}><span>{s.number}</span>{s.phase}</a></li>
+              ))}
+            </ol>
+          </nav>
+        </div>
+      </aside>
+
+      <section class="story" id="timeline" aria-labelledby="timeline-title">
+        <header class="story-head">
+          <h2 id="timeline-title" class="label">Production diary · 2023 — 2026</h2>
+          <p class="label">Scroll maps the sequence</p>
+        </header>
+
+        <div class="tl" data-timeline>
+          <div class="rail" data-rail aria-hidden="true">
+            <span class="rail-base"></span>
+            <span class="rail-fill" data-fill></span>
+            <span class="rail-head" data-head><span class="rail-chip" data-tc>00:00:00:00</span></span>
+          </div>
+        <ol class="steps">
+
+          {steps.map((s, i) => (
+            <li class="step" id={`step-${s.id}`} data-step data-state="reached">
+              <span class="dot" data-dot aria-hidden="true"></span>
+              <div class="step-body">
+                <p class="meta"><span class="meta-num">{s.number} — {s.phase}</span><span>{s.when}</span></p>
+                <h3>{s.title}</h3>
+                <p class="copy">{s.body}</p>
+                <p class="tag">{s.tag}</p>
+
+                <figure class={`media media-${s.media}`} aria-hidden="true">
+                  {s.media === 'script' && (
+                    <div class="script">
+                      <span class="rev">Rev. 11 — pink pages</span>
+                      <p class="sc-h">47. EXT. SALT PANS — DAWN</p>
+                      <p>The crust has set overnight. MARTA (60s) walks the dyke with a wooden rake on her shoulder, counting the pans out loud.</p>
+                      <p class="sc-c">MARTA</p>
+                      <p class="sc-d">Nine. There were twelve when your mother learned to walk on these.</p>
+                      <p class="sc-p">(beat)</p>
+                      <p class="sc-d">Rake it before the wind does.</p>
+                      <p class="sc-strike">She hands the rake to TOMÁS. He doesn't take it.</p>
+                      <span class="pgno">58.</span>
+                    </div>
+                  )}
+                  {s.media === 'money' && (
+                    <div class="money">
+                      <p class="money-total"><span>€184,000</span><small>closed 31 Oct 2024</small></p>
+                      {[
+                        ['Cinema co-op pre-sales', 41],
+                        ['Regional film fund', 27],
+                        ['312 backers', 19],
+                        ['Crew deferrals', 13],
+                      ].map(([k, v]) => (
+                        <div class="bar"><span class="bar-k">{k}</span><span class="bar-t"><span class="bar-v" style={`--v:${v}%`}></span></span><span class="bar-n">{v}%</span></div>
+                      ))}
+                    </div>
+                  )}
+                  {s.media === 'strip' && (
+                    <div class="strip">
+                      {['dawn', 'noon', 'dusk', 'night'].map((f, n) => (
+                        <div class={`frame f-${f}`}><span class="fno">{`KD 38 · ${String(1204 + n * 6).padStart(4, '0')}`}</span><span class="figure"></span></div>
+                      ))}
+                    </div>
+                  )}
+                  {s.media === 'cut' && (
+                    <div class="cut">
+                      <div class="cut-ruler"><span>00:00</span><span>00:30</span><span>01:00</span><span>01:34</span></div>
+                      {Object.entries(cutClips).map(([track, clips]) => (
+                        <div class="track"><span class="track-k">{track}</span><span class="track-l">
+                          {clips.map(([l, w]) => <span class="clip" style={`left:${l}%;width:${w}%`}></span>)}
+                        </span></div>
+                      ))}
+                      <span class="playhead"></span>
+                    </div>
+                  )}
+                  {s.media === 'ticket' && (
+                    <div class="ticket">
+                      <div class="ticket-main">
+                        <p class="label">Tidewater · World premiere</p>
+                        <p class="ticket-title">The Salt Year</p>
+                        <p class="ticket-row"><span>Sat 20 Sep</span><span>Sala 3</span><span>22:15</span></p>
+                      </div>
+                      <div class="ticket-stub"><span>Row</span><b>F</b><span>Seat</span><b>11</b></div>
+                    </div>
+                  )}
+                  {s.media === 'screens' && (
+                    <div class="screens">
+                      <div class="screens-grid">
+                        {Array.from({ length: 38 }, (_, n) => <span class={n < 31 ? 'on' : ''}></span>)}
+                      </div>
+                      <p class="screens-cap"><b>31 / 38</b> screens reached · next: Le Studio Brun, Lyon</p>
+                    </div>
+                  )}
+                </figure>
+              </div>
+            </li>
+          ))}
+        </ol>
+        </div>
+      </section>
+    </main>
+
+    <section class="showing" aria-labelledby="showing-title">
+      <div class="showing-in">
+        <div class="showing-head">
+          <p class="label">After the line runs out</p>
+          <h2 id="showing-title">Now showing, with someone from the film in the room.</h2>
+        </div>
+        <ol class="dates">
+          {showing.map(([d, c, city, guest]) => (
+            <li><span class="d">{d}</span><span class="c">{c}</span><span class="city">{city}</span><span class="g">Q&amp;A — {guest}</span></li>
+          ))}
+        </ol>
+        <p class="fine">Nightjar Films is four people and a borrowed Arriflex. The Salt Year is a fictional film; every cinema above is invented for this page.</p>
+      </div>
+    </section>
+
+    <BackPill />
+
+    <style>
+      :root {
+        --paper: #ece8df;
+        --paper-2: #f6f3ec;
+        --ink: #17140f;
+        --muted: #6c665c;
+        --faint: #9a9387;
+        --hair: #d3ccbf;
+        --red: #e2321b;
+        --red-soft: #f3c9bd;
+        --film: #1c1915;
+        --display: 'Bricolage Grotesque', ui-sans-serif, system-ui, sans-serif;
+        --sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
+        --mono: 'IBM Plex Mono', ui-monospace, monospace;
+        --rail-x: 28px;
+      }
+      html { background: var(--paper); }
+      @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+      body { margin: 0; background: var(--paper); color: var(--ink); font: 400 17px/1.6 var(--sans); -webkit-font-smoothing: antialiased; overflow-x: clip; }
+      .skip { position: absolute; left: -9999px; top: 8px; z-index: 50; background: var(--ink); color: var(--paper); padding: 8px 12px; border-radius: 6px; }
+      .skip:focus { left: 16px; }
+      a:focus-visible { outline: 2px solid var(--red); outline-offset: 3px; border-radius: 4px; }
+
+      .label { font: 500 11px/1.4 var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin: 0; }
+
+      /* ---------- layout ---------- */
+      .wrap { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); max-width: 1440px; margin: 0 auto; }
+      .panel { border-right: 1px solid var(--hair); }
+      .panel-in { position: sticky; top: 0; height: 100svh; box-sizing: border-box; padding: 28px clamp(24px, 3.4vw, 56px) 32px; display: flex; flex-direction: column; gap: clamp(16px, 3vh, 32px); }
+      .brand { margin: 0; display: flex; align-items: center; gap: 10px; font: 600 14px/1 var(--sans); letter-spacing: -0.005em; }
+      .brand-sub { color: var(--muted); font-weight: 400; }
+      .rec { width: 10px; height: 10px; border-radius: 50%; background: var(--red); box-shadow: 0 0 0 4px rgb(226 50 27 / 0.15); }
+      .intro { margin-top: auto; }
+      .eyebrow { margin: 0 0 14px; font: 500 12px/1.4 var(--mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--red); }
+      h1 { margin: 0; font: 700 clamp(48px, min(6.1vw, 10.4vh), 96px)/0.92 var(--display); font-variation-settings: 'opsz' 96; letter-spacing: -0.045em; text-wrap: balance; }
+      .lede { margin: 18px 0 0; max-width: 40ch; color: var(--muted); font-size: 16px; }
+
+      .readout { border-top: 1px solid var(--ink); padding-top: 14px; }
+      .readout-top { display: flex; justify-content: space-between; }
+      .tc { color: var(--ink); font-variant-numeric: tabular-nums; }
+      .now { margin: 6px 0 14px; display: flex; align-items: baseline; gap: 14px; font: 600 clamp(28px, 3vw, 40px)/1 var(--display); letter-spacing: -0.03em; }
+      .now-num { font: 500 14px/1 var(--mono); color: var(--red); letter-spacing: 0.06em; }
+      .reel { display: block; position: relative; height: 6px; background: repeating-linear-gradient(90deg, var(--hair) 0 10px, transparent 10px 14px); overflow: hidden; }
+      .reel-fill { position: absolute; inset: 0; background: repeating-linear-gradient(90deg, var(--red) 0 10px, transparent 10px 14px); transform-origin: left; transform: scaleX(1); }
+
+      .chapters ol { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 2px 16px; }
+      .chapters a { display: flex; gap: 8px; align-items: baseline; padding: 6px 0; color: var(--muted); text-decoration: none; font-size: 14px; border-top: 1px solid var(--hair); transition: color .25s, border-color .25s; }
+      .chapters a span { font: 500 11px/1 var(--mono); color: var(--faint); }
+      .chapters a:hover { color: var(--ink); }
+      .chapters a[aria-current] { color: var(--ink); border-top-color: var(--red); }
+      .chapters a[aria-current] span { color: var(--red); }
+
+      .story { padding: 28px clamp(24px, 4vw, 72px) 0; min-width: 0; }
+      .story-head { display: flex; justify-content: space-between; gap: 16px; padding-bottom: 20px; border-bottom: 1px solid var(--hair); }
+      .story-head h2 { font-weight: 500; }
+
+      /* ---------- timeline ---------- */
+      .tl { position: relative; }
+      .steps { list-style: none; margin: 0; padding: clamp(56px, 13vh, 130px) 0 22vh; position: relative; }
+      .rail { position: absolute; left: var(--rail-x); top: 0; bottom: 0; width: 0; }
+      .rail-base, .rail-fill { position: absolute; left: -1px; top: 0; width: 2px; height: 100%; }
+      .rail-base { background: var(--hair); }
+      .rail-fill { background: var(--red); transform-origin: top; transform: scaleY(1); will-change: transform; }
+      .rail-head { position: absolute; left: 0; top: 0; display: none; will-change: transform; }
+      .rail-head::before { content: ''; position: absolute; left: -6px; top: -6px; width: 12px; height: 12px; border-radius: 50%; background: var(--red); box-shadow: 0 0 0 6px rgb(226 50 27 / 0.16), 0 0 24px rgb(226 50 27 / 0.45); }
+      .rail-chip { position: absolute; right: 16px; top: -11px; white-space: nowrap; font: 500 11px/1 var(--mono); letter-spacing: 0.06em; color: var(--paper-2); background: var(--ink); padding: 5px 7px; border-radius: 4px; font-variant-numeric: tabular-nums; }
+      .is-live .rail-head { display: block; }
+
+      .step { position: relative; display: grid; grid-template-columns: calc(var(--rail-x) * 2) minmax(0, 1fr); padding-bottom: clamp(88px, 16vh, 160px); scroll-margin-top: 40px; }
+      .step:last-child { padding-bottom: 0; }
+      .dot { position: absolute; left: calc(var(--rail-x) - 9px); top: 2px; width: 18px; height: 18px; box-sizing: border-box; border-radius: 50%; background: var(--paper); border: 2px solid var(--faint); z-index: 1; transition: border-color .3s, background-color .3s, box-shadow .3s; }
+      .step-body { grid-column: 2; padding-left: 12px; min-width: 0; transition: opacity .45s ease, transform .45s ease; }
+      .meta { margin: 0 0 14px; display: flex; flex-wrap: wrap; gap: 4px 18px; font: 500 12px/22px var(--mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+      .meta-num { color: var(--ink); }
+      .step h3 { margin: 0; font: 650 clamp(32px, 3.5vw, 54px)/1 var(--display); font-variation-settings: 'opsz' 72; letter-spacing: -0.035em; max-width: 15ch; text-wrap: balance; transition: color .4s; }
+      .copy { margin: 18px 0 0; max-width: 54ch; color: #3d3830; }
+      .tag { display: inline-block; margin: 18px 0 0; padding: 6px 10px; border: 1px solid var(--hair); border-radius: 999px; font: 500 12px/1.3 var(--mono); color: var(--ink); background: var(--paper-2); }
+      .media { margin: 28px 0 0; border-radius: 6px; overflow: hidden; transition: filter .5s ease, opacity .5s ease; }
+
+      .step[data-state='reached'] .dot { border-color: var(--red); background: var(--red); }
+      .step[aria-current] .dot { box-shadow: 0 0 0 6px rgb(226 50 27 / 0.16); background: var(--paper-2); border-width: 5px; }
+      .step[aria-current] .meta-num { color: var(--red); }
+      .step[data-state='ahead'] .step-body { opacity: 0.62; transform: translateY(10px); }
+      .step[data-state='ahead'] h3 { color: var(--muted); }
+      .step[data-state='ahead'] .media { filter: grayscale(0.85); }
+
+      /* ---------- media panels ---------- */
+      .script { position: relative; background: #f9e2db; padding: 30px clamp(22px, 5%, 48px) 34px clamp(40px, 9%, 72px); font: 400 13px/1.55 var(--mono); color: #2b241c; max-width: 560px; }
+      .script p { margin: 0 0 10px; }
+      .sc-h { font-weight: 500; letter-spacing: 0.04em; }
+      .sc-c { padding-left: 34%; margin-bottom: 0 !important; }
+      .sc-d { padding-left: 20%; padding-right: 14%; }
+      .sc-p { padding-left: 28%; margin-bottom: 0 !important; color: #6b5a50; }
+      .sc-strike { text-decoration: line-through; text-decoration-color: var(--red); text-decoration-thickness: 2px; color: #7a6a60; }
+      .rev { position: absolute; right: 18px; top: 12px; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--red); }
+      .script::before { content: '*'; position: absolute; right: 18px; top: 150px; color: var(--red); font-size: 20px; }
+      .pgno { position: absolute; right: 18px; bottom: 12px; font-size: 11px; }
+
+      .money { background: var(--film); color: #efe9df; padding: 26px clamp(20px, 4%, 32px) 28px; display: grid; gap: 14px; }
+      .money-total { margin: 0 0 6px; display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+      .money-total span { font: 650 clamp(36px, 4vw, 56px)/1 var(--display); letter-spacing: -0.04em; }
+      .money-total small { font: 500 11px/1 var(--mono); letter-spacing: 0.1em; text-transform: uppercase; color: #a39b8e; }
+      .bar { display: grid; grid-template-columns: minmax(0, 11rem) minmax(0, 1fr) 3rem; gap: 14px; align-items: center; font: 400 12px/1.3 var(--mono); }
+      .bar-t { height: 10px; background: rgb(255 255 255 / 0.08); }
+      .bar-v { display: block; height: 100%; width: var(--v); background: var(--red); }
+      .bar:nth-of-type(n + 3) .bar-v { background: var(--red-soft); }
+      .bar-n { text-align: right; color: #a39b8e; }
+
+      .strip { background: var(--film); padding: 26px 14px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; position: relative; }
+      .strip::before, .strip::after { content: ''; position: absolute; left: 10px; right: 10px; height: 8px; background: repeating-linear-gradient(90deg, #efe9df 0 9px, transparent 9px 22px); opacity: 0.85; border-radius: 2px; }
+      .strip::before { top: 9px; }
+      .strip::after { bottom: 9px; }
+      .frame { position: relative; aspect-ratio: 1.66 / 1; border-radius: 3px; overflow: hidden; }
+      .frame::after { content: ''; position: absolute; left: 0; right: 0; top: 52%; height: 48%; background: linear-gradient(180deg, #f6f1ea 0 18%, #ddd5c9 18% 22%, #efe9e0 22% 48%, #cfc6b8 48% 52%, #e7e0d4 52%); }
+      .f-dawn { background: linear-gradient(180deg, #e9a693 0%, #f6d7c9 70%, #fbeee6 100%); }
+      .f-noon { background: linear-gradient(180deg, #cfd6d4 0%, #f2f0ea 100%); }
+      .f-dusk { background: linear-gradient(180deg, #8f2414 0%, #e2321b 45%, #f6b29a 100%); }
+      .f-night { background: linear-gradient(180deg, #1f2a33 0%, #45535b 100%); }
+      .f-night::after { filter: brightness(0.42); }
+      .figure { position: absolute; z-index: 1; left: 58%; top: 34%; width: 5%; height: 26%; background: var(--film); border-radius: 40% 40% 2px 2px; }
+      .figure::after { content: ''; position: absolute; left: -160%; top: -30%; width: 2px; height: 150%; background: var(--film); transform: rotate(-24deg); }
+      .f-night .figure { display: none; }
+      .fno { position: absolute; z-index: 2; left: 6px; bottom: 5px; font: 500 9px/1 var(--mono); letter-spacing: 0.08em; color: var(--film); opacity: 0.7; }
+      .f-night .fno { color: #fff; }
+
+      .cut { position: relative; background: #24201b; padding: 18px 18px 20px; display: grid; gap: 8px; font: 500 10px/1 var(--mono); color: #a39b8e; }
+      .cut-ruler { display: flex; justify-content: space-between; margin-left: 36px; padding-bottom: 6px; border-bottom: 1px solid rgb(255 255 255 / 0.1); }
+      .track { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 8px; align-items: center; }
+      .track-l { position: relative; height: 26px; background: rgb(255 255 255 / 0.04); }
+      .clip { position: absolute; top: 2px; bottom: 2px; border-radius: 2px; background: #d9d1c4; }
+      .track:nth-of-type(3) .clip { background: #9c8f7e; }
+      .track:nth-of-type(4) .clip, .track:nth-of-type(5) .clip { top: 6px; bottom: 6px; background: var(--red-soft); opacity: 0.8; }
+      .playhead { position: absolute; top: 12px; bottom: 10px; left: calc(54px + (100% - 72px) * 0.56); width: 2px; background: var(--red); }
+      .playhead::before { content: ''; position: absolute; left: -5px; top: 0; border: 6px solid transparent; border-top-color: var(--red); }
+
+      .ticket { display: grid; grid-template-columns: minmax(0, 1fr) auto; background: var(--red); color: #fff; max-width: 560px; border-radius: 6px; }
+      .ticket .label { color: rgb(255 255 255 / 0.8); }
+      .ticket-main { padding: 22px 24px; }
+      .ticket-title { margin: 22px 0 18px; font: 750 clamp(34px, 4vw, 52px)/0.95 var(--display); letter-spacing: -0.045em; }
+      .ticket-row { margin: 0; display: flex; gap: 20px; flex-wrap: wrap; font: 500 12px/1 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; }
+      .ticket-stub { border-left: 2px dashed rgb(255 255 255 / 0.55); padding: 22px 24px; display: grid; align-content: center; text-align: center; font: 500 10px/1.2 var(--mono); letter-spacing: 0.12em; text-transform: uppercase; }
+      .ticket-stub b { font: 700 30px/1.1 var(--display); letter-spacing: 0; margin-bottom: 8px; }
+
+      .screens { background: var(--paper-2); border: 1px solid var(--hair); padding: 24px; }
+      .screens-grid { display: grid; grid-template-columns: repeat(19, minmax(0, 1fr)); gap: 8px; }
+      .screens-grid span { aspect-ratio: 1.66 / 1; border-radius: 2px; border: 1.5px solid var(--faint); }
+      .screens-grid .on { background: var(--ink); border-color: var(--ink); }
+      .screens-grid .on:nth-child(31) { background: var(--red); border-color: var(--red); }
+      .screens-cap { margin: 16px 0 0; font: 400 12px/1.4 var(--mono); color: var(--muted); }
+      .screens-cap b { color: var(--ink); font-weight: 500; }
+
+      /* ---------- now showing ---------- */
+      .showing { background: var(--ink); color: var(--paper); }
+      .showing-in { max-width: 1440px; margin: 0 auto; padding: clamp(72px, 12vh, 140px) clamp(24px, 3.4vw, 56px) clamp(80px, 12vh, 120px); }
+      .showing-head { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 32px; align-items: end; margin-bottom: 48px; }
+      .showing .label { color: #a39b8e; }
+      .showing h2 { margin: 0; font: 700 clamp(36px, 4.6vw, 72px)/0.95 var(--display); letter-spacing: -0.045em; max-width: 16ch; }
+      .dates { list-style: none; margin: 0; padding: 0; border-top: 1px solid rgb(255 255 255 / 0.18); }
+      .dates li { display: grid; grid-template-columns: 9rem minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1fr); gap: 16px; padding: 18px 0; border-bottom: 1px solid rgb(255 255 255 / 0.12); align-items: baseline; }
+      .dates .d { font: 500 13px/1 var(--mono); color: var(--red); letter-spacing: 0.06em; text-transform: uppercase; }
+      .dates .c { font: 600 clamp(20px, 2vw, 26px)/1.1 var(--display); letter-spacing: -0.02em; }
+      .dates .city { color: #cfc8bb; }
+      .dates .g { font: 400 13px/1.3 var(--mono); color: #a39b8e; text-align: right; }
+      .fine { margin: 40px 0 0; max-width: 60ch; font-size: 14px; color: #8d8579; }
+
+      /* ---------- mobile ---------- */
+      .mbar { display: none; }
+      @media (max-width: 1023px) {
+        .wrap { display: block; }
+        .panel { border-right: 0; }
+        .panel-in { position: static; height: auto; padding: 24px 20px 8px; gap: 28px; }
+        .intro { margin-top: 24px; }
+        h1 { font-size: clamp(44px, 12vw, 80px); }
+        .readout { display: none; }
+        .chapters ol { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .mbar { display: grid; grid-template-columns: 1fr auto; gap: 8px 12px; align-items: center; position: sticky; top: 0; z-index: 20; padding: 12px 20px 0; background: rgb(236 232 223 / 0.92); backdrop-filter: blur(10px); font: 500 12px/1 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; }
+        .mbar b { color: var(--red); font-weight: 500; }
+        .mbar-tc { font-variant-numeric: tabular-nums; }
+        .mbar .reel { grid-column: 1 / -1; margin: 0 -20px; }
+        .story { padding: 20px 20px 0; }
+        .story-head p { display: none; }
+        .step { scroll-margin-top: 64px; }
+        .showing-head { grid-template-columns: 1fr; gap: 16px; }
+        .dates li { grid-template-columns: 1fr auto; gap: 6px 12px; }
+        .dates .g { grid-column: 1 / -1; text-align: left; }
+        .dates .city { text-align: right; }
+        .dates .d { grid-column: 1 / -1; }
+      }
+      @media (max-width: 640px) {
+        :root { --rail-x: 14px; }
+        .step-body { padding-left: 4px; }
+        .rail-chip { display: none; }
+        .bar { grid-template-columns: minmax(0, 1fr) 3rem; }
+        .bar-k { grid-column: 1 / -1; }
+        .strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .screens { padding: 16px; }
+        .screens-grid { gap: 5px; }
+        .ticket { grid-template-columns: 1fr; }
+        .ticket-stub { border-left: 0; border-top: 2px dashed rgb(255 255 255 / 0.55); display: flex; justify-content: space-around; align-items: baseline; padding: 14px 20px; }
+        .ticket-stub b { margin: 0; font-size: 22px; }
+        .script { padding-left: 24px; font-size: 12px; }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .step-body, .media, .dot, .step h3, .chapters a { transition: none !important; }
+        .step[data-state='ahead'] .step-body { transform: none; }
+      }
+    </style>
+
+    <script>
+      const list = document.querySelector<HTMLElement>('[data-timeline]')!;
+      const steps = [...list.querySelectorAll<HTMLLIElement>('[data-step]')];
+      const dots = steps.map((s) => s.querySelector<HTMLElement>('[data-dot]')!);
+      const rail = list.querySelector<HTMLElement>('[data-rail]')!;
+      const fill = list.querySelector<HTMLElement>('[data-fill]')!;
+      const head = list.querySelector<HTMLElement>('[data-head]')!;
+      const navLinks = [...document.querySelectorAll<HTMLAnchorElement>('[data-nav]')];
+      const reels = [...document.querySelectorAll<HTMLElement>('[data-reel]')];
+      const tcs = [...document.querySelectorAll<HTMLElement>('[data-tc]')];
+      const nums = [...document.querySelectorAll<HTMLElement>('[data-now-num]')];
+      const phases = [...document.querySelectorAll<HTMLElement>('[data-now-phase]')];
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+      const labels = navLinks.map((a) => [a.firstElementChild!.textContent!, a.lastChild!.textContent!.trim()]);
+
+      const RUNTIME_FRAMES = 94 * 60 * 24; // 94 min at 24 fps — the timecode is just progress, read as film.
+      const pad = (n: number) => String(n).padStart(2, '0');
+      const timecode = (p: number) => {
+        const f = Math.round(p * RUNTIME_FRAMES);
+        return `${pad(Math.floor(f / 86400))}:${pad(Math.floor(f / 1440) % 60)}:${pad(Math.floor(f / 24) % 60)}:${pad(f % 24)}`;
+      };
+
+      let centers: number[] = [];
+      let start = 0;
+      let len = 1;
+      let current = -1;
+      let lastTc = '';
+      let queued = false;
+
+      // Geometry: first and last dot centres, in document coordinates.
+      function measure() {
+        const y = scrollY;
+        const listTop = list.getBoundingClientRect().top + y;
+        centers = dots.map((d) => {
+          const r = d.getBoundingClientRect();
+          return r.top + y + r.height / 2;
+        });
+        start = centers[0];
+        len = Math.max(1, centers[centers.length - 1] - start);
+        rail.style.top = `${start - listTop}px`;
+        rail.style.bottom = 'auto';
+        rail.style.height = `${len}px`;
+        schedule();
+      }
+
+      function render() {
+        queued = false;
+        const anchor = scrollY + innerHeight * (innerWidth < 1024 ? 0.5 : 0.56);
+        const raw = Math.min(1, Math.max(0, (anchor - start) / len));
+        const headY = start + raw * len;
+        let idx = 0;
+        for (let i = 0; i < centers.length; i++) if (centers[i] <= headY + 1) idx = i;
+        // Reduced motion: the whole line, discrete states only — no scrubbed interpolation.
+        const shown = reduce.matches ? 1 : raw;
+
+        fill.style.transform = `scaleY(${shown})`;
+        head.style.transform = `translateY(${shown * len}px)`;
+        const reelP = reduce.matches ? (idx + 1) / steps.length : raw;
+        for (const r of reels) r.style.transform = `scaleX(${reelP})`;
+
+        const tc = timecode(reelP);
+        if (tc !== lastTc) {
+          lastTc = tc;
+          for (const t of tcs) t.textContent = tc;
+        }
+        if (idx === current) return;
+        current = idx;
+        steps.forEach((s, i) => {
+          s.dataset.state = reduce.matches || i <= idx ? 'reached' : 'ahead';
+          if (i === idx) s.setAttribute('aria-current', 'step');
+          else s.removeAttribute('aria-current');
+        });
+        navLinks.forEach((a, i) => (i === idx ? a.setAttribute('aria-current', 'step') : a.removeAttribute('aria-current')));
+        for (const n of nums) n.textContent = labels[idx][0];
+        for (const p of phases) p.textContent = labels[idx][1];
+      }
+
+      function schedule() {
+        if (queued) return;
+        queued = true;
+        requestAnimationFrame(render);
+      }
+
+      list.classList.add('is-live');
+      measure();
+      addEventListener('scroll', schedule, { passive: true });
+      addEventListener('resize', measure);
+      addEventListener('orientationchange', measure);
+      addEventListener('load', measure);
+      document.fonts?.ready.then(measure);
+      new ResizeObserver(measure).observe(list);
+      reduce.addEventListener('change', () => {
+        current = -1;
+        schedule();
+      });
+    </script>
+  </body>
+</html>

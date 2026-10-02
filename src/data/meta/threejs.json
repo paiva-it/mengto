@@ -1,0 +1,7 @@
+{
+  "title": "Three.js",
+  "kind": "section",
+  "category": "3D & WebGL",
+  "concept": "Kurahashi Shuzō, a fictional Ina-valley sake brewery: its hinoki masu rendered live in three.js as a lit cedar solid with green-traced edges and vertex nodes, rotating on a stable Y axis inside a measurement frame while a Pour control raises the sake to the burned 180 ml gō line.",
+  "notes": "three 0.186 (installed): WebGLRenderer with ACES tone mapping, a RoomEnvironment PMREM for the sake's reflections and a procedural CanvasTexture for the cedar grain (no external assets). Visible edges are depth-tested; hidden edges draw a second pass at 16 % opacity. The sake-line tag is a DOM label anchored by projecting a meniscus corner each frame (flips left or sits above the rim when it would overflow). Loop pauses offscreen (IntersectionObserver) and on hidden tabs; ResizeObserver resizes without distortion, DPR capped at 2; resources disposed on pagehide. Reduced motion: no rAF loop, a still frame re-rendered only when the Pour control changes. ?shot starts the masu full instead of animating the first pour."
+}

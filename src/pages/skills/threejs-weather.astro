@@ -1,0 +1,721 @@
+---
+import '../../styles/global.css';
+import BackPill from '../../components/BackPill.astro';
+
+const states = [
+  { id: 'clear', label: 'Clear' },
+  { id: 'rain', label: 'Rain' },
+  { id: 'storm', label: 'Storm' },
+  { id: 'snow', label: 'Snow' },
+];
+
+const actions: Record<string, [string, string][]> = {
+  clear: [
+    ['Blinds', 'Open to 70 %, low sun allowed'],
+    ['Skylight', 'Vented a hand’s width'],
+    ['Gutter heat', 'Off'],
+    ['Garden valve', '06:00 slot kept'],
+  ],
+  rain: [
+    ['Skylight', 'Closed at the first 0.2 mm'],
+    ['Awning', 'Furled'],
+    ['Garden valve', 'Skipped — the sky is watering'],
+    ['Blinds', 'Unchanged'],
+  ],
+  storm: [
+    ['Shutters', 'Lowered on the windward side'],
+    ['Heat pump', 'Surge guard engaged'],
+    ['Skylight', 'Closed and locked'],
+    ['Awning', 'Furled, arm brake on'],
+  ],
+  snow: [
+    ['Gutter heat', 'On below 1 °C'],
+    ['Roof load', 'Tracking what settles'],
+    ['Porch mat', 'Warmed from 05:40'],
+    ['Skylight', 'Closed, de-misted'],
+  ],
+};
+
+const responses = [
+  {
+    no: '01',
+    sky: 'Clear',
+    line: 'The house opens up.',
+    body: 'Ridge reads irradiance off the dome and lets the low sun in on the cold side of the house, then tells the garden its morning water still stands.',
+  },
+  {
+    no: '02',
+    sky: 'Rain',
+    line: 'Closed before the floor is wet.',
+    body: 'An optical gauge counts drops, not millimetres after the fact. The skylight shuts on the first fifth of a millimetre and the irrigation slot quietly skips itself.',
+  },
+  {
+    no: '03',
+    sky: 'Storm',
+    line: 'The rain, leaned on.',
+    body: 'Gusts and strike distance arrive together. Shutters drop only on the windward face, and the heat pump is isolated while strikes are inside eight kilometres.',
+  },
+  {
+    no: '04',
+    sky: 'Snow',
+    line: 'What settles, not what falls.',
+    body: 'A time-of-flight sensor measures the snow lying on the ridge, so gutter heat runs on load and temperature, and the porch mat is warm before anyone opens the door.',
+  },
+];
+
+const specs: [string, string][] = [
+  ['Sensors', 'Optical rain gauge, ultrasonic anemometer, lightning detector to 40 km, ToF snow depth, irradiance'],
+  ['Mast', '42 cm anodised aluminium, ridge-tile clamp, no drilling'],
+  ['Power', '3 W solar collar + 18650 cell, 14 months fully dark'],
+  ['Radio', 'Thread / Matter 1.4 to the house, LoRa fallback to the hub'],
+  ['Rated', '−30 to +55 °C, 180 km/h gust, IP67'],
+  ['Price', '€349, hub included, no subscription'],
+];
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tarn Ridge — a roof sensor that reads the sky</title>
+    <meta
+      name="description"
+      content="Tarn Ridge is a fictional rooftop weather sensor that tells a house what is coming: rain, storm, lightning and the snow that settles."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Schibsted+Grotesk:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <main>
+      <section id="wx-stage" aria-labelledby="wx-title">
+        <canvas aria-hidden="true"></canvas>
+        <div id="wx-flash" aria-hidden="true"></div>
+
+        <div class="ui">
+          <header class="bar">
+            <a class="mark" href="#wx-stage">Tarn<span class="mark-sub">Ridge R2</span></a>
+            <nav class="controls" aria-label="Weather over the house">
+              <span class="ctl-lbl">Weather /</span>
+              <div class="seg" role="group" aria-label="Choose the weather">
+                {states.map((s) => (
+                  <button type="button" data-wx={s.id} aria-pressed={s.id === 'storm' ? 'true' : 'false'}>
+                    {s.label}
+                  </button>
+                ))}
+              </div>
+              <button type="button" id="wx-strike" class="ctl">
+                <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M9.5 0 2 9h5l-1.5 7L14 6.5H8.8L9.5 0Z" fill="currentColor"></path></svg>
+                Strike
+              </button>
+              <button type="button" id="wx-sound" class="ctl" aria-pressed="false">
+                <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2 6h3l4-3v10L5 10H2zM11 5.5c1 .7 1.5 1.5 1.5 2.5s-.5 1.8-1.5 2.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                <span>Sound off</span>
+              </button>
+            </nav>
+          </header>
+
+          <div class="intro">
+            <p class="eyebrow">What the roof is reading</p>
+            <h1 id="wx-title">The house hears the weather before you do.</h1>
+            <p class="lede">
+              Ridge is a 42&nbsp;cm mast that clamps to your roof line and reads rain, wind, lightning and the snow that
+              settles. Change the sky above this house: the storm is the rain leaned on, thunder arrives after its flash,
+              and snow keeps lying on the roof for as long as it falls. Drag to walk around.
+            </p>
+          </div>
+
+          <dl class="telemetry" aria-label="Ridge telemetry">
+            <div><dt>Sky</dt><dd data-state-label>storm</dd></div>
+            <div><dt>Rain</dt><dd id="t-rain">—</dd></div>
+            <div><dt>Gust</dt><dd id="t-gust">—</dd></div>
+            <div><dt>Air</dt><dd id="t-temp">—</dd></div>
+            <div><dt>Last strike</dt><dd id="t-strike">—</dd></div>
+            <div><dt>Roof snow</dt><dd id="t-snow">—</dd></div>
+          </dl>
+
+          <aside class="card" aria-live="polite" aria-label="What Ridge tells the house">
+            <p class="card-head"><span class="pulse" aria-hidden="true"></span>Ridge → house · <span data-state-label>storm</span></p>
+            {
+              Object.entries(actions).map(([id, rows]) => (
+                <ul data-actions={id} hidden={id !== 'storm'}>
+                  {rows.map(([k, v]) => (
+                    <li>
+                      <span class="k">{k}</span>
+                      <span class="v">{v}</span>
+                    </li>
+                  ))}
+                </ul>
+              ))
+            }
+          </aside>
+
+          <div id="ridge-tag" aria-hidden="true">
+            <span class="tag-line"></span>
+            <span class="tag-text">Ridge · <span data-state-label>storm</span></span>
+          </div>
+        </div>
+      </section>
+
+      <section class="responses" aria-labelledby="resp-title">
+        <div class="wrap">
+          <p class="eyebrow">Four skies, four responses</p>
+          <h2 id="resp-title">One sensor on the ridge. Every room downstream of it.</h2>
+          <ol class="grid">
+            {
+              responses.map((r) => (
+                <li>
+                  <p class="no">
+                    {r.no} <span>/ {r.sky}</span>
+                  </p>
+                  <h3>{r.line}</h3>
+                  <p>{r.body}</p>
+                </li>
+              ))
+            }
+          </ol>
+        </div>
+      </section>
+
+      <section class="spec" aria-labelledby="spec-title">
+        <div class="wrap spec-wrap">
+          <div>
+            <p class="eyebrow">Ridge R2 — specification</p>
+            <h2 id="spec-title">Built to stand where the weather lands first.</h2>
+            <p class="lede">
+              Forty-two centimetres above the ridge tile is the only place on a house that sees every sky at once. Ridge
+              lives there for a decade, on sunlight, and talks to everything below it.
+            </p>
+          </div>
+          <dl class="spec-list">
+            {
+              specs.map(([k, v]) => (
+                <div>
+                  <dt>{k}</dt>
+                  <dd>{v}</dd>
+                </div>
+              ))
+            }
+          </dl>
+        </div>
+        <footer class="wrap foot">
+          <span>Tarn Home Systems · Tromsø &amp; Leeds</span>
+          <span>A fictional product, shown for the threejs-weather skill.</span>
+        </footer>
+      </section>
+    </main>
+    <BackPill />
+
+    <script>
+      import { boot } from '../../components/skills/threejs-weather/scene';
+      boot();
+    </script>
+
+    <style is:global>
+      :root {
+        --ink: #241c15;
+        --ink-soft: rgb(36 28 21 / 0.66);
+        --line: rgb(36 28 21 / 0.34);
+        --accent: #b9612a;
+        --paper: #e4e0d7;
+        --paper-2: #d9d5cb;
+        --grot: 'Schibsted Grotesk', ui-sans-serif, system-ui, sans-serif;
+        --serif: 'Newsreader', Georgia, serif;
+      }
+      html,
+      body {
+        margin: 0;
+        background: var(--paper);
+        color: var(--ink);
+        overflow-x: clip;
+      }
+      body {
+        font-family: var(--serif);
+      }
+      .eyebrow {
+        margin: 0 0 14px;
+        font: 600 12px/1 var(--grot);
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--accent);
+      }
+
+      /* ---------- stage ---------- */
+      #wx-stage {
+        position: relative;
+        height: 100svh;
+        min-height: 640px;
+        overflow: hidden;
+        background: #aeafac;
+      }
+      #wx-stage canvas {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        display: block;
+        touch-action: pan-y;
+        cursor: grab;
+      }
+      #wx-stage canvas:active {
+        cursor: grabbing;
+      }
+      /* the flash sits directly above the canvas and UNDER the type */
+      #wx-flash {
+        position: absolute;
+        inset: 0;
+        background: #f4f7ff;
+        opacity: 0;
+        pointer-events: none;
+      }
+      .ui {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+      }
+      .ui > * {
+        pointer-events: auto;
+      }
+
+      .bar {
+        position: absolute;
+        inset: 0 0 auto;
+        height: 72px;
+        padding: 0 40px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+        border-bottom: 1px solid var(--line);
+      }
+      .mark {
+        font: 700 21px/1 var(--grot);
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--ink);
+        text-decoration: none;
+        display: flex;
+        align-items: baseline;
+        gap: 14px;
+      }
+      .mark-sub {
+        font: 500 12px/1 var(--grot);
+        letter-spacing: 0.12em;
+        color: var(--ink-soft);
+      }
+      .controls {
+        display: flex;
+        align-items: center;
+        gap: 22px;
+        font: 600 13px/1 var(--grot);
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+      .ctl-lbl {
+        color: var(--ink-soft);
+      }
+      .seg {
+        display: flex;
+        gap: 4px;
+      }
+      .controls button {
+        font: inherit;
+        letter-spacing: inherit;
+        text-transform: inherit;
+        color: var(--ink);
+        background: none;
+        border: 0;
+        border-bottom: 1.5px solid transparent;
+        padding: 8px 6px 7px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        opacity: 0.62;
+        transition: opacity 0.2s, border-color 0.2s;
+      }
+      .controls button:hover {
+        opacity: 1;
+      }
+      .controls button[aria-pressed='true'] {
+        opacity: 1;
+        border-bottom-color: var(--ink);
+      }
+      .controls button:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+      }
+      #wx-strike svg {
+        color: var(--accent);
+      }
+      #wx-strike {
+        opacity: 1;
+        border-bottom-color: var(--line);
+      }
+
+      .intro {
+        position: absolute;
+        top: 116px;
+        left: 40px;
+        width: min(470px, calc(100% - 80px));
+      }
+      .intro h1 {
+        margin: 0 0 18px;
+        font: 600 42px/1.02 var(--grot);
+        letter-spacing: -0.025em;
+        text-wrap: balance;
+      }
+      .lede {
+        margin: 0;
+        font: 400 19px/1.55 var(--serif);
+        color: rgb(36 28 21 / 0.86);
+        text-wrap: pretty;
+      }
+
+      .telemetry {
+        position: absolute;
+        top: 112px;
+        right: 40px;
+        margin: 0;
+        display: grid;
+        gap: 9px;
+        text-align: right;
+        font: 400 13px/1 var(--grot);
+        letter-spacing: 0.04em;
+        color: var(--ink-soft);
+      }
+      .telemetry div {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+      }
+      .telemetry dt {
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        font-size: 11px;
+        align-self: center;
+      }
+      .telemetry dd {
+        margin: 0;
+        min-width: 78px;
+        color: var(--ink);
+        font-variant-numeric: tabular-nums;
+      }
+      .telemetry [data-state-label] {
+        text-transform: capitalize;
+      }
+
+      .card {
+        position: absolute;
+        left: 40px;
+        bottom: 40px;
+        width: 360px;
+        padding: 18px 20px 14px;
+        background: rgb(232 229 222 / 0.74);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgb(255 255 255 / 0.5);
+        box-shadow: 0 18px 40px -24px rgb(36 28 21 / 0.45);
+        border-radius: 4px;
+      }
+      .card-head {
+        margin: 0 0 10px;
+        font: 600 11px/1 var(--grot);
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--ink-soft);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .pulse {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--accent);
+        animation: pulse 1.6s ease-in-out infinite;
+      }
+      @keyframes pulse {
+        50% {
+          opacity: 0.25;
+        }
+      }
+      .card ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+      .card li {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 8px 0;
+        border-top: 1px solid var(--line);
+        font: 400 15px/1.3 var(--serif);
+      }
+      .card .k {
+        font: 600 12px/1.6 var(--grot);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        white-space: nowrap;
+      }
+      .card .v {
+        text-align: right;
+        font-style: italic;
+      }
+
+      #ridge-tag {
+        position: absolute;
+        left: 0;
+        top: 0;
+        pointer-events: none;
+        will-change: transform;
+      }
+      .tag-line {
+        position: absolute;
+        left: 0;
+        top: -54px;
+        width: 1px;
+        height: 54px;
+        background: var(--ink);
+      }
+      .tag-text {
+        position: absolute;
+        left: -1px;
+        top: -76px;
+        white-space: nowrap;
+        padding: 6px 9px;
+        font: 600 11px/1 var(--grot);
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: #f2efe8;
+        background: var(--ink);
+      }
+
+      /* ---------- below the fold ---------- */
+      .wrap {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 0 40px;
+      }
+      .responses {
+        padding: 112px 0 96px;
+        background: var(--paper);
+      }
+      .responses h2,
+      .spec h2 {
+        margin: 0 0 56px;
+        max-width: 760px;
+        font: 600 clamp(30px, 4vw, 48px) / 1.04 var(--grot);
+        letter-spacing: -0.025em;
+        text-wrap: balance;
+      }
+      .grid {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        border-top: 1px solid var(--ink);
+      }
+      .grid li {
+        padding: 22px 24px 8px 0;
+      }
+      .grid li + li {
+        padding-left: 24px;
+        border-left: 1px solid var(--line);
+      }
+      .grid .no {
+        margin: 0 0 30px;
+        font: 600 12px/1 var(--grot);
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--accent);
+      }
+      .grid .no span {
+        color: var(--ink-soft);
+      }
+      .grid h3 {
+        margin: 0 0 12px;
+        font: 500 23px/1.15 var(--serif);
+        font-style: italic;
+      }
+      .grid li p:last-child {
+        margin: 0;
+        font: 400 16.5px/1.55 var(--serif);
+        color: rgb(36 28 21 / 0.8);
+      }
+
+      .spec {
+        padding: 104px 0 40px;
+        background: var(--paper-2);
+      }
+      .spec-wrap {
+        display: grid;
+        grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+        gap: 72px;
+      }
+      .spec h2 {
+        margin-bottom: 22px;
+      }
+      .spec .lede {
+        max-width: 460px;
+      }
+      .spec-list {
+        margin: 0;
+        border-top: 1px solid var(--ink);
+      }
+      .spec-list div {
+        display: grid;
+        grid-template-columns: 130px minmax(0, 1fr);
+        gap: 20px;
+        padding: 16px 0;
+        border-bottom: 1px solid var(--line);
+      }
+      .spec-list dt {
+        font: 600 12px/1.6 var(--grot);
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+      .spec-list dd {
+        margin: 0;
+        font: 400 17px/1.45 var(--serif);
+      }
+      .foot {
+        margin-top: 96px;
+        padding-top: 20px;
+        padding-bottom: 72px;
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+        border-top: 1px solid var(--line);
+        font: 500 12px/1.4 var(--grot);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--ink-soft);
+      }
+
+      @media (max-width: 1100px) {
+        .controls .ctl-lbl {
+          display: none;
+        }
+        .telemetry {
+          display: none;
+        }
+      }
+      @media (max-width: 860px) {
+        .bar {
+          height: auto;
+          padding: 16px 16px 10px;
+          flex-direction: column;
+          align-items: stretch;
+          gap: 12px;
+        }
+        .controls {
+          justify-content: space-between;
+          gap: 4px;
+          font-size: 11.5px;
+          letter-spacing: 0.08em;
+        }
+        .controls button {
+          padding: 8px 4px 7px;
+        }
+        .seg {
+          gap: 0;
+        }
+        #wx-sound span {
+          display: none;
+        }
+        .intro {
+          top: 112px;
+          left: 16px;
+          width: calc(100% - 32px);
+        }
+        .intro h1 {
+          font-size: 28px;
+          margin-bottom: 10px;
+        }
+        .lede {
+          font-size: 16px;
+          line-height: 1.5;
+        }
+        .intro .lede {
+          display: -webkit-box;
+          -webkit-line-clamp: 3;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+        .card {
+          left: 16px;
+          right: 16px;
+          bottom: 16px;
+          width: auto;
+          padding: 14px 16px 8px;
+        }
+        .card li {
+          padding: 6px 0;
+          font-size: 14px;
+        }
+        .card li:nth-child(n + 4) {
+          display: none;
+        }
+        .wrap {
+          padding: 0 16px;
+        }
+        .responses {
+          padding: 72px 0 56px;
+        }
+        .grid {
+          grid-template-columns: minmax(0, 1fr);
+        }
+        .grid li,
+        .grid li + li {
+          padding: 20px 0 22px;
+          border-left: 0;
+          border-bottom: 1px solid var(--line);
+        }
+        .grid .no {
+          margin-bottom: 14px;
+        }
+        .spec {
+          padding-top: 72px;
+        }
+        .spec-wrap {
+          grid-template-columns: minmax(0, 1fr);
+          gap: 36px;
+        }
+        .spec-list div {
+          grid-template-columns: minmax(0, 1fr);
+          gap: 4px;
+        }
+        .foot {
+          margin-top: 56px;
+        }
+      }
+      @media (min-width: 861px) and (max-width: 1100px) {
+        .grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        .grid li:nth-child(3) {
+          padding-left: 0;
+          border-left: 0;
+        }
+        .grid li:nth-child(n + 3) {
+          border-top: 1px solid var(--line);
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .pulse {
+          animation: none;
+        }
+        .controls button {
+          transition: none;
+        }
+      }
+    </style>
+  </body>
+</html>

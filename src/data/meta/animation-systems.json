@@ -1,0 +1,7 @@
+{
+  "title": "Animation Systems",
+  "kind": "website",
+  "category": "Motion & scroll",
+  "concept": "Tiergarden OS, the motion spec for a fictional Leipzig vertical farm: a hero GSAP timeline in four labelled beats (grow rack lights tier by tier, headline, live readouts, CTA) with a beat progress bar and Replay, then the token table (durations, easing curves, offsets, stagger) as runnable demos, a grow console with a morphing tab indicator, switch, toast and hover-lift cards, choreography rules and a reduced-motion preview toggle.",
+  "notes": "GSAP for the hero timeline only; everything else is CSS transitions driven by shared custom-property tokens. Scroll reveals fire once at 25 % visibility via one IntersectionObserver. prefers-reduced-motion (or the on-page toggle) jumps the hero to its end state with a 120 ms fade and strips transform transitions. Nothing loops after the timeline settles."
+}

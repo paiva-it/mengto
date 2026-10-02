@@ -1,0 +1,7 @@
+{
+  "title": "WebGL Laser",
+  "kind": "section",
+  "category": "Backgrounds & atmosphere",
+  "concept": "Darkroom Orchids, a windowless orchid nursery in Ghent: one thin white-hot grow-light blade with orchid-magenta halo and smoke stands behind the page and glides to a new position for each section so it never crosses the copy.",
+  "notes": "Raw WebGL full-screen quad using the skill's shader verbatim (coreWidth 0.0045, glowWidth 0.035, maxDpr 1.5), colour read from --brand-accent. smokeDensity raised from 0.52 to 1.5 so the alpha-composited smoke reads on a near-black page. Beam xOffset is a screen fraction eased between per-section targets (IntersectionObserver), with separate mobile targets. Reduced motion draws still frames; no WebGL falls back to a static CSS line."
+}

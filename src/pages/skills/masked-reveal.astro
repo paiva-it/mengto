@@ -1,0 +1,464 @@
+---
+import '../../styles/global.css';
+import BackPill from '../../components/BackPill.astro';
+
+const days = [
+  {
+    day: 'Fri 14 Aug',
+    title: 'Night flight over the tideline',
+    time: '20:30 — 23:00',
+    body: 'LED-rigged deltas and a hundred paper lanterns on one line, launched as the sun drops behind the dune.',
+    tone: 'var(--vermilion)',
+  },
+  {
+    day: 'Sat 15 Aug',
+    title: 'Giants on the north field',
+    time: '11:00 — 18:00',
+    body: 'Inflatable whales, a forty-metre octopus and the Ostend team flying their rokkaku fleet in formation.',
+    tone: 'var(--saffron)',
+  },
+  {
+    day: 'Sun 16 Aug',
+    title: 'The children’s fly-in',
+    time: '10:00 — 15:00',
+    body: 'Every child who builds a sled kite in the workshop tent flies it in the closing launch at three o’clock.',
+    tone: 'var(--teal)',
+  },
+];
+
+const stats = [
+  { n: '212', l: 'kites registered by makers from nine countries' },
+  { n: '3.4 km', l: 'of beach closed to cars for the weekend' },
+  { n: '31st', l: 'edition since a fishermen’s club started it in 1995' },
+];
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Highline — Kite Festival on Fenwick Sands</title>
+    <meta name="description" content="Highline is a three-day kite festival on Fenwick Sands, 14–16 August: night flights, giant kites and a children's fly-in." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600&family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+    <script is:inline>document.documentElement.classList.add('js');</script>
+  </head>
+  <body>
+    <BackPill />
+
+    <!-- HERO -->
+    <header class="hero">
+      <div class="sky" aria-hidden="true">
+        <div class="cloud c1"></div>
+        <div class="cloud c2"></div>
+        <div class="cloud c3"></div>
+        <svg class="kites" viewBox="0 0 1440 900" preserveAspectRatio="xMaxYMid slice">
+          <!-- strings run off the bottom edge toward the flyers on the beach -->
+          <g class="strings" stroke="#1d1b18" stroke-opacity=".28" stroke-width="1" fill="none">
+            <path d="M1040 250 Q 980 620 860 940" />
+            <path d="M1250 140 Q 1200 560 1120 940" />
+            <path d="M770 120 Q 760 520 640 940" />
+            <path d="M1330 430 Q 1300 700 1260 940" />
+          </g>
+          <!-- big diamond -->
+          <g class="kite k1">
+            <g transform="translate(1040 250)">
+              <polygon points="0,-120 82,0 0,150 -82,0" fill="#E2482C" />
+              <polygon points="0,-120 82,0 0,0" fill="#F2A33A" />
+              <polygon points="0,0 -82,0 0,150" fill="#1E6F78" />
+              <path d="M0 -120 V150 M-82 0 H82" stroke="#1d1b18" stroke-opacity=".35" stroke-width="1.5" />
+              <g class="tail">
+                <path d="M0 150 C 20 200, -24 240, 6 290 S -18 370, 10 420" stroke="#1d1b18" stroke-opacity=".4" stroke-width="1.4" fill="none" />
+                <path d="M-10 196 l20 -8 l-4 18z M-12 262 l22 -6 l-6 18z M-8 330 l20 -8 l-4 18z M2 396 l20 -6 l-6 18z" fill="#E2482C" />
+              </g>
+            </g>
+          </g>
+          <!-- delta -->
+          <g class="kite k2">
+            <g transform="translate(1250 140)">
+              <polygon points="0,-46 96,40 0,24 -96,40" fill="#F7F1E6" />
+              <polygon points="0,-46 96,40 0,24" fill="#1E6F78" />
+              <polygon points="0,-46 -32,32 0,24 32,32" fill="#F2A33A" />
+              <g class="tail">
+                <path d="M-6 26 C -20 80, 10 110, -8 160" stroke="#1E6F78" stroke-width="3" fill="none" />
+                <path d="M6 26 C 22 80, -6 120, 12 170" stroke="#E2482C" stroke-width="3" fill="none" />
+              </g>
+            </g>
+          </g>
+          <!-- small diamond, far -->
+          <g class="kite k3">
+            <g transform="translate(770 120) scale(.42)">
+              <polygon points="0,-120 82,0 0,150 -82,0" fill="#1E6F78" />
+              <polygon points="0,-120 -82,0 0,0" fill="#F7F1E6" />
+              <g class="tail">
+                <path d="M0 150 C 20 220, -24 270, 6 340 S -18 420, 10 480" stroke="#1d1b18" stroke-opacity=".4" stroke-width="3" fill="none" />
+              </g>
+            </g>
+          </g>
+          <!-- box kite -->
+          <g class="kite k4">
+            <g transform="translate(1330 430) rotate(-14)">
+              <rect x="-26" y="-58" width="52" height="34" fill="#F2A33A" />
+              <rect x="-26" y="24" width="52" height="34" fill="#F2A33A" />
+              <rect x="-26" y="-58" width="20" height="34" fill="#E2482C" />
+              <rect x="-26" y="24" width="20" height="34" fill="#E2482C" />
+              <path d="M-26 -24 V24 M26 -24 V24" stroke="#1d1b18" stroke-opacity=".5" stroke-width="2" />
+            </g>
+          </g>
+        </svg>
+      </div>
+
+      <div class="gridlines" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+
+      <nav class="nav">
+        <div class="nav-links">
+          <a href="#programme">Programme</a>
+          <a href="#makers">Makers</a>
+          <a href="#tickets">Getting there</a>
+        </div>
+        <a class="brand" href="#top" aria-label="Highline home">
+          <svg width="22" height="26" viewBox="0 0 22 26" aria-hidden="true"><path d="M11 1 L21 11 L11 25 L1 11 Z" fill="none" stroke="currentColor" stroke-width="1.6" /><path d="M11 1 V25 M1 11 H21" stroke="currentColor" stroke-width="1" /></svg>
+          HIGHLINE
+        </a>
+        <div class="nav-right">
+          <span class="wind">Wind <b>NE 14 kn</b></span>
+          <a class="pill" href="#tickets">Day passes <span aria-hidden="true">→</span></a>
+        </div>
+      </nav>
+
+      <div class="hero-body">
+        <div class="hero-copy">
+          <p class="eyebrow"><span class="dot"></span>31st edition <span class="sep">/</span> 14—16 August <span class="sep">/</span> Fenwick Sands</p>
+          <h1 class="masked-reveal hero-title" data-masked-reveal>Three days of wind, string and paper over Fenwick Sands.</h1>
+        </div>
+
+        <aside class="glass">
+          <p>Two hundred hand-built kites, a night launch on the tideline and a beach closed to cars for one long weekend. Bring a spool; the sky is free.</p>
+          <div class="now">
+            <span class="now-label">In the air now</span>
+            <span class="cycler" aria-live="off" data-cycler>
+              <span class="cyc-word">Rokkaku fleet</span>
+              <span class="cyc-word">Giant octopus</span>
+              <span class="cyc-word">Lantern line</span>
+              <span class="cyc-word">Ostend deltas</span>
+            </span>
+          </div>
+          <a class="card-link" href="#programme">See the programme <span aria-hidden="true">↘</span></a>
+        </aside>
+      </div>
+      <div class="horizon" aria-hidden="true"></div>
+    </header>
+
+    <main>
+      <!-- PROGRAMME -->
+      <section id="programme" class="paper">
+        <div class="wrap">
+          <div class="sec-head">
+            <p class="label">01 — Programme</p>
+            <h2 class="masked-reveal h2" data-masked-reveal>The wind writes the schedule. We just keep the clock.</h2>
+            <p class="lede">Flights are called from the tower by flag. Red means hold, white means launch, and a teal pennant means the giants are coming up — clear the north field.</p>
+          </div>
+
+          <ol class="days">
+            {days.map((d, i) => (
+              <li class="day" style={`--tone:${d.tone}`}>
+                <div class="day-top">
+                  <span class="day-n">0{i + 1}</span>
+                  <span class="day-d">{d.day}</span>
+                </div>
+                <h3 class="masked-reveal h3" data-masked-reveal>{d.title}</h3>
+                <p class="day-t">{d.time}</p>
+                <p class="day-b">{d.body}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      <!-- MAKERS -->
+      <section id="makers" class="band">
+        <div class="wrap band-grid">
+          <div>
+            <p class="label light">02 — Makers</p>
+            <h2 class="masked-reveal h2 big" data-masked-reveal>Built by hand in sheds, kitchens and school halls.</h2>
+          </div>
+          <div class="band-side">
+            <p>Every kite on the field is registered with the person who made it. Walk the maker’s row behind dune six and you can ask about the ripstop, the spars and the knots — most of them will hand you the line.</p>
+            <dl class="stats">
+              {stats.map((s) => (
+                <div class="stat">
+                  <dt>{s.n}</dt>
+                  <dd>{s.l}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        </div>
+      </section>
+
+      <!-- TICKETS -->
+      <section id="tickets" class="finale">
+        <div class="wrap">
+          <p class="label">03 — Getting there</p>
+          <h2 class="masked-reveal mega" data-masked-reveal>Bring a spool. Leave the ground.</h2>
+          <div class="finale-row">
+            <div class="info">
+              <p><b>Shuttle</b> every 20 min from Fenwick station, 08:00 — midnight.</p>
+              <p><b>Day pass</b> £6, under-12s free. Night flight is ticketed separately.</p>
+              <p><b>Bring</b> a windbreak, layers and your own kite if you have one.</p>
+            </div>
+            <a class="pill dark" href="#top">Book day passes <span aria-hidden="true">→</span></a>
+          </div>
+        </div>
+        <footer class="foot wrap">
+          <span>Highline Kite Festival · Fenwick Sands · Run by volunteers since 1995</span>
+          <span>Flights subject to wind. No drones over the field.</span>
+        </footer>
+      </section>
+    </main>
+
+    <style>
+      :root {
+        --ink: #1d1b18;
+        --ink-soft: #4b4740;
+        --paper: #f3eee4;
+        --vermilion: #e2482c;
+        --saffron: #f2a33a;
+        --teal: #1e6f78;
+        --line: rgb(29 27 24 / 0.12);
+        --display: 'Bricolage Grotesque', ui-sans-serif, system-ui, sans-serif;
+        --body: 'Inter', ui-sans-serif, system-ui, sans-serif;
+      }
+      html { scroll-behavior: smooth; }
+      body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--body); -webkit-font-smoothing: antialiased; overflow-x: clip; }
+      a { color: inherit; }
+
+      /* ---------- masked reveal (from the skill, verbatim values) ---------- */
+      .masked-reveal { visibility: visible; }
+      :global(html.js) .masked-reveal[data-masked-reveal] { visibility: hidden; }
+      :global(html.js) .masked-reveal.is-split { visibility: visible; }
+      .masked-reveal :global(.word-mask) {
+        display: inline-block; overflow: hidden; vertical-align: top;
+        /* breathing room so descenders aren't clipped by the mask */
+        padding-bottom: 0.08em; margin-bottom: -0.08em;
+      }
+      .masked-reveal :global(.word) { display: inline-block; transform: translateY(110%); will-change: transform; }
+      @media (prefers-reduced-motion: reduce) {
+        :global(html.js) .masked-reveal[data-masked-reveal] { visibility: visible; }
+        .masked-reveal :global(.word) { transform: none; }
+      }
+
+      /* ---------- hero ---------- */
+      .hero { position: relative; min-height: 100svh; overflow: hidden; isolation: isolate; display: flex; flex-direction: column; }
+      .sky { position: absolute; inset: 0; z-index: -2;
+        background: linear-gradient(180deg, #a9cce3 0%, #c9dfe9 38%, #ecdcc6 78%, #f3d6b4 100%); }
+      .cloud { position: absolute; border-radius: 50%; background: radial-gradient(closest-side, rgb(255 255 255 / .85), rgb(255 255 255 / 0)); filter: blur(6px); }
+      .c1 { width: 620px; height: 180px; left: -120px; top: 16%; animation: drift 60s linear infinite alternate; }
+      .c2 { width: 520px; height: 150px; right: 6%; top: 52%; opacity: .7; animation: drift 75s linear infinite alternate-reverse; }
+      .c3 { width: 380px; height: 110px; left: 38%; top: 6%; opacity: .6; animation: drift 90s linear infinite alternate; }
+      @keyframes drift { to { transform: translateX(120px); } }
+      .kites { position: absolute; inset: 0; width: 100%; height: 100%; }
+      .kite { transform-box: fill-box; transform-origin: 50% 100%; animation: bob 7s ease-in-out infinite alternate; }
+      .k2 { animation-duration: 5.5s; animation-delay: -2s; }
+      .k3 { animation-duration: 9s; animation-delay: -4s; }
+      .k4 { animation-duration: 6s; animation-delay: -1s; }
+      @keyframes bob { from { transform: translate(0, 0) rotate(-2.5deg); } to { transform: translate(10px, -14px) rotate(2.5deg); } }
+      .tail { transform-box: fill-box; transform-origin: 50% 0; animation: sway 2.6s ease-in-out infinite alternate; }
+      @keyframes sway { from { transform: rotate(-6deg); } to { transform: rotate(6deg); } }
+
+      .gridlines { position: absolute; inset: 0 48px; display: flex; justify-content: space-between; pointer-events: none; z-index: -1; }
+      .gridlines span { width: 1px; background: var(--line); }
+      .horizon { position: absolute; left: 0; right: 0; bottom: 0; height: 64px; z-index: -1;
+        background: linear-gradient(180deg, rgb(243 238 228 / 0), var(--paper)); }
+
+      .nav { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 28px 48px; font-size: 14px; }
+      .nav-links { display: flex; gap: 32px; }
+      .nav-links a, .card-link { text-decoration: none; }
+      .nav-links a:hover { text-decoration: underline; text-underline-offset: 4px; }
+      .brand { display: inline-flex; align-items: center; gap: 10px; font: 600 19px/1 var(--display); letter-spacing: .12em; text-decoration: none; }
+      .nav-right { display: flex; justify-content: flex-end; align-items: center; gap: 24px; }
+      .wind { color: var(--ink-soft); font-size: 13px; }
+      .wind b { color: var(--ink); font-weight: 500; }
+      .pill { display: inline-flex; align-items: center; gap: 10px; padding: 12px 20px; border-radius: 999px; text-decoration: none; font-weight: 500;
+        background: rgb(255 255 255 / .55); border: 1px solid rgb(255 255 255 / .8); backdrop-filter: blur(10px);
+        box-shadow: 0 1px 0 rgb(255 255 255 / .6) inset, 0 8px 24px -12px rgb(29 27 24 / .35); transition: background .2s; }
+      .pill:hover { background: rgb(255 255 255 / .8); }
+      .pill.dark { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+      .pill.dark:hover { background: var(--vermilion); border-color: var(--vermilion); }
+      a:focus-visible { outline: 2px solid var(--vermilion); outline-offset: 3px; border-radius: 6px; }
+
+      .hero-body { flex: 1; display: grid; grid-template-columns: minmax(0, 1fr) 360px; align-items: end; gap: 48px; padding: 0 48px 72px; }
+      .eyebrow { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin: 0 0 28px; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-soft); }
+      .eyebrow .dot { width: 8px; height: 8px; background: var(--vermilion); transform: rotate(45deg); }
+      .eyebrow .sep { opacity: .4; }
+      .hero-title { margin: 0; max-width: 11.5em; font: 500 clamp(44px, 7.4vw, 118px)/0.98 var(--display); letter-spacing: -0.035em; }
+
+      .glass { padding: 28px; border-radius: 22px; background: rgb(255 255 255 / .38); border: 1px solid rgb(255 255 255 / .7);
+        backdrop-filter: blur(18px) saturate(1.2); box-shadow: 0 30px 60px -30px rgb(29 27 24 / .35); }
+      .glass p { margin: 0 0 22px; font-size: 15px; line-height: 1.6; color: var(--ink-soft); }
+      .now { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 14px 0; border-top: 1px solid var(--line); }
+      .now-label { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-soft); white-space: nowrap; }
+      .cycler { position: relative; display: inline-grid; overflow: hidden; font: 500 18px/1.25 var(--display); text-align: right; }
+      .cyc-word { grid-area: 1 / 1; white-space: nowrap; }
+      :global(html.js) .cyc-word:not(:first-child) { transform: translateY(110%); }
+      .card-link { display: flex; justify-content: space-between; padding: 14px 0 6px; border-top: 1px solid var(--line); font-weight: 500; font-size: 15px; }
+      .card-link:hover span { transform: translate(2px, 2px); }
+      .card-link span { transition: transform .2s; }
+
+      /* ---------- sections ---------- */
+      .wrap { max-width: 1440px; box-sizing: border-box; margin: 0 auto; padding: 0 48px; }
+      .label { margin: 0 0 24px; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-soft); }
+      .label.light { color: rgb(255 255 255 / .75); }
+      .h2 { margin: 0; font: 500 clamp(36px, 4.8vw, 72px)/1.02 var(--display); letter-spacing: -0.03em; max-width: 14em; }
+      .h3 { margin: 0 0 12px; font: 500 clamp(24px, 2.2vw, 32px)/1.08 var(--display); letter-spacing: -0.02em; }
+
+      .paper { padding: 140px 0 120px; }
+      .sec-head { display: grid; gap: 0; }
+      .lede { max-width: 34em; margin: 32px 0 0; font-size: 17px; line-height: 1.6; color: var(--ink-soft); }
+      .days { list-style: none; margin: 80px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid var(--line); }
+      .day { padding: 28px 32px 8px 0; position: relative; }
+      .day + .day { padding-left: 32px; border-left: 1px solid var(--line); }
+      .day-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 48px; font-size: 13px; color: var(--ink-soft); }
+      .day-n { display: inline-grid; place-items: center; width: 34px; height: 34px; color: #fff; font-weight: 500; background: var(--tone); clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); font-size: 12px; }
+      .day-t { margin: 0 0 12px; font-size: 13px; letter-spacing: .06em; color: var(--tone); font-weight: 500; filter: brightness(.85); }
+      .day-b { margin: 0; font-size: 15px; line-height: 1.6; color: var(--ink-soft); }
+
+      .band { background: var(--vermilion); color: #fff; padding: 130px 0; position: relative; overflow: hidden; }
+      .band::before { content: ''; position: absolute; right: -300px; top: -330px; width: 560px; height: 560px; transform: rotate(45deg);
+        border: 1px solid rgb(255 255 255 / .22); }
+      .band::after { content: ''; position: absolute; right: 40px; top: 0; width: 1px; height: 100%; background: rgb(255 255 255 / .18); }
+      .band-grid { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 64px; align-items: end; position: relative; }
+      .big { font-size: clamp(40px, 5.4vw, 84px); }
+      .band-side p { margin: 0 0 40px; font-size: 17px; line-height: 1.6; color: rgb(255 255 255 / .88); }
+      .stats { margin: 0; display: grid; gap: 0; }
+      .stat { display: grid; grid-template-columns: 120px 1fr; gap: 20px; align-items: baseline; padding: 16px 0; border-top: 1px solid rgb(255 255 255 / .28); }
+      .stat dt { font: 500 28px/1 var(--display); letter-spacing: -0.02em; }
+      .stat dd { margin: 0; font-size: 14px; line-height: 1.5; color: rgb(255 255 255 / .82); }
+
+      .finale { padding: 140px 0 0; background: linear-gradient(180deg, var(--paper), #ece2cf); }
+      .mega { margin: 0; font: 500 clamp(52px, 10vw, 168px)/0.94 var(--display); letter-spacing: -0.045em; max-width: 9em; }
+      .finale-row { display: flex; justify-content: space-between; align-items: flex-end; gap: 40px; margin-top: 64px; padding-bottom: 96px; }
+      .info { display: grid; gap: 10px; max-width: 34em; }
+      .info p { margin: 0; font-size: 15px; line-height: 1.6; color: var(--ink-soft); }
+      .info b { color: var(--ink); font-weight: 500; }
+      .foot { display: flex; justify-content: space-between; gap: 24px; flex-wrap: wrap; padding-top: 24px; padding-bottom: 80px; border-top: 1px solid var(--line); font-size: 12px; color: var(--ink-soft); }
+
+      /* ---------- responsive ---------- */
+      @media (max-width: 1024px) {
+        .hero-body { grid-template-columns: minmax(0, 1fr); gap: 32px; }
+        .glass { max-width: 420px; }
+        .band-grid { grid-template-columns: minmax(0, 1fr); }
+        .wind { display: none; }
+      }
+      @media (max-width: 760px) {
+        .nav { grid-template-columns: auto auto; padding: 20px; }
+        .nav-links { display: none; }
+        .nav .pill { padding: 10px 16px; font-size: 13px; }
+        .gridlines { inset: 0 20px; }
+        .kites { height: 62%; -webkit-mask-image: linear-gradient(#000 70%, transparent); mask-image: linear-gradient(#000 70%, transparent); }
+        .gridlines span:nth-child(2), .gridlines span:nth-child(4) { display: none; }
+        .hero-body { padding: 0 20px 36px; align-content: end; }
+        .hero-title { font-size: clamp(40px, 11.6vw, 56px); }
+        .eyebrow { margin-bottom: 20px; font-size: 11px; gap: 8px; }
+        .glass { padding: 20px; border-radius: 18px; }
+        .glass p { font-size: 14px; margin-bottom: 16px; }
+        .wrap { padding: 0 20px; }
+        .paper { padding: 96px 0 80px; }
+        .days { grid-template-columns: minmax(0, 1fr); margin-top: 56px; }
+        .day, .day + .day { padding: 28px 0 32px; border-left: 0; border-bottom: 1px solid var(--line); }
+        .day-top { margin-bottom: 28px; }
+        .band { padding: 96px 0; }
+        .band::after { display: none; }
+        .stat { grid-template-columns: 96px 1fr; }
+        .finale { padding-top: 96px; }
+        .finale-row { flex-direction: column; align-items: flex-start; padding-bottom: 64px; }
+        .foot { padding-bottom: 88px; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .kite, .tail, .cloud { animation: none; }
+        html { scroll-behavior: auto; }
+      }
+    </style>
+
+    <script>
+      import { gsap } from 'gsap';
+      import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+      gsap.registerPlugin(ScrollTrigger);
+      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      // ?shot = card capture: hold the hero mid-reveal so the preview shows the mask at work.
+      const shot = new URLSearchParams(location.search).has('shot');
+
+      const escapeHTML = (value: string) =>
+        value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+
+      // Split into word masks; original text stays on aria-label for screen readers.
+      const splitMaskedReveal = (element: HTMLElement) => {
+        if (element.dataset.maskedRevealReady === 'true') return;
+        const text = (element.textContent ?? '').trim();
+        element.setAttribute('aria-label', text);
+        element.innerHTML = text
+          .split(/(\s+)/)
+          .map((part) => (part.trim() ? `<span class="word-mask" aria-hidden="true"><span class="word">${escapeHTML(part)}</span></span>` : part))
+          .join('');
+        element.dataset.maskedRevealReady = 'true';
+        element.classList.add('is-split');
+      };
+
+      const initMaskedReveals = (selector = '[data-masked-reveal]') => {
+        if (reduced) return;
+        document.querySelectorAll<HTMLElement>(selector).forEach((element) => {
+          splitMaskedReveal(element);
+          const words = element.querySelectorAll('.word');
+          const isHero = element.classList.contains('hero-title');
+          gsap.set(element, { autoAlpha: 1 });
+          if (shot && isHero) {
+            gsap.fromTo(words, { y: 0, yPercent: 110 }, { yPercent: 0, duration: 0.9, ease: 'power3.out', stagger: 0.045, paused: true }).progress(0.65);
+            return;
+          }
+          gsap.fromTo(
+            words,
+            // y: 0 clears the px offset GSAP parses from the CSS translateY(110%) start state
+            { y: 0, yPercent: 110 },
+            {
+              yPercent: 0,
+              duration: isHero ? 0.9 : 0.8,
+              ease: isHero ? 'expo.out' : 'power3.out',
+              stagger: isHero ? 0.045 : 0.035,
+              delay: isHero ? 0.15 : 0,
+              scrollTrigger: { trigger: element, start: 'top 82%', once: true },
+            },
+          );
+        });
+      };
+
+      // "In the air now" ticker: the same word mask, cycling one label up and out.
+      const initCycler = () => {
+        const host = document.querySelector<HTMLElement>('[data-cycler]');
+        if (!host || reduced) return;
+        const words = gsap.utils.toArray<HTMLElement>('.cyc-word', host);
+        let i = 0;
+        const step = () => {
+          const cur = words[i];
+          i = (i + 1) % words.length;
+          const next = words[i];
+          gsap.to(cur, { y: 0, yPercent: -110, duration: 0.7, ease: 'power3.inOut' });
+          gsap.fromTo(next, { y: 0, yPercent: 110 }, { yPercent: 0, duration: 0.7, ease: 'power3.inOut' });
+        };
+        // ponytail: plain interval; paused while the tab is hidden so it never queues a burst.
+        let timer = window.setInterval(step, 2400);
+        document.addEventListener('visibilitychange', () => {
+          window.clearInterval(timer);
+          if (!document.hidden) timer = window.setInterval(step, 2400);
+        });
+      };
+
+      // Wrap depends on font metrics: split only after the display face has loaded.
+      document.fonts.ready.then(() => {
+        initMaskedReveals();
+        initCycler();
+        ScrollTrigger.refresh();
+      });
+    </script>
+  </body>
+</html>

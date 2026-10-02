@@ -1,0 +1,7 @@
+{
+  "title": "Three.js Landscape",
+  "kind": "section",
+  "category": "3D & WebGL",
+  "concept": "Fallow, an AI research lab on Halden Moor: its hero stands the station's weather mast and barn in a live procedural moor — polar heightfield, instanced grass, six-stop sky — with dawn, noon, dusk and night that cross-fade.",
+  "notes": "Three.js only. Polar grid 900×52 rings (pow 2.4) to 700 units, domain-warped fBm + distance-scaled ridges; vertex colour from slope/moisture/height; 110k (60k mobile) instanced ribbon blades bent in the vertex shader with own colour uniforms, faded at the patch rim; 2,600 instanced stones from the same height function; sky gradient on an 8×512 canvas remapped to the lens's elevation band; 39k stars in three classes confined to the reachable band. Time of day is full-state interpolation and freezes the in-between look on mid-transition clicks. Camera stands still (look-around + zoom), so the grass is a fixed disc rather than a snapped grid. No shadows. Software rasterisers (SwiftShader/llvmpipe, i.e. headless capture) get half the grass so a frame still lands; ?time=dawn|noon|dusk|night picks the start state. Reduced motion stills the wind and makes transitions instant."
+}

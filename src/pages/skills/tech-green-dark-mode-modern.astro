@@ -1,0 +1,704 @@
+---
+import '../../styles/global.css';
+import BackPill from '../../components/BackPill.astro';
+
+// Saltmark Light Trust — a fictional charity that keeps fourteen automated lights burning on an invented coast.
+const coast: [number, number][] = [
+  [20, -10], [60, 48], [52, 88], [96, 114], [134, 104], [150, 142], [196, 160], [212, 198], [258, 206],
+  [292, 240], [282, 274], [330, 292], [374, 280], [402, 316], [452, 324], [478, 354], [530, 350], [572, 386], [620, 410],
+];
+
+// Catmull-Rom → cubic Bézier, so the coastline reads as drawn, not plotted.
+const smooth = (pts: [number, number][], dx = 0, dy = 0) => {
+  const p = pts.map(([x, y]) => [x + dx, y + dy]);
+  let d = `M${p[0][0]},${p[0][1]}`;
+  for (let i = 0; i < p.length - 1; i++) {
+    const a = p[i - 1] ?? p[i], b = p[i], c = p[i + 1], e = p[i + 2] ?? c;
+    d += ` C${(b[0] + (c[0] - a[0]) / 6).toFixed(1)},${(b[1] + (c[1] - a[1]) / 6).toFixed(1)} ${(c[0] - (e[0] - b[0]) / 6).toFixed(1)},${(c[1] - (e[1] - b[1]) / 6).toFixed(1)} ${c[0]},${c[1]}`;
+  }
+  return d;
+};
+const coastPath = smooth(coast);
+const landPath = `${coastPath} L620,-10 Z`;
+
+type Light = {
+  id: string; name: string; at: number; char: string; period: number; pattern: number[];
+  range: number; height: number; est: number; power: string; lamp: string; status: 'LIT' | 'STANDBY';
+};
+const lights: Light[] = [
+  { id: 'LT-01', name: 'Gannet Head', at: 1, char: 'Fl(3) W 15s', period: 15, pattern: [0.5, 1.5, 0.5, 1.5, 0.5, 10.5], range: 24, height: 62, est: 1838, power: 'Solar 96 %', lamp: 'LED 3× tier', status: 'LIT' },
+  { id: 'LT-02', name: 'Carrow Point', at: 2, char: 'Oc W 8s', period: 8, pattern: [6, 2], range: 14, height: 28, est: 1871, power: 'Mains + cell', lamp: 'LED 2× tier', status: 'LIT' },
+  { id: 'LT-03', name: 'Skerrymouth', at: 3, char: 'Iso G 4s', period: 4, pattern: [2, 2], range: 6, height: 9, est: 1902, power: 'Solar 88 %', lamp: 'LED lantern', status: 'LIT' },
+  { id: 'LT-04', name: 'Hollin Rock', at: 5, char: 'Fl(2) W 10s', period: 10, pattern: [0.5, 1.5, 0.5, 7.5], range: 18, height: 41, est: 1855, power: 'Solar 94 %', lamp: 'LED 3× tier', status: 'LIT' },
+  { id: 'LT-05', name: 'Wyke Ness', at: 6, char: 'LFl W 10s', period: 10, pattern: [2, 8], range: 16, height: 36, est: 1860, power: 'Mains + cell', lamp: 'Rotating optic', status: 'LIT' },
+  { id: 'LT-06', name: 'Fennick Sands', at: 7, char: 'Q W', period: 1, pattern: [0.3, 0.7], range: 8, height: 12, est: 1924, power: 'Solar 91 %', lamp: 'LED lantern', status: 'LIT' },
+  { id: 'LT-07', name: 'Brannock', at: 9, char: 'Fl(4) W 20s', period: 20, pattern: [0.5, 1.5, 0.5, 1.5, 0.5, 1.5, 0.5, 13.5], range: 22, height: 57, est: 1846, power: 'Mains + cell', lamp: 'Rotating optic', status: 'LIT' },
+  { id: 'LT-08', name: 'Old Moll', at: 10, char: 'Fl W 5s', period: 5, pattern: [0.5, 4.5], range: 12, height: 22, est: 1889, power: 'Solar 83 %', lamp: 'LED 2× tier', status: 'LIT' },
+  { id: 'LT-09', name: 'Tarn Skerry', at: 11, char: 'VQ(3) W 5s', period: 5, pattern: [0.2, 0.3, 0.2, 0.3, 0.2, 3.8], range: 10, height: 15, est: 1931, power: 'Standby cell', lamp: 'Standby array', status: 'STANDBY' },
+  { id: 'LT-10', name: 'Cleave Head', at: 13, char: 'Oc(2) W 10s', period: 10, pattern: [6, 1, 2, 1], range: 20, height: 48, est: 1849, power: 'Mains + cell', lamp: 'Rotating optic', status: 'LIT' },
+  { id: 'LT-11', name: "St Ebba's", at: 14, char: 'LFl(2) W 12s', period: 12, pattern: [2, 2, 2, 6], range: 17, height: 33, est: 1867, power: 'Solar 97 %', lamp: 'LED 3× tier', status: 'LIT' },
+  { id: 'LT-12', name: 'Hagstone', at: 15, char: 'Fl(2+1) W 15s', period: 15, pattern: [0.5, 1, 0.5, 2.5, 0.5, 10], range: 19, height: 44, est: 1852, power: 'Solar 92 %', lamp: 'LED 3× tier', status: 'LIT' },
+  { id: 'LT-13', name: 'Quarry Pier', at: 16, char: 'Fl G 3s', period: 3, pattern: [0.4, 2.6], range: 4, height: 7, est: 1911, power: 'Mains', lamp: 'LED lantern', status: 'LIT' },
+  { id: 'LT-14', name: 'Dunmere', at: 17, char: 'Iso W 6s', period: 6, pattern: [3, 3], range: 13, height: 26, est: 1880, power: 'Solar 89 %', lamp: 'LED 2× tier', status: 'LIT' },
+];
+const nodes = lights.map((l) => ({ ...l, x: coast[l.at][0], y: coast[l.at][1] }));
+const initial = nodes.find((l) => l.id === 'LT-04')!;
+const segments = (l: Light) => {
+  const out: { left: number; width: number }[] = [];
+  let t = 0;
+  l.pattern.forEach((d, i) => {
+    if (i % 2 === 0) out.push({ left: (t / l.period) * 100, width: (d / l.period) * 100 });
+    t += d;
+  });
+  return out;
+};
+
+const stats = [
+  { k: 'Lights in care', v: '14', s: '14 / 14 answering' },
+  { k: 'Coast watched', v: '212', u: 'nm', s: 'Gannet Head → Dunmere' },
+  { k: 'Lamp-hours, Sept', v: '5,412', s: '+ 41 h on August' },
+  { k: 'Dark nights since 2019', v: '0', s: 'Last outage: 11 Feb 2019' },
+];
+
+const modules = [
+  {
+    code: 'MOD/A', title: 'Lamp', icon: 'lamp',
+    body: 'Every lantern carries a main LED tier and a standby array that takes over inside half a second. A dead diode is a ticket, never a dark night.',
+    foot: 'Changeover', val: '0.4 s',
+  },
+  {
+    code: 'MOD/B', title: 'Fog signal', icon: 'wave',
+    body: 'Nine stations still sound in poor visibility. Sensors read the air every minute, and the horns answer when it drops below two nautical miles.',
+    foot: 'Visibility trigger', val: '< 2 nm',
+  },
+  {
+    code: 'MOD/C', title: 'Power', icon: 'bolt',
+    body: 'Solar panels and sealed cells on the rocks, mains and cell on the headlands. Each station reports its charge to the watch room twice an hour.',
+    foot: 'Reserve on full cells', val: '9 nights',
+  },
+];
+
+// Hours of darkness at 56° N — the lamps burn sunset to sunrise.
+const months = [
+  ['J', 16.6], ['F', 14.6], ['M', 12.3], ['A', 10.1], ['M', 8.2], ['J', 7.1],
+  ['J', 7.7], ['A', 9.5], ['S', 11.6], ['O', 13.7], ['N', 15.7], ['D', 17.0],
+] as const;
+const nowMonth = 9;
+
+const log = [
+  ['02:14', 'LT-09', 'Tarn Skerry main tier fault. Standby array took over in 0.4 s. Boat booked for Thursday.', true],
+  ['00:52', 'LT-05', 'Fog signal sounded for 38 min. Visibility 1.4 nm, clearing from the west.', false],
+  ['23:30', 'NET', 'Half-hourly check: 14 of 14 lights answering, all characters on time.', false],
+  ['19:07', 'NET', 'Sunset at Brannock. All lanterns lit within 90 s of each other.', false],
+  ['16:40', 'LT-12', 'Hagstone volunteers cleared gull nesting from the gallery rail.', false],
+] as const;
+
+const tiers = [
+  { name: 'Watch', price: '4', per: 'month', body: 'Keeps one light lit for roughly two nights each month.', items: ['Monthly watch-room letter', 'Live network status', 'Open-day invitations'], cta: 'Join the watch' },
+  { name: 'Keeper', price: '12', per: 'month', body: 'Pays for the standby cells on one rock station each year.', items: ['Everything in Watch', 'Your name in the station log', 'One boat visit a season'], cta: 'Become a keeper', active: true },
+  { name: 'Station', price: '480', per: 'year', body: 'Adopt a whole light: its lamp, its power and its upkeep.', items: ['A named light on the network', 'Quarterly inspection reports', 'A night in the watch room'], cta: 'Adopt a light' },
+];
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Saltmark Light Trust — fourteen lights, one night watch</title>
+    <meta name="description" content="A tech-green dark-mode design system example: the operations console of a fictional lighthouse trust." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <script is:inline>document.documentElement.classList.add('js');</script>
+  </head>
+  <body class="tg">
+    <!-- Fixed page framing: container boundaries, crosshairs, edge ticks. -->
+    <div class="tg-frame" aria-hidden="true">
+      <div class="tg-frame__in"><i class="x tl"></i><i class="x tr"></i><i class="x bl"></i><i class="x br"></i></div>
+    </div>
+
+    <header class="tg-rail">
+      <div class="tg-wrap tg-rail__in">
+        <a href="#top" class="flex items-center gap-3 tg-brand">
+          <span class="tg-dot" aria-hidden="true"></span>
+          <span class="mono tg-brand__name">SALTMARK LIGHT TRUST</span>
+        </a>
+        <nav class="tg-nav mono" aria-label="Primary">
+          <a href="#network">NETWORK</a><a href="#watch">WATCH ROOM</a><a href="#modules">STATIONS</a><a href="#keepers">KEEPERS</a>
+        </nav>
+        <div class="tg-rail__meta mono">
+          <span class="hide-sm">UTC <span id="clock">21:47:00</span></span>
+          <span class="tg-chip"><span class="tg-dot sm" aria-hidden="true"></span>14/14 LIT</span>
+        </div>
+      </div>
+    </header>
+
+    <main id="top">
+      <!-- HERO -->
+      <section class="tg-wrap tg-hero" id="network">
+        <div class="tg-hero__copy">
+          <p class="mono label reveal">SYS/01 — NETWORK CONSOLE</p>
+          <h1 class="reveal">Fourteen lights.<br /><span class="dim">One night watch.</span></h1>
+          <p class="lede reveal">
+            We keep the automated lighthouses of the Saltmark coast burning, inspected and answering — every night, sunset to sunrise, since the keepers came ashore in 1996.
+          </p>
+          <div class="flex flex-wrap gap-3 reveal">
+            <a class="tg-btn primary" href="#keepers">Become a keeper</a>
+            <a class="tg-btn" href="#watch">Read tonight's log</a>
+          </div>
+          <dl class="tg-meta reveal">
+            <div><dt>Watch room</dt><dd>Brannock, LT-07</dd></div>
+            <div><dt>Next sunrise</dt><dd>07:21 UTC</dd></div>
+            <div><dt>Check cycle</dt><dd>30 min</dd></div>
+          </dl>
+        </div>
+
+        <div class="tg-card tg-console reveal" style="--d: 120ms">
+          <i class="br" aria-hidden="true"></i>
+          <div class="tg-card__head">
+            <span class="mono label">LIVE / COAST CHART</span>
+            <span class="mono label hide-sm">56°04′N · 002°31′W</span>
+            <span class="mono label on"><span class="tg-dot sm" aria-hidden="true"></span>RECEIVING</span>
+          </div>
+          <div class="tg-console__body">
+            <div class="tg-chartcol">
+            <div class="tg-map" role="group" aria-label="Lights of the Saltmark coast. Choose a light to read its station.">
+              <svg viewBox="0 0 600 400" aria-hidden="true">
+                <defs>
+                  <pattern id="hatch" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+                    <line x1="0" y1="0" x2="0" y2="7" stroke="rgba(255,255,255,0.05)" stroke-width="1" />
+                  </pattern>
+                  <radialGradient id="halo">
+                    <stop offset="0" stop-color="#3ddc97" stop-opacity="0.55" />
+                    <stop offset="0.35" stop-color="#3ddc97" stop-opacity="0.16" />
+                    <stop offset="1" stop-color="#3ddc97" stop-opacity="0" />
+                  </radialGradient>
+                </defs>
+                <path d={landPath} fill="url(#hatch)" />
+                <path d={smooth(coast, -26, 26)} class="contour" />
+                <path d={smooth(coast, -58, 58)} class="contour far" />
+                <path d={coastPath} class="coastline" />
+                <g class="ticks">
+                  {Array.from({ length: 13 }, (_, i) => <line x1={i * 50} y1="0" x2={i * 50} y2={i % 2 ? 4 : 8} />)}
+                  {Array.from({ length: 9 }, (_, i) => <line x1="0" y1={i * 50} x2={i % 2 ? 4 : 8} y2={i * 50} />)}
+                </g>
+                <circle id="halo" cx={initial.x} cy={initial.y} r="70" fill="url(#halo)" />
+                <circle id="ring" cx={initial.x} cy={initial.y} r={initial.range * 4} class="ring" />
+                <circle id="ring2" cx={initial.x} cy={initial.y} r={initial.range * 2} class="ring inner" />
+                <text x="440" y="66" class="land-label">SALTMARK</text>
+                <text x="70" y="330" class="sea-label">THE MOLL ROADS</text>
+              </svg>
+              {nodes.map((l) => (
+                <button
+                  type="button"
+                  class:list={['node', { sel: l.id === initial.id, standby: l.status === 'STANDBY' }]}
+                  style={`left:${(l.x / 600) * 100}%;top:${(l.y / 400) * 100}%`}
+                  data-id={l.id}
+                  aria-pressed={l.id === initial.id ? 'true' : 'false'}
+                  aria-label={`${l.id} ${l.name}, ${l.char}`}
+                ><span></span></button>
+              ))}
+            </div>
+            <div class="tg-bus" aria-hidden="true">
+              {nodes.map((l) => (
+                <span class:list={['cell', { sel: l.id === initial.id }]} data-id={l.id}>
+                  <i></i><b>{l.id.slice(3)}</b><small>{l.char.split(' ')[0]}</small>
+                </span>
+              ))}
+            </div>
+            </div>
+
+            <aside class="tg-readout" aria-live="polite">
+              <div class="flex items-start justify-between gap-3">
+                <div>
+                  <p class="mono label" id="r-id">{initial.id} · SELECTED</p>
+                  <p class="r-name" id="r-name">{initial.name}</p>
+                </div>
+                <span class="tg-chip" id="r-status"><span class="tg-dot sm" aria-hidden="true"></span>{initial.status}</span>
+              </div>
+              <div class="r-char">
+                <p class="mono label">CHARACTER</p>
+                <p class="mono r-big" id="r-char">{initial.char}</p>
+                <div class="r-strip" aria-hidden="true">
+                  <div id="r-segs">{segments(initial).map((s) => <i style={`left:${s.left}%;width:${s.width}%`}></i>)}</div>
+                  <b id="r-head"></b>
+                </div>
+                <div class="r-scale mono" aria-hidden="true"><span>0 s</span><span id="r-period">{initial.period} s</span></div>
+              </div>
+              <dl class="r-grid">
+                <div><dt>Range</dt><dd id="r-range">{initial.range} nm</dd></div>
+                <div><dt>Focal height</dt><dd id="r-height">{initial.height} m</dd></div>
+                <div><dt>Lamp</dt><dd id="r-lamp">{initial.lamp}</dd></div>
+                <div><dt>Power</dt><dd id="r-power">{initial.power}</dd></div>
+                <div><dt>First lit</dt><dd id="r-est">{initial.est}</dd></div>
+                <div><dt>Last check</dt><dd>21:30 UTC</dd></div>
+              </dl>
+            </aside>
+          </div>
+          <div class="tg-card__foot mono">
+            <span>CHOOSE A LIGHT · ARROW KEYS STEP</span>
+            <span class="hide-sm">RINGS = NOMINAL RANGE, ½ RANGE</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- STATS RAIL -->
+      <section class="tg-wrap" aria-label="Network figures">
+        <div class="tg-stats">
+          {stats.map((s, i) => (
+            <div class="reveal" style={`--d:${i * 70}ms`}>
+              <p class="mono label">{String(i + 1).padStart(2, '0')} / {s.k}</p>
+              <p class="v">{s.v}{s.u && <small>{s.u}</small>}</p>
+              <p class="mono s">{s.s}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <!-- MODULES -->
+      <section class="tg-wrap tg-section" id="modules">
+        <div class="tg-sechead">
+          <p class="mono label reveal">SYS/02 — STATION ANATOMY</p>
+          <h2 class="reveal">What keeps a light lit when nobody lives there.</h2>
+        </div>
+        <div class="grid gap-4 md:grid-cols-3">
+          {modules.map((m, i) => (
+            <article class="tg-card tg-mod reveal" style={`--d:${i * 90}ms`}>
+              <i class="br" aria-hidden="true"></i>
+              <div class="flex items-center justify-between">
+                <span class="tg-icon" aria-hidden="true">
+                  {m.icon === 'lamp' && <svg viewBox="0 0 24 24"><path d="M9 21h6M10 18h4M12 3v2M5.6 5.6l1.4 1.4M18.4 5.6 17 7M8 14a5 5 0 1 1 8 0c-.8.9-1 1.9-1 3H9c0-1.1-.2-2.1-1-3Z" /></svg>}
+                  {m.icon === 'wave' && <svg viewBox="0 0 24 24"><path d="M3 12h2l2-5 3 10 3-14 3 12 2-3h3" /></svg>}
+                  {m.icon === 'bolt' && <svg viewBox="0 0 24 24"><path d="M13 3 5 14h6l-1 7 8-11h-6l1-7Z" /></svg>}
+                </span>
+                <span class="mono label">{m.code}</span>
+              </div>
+              <h3>{m.title}</h3>
+              <p class="body">{m.body}</p>
+              <div class="tg-mod__foot mono">
+                <span>{m.foot}</span><span class="on">{m.val}</span>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <!-- WATCH ROOM -->
+      <section class="tg-wrap tg-section" id="watch">
+        <div class="tg-sechead">
+          <p class="mono label reveal">SYS/03 — WATCH ROOM</p>
+          <h2 class="reveal">The lamps burn sunset to sunrise. October asks for 13.7 hours a night.</h2>
+        </div>
+        <div class="grid gap-4 tg-watch">
+          <div class="tg-card tg-chart reveal">
+            <i class="br" aria-hidden="true"></i>
+            <div class="tg-card__head">
+              <span class="mono label">HOURS OF DARKNESS · 56°N</span>
+              <span class="mono label on">OCT · 13.7 H</span>
+            </div>
+            <div class="tg-bars" role="img" aria-label="Hours of darkness per night by month, from 7.1 hours in June to 17 hours in December. October is 13.7 hours.">
+              {[18, 12, 6].map((h) => <span class="gl" style={`bottom:calc(24px + ${(h / 18).toFixed(4)} * (100% - 24px))`}><em class="mono">{h}h</em></span>)}
+              {months.map(([m, h], i) => (
+                <div class:list={['bar', { now: i === nowMonth }]} style={`--i:${i * 45}`}>
+                  <i style={`height:${(h / 18) * 100}%`}></i>
+                  <span class="mono">{m}</span>
+                </div>
+              ))}
+            </div>
+            <div class="tg-card__foot mono">
+              <span>ANNUAL LAMP-HOURS / LIGHT</span><span class="on">4,383 H</span>
+            </div>
+          </div>
+
+          <div class="tg-card tg-log reveal" style="--d: 120ms">
+            <i class="br" aria-hidden="true"></i>
+            <div class="tg-card__head">
+              <span class="mono label">NIGHT LOG · 01–02 OCT</span>
+              <span class="mono label">5 ENTRIES</span>
+            </div>
+            <ol>
+              {log.map(([t, who, msg, flag]) => (
+                <li class:list={{ flag }}>
+                  <span class="mono t">{t}</span>
+                  <span class="mono who">{who}</span>
+                  <p>{msg}</p>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </div>
+      </section>
+
+      <!-- KEEPERS -->
+      <section class="tg-wrap tg-section" id="keepers">
+        <div class="tg-sechead">
+          <p class="mono label reveal">SYS/04 — KEEPERS</p>
+          <h2 class="reveal">The keepers went ashore. The upkeep didn't. Members pay for every lamp-hour.</h2>
+        </div>
+        <div class="grid gap-4 md:grid-cols-3">
+          {tiers.map((t, i) => (
+            <article class:list={['tg-card tg-tier reveal', { active: t.active }]} style={`--d:${i * 90}ms`}>
+              <i class="br" aria-hidden="true"></i>
+              <div class="flex items-center justify-between">
+                <span class="mono label">TIER/{String(i + 1).padStart(2, '0')}</span>
+                {t.active && <span class="tg-chip"><span class="tg-dot sm" aria-hidden="true"></span>MOST CHOSEN</span>}
+              </div>
+              <h3>{t.name}</h3>
+              <p class="price"><span>£{t.price}</span><small class="mono">/ {t.per}</small></p>
+              <p class="body">{t.body}</p>
+              <ul>{t.items.map((it) => <li>{it}</li>)}</ul>
+              <a class:list={['tg-btn w-full justify-center', { primary: t.active }]} href="#keepers">{t.cta}</a>
+            </article>
+          ))}
+        </div>
+      </section>
+    </main>
+
+    <footer class="tg-wrap tg-foot">
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-8">
+        <div>
+          <p class="mono label">END OF WATCH · SUNRISE 07:21 UTC</p>
+          <p class="sign">Saltmark Light Trust</p>
+        </div>
+        <div class="mono tg-foot__meta">
+          <p>Watch room, Brannock Light, Saltmark coast</p>
+          <p>A fictional charity · No. 1 104 583</p>
+        </div>
+      </div>
+    </footer>
+
+    <script type="application/json" id="lights-data" set:html={JSON.stringify(nodes)} />
+    <BackPill />
+  </body>
+</html>
+
+<script>
+  type Node = { id: string; name: string; char: string; period: number; pattern: number[]; range: number; height: number; est: number; power: string; lamp: string; status: string; x: number; y: number };
+  const lights: Node[] = JSON.parse(document.getElementById('lights-data')!.textContent!);
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const $ = (id: string) => document.getElementById(id)!;
+  const buttons = [...document.querySelectorAll<HTMLButtonElement>('.tg-map .node')];
+  const cells = [...document.querySelectorAll<HTMLElement>('.tg-bus .cell')];
+  cells.forEach((c) => c.addEventListener('click', () => select(c.dataset.id!)));
+  let sel = lights.find((l) => l.id === 'LT-04')!;
+
+  // On/off state of a light at time t (seconds), from its alternating on/off pattern.
+  const isOn = (l: Node, t: number) => {
+    let x = t % l.period;
+    for (let i = 0; i < l.pattern.length; i++) {
+      if (x < l.pattern[i]) return i % 2 === 0;
+      x -= l.pattern[i];
+    }
+    return false;
+  };
+
+  const select = (id: string, focus = false) => {
+    sel = lights.find((l) => l.id === id)!;
+    buttons.forEach((b) => {
+      const on = b.dataset.id === id;
+      b.classList.toggle('sel', on);
+      b.setAttribute('aria-pressed', String(on));
+      if (on && focus) b.focus();
+    });
+    cells.forEach((c) => c.classList.toggle('sel', c.dataset.id === id));
+    for (const el of ['halo', 'ring', 'ring2']) {
+      $(el).setAttribute('cx', String(sel.x));
+      $(el).setAttribute('cy', String(sel.y));
+    }
+    $('ring').setAttribute('r', String(sel.range * 4));
+    $('ring2').setAttribute('r', String(sel.range * 2));
+    $('r-id').textContent = `${sel.id} · SELECTED`;
+    $('r-name').textContent = sel.name;
+    $('r-char').textContent = sel.char;
+    $('r-period').textContent = `${sel.period} s`;
+    $('r-range').textContent = `${sel.range} nm`;
+    $('r-height').textContent = `${sel.height} m`;
+    $('r-lamp').textContent = sel.lamp;
+    $('r-power').textContent = sel.power;
+    $('r-est').textContent = String(sel.est);
+    const status = $('r-status');
+    status.lastChild!.textContent = sel.status;
+    status.classList.toggle('warn', sel.status !== 'LIT');
+    let t = 0;
+    $('r-segs').innerHTML = sel.pattern
+      .map((d, i) => {
+        const seg = i % 2 === 0 ? `<i style="left:${(t / sel.period) * 100}%;width:${(d / sel.period) * 100}%"></i>` : '';
+        t += d;
+        return seg;
+      })
+      .join('');
+  };
+
+  buttons.forEach((b, i) => {
+    b.addEventListener('click', () => select(b.dataset.id!));
+    b.addEventListener('keydown', (e) => {
+      const step = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 0;
+      if (!step) return;
+      e.preventDefault();
+      select(buttons[(i + step + buttons.length) % buttons.length].dataset.id!, true);
+    });
+  });
+
+  // Every light flashes its real character; the selected one drives the halo and the strip playhead.
+  const halo = $('halo');
+  const head = $('r-head');
+  if (reduce) {
+    document.documentElement.classList.add('still');
+  } else {
+    const t0 = performance.now();
+    const tick = (now: number) => {
+      const t = (now - t0) / 1000;
+      buttons.forEach((b, i) => {
+        const on = isOn(lights[i], t);
+        b.classList.toggle('lit', on);
+        cells[i].classList.toggle('lit', on);
+      });
+      halo.style.opacity = isOn(sel, t) ? '1' : '0.12';
+      head.style.left = `${((t % sel.period) / sel.period) * 100}%`;
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }
+
+  const clock = $('clock');
+  const setClock = () => (clock.textContent = new Date().toISOString().slice(11, 19));
+  setClock();
+  setInterval(setClock, 1000);
+
+  // Masked reveals as sections enter.
+  const io = new IntersectionObserver(
+    (entries) => entries.forEach((e) => e.isIntersecting && (e.target.classList.add('in'), io.unobserve(e.target))),
+    { rootMargin: '0px 0px -8% 0px' },
+  );
+  document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+</script>
+
+<style is:global>
+  :root {
+    --bg: #060807;
+    --panel: #0b0e0d;
+    --lift: #101413;
+    --line: rgb(255 255 255 / 0.075);
+    --line-2: rgb(255 255 255 / 0.13);
+    --ink: #e9eeeb;
+    --mute: #8d9893;
+    --faint: #5b6661;
+    --g: #3ddc97;
+    --g-2: #8af0c4;
+    --g-dim: rgb(61 220 151 / 0.14);
+    --wrap: 1280px;
+  }
+  html { background: var(--bg); scroll-behavior: smooth; }
+  body.tg {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: 'Inter Tight', ui-sans-serif, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased; overflow-x: clip;
+    background-image:
+      radial-gradient(60rem 36rem at 72% -8%, rgb(61 220 151 / 0.07), transparent 60%),
+      linear-gradient(var(--bg), var(--bg));
+  }
+  .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+  .label { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mute); display: inline-flex; align-items: center; gap: 8px; }
+  .on { color: var(--g) !important; }
+  a { color: inherit; text-decoration: none; }
+  nav a:hover { color: var(--ink); }
+  :focus-visible { outline: 1.5px solid var(--g); outline-offset: 3px; border-radius: 4px; }
+
+  .tg-wrap { width: min(var(--wrap), 100% - 32px); margin-inline: auto; }
+  @media (min-width: 768px) { .tg-wrap { width: min(var(--wrap), 100% - 96px); } }
+
+  /* fixed framing */
+  .tg-frame { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+  .tg-frame__in { position: absolute; inset: 0; margin-inline: auto; width: min(calc(var(--wrap) + 48px), 100% - 8px); border-inline: 1px solid var(--line); }
+  @media (min-width: 768px) { .tg-frame__in { width: min(calc(var(--wrap) + 48px), 100% - 48px); } }
+  .tg-frame .x { position: absolute; width: 11px; height: 11px; }
+  .tg-frame .x::before, .tg-frame .x::after { content: ''; position: absolute; background: var(--line-2); }
+  .tg-frame .x::before { left: 5px; top: 0; width: 1px; height: 11px; }
+  .tg-frame .x::after { top: 5px; left: 0; height: 1px; width: 11px; }
+  .tg-frame .tl { left: -6px; top: 58px; } .tg-frame .tr { right: -6px; top: 58px; }
+  .tg-frame .bl { left: -6px; bottom: 24px; } .tg-frame .br { right: -6px; bottom: 24px; }
+  header, main, footer { position: relative; z-index: 1; }
+
+  .tg-rail__in { display: flex; align-items: center; justify-content: space-between; gap: 24px; height: 64px; }
+  .tg-brand__name { font-size: 12px; letter-spacing: 0.16em; color: var(--ink); }
+  .tg-nav { display: none; gap: 32px; font-size: 11px; letter-spacing: 0.14em; color: var(--mute); }
+  @media (min-width: 900px) { .tg-nav { display: flex; } }
+  .tg-rail__meta { display: flex; align-items: center; gap: 16px; font-size: 11px; letter-spacing: 0.12em; color: var(--mute); }
+  .hide-sm { display: none !important; }
+  @media (min-width: 640px) { .hide-sm { display: inline !important; } }
+  .r-scale { display: flex; justify-content: space-between; font-size: 10px; color: var(--faint); margin-top: 6px; }
+  .tg-watch { display: grid; }
+  @media (min-width: 1024px) { .tg-watch { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); } }
+  .tg-foot__meta { font-size: 11px; letter-spacing: 0.1em; color: var(--faint); line-height: 24px; }
+  @media (min-width: 768px) { .tg-foot__meta { text-align: right; } }
+  .tg-rail { position: sticky; top: 0; z-index: 20; background: rgb(6 8 7 / 0.72); backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); }
+  .tg-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--g); box-shadow: 0 0 0 3px rgb(61 220 151 / 0.14), 0 0 12px rgb(61 220 151 / 0.6); flex: none; }
+  .tg-dot.sm { width: 5px; height: 5px; box-shadow: 0 0 8px rgb(61 220 151 / 0.6); }
+  .tg-chip { display: inline-flex; align-items: center; gap: 7px; padding: 5px 9px; border-radius: 999px; border: 1px solid rgb(61 220 151 / 0.28); background: var(--g-dim); color: var(--g-2); font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: 0.12em; white-space: nowrap; }
+  .tg-chip.warn { border-color: var(--line-2); background: rgb(255 255 255 / 0.04); color: var(--mute); }
+  .tg-chip.warn .tg-dot { background: var(--mute); box-shadow: none; }
+
+  /* hero */
+  .tg-hero { display: grid; gap: 40px; padding-block: 56px 48px; }
+  @media (min-width: 1100px) { .tg-hero { grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.3fr); gap: 48px; align-items: center; padding-block: 52px 40px; } }
+  .tg-hero__copy { display: flex; flex-direction: column; gap: 24px; min-width: 0; }
+  h1 { font-weight: 500; font-size: clamp(44px, 6.2vw, 80px); line-height: 0.95; letter-spacing: -0.045em; margin: 0; }
+  h1 .dim { color: #6f7a75; }
+  @media (min-width: 1100px) { h1 { font-size: clamp(52px, 4.6vw, 72px); } }
+  .lede { color: var(--mute); font-size: 17px; line-height: 1.6; max-width: 34rem; margin: 0; }
+  .tg-meta { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid var(--line); margin: 8px 0 0; }
+  .tg-meta div { padding: 14px 12px 0 0; }
+  .tg-meta div + div { padding-left: 14px; border-left: 1px solid var(--line); }
+  .tg-meta dt { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--faint); }
+  .tg-meta dd { margin: 6px 0 0; font-size: 14px; }
+
+  .tg-btn { display: inline-flex; align-items: center; gap: 8px; height: 44px; padding: 0 18px; border-radius: 10px; font-size: 14.5px; font-weight: 500; border: 1px solid var(--line-2); background: rgb(255 255 255 / 0.03); transition: border-color .2s, background .2s, box-shadow .2s; }
+  .tg-btn:hover { border-color: rgb(255 255 255 / 0.24); background: rgb(255 255 255 / 0.06); }
+  .tg-btn.primary { background: var(--g); color: #03140c; border-color: transparent; box-shadow: 0 0 0 1px rgb(138 240 196 / 0.4) inset, 0 8px 28px -10px rgb(61 220 151 / 0.6); }
+  .tg-btn.primary:hover { background: var(--g-2); }
+
+  /* card system: matte shell, gradient 1px border, corner brackets, localized underglow */
+  .tg-card { position: relative; border-radius: 16px; background: linear-gradient(180deg, var(--lift), var(--panel)); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.04); min-width: 0; }
+  .tg-card::before { content: ''; position: absolute; inset: 0; border-radius: inherit; padding: 1px; pointer-events: none;
+    background: linear-gradient(170deg, rgb(255 255 255 / 0.16), rgb(255 255 255 / 0.04) 38%, rgb(255 255 255 / 0.03) 70%, rgb(61 220 151 / 0.22));
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; }
+  .tg-card .br { position: absolute; inset: -5px; pointer-events: none; --c: rgb(255 255 255 / 0.32); --s: 12px;
+    background:
+      linear-gradient(var(--c), var(--c)) top left / var(--s) 1px, linear-gradient(var(--c), var(--c)) top left / 1px var(--s),
+      linear-gradient(var(--c), var(--c)) top right / var(--s) 1px, linear-gradient(var(--c), var(--c)) top right / 1px var(--s),
+      linear-gradient(var(--c), var(--c)) bottom left / var(--s) 1px, linear-gradient(var(--c), var(--c)) bottom left / 1px var(--s),
+      linear-gradient(var(--c), var(--c)) bottom right / var(--s) 1px, linear-gradient(var(--c), var(--c)) bottom right / 1px var(--s);
+    background-repeat: no-repeat; }
+  .tg-card__head, .tg-card__foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 18px; }
+  .tg-card__head { border-bottom: 1px solid var(--line); }
+  .tg-card__foot { border-top: 1px solid var(--line); font-size: 10.5px; letter-spacing: 0.12em; color: var(--faint); }
+
+  .tg-console { box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.04), 0 50px 90px -50px rgb(61 220 151 / 0.38), 0 30px 60px -30px rgb(0 0 0 / 0.8); }
+  .tg-console .br { --c: rgb(61 220 151 / 0.7); }
+  .tg-console__body { display: grid; }
+  @media (min-width: 720px) { .tg-console__body { grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); } }
+
+  .tg-chartcol { display: flex; flex-direction: column; gap: 12px; padding: 14px; min-width: 0; }
+  .tg-bus { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; flex: 1; align-content: end; }
+  .tg-bus .cell { display: grid; grid-template-columns: auto 1fr; align-items: center; column-gap: 6px; padding: 7px 8px; border-radius: 6px; border: 1px solid var(--line); background: rgb(255 255 255 / 0.02); cursor: pointer; min-width: 0; font-family: 'JetBrains Mono', monospace; transition: border-color .2s, background .2s; }
+  .tg-bus .cell:hover { border-color: var(--line-2); }
+  .tg-bus .cell i { width: 5px; height: 5px; border-radius: 50%; background: #2c3532; }
+  .tg-bus .cell.lit i, .still .tg-bus .cell i { background: var(--g-2); box-shadow: 0 0 6px var(--g); }
+  .tg-bus .cell b { font-weight: 500; font-size: 11px; color: var(--ink); }
+  .tg-bus .cell small { grid-column: 1 / -1; font-size: 9px; color: var(--faint); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+  .tg-bus .cell.sel { border-color: rgb(61 220 151 / 0.5); background: var(--g-dim); }
+  .tg-bus .cell.sel small { color: var(--g); }
+  @media (max-width: 520px) { .tg-bus .cell small { display: none; } .tg-bus .cell { padding: 6px; } }
+  .tg-map { position: relative; aspect-ratio: 3 / 2; border-radius: 10px; overflow: hidden; background:
+      linear-gradient(rgb(255 255 255 / 0.035) 1px, transparent 1px) 0 0 / 8.333% 12.5%,
+      linear-gradient(90deg, rgb(255 255 255 / 0.035) 1px, transparent 1px) 0 0 / 8.333% 12.5%,
+      #070a09; border: 1px solid var(--line); }
+  .tg-map svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+  .tg-map .coastline { fill: none; stroke: rgb(233 238 235 / 0.55); stroke-width: 1.3; }
+  .tg-map .contour { fill: none; stroke: rgb(255 255 255 / 0.1); stroke-width: 1; stroke-dasharray: 2 5; }
+  .tg-map .contour.far { stroke: rgb(255 255 255 / 0.06); }
+  .tg-map .ticks line { stroke: rgb(255 255 255 / 0.22); stroke-width: 1; }
+  .tg-map .ring { fill: none; stroke: rgb(61 220 151 / 0.5); stroke-width: 1; stroke-dasharray: 3 4; transition: r .5s cubic-bezier(.2,.7,.2,1), cx .5s cubic-bezier(.2,.7,.2,1), cy .5s cubic-bezier(.2,.7,.2,1); }
+  .tg-map .ring.inner { stroke: rgb(61 220 151 / 0.22); stroke-dasharray: none; }
+  #halo { transition: opacity .12s linear, cx .5s cubic-bezier(.2,.7,.2,1), cy .5s cubic-bezier(.2,.7,.2,1); }
+  .tg-map .land-label, .tg-map .sea-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.3em; fill: rgb(255 255 255 / 0.28); }
+  .tg-map .sea-label { fill: rgb(255 255 255 / 0.16); }
+
+  .node { position: absolute; width: 26px; height: 26px; margin: -13px 0 0 -13px; border: 0; padding: 0; background: none; cursor: pointer; display: grid; place-items: center; border-radius: 50%; }
+  .node span { width: 7px; height: 7px; border-radius: 50%; background: #2c3532; border: 1px solid rgb(255 255 255 / 0.35); transition: background .08s, box-shadow .08s, transform .2s; }
+  .node.lit span, .still .node span { background: #e9fff5; box-shadow: 0 0 8px rgb(138 240 196 / 0.9); border-color: transparent; }
+  .node.sel::before { content: ''; position: absolute; inset: 3px; border: 1px solid var(--g); border-radius: 50%; }
+  .node.sel span { transform: scale(1.25); }
+  .node.sel.lit span, .still .node.sel span { background: var(--g-2); box-shadow: 0 0 12px var(--g); }
+  .node.standby span { border-style: dashed; }
+  .node:hover span { transform: scale(1.4); }
+
+  .tg-readout { padding: 18px 18px 20px; display: flex; flex-direction: column; gap: 18px; border-top: 1px solid var(--line); min-width: 0; }
+  @media (min-width: 720px) { .tg-readout { border-top: 0; border-left: 1px solid var(--line); padding: 20px 20px 20px 18px; } }
+  .r-name { font-size: 26px; font-weight: 500; letter-spacing: -0.03em; margin: 6px 0 0; }
+  .r-big { font-size: 17px; color: var(--g-2); margin: 8px 0 12px; }
+  .r-strip { position: relative; height: 18px; border-radius: 4px; background:
+      repeating-linear-gradient(90deg, rgb(255 255 255 / 0.07) 0 1px, transparent 1px 10%), rgb(255 255 255 / 0.03);
+    border: 1px solid var(--line); overflow: hidden; }
+  .r-strip i { position: absolute; top: 3px; bottom: 3px; background: var(--g); border-radius: 2px; box-shadow: 0 0 10px rgb(61 220 151 / 0.55); min-width: 2px; }
+  .r-strip b { position: absolute; top: 0; bottom: 0; width: 1px; background: #fff; box-shadow: 0 0 6px #fff; left: 0; }
+  .still .r-strip b { display: none; }
+  .r-grid { display: grid; grid-template-columns: 1fr 1fr; margin: 0; border-top: 1px solid var(--line); }
+  .r-grid div { padding: 11px 0; border-bottom: 1px solid var(--line); }
+  .r-grid div:nth-child(odd) { padding-right: 10px; }
+  .r-grid div:nth-child(even) { padding-left: 12px; border-left: 1px solid var(--line); }
+  .r-grid dt { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--faint); }
+  .r-grid dd { margin: 4px 0 0; font-size: 14px; }
+
+  /* stats */
+  .tg-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-block: 1px solid var(--line); }
+  @media (min-width: 900px) { .tg-stats { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+  .tg-stats > div { padding: 22px 16px 22px 0; }
+  .tg-stats > div:nth-child(even) { padding-left: 16px; border-left: 1px solid var(--line); }
+  @media (max-width: 899px) { .tg-stats > div:nth-child(-n+2) { border-bottom: 1px solid var(--line); } }
+  @media (min-width: 900px) { .tg-stats > div + div { padding-left: 20px; border-left: 1px solid var(--line); } }
+  .tg-stats .v { font-size: clamp(34px, 4vw, 48px); font-weight: 500; letter-spacing: -0.04em; margin: 12px 0 4px; }
+  .tg-stats .v small { font-size: 0.45em; color: var(--mute); margin-left: 6px; letter-spacing: 0; }
+  .tg-stats .s { font-size: 11px; color: var(--faint); margin: 0; }
+  .tg-stats .label { font-size: 10px; }
+
+  /* sections */
+  .tg-section { padding-block: 96px 0; }
+  .tg-sechead { display: grid; gap: 16px; margin-bottom: 36px; }
+  @media (min-width: 900px) { .tg-sechead { grid-template-columns: 0.6fr 1.4fr; align-items: end; } }
+  h2 { font-weight: 500; font-size: clamp(28px, 3.4vw, 42px); line-height: 1.08; letter-spacing: -0.035em; margin: 0; max-width: 22ch; }
+
+  .tg-mod { padding: 22px; display: flex; flex-direction: column; gap: 14px; transition: box-shadow .3s; }
+  .tg-mod:hover { box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.05), 0 30px 60px -36px rgb(61 220 151 / 0.4); }
+  .tg-mod:hover .br { --c: rgb(61 220 151 / 0.6); }
+  .tg-icon { width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center; border: 1px solid var(--line-2); background: rgb(61 220 151 / 0.06); }
+  .tg-icon svg { width: 20px; height: 20px; fill: none; stroke: var(--g); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+  h3 { font-size: 22px; font-weight: 500; letter-spacing: -0.025em; margin: 8px 0 0; }
+  .tg-card .body { color: var(--mute); font-size: 15px; line-height: 1.6; margin: 0; flex: 1; }
+  .tg-mod__foot { display: flex; justify-content: space-between; padding-top: 14px; border-top: 1px dashed var(--line-2); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--faint); }
+
+  .tg-bars { position: relative; height: 280px; margin: 20px 20px 8px 48px; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 8px; align-items: end; padding-bottom: 24px; }
+  .tg-bars .gl { position: absolute; left: 0; right: 0; border-top: 1px dashed var(--line); }
+  .tg-bars .gl em { position: absolute; left: -40px; top: -8px; font-style: normal; font-size: 10px; color: var(--faint); }
+  .tg-bars .bar { position: relative;  height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: stretch; }
+  .tg-bars .bar i { display: block; border-radius: 4px 4px 1px 1px; background: linear-gradient(180deg, rgb(255 255 255 / 0.16), rgb(255 255 255 / 0.05)); border: 1px solid rgb(255 255 255 / 0.08); transform-origin: bottom; }
+  .tg-bars .bar span { position: absolute; bottom: -22px; left: 0; right: 0; text-align: center; font-size: 10px; color: var(--faint); }
+  .tg-bars .bar.now i { background: linear-gradient(180deg, var(--g-2), rgb(61 220 151 / 0.35)); border-color: transparent; box-shadow: 0 0 22px -4px rgb(61 220 151 / 0.65); }
+  .tg-bars .bar.now span { color: var(--g); }
+  .js .tg-chart .bar i { transform: scaleY(0); transition: transform .9s cubic-bezier(.2,.7,.2,1); }
+  .js .tg-chart.in .bar i { transform: none; }
+  .tg-chart .bar i { transition-delay: calc(var(--i, 0) * 1ms); }
+
+  .tg-log ol { list-style: none; margin: 0; padding: 4px 18px 12px; }
+  .tg-log li { display: grid; grid-template-columns: 46px 52px 1fr; gap: 10px; padding: 14px 0; border-bottom: 1px solid var(--line); align-items: baseline; }
+  .tg-log li:last-child { border-bottom: 0; }
+  .tg-log .t { font-size: 11px; color: var(--faint); }
+  .tg-log .who { font-size: 10.5px; color: var(--mute); letter-spacing: 0.06em; }
+  .tg-log li.flag .who { color: var(--g); }
+  .tg-log p { margin: 0; font-size: 14px; line-height: 1.5; color: #c4ccc8; }
+
+  .tg-tier { padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+  .tg-tier.active { box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.05), 0 40px 80px -46px rgb(61 220 151 / 0.55); }
+  .tg-tier.active::before { background: linear-gradient(170deg, rgb(61 220 151 / 0.55), rgb(255 255 255 / 0.05) 45%, rgb(61 220 151 / 0.3)); }
+  .tg-tier.active .br { --c: rgb(61 220 151 / 0.7); }
+  .tg-tier .price { margin: 0; display: flex; align-items: baseline; gap: 8px; }
+  .tg-tier .price span { font-size: 44px; font-weight: 500; letter-spacing: -0.04em; }
+  .tg-tier .price small { color: var(--faint); font-size: 12px; }
+  .tg-tier ul { list-style: none; margin: 0 0 6px; padding: 0; display: grid; gap: 10px; }
+  .tg-tier li { font-size: 14px; color: #c4ccc8; display: flex; gap: 10px; align-items: center; }
+  .tg-tier li::before { content: ''; width: 10px; height: 1px; background: var(--g); flex: none; }
+
+  .tg-foot { padding-block: 72px 72px; margin-top: 96px; border-top: 1px solid var(--line); }
+  .sign { font-size: clamp(36px, 6vw, 76px); font-weight: 500; letter-spacing: -0.045em; margin: 14px 0 0; line-height: 1; color: #36403c; }
+
+  /* masked reveal */
+  .js .reveal { opacity: 0; transform: translateY(14px); clip-path: inset(0 0 100% 0); transition: opacity .7s ease, transform .8s cubic-bezier(.2,.7,.2,1), clip-path .9s cubic-bezier(.2,.7,.2,1); transition-delay: var(--d, 0ms); }
+  .js .reveal.in { opacity: 1; transform: none; clip-path: inset(-20px -20px -40px -20px); }
+  .js .tg-card.reveal { clip-path: none; }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .js .reveal, .js .tg-chart .bar i { opacity: 1; transform: none; clip-path: none; transition: none; }
+    .tg-map .ring, #halo { transition: none; }
+  }
+</style>

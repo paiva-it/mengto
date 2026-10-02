@@ -1,0 +1,7 @@
+{
+  "title": "Reveal Hover Effect",
+  "kind": "section",
+  "category": "Effects & details",
+  "concept": "Saltgrain Shaping Bay, a fictional Ericeira surfboard shaper: a 260px eased spotlight follows the cursor across the bench and turns full-scale pencil templates into the same boards glassed, pinlined and waxed, with compact 170px reveals on each card of the autumn quiver.",
+  "notes": "Pure CSS radial mask driven by custom properties from one rAF loop per component that stops when settled; collapses on leave, cancel and blur; 48px grid drifts ±16px. Both image pairs are original renders generated from one shared outline geometry, so they are pixel-aligned by construction. Touch/coarse pointers get the pencil base plus explicit Show-glass toggles; reduced motion removes trailing and grid drift. In captures (?shot) the spotlight is parked on the fish as if a cursor rested there."
+}

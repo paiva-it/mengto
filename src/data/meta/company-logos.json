@@ -1,0 +1,7 @@
+{
+  "title": "Company Logos",
+  "kind": "section",
+  "category": "Effects & details",
+  "concept": "Brisa North, a fictional North Sea wind farm operator: a pale instrument-panel hero with turning turbines over a hairline-divided supplier logo row, then a 16-cell partner grid and a turbine anatomy legend — every mark an Iconify Simple Icons glyph in a shared 64x64 box, monochrome until hover/focus restores its brand colour.",
+  "notes": "Logos load at runtime from the Iconify API via the installed iconify-icon web component (needs network). Real company logos illustrate the logo system only; the operator and its supplier claims are fictional. Reduced motion stops the rotors, wind streams and beacons."
+}

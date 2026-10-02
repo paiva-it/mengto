@@ -1,0 +1,723 @@
+---
+import '../../styles/global.css';
+import BackPill from '../../components/BackPill.astro';
+
+// Grooves: concentric rings with three track gaps, generated once at build time.
+const gaps = [96, 128, 162];
+const grooves: { r: number; gap: boolean }[] = [];
+for (let r = 64; r <= 192; r += 1.6) {
+  grooves.push({ r: +r.toFixed(1), gap: gaps.some((g) => Math.abs(g - r) < 1.7) });
+}
+
+// Waveform for the listening step: deterministic pseudo-random envelope.
+const wave = (() => {
+  let seed = 7;
+  const rnd = () => ((seed = (seed * 9301 + 49297) % 233280) / 233280);
+  const pts: string[] = [];
+  for (let i = 0; i <= 120; i++) {
+    const env = 0.35 + 0.65 * Math.abs(Math.sin(i / 14));
+    const y = 30 + (rnd() - 0.5) * 52 * env * (i % 2 ? 1 : -1);
+    pts.push(`${(i * 2.5).toFixed(1)},${y.toFixed(1)}`);
+  }
+  return `M${pts.join(' L')}`;
+})();
+
+const steps = [
+  {
+    key: 'lacquer',
+    n: '01',
+    name: 'Lacquer',
+    title: 'Cut into lacquer.',
+    body: 'Your master is cut in real time on our 1978 lathe into a soft nitro lacquer. One pass, no undo. The engineer watches the groove under a microscope as it spirals in.',
+    spec: 'Side A · 19:42 · 112 lines/cm',
+    tag: 'Cutting head · 0.3 mm stylus',
+    read: { v: 112, d: 0, unit: 'lines / cm', cap: 'Groove pitch at the loudest bar' },
+  },
+  {
+    key: 'plating',
+    n: '02',
+    name: 'Plating',
+    title: 'Grown in nickel.',
+    body: 'The lacquer is silvered and bathed in nickel for eleven hours. What lifts off is a negative: the stamper, with ridges where your grooves were.',
+    spec: 'Father → mother → 2 stampers',
+    tag: 'Stamper · 0.42 mm nickel',
+    read: { v: 11, d: 0, unit: 'hours', cap: 'In the plating bath, per side' },
+  },
+  {
+    key: 'biscuit',
+    n: '03',
+    name: 'Biscuit',
+    title: 'A puck of colour.',
+    body: 'Tangerine PVC pellets are melted and extruded into a 180 g biscuit, then dropped between the two labels while it is still soft.',
+    spec: '160 °C · 180 g · Batch T-07',
+    tag: 'Biscuit · still soft at 160 °C',
+    read: { v: 180, d: 0, unit: 'grams', cap: 'Of translucent tangerine PVC' },
+  },
+  {
+    key: 'press',
+    n: '04',
+    name: 'Press',
+    title: '150 tonnes, 28 seconds.',
+    body: 'Steam heats the stampers, the press closes, and the biscuit flows into every groove of both sides at once. Then cold water locks it in.',
+    spec: 'Press 3 of 6 · cycle 28 s',
+    tag: 'Steam in · 182 °C',
+    read: { v: 150, d: 0, unit: 'tonnes', cap: 'Closing force on press 3' },
+  },
+  {
+    key: 'trim',
+    n: '05',
+    name: 'Trim',
+    title: 'Edge, trimmed.',
+    body: 'The overflow ring, the flash, is cut away while the record is warm and goes straight back into the hopper. Nothing tangerine leaves as waste.',
+    spec: '2.1 g flash → regrind',
+    tag: 'Flash ring · cut warm',
+    read: { v: 2.1, d: 1, unit: 'grams', cap: 'Of flash back into the hopper' },
+  },
+  {
+    key: 'listen',
+    n: '06',
+    name: 'Listen',
+    title: 'Then we listen.',
+    body: 'Every fiftieth record is played start to finish on a reference deck, both sides. You get the test pressing in the post before the run ships.',
+    spec: 'Noise floor −62 dB · approved',
+    tag: 'Reference deck · side A',
+    read: { v: -62, d: 0, unit: 'dB', cap: 'Noise floor, test pressing 1 of 10' },
+  },
+];
+
+const formats = [
+  { size: '7″', name: 'The single', spec: '45 rpm · 40 g · black', from: '€2.10', min: '300', tone: 'black' },
+  { size: '12″', name: 'The album', spec: '33⅓ rpm · 140 g · black', from: '€3.40', min: '300', tone: 'black' },
+  { size: '12″', name: 'The heavy colour', spec: '33⅓ rpm · 180 g · any of 24 colours', from: '€4.85', min: '500', tone: 'tang' },
+];
+
+const stats = [
+  { v: 1284000, d: 0, suffix: '', cap: 'Records pressed in 2025' },
+  { v: 28, d: 0, suffix: ' s', cap: 'Average press cycle' },
+  { v: 1.9, d: 1, suffix: ' %', cap: 'Reject rate, last 12 months' },
+  { v: 9, d: 0, suffix: ' wks', cap: 'Master to doorstep' },
+];
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Lowlathe Pressworks — Pressed in plain sight</title>
+    <meta name="description" content="Lowlathe Pressworks presses vinyl in Ghent and lets every band follow its record from lacquer to test pressing." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  </head>
+  <body class="ll">
+    <header class="ll-nav">
+      <a href="#top" class="ll-logo" aria-label="Lowlathe Pressworks, home">
+        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="currentColor" /><circle cx="12" cy="12" r="4" fill="var(--tang)" /><circle cx="12" cy="12" r="1" fill="var(--bone)" /></svg>
+        <span>LOWLATHE</span>
+      </a>
+      <nav aria-label="Primary">
+        <a href="#story">Process</a>
+        <a href="#formats">Formats</a>
+        <a href="#plant">The plant</a>
+      </nav>
+      <a href="#book" class="ll-btn ll-btn--ink ll-btn--sm">Book a slot</a>
+    </header>
+
+    <main id="top">
+      <!-- Pinned product story: one record, seven states. -->
+      <section id="story" class="story" aria-label="Follow order A-2219 through the plant">
+        <div class="stage">
+          <div class="rail" aria-hidden="true"><i class="rail-fill"></i></div>
+          <div class="ghost" aria-hidden="true">33⅓</div>
+
+          <div class="copy">
+            <article class="step step--intro" data-step="0">
+              <p class="eyebrow"><span class="eyebrow-line"><span>Lowlathe Pressworks · Ghent · Est. 2014</span></span></p>
+              <h1 class="hero-h">
+                <span class="mask"><span>Pressed</span></span>
+                <span class="mask"><span>in plain</span></span>
+                <span class="mask"><span class="accent">sight.</span></span>
+              </h1>
+              <p class="lede reveal-up">We press records for independent labels and the bands behind them, and every order gets a live line into the plant. Scroll to follow one record from master to test pressing.</p>
+              <div class="ctas reveal-up">
+                <a href="#book" class="ll-btn ll-btn--tang">Book a press slot</a>
+                <a href="#formats" class="ll-btn ll-btn--line">See formats &amp; prices</a>
+              </div>
+            </article>
+            {steps.map((s, i) => (
+              <article class="step" data-step={i + 1}>
+                <p class="eyebrow">{s.n} — {s.name}</p>
+                <h2 class="step-h">{s.title}</h2>
+                <p class="step-p">{s.body}</p>
+                <p class="step-spec">{s.spec}</p>
+              </article>
+            ))}
+          </div>
+
+          <div class="frame">
+            <div class="disc-wrap">
+              <div class="heat" aria-hidden="true"></div>
+              <div class="platen" aria-hidden="true"></div>
+              <div class="disc" role="img" aria-label="A translucent tangerine 12-inch record for The Marram, Salt Hours, changing state as the story advances">
+                <div class="spin">
+                  <svg class="layer vinyl" viewBox="0 0 400 400" aria-hidden="true">
+                    <defs>
+                      <radialGradient id="ll-tang" cx="50%" cy="50%" r="50%">
+                        <stop offset="0.3" stop-color="#FF8A4C" />
+                        <stop offset="0.85" stop-color="#FF5A1F" />
+                        <stop offset="1" stop-color="#D9400B" />
+                      </radialGradient>
+                    </defs>
+                    <circle cx="200" cy="200" r="197" fill="url(#ll-tang)" />
+                    {grooves.map((g) => (
+                      <circle cx="200" cy="200" r={g.r} fill="none" stroke={g.gap ? 'rgb(255 236 220 / .55)' : 'rgb(120 30 0 / .16)'} stroke-width={g.gap ? 1.4 : 0.5} />
+                    ))}
+                  </svg>
+                  <svg class="layer lacquer" viewBox="0 0 400 400" aria-hidden="true">
+                    <circle cx="200" cy="200" r="197" fill="#161615" stroke="#B9B6AE" stroke-width="3" />
+                    {grooves.filter((g) => g.r > 128).map((g) => (
+                      <circle cx="200" cy="200" r={g.r} fill="none" stroke="rgb(255 255 255 / .07)" stroke-width="0.5" />
+                    ))}
+                  </svg>
+                  <div class="layer stamper"></div>
+                  <div class="label">
+                    <span class="label-brand">LOWLATHE</span>
+                    <span class="label-band">The Marram</span>
+                    <span class="label-title">Salt Hours</span>
+                    <span class="label-side">Side A · 33⅓</span>
+                    <i class="hole"></i>
+                  </div>
+                </div>
+                <div class="sheen" aria-hidden="true"></div>
+              </div>
+              <div class="biscuit" aria-hidden="true"><div class="label label--mini"><i class="hole"></i></div></div>
+              <svg class="flash" viewBox="0 0 400 400" aria-hidden="true"><circle cx="200" cy="200" r="198" fill="none" stroke="#FF5A1F" stroke-width="7" stroke-dasharray="4 2 9 3 2 5 7 2" opacity=".8" /></svg>
+              <div class="lid" aria-hidden="true"></div>
+              <div class="cutter" aria-hidden="true"><i></i></div>
+              <svg class="tonearm" viewBox="0 0 120 300" aria-hidden="true">
+                <circle cx="88" cy="34" r="22" fill="#141413" />
+                <circle cx="88" cy="34" r="8" fill="#B9B6AE" />
+                <path d="M88 34 L74 230 L52 268" fill="none" stroke="#2A2927" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
+                <rect x="38" y="258" width="26" height="16" rx="2" transform="rotate(-38 51 266)" fill="#141413" />
+              </svg>
+              {steps.map((s, i) => (
+                <p class={`tag tag--${s.key}`} data-step={i + 1}><i></i>{s.tag}</p>
+              ))}
+            </div>
+          </div>
+
+          <aside class="panel" aria-label="Pressline order status">
+            <div class="panel-head">
+              <span class="mono">Pressline</span>
+              <span class="live"><i></i>Live</span>
+            </div>
+            <p class="mono mute">Order A-2219</p>
+            <p class="panel-title">The Marram — <em>Salt Hours</em></p>
+            <p class="mono mute small">500 × 12″ · 180 g · Tangerine translucent</p>
+            <div class="readouts">
+              <div class="readout" data-step="0">
+                <p class="big"><span class="num" data-v="500" data-d="0">500</span><span class="unit">copies</span></p>
+                <p class="cap">Queued for press 3 this week</p>
+              </div>
+              {steps.map((s, i) => (
+                <div class="readout" data-step={i + 1}>
+                  <p class="big"><span class="num" data-v={s.read.v} data-d={s.read.d}>{s.read.v}</span><span class="unit">{s.read.unit}</span></p>
+                  <p class="cap">{s.read.cap}</p>
+                </div>
+              ))}
+            </div>
+            <ol class="rows">
+              {steps.map((s) => (
+                <li class="row">
+                  <span class="mono">{s.n}</span>
+                  <span class="row-name">{s.name}</span>
+                  <span class="bar"><i></i></span>
+                </li>
+              ))}
+            </ol>
+            <svg class="wave" viewBox="0 0 300 60" preserveAspectRatio="none" aria-hidden="true">
+              <path d={wave} pathLength="1" fill="none" stroke="#FF5A1F" stroke-width="1.4" stroke-linejoin="round" />
+            </svg>
+          </aside>
+
+          <div class="foot" aria-hidden="true">
+            <span class="mono"><b id="step-count">00</b> / 06</span>
+            <span class="mono hint">Scroll to press</span>
+            <span class="mono">33⅓ rpm · real time</span>
+          </div>
+        </div>
+      </section>
+
+      <section id="formats" class="formats">
+        <div class="wrap">
+          <p class="eyebrow eyebrow--dark">Formats &amp; prices</p>
+          <h2 class="sec-h">Three ways out<br />of the press.</h2>
+          <div class="cards">
+            {formats.map((f) => (
+              <article class="card">
+                <div class={`mini-disc mini-disc--${f.tone}`} aria-hidden="true"><i></i></div>
+                <p class="card-size">{f.size}</p>
+                <h3 class="card-name">{f.name}</h3>
+                <p class="mono mute-d">{f.spec}</p>
+                <div class="card-price">
+                  <span class="price">{f.from}</span>
+                  <span class="mono mute-d">per unit · from {f.min} copies</span>
+                </div>
+                <p class="mono mute-d small">Sleeve, inner bag and test pressings included.</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section id="plant" class="plant">
+        <div class="wrap">
+          <div class="plant-head">
+            <p class="eyebrow">The plant</p>
+            <h2 class="sec-h sec-h--ink">Six presses, one floor,<br />windows on every side.</h2>
+            <p class="lede">A converted rope works on the Coupure canal. Bands are welcome on press days, and most of them end up staying for the cooling racks.</p>
+          </div>
+          <div class="stats">
+            {stats.map((s) => (
+              <div class="stat">
+                <p class="stat-v"><span class="count" data-v={s.v} data-d={s.d}>{s.v.toLocaleString('en-GB', { minimumFractionDigits: s.d, maximumFractionDigits: s.d })}</span>{s.suffix}</p>
+                <p class="mono mute">{s.cap}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section id="book" class="book">
+        <div class="book-fill">
+          <div class="wrap book-inner">
+            <p class="eyebrow eyebrow--ink">Book a press slot</p>
+            <h2 class="book-h">Your record,<br />pressed where<br />you can watch.</h2>
+            <div class="book-row">
+              <a href="mailto:press@lowlathe.example" class="ll-btn ll-btn--ink">Request a slot</a>
+              <p class="mono">Next open week: 46 · 2 of 6 presses free</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="ll-foot">
+      <div class="wrap foot-grid">
+        <span>LOWLATHE PRESSWORKS</span>
+        <span class="mono">Coupure Rechts 88 · 9000 Ghent</span>
+        <span class="mono">A fictional plant, pressed for a demo.</span>
+      </div>
+    </footer>
+
+    <BackPill />
+
+    <style is:global>
+      .ll {
+        --bone: #ece8e0;
+        --paper: #f7f4ed;
+        --ink: #141413;
+        --mute: #6e6a62;
+        --line: rgb(20 20 19 / 0.12);
+        --tang: #ff5a1f;
+        --tang-deep: #d9400b;
+        margin: 0;
+        background: var(--bone);
+        color: var(--ink);
+        font-family: 'Archivo', ui-sans-serif, system-ui, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        overflow-x: clip;
+      }
+      .ll *, .ll *::before, .ll *::after { box-sizing: border-box; }
+      :where(.ll) :where(p, h1, h2, h3, ol) { margin: 0; padding: 0; }
+      .ll .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; }
+      .ll .mute { color: var(--mute); }
+      .ll .small { font-size: 10px; }
+      .wrap { width: min(1360px, 100% - 80px); margin-inline: auto; }
+
+      /* Nav */
+      .ll-nav {
+        position: fixed; inset: 0 0 auto; z-index: 50; height: 64px;
+        display: flex; align-items: center; justify-content: space-between; gap: 24px;
+        padding: 0 40px; background: rgb(236 232 224 / 0.82); backdrop-filter: blur(10px);
+        border-bottom: 1px solid var(--line);
+      }
+      .ll-logo { display: flex; align-items: center; gap: 10px; color: var(--ink); text-decoration: none; font-weight: 800; font-stretch: 125%; letter-spacing: 0.04em; font-size: 15px; }
+      .ll-nav nav { display: flex; gap: 32px; }
+      .ll-nav nav a { color: var(--ink); text-decoration: none; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; }
+      .ll-nav nav a:hover { color: var(--tang-deep); }
+      .ll-btn {
+        display: inline-flex; align-items: center; justify-content: center; height: 48px; padding: 0 22px;
+        font: 600 13px/1 'Archivo', sans-serif; font-stretch: 112%; letter-spacing: 0.04em; text-transform: uppercase;
+        text-decoration: none; border-radius: 2px; transition: transform 0.2s, background 0.2s, color 0.2s;
+      }
+      .ll-btn:hover { transform: translateY(-1px); }
+      .ll-btn:focus-visible, .ll a:focus-visible { outline: 2px solid var(--tang); outline-offset: 3px; }
+      .ll-btn--sm { height: 38px; padding: 0 16px; font-size: 12px; }
+      .ll-btn--ink { background: var(--ink); color: var(--bone); }
+      .ll-btn--tang { background: var(--tang); color: var(--ink); }
+      .ll-btn--tang:hover { background: var(--ink); color: var(--bone); }
+      .ll-btn--line { border: 1px solid var(--ink); color: var(--ink); }
+      .ll-btn--line:hover { background: var(--ink); color: var(--bone); }
+
+      /* Stage */
+      .stage {
+        position: relative; height: 100vh; overflow: hidden;
+        display: grid; grid-template-columns: minmax(0, 1fr) minmax(380px, 500px) 320px;
+        grid-template-rows: minmax(0, 1fr) auto; column-gap: 48px;
+        padding: 104px 40px 28px;
+        background:
+          linear-gradient(var(--line) 1px, transparent 1px) 0 0 / 100% 120px,
+          linear-gradient(90deg, var(--line) 1px, transparent 1px) 0 0 / 120px 100%,
+          var(--bone);
+      }
+      .rail { position: absolute; top: 64px; left: 0; right: 0; height: 3px; background: var(--line); z-index: 3; }
+      .rail-fill { display: block; height: 100%; background: var(--tang); transform-origin: left; transform: scaleX(0); }
+      .ghost {
+        position: absolute; right: -4vw; bottom: -10vw; z-index: 0; pointer-events: none;
+        font-weight: 900; font-stretch: 125%; font-size: 38vw; line-height: 0.8; letter-spacing: -0.04em;
+        color: transparent; -webkit-text-stroke: 1px rgb(20 20 19 / 0.1);
+      }
+      .copy, .frame, .panel, .foot { position: relative; z-index: 2; }
+      .copy { display: grid; align-content: center; min-width: 0; }
+      .step { grid-area: 1 / 1; align-self: center; }
+      .step:not(.step--intro) { opacity: 0; visibility: hidden; }
+      .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--tang-deep); margin-bottom: 22px; }
+      .eyebrow-line { display: inline-block; overflow: hidden; }
+      .eyebrow-line > span { display: inline-block; }
+      .hero-h { font-weight: 850; font-stretch: 125%; text-transform: uppercase; font-size: clamp(40px, 5vw, 76px); line-height: 0.9; letter-spacing: -0.02em; margin-bottom: 28px; }
+      .mask { display: block; overflow: hidden; padding-bottom: 0.04em; }
+      .mask > span { display: inline-block; }
+      .accent { color: var(--tang); }
+      .lede { font-size: 17px; line-height: 1.55; color: #3b3935; max-width: 46ch; margin-bottom: 30px; }
+      .ctas { display: flex; flex-wrap: wrap; gap: 12px; }
+      .step-h { font-weight: 800; font-stretch: 118%; font-size: clamp(32px, 3.4vw, 52px); line-height: 0.98; letter-spacing: -0.02em; margin-bottom: 22px; text-transform: uppercase; max-width: 12ch; }
+      .step-p { font-size: 17px; line-height: 1.6; color: #3b3935; max-width: 42ch; margin-bottom: 22px; }
+      .step-spec { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; padding: 8px 12px; border: 1px solid var(--line); background: var(--paper); }
+
+      /* Product frame */
+      .frame { display: grid; place-items: center; perspective: 1400px; min-width: 0; }
+      .disc-wrap { position: relative; width: min(100%, 62vh); aspect-ratio: 1; transform-style: preserve-3d; }
+      .disc, .platen, .heat, .biscuit, .flash, .lid { position: absolute; inset: 0; }
+      .platen { inset: -5%; border-radius: 50%; background: radial-gradient(circle, transparent 66%, rgb(20 20 19 / 0.06) 66.5%, transparent 72%), repeating-conic-gradient(from 0deg, rgb(20 20 19 / 0.14) 0 0.6deg, transparent 0.6deg 30deg); mask: radial-gradient(circle, transparent 68%, #000 68.5%, #000 71%, transparent 71.5%); -webkit-mask: radial-gradient(circle, transparent 68%, #000 68.5%, #000 71%, transparent 71.5%); opacity: 0.7; }
+      .heat { inset: -18%; border-radius: 50%; background: radial-gradient(circle, rgb(255 90 31 / 0.45), transparent 62%); opacity: 0.35; }
+      .disc { border-radius: 50%; box-shadow: 0 40px 70px -30px rgb(80 30 0 / 0.45), 0 10px 24px -12px rgb(20 20 19 / 0.4); }
+      .spin { position: absolute; inset: 0; border-radius: 50%; animation: ll-spin 1.8s linear infinite; will-change: transform; }
+      @keyframes ll-spin { to { transform: rotate(360deg); } }
+      .layer { position: absolute; inset: 0; width: 100%; height: 100%; border-radius: 50%; }
+      .lacquer, .stamper { opacity: 0; }
+      .stamper {
+        background:
+          repeating-radial-gradient(circle, rgb(255 255 255 / 0.18) 0 1px, transparent 1px 3px),
+          conic-gradient(from 20deg, #8d8b86, #e7e5df, #9e9c96, #f2f0ea, #7f7d78, #dcdad3, #8d8b86);
+        box-shadow: inset 0 0 0 3px #6e6c67;
+      }
+      .sheen { position: absolute; inset: 0; border-radius: 50%; pointer-events: none; background: conic-gradient(from 210deg, transparent 0 10%, rgb(255 255 255 / 0.32) 14%, transparent 20% 58%, rgb(255 255 255 / 0.22) 63%, transparent 69%); opacity: 0.55; }
+      .label {
+        position: absolute; inset: 35.5%; border-radius: 50%; background: var(--paper);
+        display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; text-align: center;
+        box-shadow: inset 0 0 0 1px rgb(20 20 19 / 0.12);
+      }
+      .label span { line-height: 1.1; }
+      .label-brand { font-family: 'JetBrains Mono', monospace; font-size: clamp(5px, 0.62vh, 8px); letter-spacing: 0.2em; color: var(--tang-deep); }
+      .label-band { font-weight: 800; font-stretch: 125%; text-transform: uppercase; font-size: clamp(8px, 1.15vh, 13px); }
+      .label-title { font-weight: 500; font-size: clamp(7px, 0.95vh, 11px); color: var(--mute); margin-bottom: 12%; }
+      .label-side { font-family: 'JetBrains Mono', monospace; font-size: clamp(5px, 0.62vh, 8px); letter-spacing: 0.12em; text-transform: uppercase; }
+      .hole { position: absolute; left: 50%; top: 50%; width: 5%; height: 5%; min-width: 5px; min-height: 5px; border-radius: 50%; transform: translate(-50%, -50%); background: var(--bone); box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.35); }
+      .biscuit { inset: 30%; border-radius: 47% 53% 50% 50% / 52% 46% 54% 48%; background: radial-gradient(circle at 40% 35%, #ffa070, #ff5a1f 55%, #c93a08); box-shadow: 0 20px 40px -14px rgb(150 40 0 / 0.6); opacity: 0; transform: scale(0.4); }
+      .label--mini { inset: 16%; }
+      .flash { width: 100%; height: 100%; opacity: 0; }
+      .lid { inset: -7%; border-radius: 50%; border: 22px solid #22211f; box-shadow: inset 0 0 0 1px #4a4844, 0 30px 60px -20px rgb(0 0 0 / 0.5); background: radial-gradient(circle, transparent 69%, rgb(20 20 19 / 0.25) 70%); opacity: 0; transform: scale(1.2); }
+      .cutter { position: absolute; top: calc(50% - 9px); right: -22%; width: 46%; height: 18px; opacity: 0; }
+      .cutter i { position: absolute; inset: 0; background: linear-gradient(90deg, var(--tang) 0 6px, #22211f 6px); border-radius: 2px; box-shadow: 0 8px 20px -8px rgb(0 0 0 / 0.5); }
+      .cutter::after { content: ''; position: absolute; left: 30%; right: -10%; top: -26px; height: 70px; background: #2e2d2a; border-radius: 3px; z-index: -1; }
+      .tonearm { position: absolute; right: -13%; top: -9%; width: 34%; height: auto; transform-origin: 73% 11%; transform: rotate(-32deg); opacity: 0; }
+      .tag {
+        position: absolute; display: flex; align-items: center; gap: 10px; white-space: nowrap;
+        font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase;
+        background: var(--ink); color: var(--bone); padding: 7px 10px; opacity: 0;
+      }
+      .tag i { width: 7px; height: 7px; border-radius: 50%; background: var(--tang); }
+      .tag--lacquer { top: 34%; right: -8%; }
+      .tag--plating { top: 6%; left: -10%; }
+      .tag--biscuit { bottom: 18%; left: -6%; }
+      .tag--press { top: -4%; left: 50%; translate: -50% 0; }
+      .tag--trim { bottom: 4%; right: -6%; }
+      .tag--listen { top: 2%; left: -8%; }
+
+      /* Panel */
+      .panel { align-self: center; background: var(--paper); border: 1px solid var(--line); padding: 22px; box-shadow: 0 30px 60px -40px rgb(20 20 19 / 0.4); }
+      .panel-head { display: flex; justify-content: space-between; align-items: center; padding-bottom: 14px; margin-bottom: 14px; border-bottom: 1px solid var(--line); }
+      .live { display: inline-flex; align-items: center; gap: 6px; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--tang-deep); }
+      .live i { width: 7px; height: 7px; border-radius: 50%; background: var(--tang); animation: ll-pulse 1.6s ease-in-out infinite; }
+      @keyframes ll-pulse { 50% { opacity: 0.3; } }
+      .panel-title { font-weight: 700; font-size: 19px; margin: 6px 0 4px; }
+      .panel-title em { font-style: normal; color: var(--tang-deep); }
+      .readouts { display: grid; margin: 20px 0 18px; padding: 16px 0; border-block: 1px solid var(--line); }
+      .readout { grid-area: 1 / 1; }
+      .readout:not([data-step='0']) { opacity: 0; visibility: hidden; }
+      .big { display: flex; align-items: baseline; gap: 8px; font-weight: 800; font-stretch: 125%; font-size: 54px; line-height: 1; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+      .unit { font-family: 'JetBrains Mono', monospace; font-weight: 400; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--mute); }
+      .cap { margin-top: 8px; font-size: 13px; color: var(--mute); }
+      .rows { list-style: none; display: grid; gap: 9px; }
+      .row { display: grid; grid-template-columns: 26px 70px 1fr; align-items: center; gap: 8px; font-size: 13px; }
+      .row .mono { color: var(--mute); }
+      .bar { height: 4px; background: var(--line); overflow: hidden; }
+      .bar i { display: block; height: 100%; background: var(--ink); transform-origin: left; transform: scaleX(0); }
+      .wave { display: block; width: 100%; height: 44px; margin-top: 16px; }
+      .wave path { stroke-dasharray: 1; stroke-dashoffset: 1; }
+      .foot { grid-column: 1 / -1; display: flex; justify-content: space-between; padding-top: 16px; border-top: 1px solid var(--line); color: var(--mute); }
+      .foot b { color: var(--ink); font-weight: 500; }
+
+      /* Formats */
+      .formats { background: var(--ink); color: var(--bone); padding: 140px 0 150px; position: relative; z-index: 3; }
+      .eyebrow--dark { color: var(--tang); }
+      .sec-h { font-weight: 850; font-stretch: 125%; text-transform: uppercase; font-size: clamp(36px, 5.2vw, 80px); line-height: 0.92; letter-spacing: -0.02em; margin-bottom: 64px; }
+      .sec-h--ink { color: var(--ink); margin-bottom: 24px; }
+      .cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: rgb(236 232 224 / 0.14); border: 1px solid rgb(236 232 224 / 0.14); }
+      .card { background: var(--ink); padding: 32px 28px 30px; display: flex; flex-direction: column; gap: 10px; }
+      .mute-d { color: #a39f96; }
+      .mini-disc { width: 120px; aspect-ratio: 1; border-radius: 50%; margin-bottom: 26px; position: relative; background: repeating-radial-gradient(circle, rgb(255 255 255 / 0.08) 0 1px, transparent 1px 3px), #0b0b0a; box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.1); }
+      .mini-disc--tang { background: repeating-radial-gradient(circle, rgb(120 30 0 / 0.25) 0 1px, transparent 1px 3px), radial-gradient(circle, #ff8a4c 30%, #ff5a1f 85%, #d9400b); box-shadow: none; }
+      .mini-disc i { position: absolute; inset: 34%; border-radius: 50%; background: var(--paper); }
+      .card-size { font-weight: 900; font-stretch: 125%; font-size: 64px; line-height: 0.9; color: var(--tang); }
+      .card-name { font-weight: 700; font-size: 22px; }
+      .card-price { display: flex; flex-direction: column; gap: 6px; margin: 18px 0 8px; padding-top: 18px; border-top: 1px solid rgb(236 232 224 / 0.14); }
+      .price { font-weight: 800; font-stretch: 125%; font-size: 36px; letter-spacing: -0.02em; }
+
+      /* Plant */
+      .plant { padding: 140px 0; position: relative; }
+      .plant-head { max-width: 760px; margin-bottom: 72px; }
+      .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 2px solid var(--ink); }
+      .stat { padding: 26px 24px 0 0; display: grid; gap: 12px; }
+      .stat + .stat { padding-left: 24px; border-left: 1px solid var(--line); }
+      .stat-v { font-weight: 850; font-stretch: 125%; font-size: clamp(34px, 3.6vw, 56px); letter-spacing: -0.03em; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+      /* Book */
+      .book { position: relative; background: var(--bone); }
+      .book-fill { background: var(--tang); clip-path: circle(150% at 50% 50%); }
+      .book-inner { padding: 150px 0 140px; }
+      .eyebrow--ink { color: var(--ink); }
+      .book-h { font-weight: 900; font-stretch: 125%; text-transform: uppercase; font-size: clamp(40px, 7vw, 116px); line-height: 0.88; letter-spacing: -0.03em; margin-bottom: 48px; }
+      .book-row { display: flex; flex-wrap: wrap; align-items: center; gap: 24px; }
+
+      .ll-foot { background: var(--ink); color: var(--bone); padding: 34px 0 80px; font-weight: 800; font-stretch: 125%; font-size: 13px; letter-spacing: 0.04em; }
+      .foot-grid { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; }
+      .foot-grid .mono { color: #a39f96; font-weight: 400; }
+
+      /* Smaller screens: same story, one column, panel folded away. */
+      @media (max-width: 1180px) and (min-width: 900px) {
+        .stage { grid-template-columns: minmax(0, 1fr) minmax(320px, 420px) 280px; column-gap: 32px; padding-inline: 28px; }
+        .big { font-size: 44px; }
+      }
+      @media (max-width: 899px) {
+        .ll-nav { padding: 0 20px; }
+        .ll-nav nav { display: none; }
+        .wrap { width: calc(100% - 40px); }
+        .stage { grid-template-columns: 1fr; grid-template-rows: auto minmax(0, 1fr) auto; padding: 88px 20px 16px; column-gap: 0; row-gap: 18px; }
+        .frame { grid-row: 1; }
+        .disc-wrap { width: min(72vw, 34vh); }
+        .copy { grid-row: 2; align-content: start; }
+        .panel, .tag, .ghost, .platen { display: none; }
+        .hero-h { font-size: clamp(34px, 10.4vw, 48px); margin-bottom: 16px; }
+        .eyebrow { margin-bottom: 12px; font-size: 10px; }
+        .lede, .step-p { font-size: 15px; line-height: 1.5; margin-bottom: 18px; }
+        .step-h { font-size: 30px; margin-bottom: 14px; max-width: none; }
+        .ll-btn { height: 44px; padding: 0 16px; font-size: 12px; }
+        .foot { grid-row: 3; }
+        .foot .hint { display: none; }
+        .formats, .plant { padding: 96px 0; }
+        .cards { grid-template-columns: 1fr; }
+        .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .stat { padding: 22px 12px 22px 0; }
+        .stat + .stat { padding-left: 0; border-left: 0; }
+        .stat:nth-child(even) { padding-left: 16px; border-left: 1px solid var(--line); }
+        .stat:nth-child(n + 3) { border-top: 1px solid var(--line); }
+        .stat-v { font-size: clamp(26px, 7.4vw, 34px); }
+        .book-inner { padding: 110px 0 100px; }
+      }
+      @media (max-height: 760px) and (max-width: 899px) {
+        .lede { display: none; }
+      }
+
+      /* Reduced motion / static: the story becomes a plain list, nothing pins. */
+      .is-static .stage { height: auto; display: block; padding: 104px 0 40px; }
+      .is-static .stage > * { width: min(1360px, 100% - 40px); margin: 0 auto 32px; }
+      .is-static .ghost, .is-static .rail, .is-static .foot, .is-static .tag, .is-static .cutter, .is-static .tonearm { display: none; }
+      .is-static .copy { display: grid; gap: 56px; }
+      .is-static .step, .is-static .readout { grid-area: auto; opacity: 1 !important; visibility: visible !important; }
+      .is-static .readouts { gap: 18px; }
+      .is-static .bar i { transform: scaleX(1); }
+      .is-static .wave path { stroke-dashoffset: 0; }
+      .is-static .disc-wrap { width: min(100%, 420px); margin-inline: auto; }
+      @media (prefers-reduced-motion: reduce) {
+        .spin, .live i { animation: none; }
+      }
+    </style>
+
+    <script>
+      import { gsap } from 'gsap';
+      import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+      gsap.registerPlugin(ScrollTrigger);
+      ScrollTrigger.config({ ignoreMobileResize: true });
+      // ponytail: a long first paint (fonts, big SVG raster) would otherwise stall the entrance mid-way; catch up instead.
+      gsap.ticker.lagSmoothing(0);
+
+      const q = <T extends Element = HTMLElement>(s: string, root: ParentNode = document) => root.querySelector(s) as T;
+      const qa = <T extends Element = HTMLElement>(s: string, root: ParentNode = document) => [...root.querySelectorAll(s)] as T[];
+      const fmt = (v: number, d: number) =>
+        v.toLocaleString('en-GB', { minimumFractionDigits: d, maximumFractionDigits: d }).replace('-', '−');
+
+      const mm = gsap.matchMedia();
+
+      mm.add(
+        { desktop: '(min-width: 900px)', mobile: '(max-width: 899px)', reduce: '(prefers-reduced-motion: reduce)' },
+        (ctx) => {
+          const { desktop, reduce } = ctx.conditions as Record<string, boolean>;
+
+          if (reduce) {
+            document.body.classList.add('is-static');
+            return () => document.body.classList.remove('is-static');
+          }
+
+          // Entrance: masked hero lines and panel, before any scroll.
+          gsap.timeline({ defaults: { ease: 'power3.out' } })
+            .from('.hero-h .mask > span', { yPercent: 110, duration: 1, stagger: 0.09 })
+            .from('.eyebrow-line > span', { yPercent: 110, duration: 0.7 }, 0.1)
+            .from('.reveal-up', { y: 24, opacity: 0, duration: 0.8, stagger: 0.08 }, 0.35)
+            .from('.disc-wrap', { scale: 0.86, opacity: 0, duration: 1.2, ease: 'expo.out' }, 0)
+            .from('.panel', { x: 40, opacity: 0, duration: 0.9 }, 0.25)
+            .from('.row', { x: 14, opacity: 0, duration: 0.5, stagger: 0.05 }, 0.5);
+
+          // Main narrative: one scrubbed timeline, one label per step.
+          const steps = qa('.copy .step');
+          const tags = qa('.tag');
+          const reads = qa('.readout');
+          const bars = qa('.bar i');
+          const counter = q('#step-count');
+          const N = steps.length - 1;
+
+          const tl = gsap.timeline({
+            defaults: { ease: 'power2.inOut', duration: 0.5 },
+            scrollTrigger: {
+              trigger: '#story',
+              start: 'top top',
+              end: () => '+=' + innerHeight * (desktop ? 6.5 : 5),
+              pin: true,
+              scrub: 0.8,
+              invalidateOnRefresh: true,
+            },
+            onUpdate() {
+              const i = Math.max(0, Math.min(N, Math.floor(this.time() + 0.25)));
+              const s = String(i).padStart(2, '0');
+              if (counter.textContent !== s) counter.textContent = s;
+            },
+          });
+
+          tl.addLabel('intro', 0)
+            .to('.rail-fill', { scaleX: 1, ease: 'none', duration: N + 1 }, 0)
+            .to('.ghost', { xPercent: -18, ease: 'none', duration: N + 1 }, 0);
+
+          const at = (i: number) => i - 0.5; // transition into step i starts here, lands at i
+
+          // Copy, readouts, tags and row bars move in one shared rhythm.
+          for (let i = 1; i <= N; i++) {
+            const t = at(i);
+            tl.addLabel(`step${i}`, i)
+              .to(steps[i - 1], { autoAlpha: 0, y: -40, duration: 0.3, ease: 'power2.in' }, t)
+              .fromTo(steps[i], { autoAlpha: 0, y: 40 }, { autoAlpha: 1, y: 0, duration: 0.35, ease: 'power3.out' }, t + 0.18)
+              .to(reads[i - 1], { autoAlpha: 0, y: -14, duration: 0.25 }, t)
+              .fromTo(reads[i], { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.3 }, t + 0.2)
+              .fromTo(bars[i - 1], { scaleX: 0 }, { scaleX: 1, ease: 'none', duration: 0.9 }, t + 0.1);
+            if (tags[i - 2]) tl.to(tags[i - 2], { autoAlpha: 0, y: -8, duration: 0.2 }, t);
+            tl.fromTo(tags[i - 1], { autoAlpha: 0, y: 10 }, { autoAlpha: 1, y: 0, duration: 0.25 }, t + 0.3);
+
+            // Readout counts up with the scroll (smooth interpolation through scrub).
+            const num = q('.num', reads[i]);
+            const v = Number(num.dataset.v);
+            const d = Number(num.dataset.d);
+            const proxy = { v: 0 };
+            tl.to(proxy, { v, ease: 'power1.out', duration: 0.45, onUpdate: () => { num.textContent = fmt(proxy.v, d); } }, t + 0.2);
+          }
+
+          // Disc states, per step.
+          tl // 01 lacquer: black disc, cutting head tracks inward
+            .to('.lacquer', { opacity: 1 }, at(1))
+            .to('.heat', { opacity: 0 }, at(1))
+            .fromTo('.cutter', { autoAlpha: 0, x: 60 }, { autoAlpha: 1, x: 0, duration: 0.3 }, at(1) + 0.1)
+            .to('.cutter', { xPercent: -42, ease: 'none', duration: 0.6 }, at(1) + 0.4)
+            // 02 plating: nickel stamper replaces lacquer
+            .to('.cutter', { autoAlpha: 0, x: 80, duration: 0.25 }, at(2))
+            .to('.stamper', { opacity: 1 }, at(2))
+            .to('.disc', { rotateX: 12, rotateY: -14, duration: 0.5 }, at(2))
+            // 03 biscuit: disc collapses into a soft puck
+            .to('.disc', { scale: 0.32, autoAlpha: 0, rotateX: 0, rotateY: 0, duration: 0.4, ease: 'power3.in' }, at(3))
+            .to('.biscuit', { opacity: 1, scale: 1, duration: 0.45, ease: 'back.out(1.6)' }, at(3) + 0.25)
+            .to('.heat', { opacity: 0.6 }, at(3))
+            // 04 press: lid closes, puck flows out into a full record
+            .to('.lid', { opacity: 0.94, scale: 1, duration: 0.3, ease: 'power3.in' }, at(4))
+            .set(['.lacquer', '.stamper'], { opacity: 0 }, at(4) + 0.3)
+            .to('.biscuit', { scale: 2.4, opacity: 0, duration: 0.35 }, at(4) + 0.3)
+            .to('.disc', { scale: 1, autoAlpha: 1, duration: 0.35, ease: 'power2.out' }, at(4) + 0.3)
+            .to('.flash', { opacity: 1, duration: 0.2 }, at(4) + 0.5)
+            .to('.heat', { opacity: 1, scale: 1.1 }, at(4) + 0.3)
+            // 05 trim: lid lifts, flash ring cut away, record cools
+            .to('.lid', { opacity: 0, scale: 1.2, duration: 0.3 }, at(5))
+            .to('.flash', { opacity: 0, scale: 1.08, duration: 0.35 }, at(5) + 0.15)
+            .to('.heat', { opacity: 0.2, scale: 1 }, at(5) + 0.2)
+            // 06 listen: tonearm drops onto the lead-in, waveform draws
+            .to('.tonearm', { autoAlpha: 1, rotate: 0, duration: 0.45, ease: 'power3.out' }, at(6))
+            .to('.wave path', { strokeDashoffset: 0, ease: 'none', duration: 0.5 }, at(6) + 0.2)
+            // Section handoff: the stage recedes as the dark formats section arrives.
+            .addLabel('handoff', N + 0.4)
+            .to('.frame', { scale: 0.9, yPercent: -4, duration: 0.6 }, N + 0.4)
+            .to('.copy, .panel', { opacity: 0.35, duration: 0.6 }, N + 0.4);
+
+          // Pointer-following tilt on the product frame (desktop, fine pointer only).
+          let move: ((e: PointerEvent) => void) | undefined;
+          if (desktop && matchMedia('(pointer: fine)').matches) {
+            const rx = gsap.quickTo('.disc-wrap', 'rotateX', { duration: 0.8, ease: 'power3' });
+            const ry = gsap.quickTo('.disc-wrap', 'rotateY', { duration: 0.8, ease: 'power3' });
+            move = (e) => {
+              rx((e.clientY / innerHeight - 0.5) * -10);
+              ry((e.clientX / innerWidth - 0.5) * 12);
+            };
+            addEventListener('pointermove', move);
+          }
+
+          // Supporting reveals below the pin.
+          ScrollTrigger.batch('.card', {
+            start: 'top 85%',
+            once: true,
+            onEnter: (els) => gsap.from(els, { y: 60, opacity: 0, duration: 0.9, stagger: 0.12, ease: 'power3.out' }),
+          });
+          ['.formats', '.plant'].forEach((sec) => gsap.from(`${sec} .eyebrow, ${sec} .sec-h, ${sec} .lede`, {
+            y: 40, opacity: 0, duration: 0.9, stagger: 0.1, ease: 'power3.out',
+            scrollTrigger: { trigger: sec, start: 'top 75%', once: true },
+          }));
+          qa('.count').forEach((el) => {
+            const v = Number(el.dataset.v);
+            const d = Number(el.dataset.d);
+            const p = { v: 0 };
+            el.textContent = fmt(0, d);
+            gsap.to(p, {
+              v, duration: 1.6, ease: 'power2.out',
+              onUpdate: () => { el.textContent = fmt(p.v, d); },
+              scrollTrigger: { trigger: '.stats', start: 'top 85%', once: true },
+            });
+          });
+          // Final handoff: a tangerine circle opens into the booking section.
+          gsap.fromTo('.book-fill',
+            { clipPath: 'circle(9% at 50% 55%)' },
+            { clipPath: 'circle(150% at 50% 55%)', ease: 'none', scrollTrigger: { trigger: '.book', start: 'top 85%', end: 'top 15%', scrub: 0.6 } });
+
+          return () => { if (move) removeEventListener('pointermove', move); };
+        }
+      );
+
+      // Fonts change line heights, and the pin offsets depend on them.
+      document.fonts?.ready.then(() => ScrollTrigger.refresh());
+    </script>
+  </body>
+</html>

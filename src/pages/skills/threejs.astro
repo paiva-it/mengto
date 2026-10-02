@@ -1,0 +1,693 @@
+---
+import '../../styles/global.css';
+import BackPill from '../../components/BackPill.astro';
+
+// Kurahashi Shuzō — a fictional sake brewery in the Ina valley. The page's one object is the
+// hinoki masu every pour is measured in, rendered live with three.js.
+const notes = [
+  {
+    n: '01',
+    figure: '180.39 ml',
+    title: 'The gō is a meal',
+    body: 'One gō is the old measure of a single person’s rice for a single meal. It is still the size of a single pour, and the reason the box is the size it is.',
+  },
+  {
+    n: '02',
+    figure: '9 mm hinoki',
+    title: 'Joined without glue',
+    body: 'Cut from the cedar stand above the kura and box-jointed dry. Cedar swells when it is wet, so the masu closes its own seams on the first pour.',
+  },
+  {
+    n: '03',
+    figure: '41.3 mm',
+    title: 'One burned line',
+    body: 'The only mark inside the box. Pour past it and the sake runs over into the saucer: mokkiri, the host’s way of saying the measure was generous.',
+  },
+];
+
+const season = [
+  { name: 'Ina Mizu', style: 'Junmai Ginjō', polish: '55 %', smv: '+3', serve: '12 °C · masu', note: 'Pear skin, rice steam, a dry snap at the finish.' },
+  { name: 'Kiseki', style: 'Junmai Daiginjō', polish: '40 %', smv: '+1', serve: '10 °C · glass', note: 'Melon and white flower. Too delicate for cedar, so it is poured into glass.' },
+  { name: 'Yukimuro', style: 'Kimoto Junmai', polish: '70 %', smv: '+5', serve: '45 °C · masu', note: 'Rested a winter in the snow room. Mushroom, toasted grain, best warm.' },
+];
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Kurahashi Shuzō — One gō, exactly</title>
+    <meta name="description" content="Kurahashi Shuzō measures every pour in a hinoki masu. A live three.js model of the box, its cedar walls and the line where 180 ml of sake comes to rest." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <BackPill />
+
+    <header class="bar">
+      <a class="mark" href="#top" aria-label="Kurahashi Shuzō, top of page">
+        <span class="dot" aria-hidden="true"></span>
+        <span>Kurahashi Shuzō</span>
+      </a>
+      <nav class="nav" aria-label="Primary">
+        <a href="#masu">The masu</a>
+        <a href="#season">This season</a>
+        <a href="#visit">Visit the kura</a>
+      </nav>
+      <span class="bar-meta">Ina Valley · Est. 1871</span>
+    </header>
+
+    <main id="top">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <p class="eyebrow">Object 01 / The measure</p>
+          <h1 id="hero-title">One gō,<br />exactly.</h1>
+          <p class="lede">
+            Every pour at Kurahashi is measured in a hinoki masu cut from the brewery’s own cedar:
+            66&nbsp;mm square inside, 45&nbsp;mm deep, with a single burned line at 41.3&nbsp;mm where
+            180&nbsp;ml of sake comes to rest.
+          </p>
+
+          <div class="controls" role="group" aria-label="Inspect the masu">
+            <label class="pour" for="pour">
+              <span class="pour-head">
+                <span>Pour</span>
+                <output id="pour-out" for="pour">180 ml</output>
+              </span>
+              <input id="pour" type="range" min="0" max="196" step="1" value="180" aria-describedby="pour-hint" />
+              <span id="pour-hint" class="hint">Rim at 196 ml. Past 180 is mokkiri.</span>
+            </label>
+            <div class="buttons">
+              <button type="button" id="repour">Pour again</button>
+              <button type="button" id="hold" aria-pressed="false">Hold rotation</button>
+            </div>
+          </div>
+        </div>
+
+        <figure class="stage" id="stage" aria-label="Live three.js model of a hinoki masu, rotating, filled with sake">
+          <canvas id="masu" aria-hidden="true"></canvas>
+          <div class="frame" aria-hidden="true">
+            <span class="c tl"></span><span class="c tr"></span><span class="c bl"></span><span class="c br"></span>
+            <span class="ruler x"></span><span class="ruler y"></span>
+            <span class="axis"></span>
+          </div>
+          <div class="hud tl">
+            <span class="live"><span class="dot" aria-hidden="true"></span>Live object</span>
+            <span>Masu 01</span>
+          </div>
+          <div class="hud tr">
+            <span>Hinoki cedar</span>
+            <span>84 × 84 × 54 mm</span>
+          </div>
+          <div class="hud bl" aria-hidden="true">
+            <span>Rot Y <b id="r-rot">000.0°</b></span>
+            <span>Elev <b>30.4°</b></span>
+          </div>
+          <div class="hud br" aria-live="polite">
+            <span>Fill <b id="r-ml">180 ml</b></span>
+            <span>Level <b id="r-mm">41.3 mm</b></span>
+          </div>
+          <div class="tag" id="tag" aria-hidden="true"><span class="tag-line"></span><span class="tag-text" id="tag-text">Sake line · 41.3 mm</span></div>
+          <figcaption class="sr-only">A square cedar cup with 9 mm walls, drawn as a lit solid with its edges traced in green. The liquid level follows the Pour control.</figcaption>
+        </figure>
+      </section>
+
+      <section class="notes" id="masu" aria-labelledby="notes-title">
+        <div class="section-head">
+          <p class="eyebrow">The masu</p>
+          <h2 id="notes-title">A box is the most honest cup.</h2>
+        </div>
+        <ol class="note-grid">
+          {notes.map((n) => (
+            <li class="note">
+              <span class="note-n">{n.n}</span>
+              <span class="note-fig">{n.figure}</span>
+              <h3>{n.title}</h3>
+              <p>{n.body}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section class="season" id="season" aria-labelledby="season-title">
+        <div class="section-head">
+          <p class="eyebrow">This season · Brewing year 2026</p>
+          <h2 id="season-title">Three sakes, three ways to pour.</h2>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th scope="col">Sake</th><th scope="col">Polish</th><th scope="col">SMV</th><th scope="col">Serve</th><th scope="col" class="col-note">Tasting</th></tr>
+            </thead>
+            <tbody>
+              {season.map((s) => (
+                <tr>
+                  <th scope="row"><span class="s-name">{s.name}</span><span class="s-style">{s.style}</span></th>
+                  <td class="mono">{s.polish}</td>
+                  <td class="mono">{s.smv}</td>
+                  <td class="mono">{s.serve}</td>
+                  <td class="col-note">{s.note}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="visit" id="visit" aria-labelledby="visit-title">
+        <h2 id="visit-title">Taste it in the kura.</h2>
+        <p>Thursday to Sunday, 10:00–16:00. Four pours from the tank, one masu to take home with your initials burned beside the line.</p>
+        <a class="cta" href="#top">Book a tasting · ¥2,400</a>
+      </section>
+    </main>
+
+    <footer class="foot">
+      <span>Kurahashi Shuzō · 4-12 Kurahashi, Ina, Nagano</span>
+      <span>Please drink slowly. Not served under 20.</span>
+    </footer>
+
+    <style is:global>
+      :root {
+        --bg: #0a0c0f;
+        --panel: #0f1217;
+        --line: rgb(255 255 255 / 0.09);
+        --line-2: rgb(255 255 255 / 0.16);
+        --text: #f1f3f5;
+        --muted: #949aa4;
+        --dim: #5f6570;
+        --accent: #9be36a;
+        --accent-dim: rgb(155 227 106 / 0.18);
+        --sans: 'Inter Tight', ui-sans-serif, system-ui, sans-serif;
+        --mono: 'JetBrains Mono', ui-monospace, monospace;
+      }
+      html { background: var(--bg); color-scheme: dark; }
+      body {
+        margin: 0; background: var(--bg); color: var(--text); font-family: var(--sans);
+        -webkit-font-smoothing: antialiased; overflow-x: hidden;
+        background-image: radial-gradient(60rem 40rem at 72% 18%, rgb(155 227 106 / 0.07), transparent 70%);
+      }
+      a, button, input { -webkit-tap-highlight-color: transparent; }
+      :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+      .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+    </style>
+
+    <style>
+      .bar {
+        display: flex; align-items: center; gap: 24px; height: 64px; margin: 0 clamp(16px, 2.5vw, 32px);
+        border-bottom: 1px solid var(--line);
+        font: 500 11px/1 var(--mono); letter-spacing: 0.14em; text-transform: uppercase;
+      }
+      .mark { display: inline-flex; align-items: center; gap: 10px; color: var(--text); text-decoration: none; font-weight: 500; }
+      .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 10px var(--accent); flex: none; }
+      .nav { display: flex; gap: 28px; margin-left: auto; }
+      .nav a { color: var(--muted); text-decoration: none; transition: color 0.2s; }
+      .nav a:hover { color: var(--text); }
+      .bar-meta { color: var(--dim); }
+
+      .hero {
+        display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 8fr); gap: clamp(24px, 3vw, 48px);
+        padding: clamp(20px, 3vh, 32px) clamp(16px, 2.5vw, 32px) 32px;
+        min-height: calc(100svh - 64px); box-sizing: border-box;
+      }
+      .hero-copy { display: flex; flex-direction: column; justify-content: center; gap: 28px; padding-block: 8px; }
+      .eyebrow { margin: 0; font: 500 11px/1.2 var(--mono); letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+      h1 {
+        margin: 0; font-weight: 600; font-size: clamp(52px, 6.6vw, 104px); line-height: 0.9; letter-spacing: -0.055em;
+      }
+      .lede { margin: 0; max-width: 34ch; font-size: clamp(16px, 1.25vw, 18px); line-height: 1.55; color: #b4b9c1; }
+
+      .controls { display: grid; gap: 18px; max-width: 380px; padding-top: 22px; border-top: 1px solid var(--line); }
+      .pour { display: grid; gap: 10px; }
+      .pour-head { display: flex; justify-content: space-between; font: 500 11px/1 var(--mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+      .pour-head output { color: var(--accent); }
+      .hint { font: 400 11px/1.3 var(--mono); color: var(--dim); }
+      input[type='range'] { -webkit-appearance: none; appearance: none; width: 100%; height: 22px; background: transparent; margin: 0; cursor: pointer; }
+      input[type='range']::-webkit-slider-runnable-track {
+        height: 2px; background: linear-gradient(90deg, var(--accent) var(--p, 92%), var(--line-2) var(--p, 92%));
+      }
+      input[type='range']::-moz-range-track { height: 2px; background: var(--line-2); }
+      input[type='range']::-moz-range-progress { height: 2px; background: var(--accent); }
+      input[type='range']::-webkit-slider-thumb {
+        -webkit-appearance: none; width: 14px; height: 14px; margin-top: -6px; border-radius: 2px;
+        background: var(--bg); border: 2px solid var(--accent); box-shadow: 0 0 12px rgb(155 227 106 / 0.5);
+      }
+      input[type='range']::-moz-range-thumb { width: 10px; height: 10px; border-radius: 2px; background: var(--bg); border: 2px solid var(--accent); }
+      .buttons { display: flex; gap: 10px; flex-wrap: wrap; }
+      .buttons button {
+        font: 500 11px/1 var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text);
+        background: rgb(255 255 255 / 0.03); border: 1px solid var(--line-2); border-radius: 999px;
+        padding: 11px 16px; cursor: pointer; transition: border-color 0.2s, background 0.2s, color 0.2s;
+      }
+      .buttons button:hover { border-color: var(--accent); }
+      .buttons button[aria-pressed='true'] { color: var(--bg); background: var(--accent); border-color: var(--accent); }
+
+      .stage {
+        position: relative; margin: 0; min-height: 520px; border: 1px solid var(--line-2); border-radius: 18px; overflow: hidden;
+        background:
+          radial-gradient(38% 46% at 50% 52%, rgb(155 227 106 / 0.09), transparent 72%),
+          linear-gradient(180deg, #10141a, #0c0f13);
+      }
+      canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+      .frame { position: absolute; inset: 0; pointer-events: none; }
+      .c { position: absolute; width: 18px; height: 18px; border-color: rgb(155 227 106 / 0.55); border-style: solid; border-width: 0; }
+      .c.tl { top: 52px; left: 52px; border-top-width: 1px; border-left-width: 1px; }
+      .c.tr { top: 52px; right: 52px; border-top-width: 1px; border-right-width: 1px; }
+      .c.bl { bottom: 52px; left: 52px; border-bottom-width: 1px; border-left-width: 1px; }
+      .c.br { bottom: 52px; right: 52px; border-bottom-width: 1px; border-right-width: 1px; }
+      .ruler { position: absolute; opacity: 0.55; }
+      .ruler.x {
+        left: 80px; right: 80px; bottom: 52px; height: 8px;
+        background: repeating-linear-gradient(90deg, rgb(255 255 255 / 0.28) 0 1px, transparent 1px 12px);
+        -webkit-mask-image: linear-gradient(90deg, transparent, #000 15%, #000 85%, transparent);
+        mask-image: linear-gradient(90deg, transparent, #000 15%, #000 85%, transparent);
+      }
+      .ruler.y {
+        top: 80px; bottom: 80px; left: 52px; width: 8px;
+        background: repeating-linear-gradient(180deg, rgb(255 255 255 / 0.28) 0 1px, transparent 1px 12px);
+        -webkit-mask-image: linear-gradient(180deg, transparent, #000 15%, #000 85%, transparent);
+        mask-image: linear-gradient(180deg, transparent, #000 15%, #000 85%, transparent);
+      }
+      .axis { position: absolute; left: 50%; top: 80px; bottom: 80px; width: 0; border-left: 1px dashed rgb(155 227 106 / 0.16); }
+      .hud {
+        position: absolute; display: grid; gap: 7px; font: 500 10.5px/1 var(--mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted);
+      }
+      .hud b { font-weight: 500; color: var(--text); }
+      .hud.tl { top: 20px; left: 22px; }
+      .hud.tr { top: 20px; right: 22px; text-align: right; }
+      .hud.bl { bottom: 20px; left: 22px; }
+      .hud.br { bottom: 20px; right: 22px; text-align: right; }
+      .live { display: inline-flex; align-items: center; gap: 8px; color: var(--text); }
+      .tag {
+        position: absolute; left: 0; top: 0; display: flex; align-items: center; gap: 0; pointer-events: none;
+        font: 500 10.5px/1 var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent);
+        opacity: 0; transition: opacity 0.4s; will-change: transform;
+      }
+      .tag.on { opacity: 1; }
+      .tag[data-mode='l'] { flex-direction: row-reverse; }
+      .tag[data-mode='l'] .tag-line { background: linear-gradient(270deg, var(--accent), rgb(155 227 106 / 0.3)); }
+      .tag[data-mode='u'] .tag-line { display: none; }
+      .tag-line { width: 56px; height: 1px; background: linear-gradient(90deg, var(--accent), rgb(155 227 106 / 0.3)); }
+      .tag-text { padding: 6px 9px; border: 1px solid rgb(155 227 106 / 0.35); border-radius: 4px; background: rgb(10 12 15 / 0.75); white-space: nowrap; }
+
+      .section-head { display: grid; gap: 16px; margin-bottom: clamp(28px, 4vw, 48px); }
+      h2 { margin: 0; font-weight: 600; font-size: clamp(32px, 4vw, 56px); line-height: 0.98; letter-spacing: -0.045em; max-width: 18ch; }
+      .notes, .season, .visit { padding: clamp(64px, 9vw, 128px) clamp(16px, 2.5vw, 32px) 0; }
+      .note-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid var(--line); }
+      .note { display: grid; gap: 14px; align-content: start; padding: 28px 28px 32px 0; }
+      .note + .note { padding-left: 28px; border-left: 1px solid var(--line); }
+      .note-n { font: 500 11px/1 var(--mono); color: var(--accent); letter-spacing: 0.14em; }
+      .note-fig { font-size: clamp(28px, 2.8vw, 40px); font-weight: 500; letter-spacing: -0.04em; }
+      .note h3 { margin: 0; font-size: 17px; font-weight: 600; letter-spacing: -0.01em; }
+      .note p { margin: 0; color: var(--muted); line-height: 1.6; font-size: 15px; max-width: 38ch; }
+
+      .table-wrap { border: 1px solid var(--line); border-radius: 14px; overflow: hidden; background: var(--panel); }
+      table { width: 100%; border-collapse: collapse; }
+      th, td { text-align: left; padding: 20px 22px; vertical-align: top; }
+      thead th { font: 500 10.5px/1 var(--mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--dim); border-bottom: 1px solid var(--line); }
+      tbody tr + tr > * { border-top: 1px solid var(--line); }
+      tbody th { font-weight: 400; }
+      tbody th span { display: block; }
+      .s-style { margin-top: 6px; }
+      .s-name { font-size: 22px; font-weight: 600; letter-spacing: -0.03em; }
+      .s-style { font: 400 12px/1.2 var(--mono); color: var(--muted); }
+      .mono { font: 400 13px/1.5 var(--mono); color: var(--text); white-space: nowrap; padding-top: 24px; }
+      td.col-note { color: var(--muted); line-height: 1.55; font-size: 15px; padding-top: 22px; }
+      tbody tr { transition: background 0.2s; }
+      tbody tr:hover { background: rgb(155 227 106 / 0.03); }
+
+      .visit { display: grid; gap: 20px; justify-items: start; padding-bottom: clamp(64px, 8vw, 112px); }
+      .visit p { margin: 0; max-width: 46ch; color: var(--muted); line-height: 1.6; font-size: 17px; }
+      .cta {
+        margin-top: 8px; font: 500 12px/1 var(--mono); letter-spacing: 0.12em; text-transform: uppercase; text-decoration: none;
+        color: var(--bg); background: var(--accent); padding: 15px 22px; border-radius: 999px; box-shadow: 0 0 32px rgb(155 227 106 / 0.25);
+      }
+      .foot {
+        display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin: 0 clamp(16px, 2.5vw, 32px);
+        padding: 22px 0 80px; border-top: 1px solid var(--line); font: 400 11px/1.5 var(--mono); color: var(--dim); letter-spacing: 0.06em;
+      }
+
+      @media (max-width: 960px) {
+        .nav, .bar-meta { display: none; }
+        .hero { grid-template-columns: 1fr; min-height: 0; gap: 28px; }
+        .hero-copy { gap: 22px; }
+        .stage { min-height: 0; aspect-ratio: 1 / 1.08; order: -1; }
+        .c.tl, .c.tr { top: 40px; } .c.bl, .c.br { bottom: 40px; }
+        .c.tl, .c.bl { left: 16px; } .c.tr, .c.br { right: 16px; }
+        .ruler.x { left: 40px; right: 40px; bottom: 40px; }
+        .ruler.y { left: 16px; top: 64px; bottom: 64px; }
+        .hud { font-size: 9.5px; gap: 6px; }
+        .hud.tl, .hud.bl { left: 14px; } .hud.tr, .hud.br { right: 14px; }
+        .hud.tl, .hud.tr { top: 14px; } .hud.bl, .hud.br { bottom: 14px; }
+        .tag-line { width: 28px; }
+        .note-grid { grid-template-columns: 1fr; }
+        .note, .note + .note { padding: 24px 0; border-left: 0; }
+        .note + .note { border-top: 1px solid var(--line); }
+        thead { display: none; }
+        tbody tr { display: grid; grid-template-columns: repeat(3, auto); justify-content: start; column-gap: 20px; padding: 18px; }
+        tbody tr + tr { border-top: 1px solid var(--line); }
+        tbody tr + tr > * { border-top: 0; }
+        th, td, .mono, td.col-note { padding: 0; }
+        tbody th { grid-column: 1 / -1; margin-bottom: 12px; }
+        td.col-note { grid-column: 1 / -1; margin-top: 10px; }
+        .mono { font-size: 12px; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .tag { transition: none; }
+      }
+    </style>
+
+    <script>
+      import * as THREE from 'three';
+      import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
+
+      const canvas = document.getElementById('masu') as HTMLCanvasElement;
+      const stage = document.getElementById('stage') as HTMLElement;
+      const pour = document.getElementById('pour') as HTMLInputElement;
+      const pourOut = document.getElementById('pour-out') as HTMLOutputElement;
+      const repour = document.getElementById('repour') as HTMLButtonElement;
+      const hold = document.getElementById('hold') as HTMLButtonElement;
+      const rRot = document.getElementById('r-rot') as HTMLElement;
+      const rMl = document.getElementById('r-ml') as HTMLElement;
+      const rMm = document.getElementById('r-mm') as HTMLElement;
+      const tag = document.getElementById('tag') as HTMLElement;
+      const tagText = document.getElementById('tag-text') as HTMLElement;
+
+      const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      // Masu dimensions in millimetres. Inner cavity 66 × 66 mm, so 1 ml = 1000 / 4356 mm of level.
+      const OUT = 84, H = 54, WALL = 9, IN = OUT - 2 * WALL, DEPTH = H - WALL;
+      const FLOOR = -H / 2 + WALL; // inner floor y
+      const AREA = IN * IN;
+      const levelFor = (ml: number) => Math.min(DEPTH, (ml * 1000) / AREA);
+      const GO_LINE = levelFor(180);
+
+      let renderer: THREE.WebGLRenderer;
+      try {
+        renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
+      } catch {
+        // No WebGL: the stage keeps its framed gradient and the HUD; nothing else to do.
+        stage.classList.add('no-gl');
+        throw new Error('WebGL unavailable');
+      }
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.05;
+
+      const scene = new THREE.Scene();
+      // A soft studio environment gives the sake surface something to reflect.
+      const pmrem = new THREE.PMREMGenerator(renderer);
+      const envRT = pmrem.fromScene(new RoomEnvironment(), 0.04);
+      scene.environment = envRT.texture;
+      scene.environmentIntensity = 0.3;
+      pmrem.dispose();
+      const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 100);
+      const camBase = new THREE.Vector3(0, 3.3, 5.7);
+      const target = new THREE.Vector3(0, -0.05, 0);
+
+      // Procedural hinoki grain: pale blond cedar with fine, slightly wavering growth lines.
+      const grain = (() => {
+        const c = document.createElement('canvas');
+        c.width = c.height = 512;
+        const g = c.getContext('2d')!;
+        g.fillStyle = '#d8c39d';
+        g.fillRect(0, 0, 512, 512);
+        let seed = 7;
+        const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+        for (let i = 0; i < 140; i++) {
+          const x0 = rnd() * 512, amp = 2 + rnd() * 6, freq = 0.006 + rnd() * 0.01, a = 0.05 + rnd() * 0.12;
+          g.strokeStyle = `rgba(${120 + rnd() * 30 | 0}, ${88 + rnd() * 20 | 0}, 52, ${a})`;
+          g.lineWidth = 0.6 + rnd() * 1.6;
+          g.beginPath();
+          for (let y = 0; y <= 512; y += 8) g.lineTo(x0 + Math.sin(y * freq + i) * amp, y);
+          g.stroke();
+        }
+        const tex = new THREE.CanvasTexture(c);
+        tex.colorSpace = THREE.SRGBColorSpace;
+        tex.anisotropy = 4;
+        return tex;
+      })();
+
+      const masu = new THREE.Group();
+      masu.scale.setScalar(1 / 40);
+      masu.rotation.x = 0; // tilt comes from the camera height; rotation stays on a stable Y axis
+      scene.add(masu);
+
+      const wood = new THREE.MeshStandardMaterial({
+        map: grain, color: 0xe9e4da, roughness: 0.82, metalness: 0, envMapIntensity: 0.15,
+        polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1,
+      });
+      const pieces: Array<[number, number, number, number, number, number]> = [
+        [OUT, WALL, OUT, 0, -H / 2 + WALL / 2, 0], // floor
+        [OUT, DEPTH, WALL, 0, FLOOR + DEPTH / 2, (OUT - WALL) / 2], // front
+        [OUT, DEPTH, WALL, 0, FLOOR + DEPTH / 2, -(OUT - WALL) / 2], // back
+        [WALL, DEPTH, IN, (OUT - WALL) / 2, FLOOR + DEPTH / 2, 0], // right
+        [WALL, DEPTH, IN, -(OUT - WALL) / 2, FLOOR + DEPTH / 2, 0], // left
+      ];
+      const disposables: Array<{ dispose(): void }> = [grain, wood, envRT];
+      for (const [w, h, d, x, y, z] of pieces) {
+        const geo = new THREE.BoxGeometry(w, h, d);
+        disposables.push(geo);
+        const m = new THREE.Mesh(geo, wood);
+        m.position.set(x, y, z);
+        masu.add(m);
+      }
+
+      // Edge trace: outer box, inner rim, inner floor and the verticals that join them.
+      const o = OUT / 2, i = IN / 2, top = H / 2, bot = -H / 2;
+      const square = (s: number, y: number) => [
+        [-s, y, -s, s, y, -s], [s, y, -s, s, y, s], [s, y, s, -s, y, s], [-s, y, s, -s, y, -s],
+      ];
+      const edges: number[][] = [
+        ...square(o, top), ...square(o, bot), ...square(i, top), ...square(i, FLOOR),
+        ...[[-1, -1], [1, -1], [1, 1], [-1, 1]].flatMap(([sx, sz]) => [
+          [sx * o, bot, sz * o, sx * o, top, sz * o],
+          [sx * i, FLOOR, sz * i, sx * i, top, sz * i],
+        ]),
+      ];
+      const edgeGeo = new THREE.BufferGeometry();
+      edgeGeo.setAttribute('position', new THREE.Float32BufferAttribute(edges.flat(), 3));
+      const ACCENT = new THREE.Color('#9be36a');
+      const edgeFront = new THREE.LineBasicMaterial({ color: ACCENT, transparent: true, opacity: 0.95 });
+      const edgeHidden = new THREE.LineBasicMaterial({ color: ACCENT, transparent: true, opacity: 0.16, depthTest: false });
+      const lineFront = new THREE.LineSegments(edgeGeo, edgeFront);
+      const lineHidden = new THREE.LineSegments(edgeGeo, edgeHidden);
+      lineHidden.renderOrder = -1;
+      masu.add(lineHidden, lineFront);
+      disposables.push(edgeGeo, edgeFront, edgeHidden);
+
+      // Vertex nodes on the 16 corners.
+      const nodeGeo = new THREE.SphereGeometry(1.15, 12, 8);
+      const nodeMat = new THREE.MeshBasicMaterial({ color: ACCENT });
+      disposables.push(nodeGeo, nodeMat);
+      for (const s of [o, i]) {
+        for (const y of s === o ? [top, bot] : [top, FLOOR]) {
+          for (const [sx, sz] of [[-1, -1], [1, -1], [1, 1], [-1, 1]]) {
+            const n = new THREE.Mesh(nodeGeo, nodeMat);
+            n.position.set(sx * s, y, sz * s);
+            masu.add(n);
+          }
+        }
+      }
+
+      // The burned gō line on the inner walls, dashed.
+      const goGeo = new THREE.BufferGeometry();
+      goGeo.setAttribute('position', new THREE.Float32BufferAttribute(square(i - 0.1, FLOOR + GO_LINE).flat(), 3));
+      const goMat = new THREE.LineDashedMaterial({ color: 0x3a2716, dashSize: 3, gapSize: 2.2 });
+      const goLine = new THREE.LineSegments(goGeo, goMat);
+      goLine.computeLineDistances();
+      masu.add(goLine);
+      disposables.push(goGeo, goMat);
+
+      // Sake: a slab whose height follows the pour, plus a bright meniscus outline.
+      const sakeGeo = new THREE.BoxGeometry(IN - 0.4, 1, IN - 0.4);
+      sakeGeo.translate(0, 0.5, 0);
+      const sakeMat = new THREE.MeshPhysicalMaterial({
+        color: 0x9c9a74, roughness: 0.12, metalness: 0, clearcoat: 1, clearcoatRoughness: 0.02,
+        transparent: true, opacity: 0.86, envMapIntensity: 1.6, emissive: 0x141c0c, emissiveIntensity: 0.4,
+      });
+      const sake = new THREE.Mesh(sakeGeo, sakeMat);
+      sake.position.y = FLOOR;
+      masu.add(sake);
+      const menGeo = new THREE.BufferGeometry();
+      menGeo.setAttribute('position', new THREE.Float32BufferAttribute(square(i - 0.3, 0).flat(), 3));
+      const menMat = new THREE.LineBasicMaterial({ color: 0xe8ffd2, transparent: true, opacity: 0.9 });
+      const meniscus = new THREE.LineSegments(menGeo, menMat);
+      masu.add(meniscus);
+      disposables.push(sakeGeo, sakeMat, menGeo, menMat);
+
+      // Light: warm key from upper left, cool fill, green rim from behind to tie the object to the frame.
+      scene.add(new THREE.HemisphereLight(0xf4efe4, 0x0c1015, 0.3));
+      const key = new THREE.DirectionalLight(0xfff1dc, 2.2);
+      key.position.set(-3, 5, 4);
+      const fill = new THREE.DirectionalLight(0xbcd2ff, 0.25);
+      fill.position.set(4, 1.5, 3);
+      const rim = new THREE.DirectionalLight(0x9be36a, 1.6);
+      rim.position.set(1, 2, -5);
+      scene.add(key, fill, rim);
+
+      // Faint floor grid under the object for depth.
+      const grid = new THREE.GridHelper(9, 18, 0x9be36a, 0x9be36a);
+      (grid.material as THREE.Material).transparent = true;
+      (grid.material as THREE.Material).opacity = 0.07;
+      grid.position.y = -H / 80 - 0.02;
+      scene.add(grid);
+      disposables.push(grid.geometry, grid.material as THREE.Material);
+
+      // ---- state ----
+      // ?shot (card capture) and reduced motion start full; everyone else watches the first pour.
+      const still = reduced || new URLSearchParams(location.search).has('shot');
+      let ml = still ? Number(pour.value) : 0;
+      let pourFrom = 0, pourTo = Number(pour.value), pourStart = performance.now() + 400;
+      const POUR_MS = 2200;
+      let pouring = !still;
+      let angle = 0.62;
+      let held = false;
+      const sway = { x: 0, y: 0, tx: 0, ty: 0 };
+      const proj = new THREE.Vector3();
+
+      const setFill = (v: number) => {
+        ml = v;
+        const lvl = Math.max(0.0001, levelFor(v));
+        sake.scale.y = lvl;
+        sake.visible = v > 0.5;
+        meniscus.position.y = FLOOR + lvl;
+        meniscus.visible = sake.visible;
+      };
+
+      const syncInput = (v: number) => {
+        pour.style.setProperty('--p', `${(v / 196) * 100}%`);
+        pourOut.textContent = `${Math.round(v)} ml`;
+      };
+      syncInput(Number(pour.value));
+
+      let frame = 0;
+      const updateHud = () => {
+        const deg = ((THREE.MathUtils.radToDeg(angle) % 360) + 360) % 360;
+        rRot.textContent = `${deg.toFixed(1).padStart(5, '0')}°`;
+        rMl.textContent = `${Math.round(ml)} ml`;
+        const lvl = levelFor(ml);
+        rMm.textContent = `${lvl.toFixed(1)} mm`;
+        tagText.textContent = ml > 180.5 ? `Mokkiri · ${lvl.toFixed(1)} mm` : `Sake line · ${lvl.toFixed(1)} mm`;
+      };
+
+      const toPx = (v: THREE.Vector3, w: number, h: number) => [(v.x * 0.5 + 0.5) * w, (-v.y * 0.5 + 0.5) * h];
+      const placeTag = (w: number, h: number) => {
+        // Anchor the label to a meniscus corner: right of the object, else left, else above it.
+        let right: number[] | null = null, left: number[] | null = null;
+        for (const [sx, sz] of [[-1, -1], [1, -1], [1, 1], [-1, 1]]) {
+          proj.set(sx * i, FLOOR + levelFor(ml), sz * i).applyMatrix4(masu.matrixWorld).project(camera);
+          const p = toPx(proj, w, h);
+          if (!right || p[0] > right[0]) right = p;
+          if (!left || p[0] < left[0]) left = p;
+        }
+        if (!right || !left) return;
+        const tw = tag.offsetWidth, pad = 14;
+        let x: number, y: number, mode: string;
+        if (right[0] + tw <= w - pad) { x = right[0]; y = right[1]; mode = 'r'; }
+        else if (left[0] - tw >= pad) { x = left[0] - tw; y = left[1]; mode = 'l'; }
+        else { x = Math.min(w - pad - tw, Math.max(pad, right[0] - tw)); y = Math.min(right[1], left[1]) - 30; mode = 'u'; }
+        tag.dataset.mode = mode;
+        tag.style.transform = `translate(${x.toFixed(1)}px, ${(y - 0.5).toFixed(1)}px) translateY(-50%)`;
+        tag.classList.toggle('on', ml > 0.5);
+      };
+
+      let W = 1, Hh = 1;
+      const resize = () => {
+        W = stage.clientWidth; Hh = stage.clientHeight;
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.setSize(W, Hh, false);
+        camera.aspect = W / Hh;
+        // Narrow stages pull the camera back so the rotating diagonal never clips.
+        const fit = W / Hh < 1.1 ? 1.32 : 1;
+        camera.position.copy(camBase).multiplyScalar(fit);
+        camera.updateProjectionMatrix();
+        render();
+      };
+
+      const render = () => {
+        masu.rotation.y = angle;
+        camera.position.x = camBase.x + sway.x;
+        camera.lookAt(target.x, target.y + sway.y * 0.2, target.z);
+        masu.updateMatrixWorld();
+        renderer.render(scene, camera);
+        placeTag(W, Hh);
+      };
+
+      // ---- loop: pauses when hidden or offscreen; reduced motion renders on demand only ----
+      let raf = 0, visible = true, last = performance.now();
+      const tick = (now: number) => {
+        raf = 0;
+        const dt = Math.min(0.05, (now - last) / 1000);
+        last = now;
+        if (!held) angle += dt * 0.32;
+        sway.x += (sway.tx - sway.x) * 0.04;
+        sway.y += (sway.ty - sway.y) * 0.04;
+        if (pouring) {
+          const t = Math.min(1, Math.max(0, (now - pourStart) / POUR_MS));
+          const e = 1 - Math.pow(1 - t, 3);
+          setFill(pourFrom + (pourTo - pourFrom) * e);
+          if (t >= 1) { pouring = false; updateHud(); }
+        }
+        render();
+        if (pouring || frame++ % 4 === 0) updateHud();
+        start();
+      };
+      const start = () => {
+        if (!raf && visible && !document.hidden && !reduced) raf = requestAnimationFrame(tick);
+      };
+      const stop = () => { if (raf) cancelAnimationFrame(raf); raf = 0; };
+
+      setFill(ml);
+      new ResizeObserver(resize).observe(stage);
+      resize();
+      updateHud();
+      if (reduced) { angle = 0.62; render(); }
+      start();
+
+      new IntersectionObserver(([entry]) => {
+        visible = entry.isIntersecting;
+        if (visible) { last = performance.now(); start(); } else stop();
+      }).observe(stage);
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) stop(); else { last = performance.now(); start(); }
+      });
+
+      // Restrained camera motion: a small parallax toward the pointer, never an orbit.
+      if (!reduced) {
+        stage.addEventListener('pointermove', (e) => {
+          const r = stage.getBoundingClientRect();
+          sway.tx = ((e.clientX - r.left) / r.width - 0.5) * 0.7;
+          sway.ty = -((e.clientY - r.top) / r.height - 0.5) * 0.7;
+        });
+        stage.addEventListener('pointerleave', () => { sway.tx = 0; sway.ty = 0; });
+      }
+
+      // ---- controls ----
+      pour.addEventListener('input', () => {
+        const v = Number(pour.value);
+        syncInput(v);
+        pouring = false;
+        setFill(v);
+        updateHud();
+        if (reduced) render();
+      });
+      repour.addEventListener('click', () => {
+        const v = Number(pour.value);
+        if (reduced) { setFill(v); updateHud(); render(); return; }
+        pourFrom = 0; pourTo = v; pourStart = performance.now(); pouring = true;
+        setFill(0);
+      });
+      hold.addEventListener('click', () => {
+        held = !held;
+        hold.setAttribute('aria-pressed', String(held));
+        hold.textContent = held ? 'Resume rotation' : 'Hold rotation';
+      });
+
+      window.addEventListener('pagehide', () => {
+        stop();
+        for (const d of disposables) d.dispose();
+        renderer.dispose();
+      }, { once: true });
+    </script>
+  </body>
+</html>

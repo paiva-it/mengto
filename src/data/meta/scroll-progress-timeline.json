@@ -1,0 +1,7 @@
+{
+  "title": "Scroll Progress Timeline",
+  "kind": "section",
+  "category": "Motion & scroll",
+  "concept": "Nightjar Films' production diary for The Salt Year, a fictional 16mm indie feature: six stages from script to a 38-cinema release on one red left rail that fills from the first dot to the last as you scroll, with a sticky readout (current stage, film timecode, sprocket reel bar) and chapter anchors marked aria-current.",
+  "notes": "Vanilla script, no libraries: dot centres measured once per layout change (resize, ResizeObserver, fonts, load), scroll only reads scrollY and writes transforms in one rAF. Steps are a semantic ordered list; inactive steps stay readable. Collapses to a narrow left rail with a sticky top progress bar below 1024px. Reduced motion shows the full line and discrete step states. All media panels are CSS compositions; cinemas and festival are invented."
+}

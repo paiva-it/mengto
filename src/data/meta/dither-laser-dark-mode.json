@@ -1,0 +1,7 @@
+{
+  "title": "Dither Laser Dark Mode",
+  "kind": "website",
+  "category": "Design systems",
+  "concept": "Quell, a fictional trapped-ion quantum lab in Ghent: a 1 px white-hot 729 nm laser crosses a Bayer-dithered near-black field and addresses a chain of 32 calcium ions, and the same dark-glass panels, corner markers, gradient hairlines and red accent carry a telemetry card, a live trap console with tabs, a four-pulse circuit timeline and beam-time pricing.",
+  "notes": "Raw WebGL fragment shader, no libraries: fbm smoke rendered at 1/3 resolution and quantised with an 8×8 Bayer matrix (nearest-neighbour upscale), plus a beam-tinted haze whose y follows the hero beam as you scroll, dithered in the accent colour. The crisp beam core, sweeping pulse and ion chain are DOM/CSS on top. Reduced motion draws one still frame and stops the CSS sweep; no WebGL falls back to a CSS radial haze."
+}

@@ -1,0 +1,7 @@
+{
+  "title": "Globe.GL",
+  "kind": "section",
+  "category": "3D & WebGL",
+  "concept": "Ninth Needle: a Kreuzberg tattoo collective's guest-spot atlas, where a globe.gl sphere of dotted land carries coral arcs from Berlin to eight tour stops; picking a stop flies the globe to it, rings the city and updates the artist card.",
+  "notes": "globe.gl 2.46 (installed) with hex-dot polygons (slimmed Natural Earth 110m countries in public/skills/globe-gl/, resolution 3 desktop / 2 mobile), arcs, points, rings and HTML labels (hidden behind the globe by globe.gl's visibility modifier). Zoom is disabled so the page scroll is never hijacked; drag, the stop list and arrow keys steer. Auto-tour and auto-rotate stop on interaction; reduced motion removes rings, dash animation, auto-tour and camera easing. Rendering pauses offscreen and on hidden tabs; ResizeObserver resizes the canvas. ?shot freezes the Montréal pose."
+}

@@ -3,13 +3,15 @@ import skills from '../src/data/skills.json' with { type: 'json' };
 import { launch, open } from './browser.mjs';
 
 const only = process.argv.slice(2);
+// Pages whose first viewport needs longer than the default to reach its resting state.
+const WAIT = { 'fire-paper-loader': 14000 };
 const names = skills.map((s) => s.name).filter((n) => !only.length || only.includes(n));
 
 const browser = await launch();
 const failed = [];
 for (const name of names) {
   try {
-    const { page, errors } = await open(browser, name, { wait: 3500 });
+    const { page, errors } = await open(browser, name, { wait: WAIT[name] ?? 3500 });
     await page.screenshot({ path: `public/previews/${name}.jpg`, type: 'jpeg', quality: 78 });
     await page.close();
     console.info(`${name}${errors.length ? `  (${errors.length} errors)` : ''}`);

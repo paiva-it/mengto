@@ -1,0 +1,810 @@
+---
+// Vell Halo — a fictional benchtop live-cell imager. Example page for "build-awwwards-quality-sites".
+//
+// Direction
+//   Visual thesis: the microscope is the site. The page is the bench (bone paper, ink, hairlines);
+//   the hero is the eyepiece field — label-free phase contrast everywhere, true fluorescence only
+//   under the objective you move. Low light, more seeing.
+//   Hero focal asset: a WebGL eyepiece over a real confocal micrograph (Three.js, one shader).
+//   Type: Instrument Sans (variable width 82 for display, 100 for text) + Geist Mono for readouts.
+//   Colour: bone #E9EAE4 / paper #F4F4F0 / ink #111311, plus the three fluorophore channels
+//   (cobalt 405, magenta 561, green 488) used only where a channel is actually meant.
+//   Sections: hero → statement → instrument → fourteen days (pinned, scrubbed data) → workflow →
+//   channels → loan-unit request form → footer.
+//   Motion: GSAP intro (iris opens, words rise), Lenis as the only smooth-scroll engine wired to
+//   ScrollTrigger, one pinned scrub for the 14-day curve, word-staggered headings elsewhere.
+//   Companion skill followed: animation-systems (easing/duration defaults, reduced-motion rules).
+//
+// Asset provenance (Unsplash licence, copied to /public/skills/build-awwwards-quality-sites/):
+//   specimen.jpg   photo-1576086213369-97a306d36557 (confocal micrograph, cropped 1:1)
+//   instrument.jpg photo-1606206873764-fd15e242df52 (automated lab instrument)
+//   plate.jpg      photo-1532187863486-abf9dbad1b69 (pipetting into a well plate)
+//   pipette.jpg    photo-1614935151651-0bea6508db6b (multichannel pipette)
+//   lab.jpg        photo-1579154204601-01588f351e67 (laboratory bench row)
+//   No avatars, testimonials or customer logos: Vell is fictional and has no honest proof to show.
+import '../../styles/global.css';
+import BackPill from '../../components/BackPill.astro';
+import { control, halo, path, x, X0, X1, y, Y0, Y1 } from '../../components/skills/build-awwwards-quality-sites/growth';
+
+const A = '/skills/build-awwwards-quality-sites';
+const haloPath = path(halo);
+const controlPath = path(control);
+const gridY = [0, 25, 50, 75, 100];
+const gridX = [0, 2, 4, 6, 8, 10, 12, 14];
+
+// Static lens (no-WebGL / reduced-motion poster): centre (cx, cy) of the field, radius r, 1.35× magnification.
+const L = { cx: 0.55, cy: 0.52, r: 0.2, m: 1.35 };
+const lensImg = `width:${((L.m / (2 * L.r)) * 100).toFixed(2)}%;left:${(50 - (L.cx * L.m) / (2 * L.r) * 100).toFixed(2)}%;top:${(50 - (L.cy * L.m) / (2 * L.r) * 100).toFixed(2)}%`;
+const lensBox = `width:${L.r * 200}%;left:${(L.cx - L.r) * 100}%;top:${(L.cy - L.r) * 100}%`;
+
+const channels = [
+  { nm: '405', name: 'Nuclear', ex: '405 / 450 nm', use: 'Hoechst, DAPI, NucBlue. Counts and cell-cycle staging.', color: 'var(--c-405)' },
+  { nm: '488', name: 'Green', ex: '488 / 525 nm', use: 'GFP, GCaMP, CellEvent caspase. Reporters and calcium.', color: 'var(--c-488)' },
+  { nm: '561', name: 'Membrane', ex: '561 / 610 nm', use: 'mCherry, CellMask Orange. Shape, contact, division.', color: 'var(--c-561)' },
+  { nm: 'PH', name: 'Phase', ex: 'White LED, Zernike', use: 'Label-free confluence and morphology, at almost no dose.', color: 'var(--ink)' },
+];
+
+const notes = [
+  { day: 0, text: '3,000 cells per well, 96 wells. Four channels every 20 minutes.' },
+  { day: 4, text: 'At a standard widefield dose the control plate stops dividing. Halo wells keep going.' },
+  { day: 8, text: 'First wells reach confluence. Autofocus has held within 0.4 µm since seeding.' },
+  { day: 13, text: '94 % confluent. 1,008 frames per channel per well, and nothing in the dish noticed.' },
+];
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Vell Halo — Live-cell imaging at a gentler dose</title>
+    <meta name="description" content="Vell Halo is a fictional benchtop live-cell imager that keeps cultures alive for fourteen days of four-channel time-lapse." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet" />
+    <link rel="preload" as="image" href={`${A}/specimen.jpg`} />
+  </head>
+  <body>
+    <BackPill />
+    <a class="skip" href="#main">Skip to content</a>
+
+    <header class="nav" id="top">
+      <a class="brand" href="#top" aria-label="Vell, home">
+        <svg viewBox="0 0 32 32" width="28" height="28" aria-hidden="true"><circle cx="16" cy="16" r="14.5" fill="none" stroke="currentColor" stroke-width="1.5"></circle><circle cx="19" cy="14" r="6.5" fill="currentColor"></circle></svg>
+        <span>Vell</span>
+      </a>
+      <nav aria-label="Primary">
+        <ul>
+          <li><a href="#instrument">Instrument</a></li>
+          <li><a href="#days">Fourteen days</a></li>
+          <li><a href="#workflow">Workflow</a></li>
+          <li><a href="#channels">Channels</a></li>
+        </ul>
+      </nav>
+      <a class="btn btn-ink btn-sm" href="#demo">Book a demo</a>
+    </header>
+
+    <main id="main">
+      <!-- 1 · Hero -->
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <p class="eyebrow"><span class="dot" aria-hidden="true"></span>Halo · benchtop live-cell imager</p>
+          <h1 id="hero-title">
+            <span class="l1" data-split>Watch a cell for fourteen days.</span>
+            <span class="l2" data-split>Without hurting it.</span>
+          </h1>
+          <div class="ctas">
+            <a class="btn btn-ink" href="#demo">Book a bench demo <iconify-icon icon="solar:arrow-right-up-linear" aria-hidden="true"></iconify-icon></a>
+            <a class="btn btn-line" href="#days">See the 14-day data</a>
+          </div>
+          <p class="lede">Halo images four channels inside your incubator at a twelfth of the usual light dose, so the culture lives long enough to show you what it actually does.</p>
+        </div>
+
+        <figure class="stage" aria-label="Interactive specimen view">
+          <div
+            class="field"
+            id="field"
+            tabindex="0"
+            role="group"
+            aria-roledescription="specimen viewer"
+            aria-label="HeLa cells in phase contrast. The circular objective shows the fluorescence channels; move it with the pointer or the arrow keys."
+          >
+            <img class="poster-bf" src={`${A}/specimen.jpg`} alt="" width="1600" height="1600" fetchpriority="high" />
+            <div class="poster-lens" style={lensBox} aria-hidden="true"><img src={`${A}/specimen.jpg`} alt="" style={lensImg} /></div>
+          </div>
+          <svg class="reticle" viewBox="0 0 200 200" aria-hidden="true">
+            <circle cx="100" cy="100" r="99" fill="none" stroke="currentColor" stroke-width=".25"></circle>
+            {Array.from({ length: 72 }, (_, i) => {
+              const a = (i * 5 * Math.PI) / 180;
+              const l = i % 6 === 0 ? 4 : 1.8;
+              return <line x1={100 + Math.cos(a) * 99} y1={100 + Math.sin(a) * 99} x2={100 + Math.cos(a) * (99 - l)} y2={100 + Math.sin(a) * (99 - l)} stroke="currentColor" stroke-width=".3"></line>;
+            })}
+          </svg>
+          <div class="readout r-tl" aria-hidden="true"><b>OBJ</b> 20× / NA 0.45</div>
+          <div class="readout r-tr" aria-hidden="true"><b>t</b> <span id="clock">02d 14:06:31</span></div>
+          <div class="readout r-bl" aria-hidden="true"><b>XY</b> <span id="xy">412 · 288 µm</span></div>
+          <div class="readout r-br" aria-hidden="true"><b>STAGE</b> 37.0 °C · 5 % CO₂</div>
+          <figcaption class="channels">
+            <span class="sr-only">Channel shown under the objective:</span>
+            <div class="seg" role="group" aria-label="Fluorescence channel">
+              <button type="button" aria-pressed="true" data-ch="merge"><i style="background:conic-gradient(var(--c-405) 0 33%,var(--c-561) 0 66%,var(--c-488) 0)"></i>Merge</button>
+              <button type="button" aria-pressed="false" data-ch="405"><i style="background:var(--c-405)"></i>405</button>
+              <button type="button" aria-pressed="false" data-ch="561"><i style="background:var(--c-561)"></i>561</button>
+              <button type="button" aria-pressed="false" data-ch="488"><i style="background:var(--c-488)"></i>488</button>
+            </div>
+          </figcaption>
+        </figure>
+
+        <dl class="specs">
+          <div><dt>Light per frame</dt><dd>1/12<small>of a standard widefield dose</small></dd></div>
+          <div><dt>Lateral resolution</dt><dd>0.6 µm<small>20× air, phase + 3 fluorescence</small></dd></div>
+          <div><dt>Runs inside</dt><dd>Your incubator<small>37 °C, 5 % CO₂, 95 % RH rated</small></dd></div>
+          <div><dt>Unattended</dt><dd>14 days<small>96 wells, every 20 minutes</small></dd></div>
+        </dl>
+      </section>
+
+      <!-- 2 · Statement -->
+      <section class="statement" aria-labelledby="statement-title">
+        <p class="kicker">01 — Why</p>
+        <h2 id="statement-title" data-split data-reveal>Most imaging is an autopsy. The light that shows you a cell is the same light that ends it. We built Halo to look less, and see more.</h2>
+      </section>
+
+      <!-- 3 · Instrument -->
+      <section class="instrument" id="instrument" aria-labelledby="instrument-title">
+        <div class="inst-media" data-clip>
+          <img src={`${A}/instrument.jpg`} alt="A compact automated imaging instrument lit in cold blue light on a laboratory bench." width="1600" height="1067" loading="lazy" decoding="async" />
+          <span class="tag">Fig. 1 — reference bench, not the Halo enclosure</span>
+        </div>
+        <div class="inst-copy">
+          <p class="kicker">02 — The instrument</p>
+          <h2 id="instrument-title" data-split data-reveal>One drawer. Four channels. No darkroom.</h2>
+          <ol class="parts">
+            <li>
+              <span class="n">01</span>
+              <div><h3>Pulsed LED optics</h3><p>Each channel fires for exactly the exposure, never longer. The camera, not the specimen, does the waiting.</p></div>
+              <span class="v">12× less dose</span>
+            </li>
+            <li>
+              <span class="n">02</span>
+              <div><h3>Phase-first autofocus</h3><p>Focus is found in label-free phase light, so fluorophores are only ever excited for a frame that counts.</p></div>
+              <span class="v">±0.4 µm drift</span>
+            </li>
+            <li>
+              <span class="n">03</span>
+              <div><h3>Lives in the incubator</h3><p>A 26 cm footprint slides onto an incubator shelf. Cables leave through the door gasket; the culture never moves.</p></div>
+              <span class="v">26 × 31 cm</span>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <!-- 4 · Fourteen days (pinned + scrubbed) -->
+      <section class="days" id="days" aria-labelledby="days-title">
+        <div class="days-inner">
+          <div class="days-head">
+            <p class="kicker">03 — Fourteen days</p>
+            <h2 id="days-title">The same cells, the same schedule. Different light.</h2>
+          </div>
+          <div class="days-grid">
+            <div class="counter">
+              <p class="day" aria-hidden="true"><span>Day</span> <b id="day-n">14</b></p>
+              <dl class="vals">
+                <div><dt><i style="background:var(--c-405)"></i>Halo dose</dt><dd id="v-halo">{halo(14).toFixed(0)} %</dd></div>
+                <div><dt><i style="background:var(--c-561)"></i>Standard dose</dt><dd id="v-ctrl">{control(14).toFixed(0)} %</dd></div>
+              </dl>
+              <ol class="notes">
+                {notes.map((n) => <li data-day={n.day}><b>Day {String(n.day === 13 ? 14 : n.day).padStart(2, '0')}</b>{n.text}</li>)}
+              </ol>
+            </div>
+            <figure class="chart">
+              <svg viewBox="0 0 640 360" role="img" aria-labelledby="chart-t chart-d">
+                <title id="chart-t">Confluence over fourteen days</title>
+                <desc id="chart-d">Wells imaged with Halo grow from 5 to 94 percent confluence. Wells imaged at a standard widefield dose track them until day four, then decline to about 4 percent.</desc>
+                {gridY.map((g) => (
+                  <g>
+                    <line x1={X0} x2={X1} y1={y(g)} y2={y(g)} class="grid"></line>
+                    <text x={X0 - 10} y={y(g) + 4} text-anchor="end" class="ax">{g}</text>
+                  </g>
+                ))}
+                {gridX.map((d) => <text x={x(d)} y={Y0 + 22} text-anchor="middle" class="ax">{d}</text>)}
+                <path d={controlPath} class="ghost ghost-c"></path>
+                <path d={haloPath} class="ghost ghost-h"></path>
+                <clipPath id="drawn"><rect id="drawn-r" x="0" y="0" width={x(14)} height="360"></rect></clipPath>
+                <g clip-path="url(#drawn)">
+                  <path d={controlPath} class="ln ln-ctrl"></path>
+                  <path d={haloPath} class="ln ln-halo"></path>
+                </g>
+                <line id="cursor" x1={x(14)} x2={x(14)} y1={Y1} y2={Y0} class="cur"></line>
+                <circle id="dot-h" cx={x(14)} cy={y(halo(14))} r="5" class="pt pt-h"></circle>
+                <circle id="dot-c" cx={x(14)} cy={y(control(14))} r="5" class="pt pt-c"></circle>
+              </svg>
+              <figcaption>Confluence, % of well area, by day. Illustrative curves for a fictional instrument.</figcaption>
+            </figure>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5 · Workflow -->
+      <section class="workflow" id="workflow" aria-labelledby="wf-title">
+        <div class="wf-head">
+          <p class="kicker">04 — Workflow</p>
+          <h2 id="wf-title" data-split data-reveal>Seed it. Slide it in. Go home.</h2>
+          <p class="sub">Halo was designed around the hours you are not in the lab. Setup is a plate and a protocol; everything after that is the instrument's job.</p>
+        </div>
+        <ol class="steps">
+          <li>
+            <div class="ph" data-clip><img src={`${A}/plate.jpg`} alt="A pipette dispensing pink medium into a clear 96-well plate." width="1200" height="800" loading="lazy" decoding="async" /></div>
+            <span class="n">Step 1</span>
+            <h3>Seed a standard plate</h3>
+            <p>Any SBS-format 6 to 384-well plate, glass or polymer bottom. No proprietary consumables, ever.</p>
+          </li>
+          <li>
+            <div class="ph" data-clip><img src={`${A}/pipette.jpg`} alt="A scientist in blue gloves loads a multichannel pipette over a row of tubes." width="1200" height="753" loading="lazy" decoding="async" /></div>
+            <span class="n">Step 2</span>
+            <h3>Pick a protocol</h3>
+            <p>Choose channels and an interval. Halo shows the projected light budget per well before you commit.</p>
+          </li>
+          <li>
+            <div class="ph" data-clip><img src={`${A}/lab.jpg`} alt="A long, bright laboratory with benchtop instruments along both walls." width="1200" height="800" loading="lazy" decoding="async" /></div>
+            <span class="n">Step 3</span>
+            <h3>Leave</h3>
+            <p>Frames stream to your server as OME-TIFF. A message reaches you only if focus, temperature or CO₂ drifts.</p>
+          </li>
+        </ol>
+      </section>
+
+      <!-- 6 · Channels -->
+      <section class="chans" id="channels" aria-labelledby="ch-title">
+        <div class="ch-head">
+          <p class="kicker">05 — Channels</p>
+          <h2 id="ch-title" data-split data-reveal>Three colours and a light that costs nothing.</h2>
+        </div>
+        <ul class="ch-list">
+          {channels.map((c) => (
+            <li style={`--cc:${c.color}`}>
+              <span class="nm">{c.nm}</span>
+              <span class="name">{c.name}</span>
+              <span class="ex">{c.ex}</span>
+              <span class="use">{c.use}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <!-- 7 · Demo request -->
+      <section class="demo" id="demo" aria-labelledby="demo-title">
+        <div class="demo-copy">
+          <p class="kicker">06 — Loan unit</p>
+          <h2 id="demo-title" data-split data-reveal>Put Halo on your bench for one experiment.</h2>
+          <p class="sub">We ship a loan unit, install it with you in an afternoon, and collect it after your time-lapse ends — not before. No purchase order needed to start.</p>
+          <ul class="facts">
+            <li><iconify-icon icon="solar:calendar-linear" aria-hidden="true"></iconify-icon>Loans run 3 to 21 days</li>
+            <li><iconify-icon icon="solar:box-linear" aria-hidden="true"></iconify-icon>Shipped calibrated, plate adapters included</li>
+            <li><iconify-icon icon="solar:shield-check-linear" aria-hidden="true"></iconify-icon>Your images stay on your network</li>
+          </ul>
+        </div>
+        <form class="form" id="form" novalidate>
+          <div class="row2">
+            <label class="fld"><span>Name</span><input name="name" autocomplete="name" required aria-describedby="e-name" /><em id="e-name" class="err"></em></label>
+            <label class="fld"><span>Institution</span><input name="org" autocomplete="organization" required aria-describedby="e-org" /><em id="e-org" class="err"></em></label>
+          </div>
+          <label class="fld"><span>Work e-mail</span><input name="email" type="email" autocomplete="email" required aria-describedby="e-email" /><em id="e-email" class="err"></em></label>
+          <label class="fld">
+            <span>Assay</span>
+            <select name="assay" required aria-describedby="e-assay">
+              <option value="">Choose one</option>
+              <option>Proliferation & confluence</option>
+              <option>Apoptosis / cytotoxicity</option>
+              <option>Organoids & spheroids</option>
+              <option>Migration & wound healing</option>
+              <option>Something else</option>
+            </select>
+            <em id="e-assay" class="err"></em>
+          </label>
+          <label class="fld"><span>What should Halo watch? <small>(optional)</small></span><textarea name="msg" rows="3"></textarea></label>
+          <button class="btn btn-ink btn-wide" type="submit"><span class="lbl">Request a loan unit</span><iconify-icon icon="solar:arrow-right-linear" aria-hidden="true"></iconify-icon></button>
+          <p class="status" id="status" role="status" aria-live="polite"></p>
+        </form>
+      </section>
+    </main>
+
+    <footer class="foot">
+      <p class="big" aria-hidden="true">Look less.<br />See more.</p>
+      <div class="foot-row">
+        <a class="brand" href="#top" aria-label="Vell, back to top">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true"><circle cx="16" cy="16" r="14.5" fill="none" stroke="currentColor" stroke-width="1.5"></circle><circle cx="19" cy="14" r="6.5" fill="currentColor"></circle></svg>
+          <span>Vell Instruments</span>
+        </a>
+        <p>Vell and Halo are fictional, made for a design specimen. Figures on this page are illustrative. Photography via Unsplash.</p>
+        <a href="#top" class="totop">Back to top ↑</a>
+      </div>
+    </footer>
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+      <filter id="f405"><feColorMatrix type="matrix" values="0 0 .3 0 0  0 0 .46 0 0  0 0 1.6 0 0  0 0 0 1 0"></feColorMatrix></filter>
+      <filter id="f561"><feColorMatrix type="matrix" values="1.6 0 0 0 0  .3 0 0 0 0  .95 0 0 0 0  0 0 0 1 0"></feColorMatrix></filter>
+      <filter id="f488"><feColorMatrix type="matrix" values="0 .9 0 0 0  0 2.6 0 0 0  0 1.45 0 0 0  0 0 0 1 0"></feColorMatrix></filter>
+    </svg>
+  </body>
+</html>
+
+<style is:global>
+  :root {
+    --bone: #e9eae4;
+    --paper: #f4f4f0;
+    --ink: #111311;
+    --mute: #60655f;
+    --line: rgb(17 19 17 / 0.14);
+    --night: #0d0f0e;
+    --c-405: #3247ff;
+    --c-561: #ff2d8a;
+    --c-488: #2fcf74;
+    --ease: cubic-bezier(0.2, 0.7, 0.1, 1);
+    --gut: clamp(16px, 3.4vw, 48px);
+    color-scheme: light;
+  }
+  html { background: var(--bone); }
+  html.lenis, html.lenis body { height: auto; }
+  .lenis-smooth { scroll-behavior: auto !important; }
+  body {
+    margin: 0;
+    background: var(--bone);
+    color: var(--ink);
+    font-family: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
+    font-variation-settings: 'wdth' 100;
+    font-size: 17px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: clip;
+  }
+  ::selection { background: var(--c-405); color: #fff; }
+  :focus-visible { outline: 2px solid var(--c-405); outline-offset: 3px; border-radius: 4px; }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .skip { position: absolute; left: 12px; top: -60px; z-index: 50; padding: 10px 14px; background: var(--ink); color: #fff; border-radius: 8px; }
+  .skip:focus { top: 12px; }
+  h1, h2, h3 { margin: 0; font-weight: 600; }
+  p { margin: 0; }
+  .mono, .eyebrow, .kicker, .readout, .specs dt, .n, .v, .ax, .tag, .nm, .ex { font-family: 'Geist Mono', ui-monospace, monospace; }
+  .kicker { font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--mute); margin-bottom: 22px; }
+  h2 { font-variation-settings: 'wdth' 82; letter-spacing: -0.035em; line-height: 0.98; font-size: clamp(36px, 5.4vw, 80px); }
+
+  /* split words */
+  .wm { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: 0.08em; margin-bottom: -0.08em; }
+  .w { display: inline-block; will-change: transform; }
+
+  /* buttons */
+  .btn { display: inline-flex; align-items: center; gap: 10px; height: 52px; padding: 0 22px; border-radius: 999px; font-weight: 500; font-size: 16px; text-decoration: none; border: 1px solid transparent; cursor: pointer; transition: background 0.25s var(--ease), color 0.25s var(--ease), transform 0.25s var(--ease), border-color 0.25s; font-family: inherit; }
+  .btn iconify-icon { font-size: 18px; transition: transform 0.3s var(--ease); }
+  .btn:hover iconify-icon { transform: translate(2px, -2px); }
+  .btn:active { transform: scale(0.98); }
+  .btn-ink { background: var(--ink); color: var(--paper); }
+  .btn-ink:hover { background: var(--c-405); }
+  .btn-line { border-color: var(--line); color: var(--ink); background: transparent; }
+  .btn-line:hover { border-color: var(--ink); }
+  .btn-sm { height: 40px; padding: 0 16px; font-size: 14px; }
+  .btn[disabled] { opacity: 0.55; cursor: progress; }
+
+  /* nav */
+  .nav { position: absolute; inset: 0 0 auto 0; z-index: 20; display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 20px var(--gut); }
+  .brand { display: inline-flex; align-items: center; gap: 10px; color: var(--ink); text-decoration: none; font-weight: 600; font-size: 20px; letter-spacing: -0.02em; }
+  .nav ul { display: flex; gap: 30px; list-style: none; margin: 0; padding: 0; }
+  .nav ul a { color: var(--ink); text-decoration: none; font-size: 14px; position: relative; }
+  .nav ul a::after { content: ''; position: absolute; left: 0; right: 0; bottom: -4px; height: 1px; background: currentColor; transform: scaleX(0); transform-origin: left; transition: transform 0.35s var(--ease); }
+  .nav ul a:hover::after { transform: scaleX(1); }
+
+  /* hero */
+  .hero { position: relative; min-height: max(100svh, 760px); display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: 1fr auto; column-gap: clamp(24px, 4vw, 72px); padding: 96px var(--gut) 0; box-sizing: border-box; background: var(--paper); border-bottom: 1px solid var(--line); }
+  .hero-copy { align-self: center; max-width: 660px; padding-bottom: 24px; display: flex; flex-direction: column; }
+  .eyebrow { display: inline-flex; align-items: center; gap: 10px; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--mute); margin-bottom: 28px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--c-488); box-shadow: 0 0 0 4px rgb(47 207 116 / 0.18); animation: pulse 2.4s ease-in-out infinite; }
+  @keyframes pulse { 50% { box-shadow: 0 0 0 7px rgb(47 207 116 / 0.05); } }
+  h1 { font-variation-settings: 'wdth' 80; font-size: clamp(46px, 6.6vw, 104px); line-height: 0.92; letter-spacing: -0.045em; font-weight: 600; }
+  h1 > span { display: block; }
+  h1 .l2 { color: var(--mute); }
+  .ctas { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 36px; }
+  .lede { margin-top: 28px; max-width: 40ch; color: var(--mute); font-size: 18px; }
+
+  .stage { position: relative; margin: 0; align-self: center; width: min(44vw, calc(100svh - 280px), 660px); aspect-ratio: 1; padding: 28px; }
+  .field { position: relative; width: 100%; aspect-ratio: 1; border-radius: 50%; overflow: hidden; background: #e4e5e0; box-shadow: inset 0 0 0 1px var(--line), 0 40px 80px -40px rgb(17 19 17 / 0.35); cursor: crosshair; touch-action: pan-y; }
+  .field:focus-visible { outline-offset: 6px; border-radius: 50%; }
+  .field img { display: block; }
+  .poster-bf { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: grayscale(1) invert(1) contrast(0.62) brightness(1.06); }
+  .poster-lens { position: absolute; aspect-ratio: 1; border-radius: 50%; overflow: hidden; background: #000; box-shadow: 0 0 0 1.5px var(--ink), 0 18px 40px -10px rgb(0 0 0 / 0.45); }
+  .poster-lens img { position: absolute; max-width: none; height: auto; transition: filter 0.4s; }
+  .field canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; opacity: 0; transition: opacity 0.6s; }
+  .field.is-live canvas { opacity: 1; }
+  .field.is-live .poster-lens { opacity: 0; transition: opacity 0.6s; }
+  .reticle { position: absolute; inset: 6px; width: calc(100% - 12px); height: calc(100% - 12px); color: var(--ink); opacity: 0.55; pointer-events: none; }
+  .readout { position: absolute; font-size: 11px; letter-spacing: 0.04em; color: var(--mute); white-space: nowrap; pointer-events: none; }
+  .readout b { color: var(--ink); font-weight: 500; margin-right: 4px; }
+  .r-tl { left: 0; top: 4%; } .r-tr { right: 0; top: 4%; } .r-bl { left: 0; bottom: 4%; } .r-br { right: 0; bottom: 4%; }
+  .channels { position: absolute; left: 50%; bottom: -10px; transform: translateX(-50%); }
+  .seg { display: flex; gap: 2px; padding: 4px; background: rgb(244 244 240 / 0.86); backdrop-filter: blur(10px); border: 1px solid var(--line); border-radius: 999px; }
+  .seg button { display: inline-flex; align-items: center; gap: 7px; height: 32px; padding: 0 12px; border: 0; border-radius: 999px; background: transparent; color: var(--mute); font: 500 12px/1 'Geist Mono', monospace; cursor: pointer; transition: background 0.2s, color 0.2s; }
+  .seg button:hover { color: var(--ink); }
+  .seg button[aria-pressed='true'] { background: var(--ink); color: var(--paper); }
+  .seg i, .vals i { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+
+  .specs { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 0; border-top: 1px solid var(--line); }
+  .specs > div { padding: 18px 20px 22px 0; border-right: 1px solid var(--line); }
+  .specs > div + div { padding-left: 20px; }
+  .specs > div:last-child { border-right: 0; }
+  .specs dt { font-size: 11px; letter-spacing: 0.07em; text-transform: uppercase; color: var(--mute); }
+  .specs dd { margin: 6px 0 0; font-size: 24px; font-weight: 600; letter-spacing: -0.02em; font-variation-settings: 'wdth' 85; }
+  .specs small { display: block; font-size: 13px; font-weight: 400; color: var(--mute); letter-spacing: 0; font-variation-settings: 'wdth' 100; }
+
+  /* statement */
+  .statement { padding: clamp(96px, 16vw, 200px) var(--gut); max-width: 1320px; }
+  .statement h2 { font-size: clamp(32px, 4.6vw, 68px); line-height: 1.04; letter-spacing: -0.03em; }
+
+  /* instrument */
+  .instrument { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: clamp(32px, 6vw, 96px); padding: 0 var(--gut) clamp(96px, 12vw, 160px); align-items: start; }
+  .inst-media { position: relative; aspect-ratio: 4 / 5; overflow: hidden; border-radius: 6px; background: #1a2230; }
+  .inst-media img { width: 100%; height: 100%; object-fit: cover; object-position: 58% 50%; transform-origin: 50% 50%; }
+  .tag { position: absolute; left: 14px; bottom: 14px; font-size: 11px; color: #fff; background: rgb(0 0 0 / 0.45); padding: 6px 10px; border-radius: 999px; }
+  .inst-copy { position: sticky; top: 64px; padding-top: 12px; }
+  .parts { list-style: none; margin: 48px 0 0; padding: 0; border-top: 1px solid var(--line); }
+  .parts li { display: grid; grid-template-columns: 48px minmax(0, 1fr) auto; gap: 16px; padding: 26px 0; border-bottom: 1px solid var(--line); }
+  .parts .n { font-size: 12px; color: var(--mute); padding-top: 4px; }
+  .parts h3 { font-size: 20px; letter-spacing: -0.015em; margin-bottom: 6px; }
+  .parts p { color: var(--mute); max-width: 42ch; }
+  .parts .v { font-size: 12px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 999px; height: fit-content; white-space: nowrap; }
+
+  /* days */
+  .days { background: var(--night); color: #e8e9e4; }
+  .days-inner { min-height: 100svh; box-sizing: border-box; padding: clamp(72px, 9vh, 110px) var(--gut) 48px; display: flex; flex-direction: column; gap: clamp(28px, 5vh, 56px); }
+  .days .kicker { color: #8b908a; }
+  .days-head h2 { font-size: clamp(30px, 3.6vw, 54px); max-width: 18ch; }
+  .days-grid { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: clamp(32px, 5vw, 80px); align-items: end; flex: 1; }
+  .day { font-variation-settings: 'wdth' 75; font-weight: 600; line-height: 0.8; letter-spacing: -0.05em; display: flex; align-items: baseline; gap: 0.12em; }
+  .day span { font-size: clamp(28px, 3vw, 44px); color: #8b908a; letter-spacing: -0.02em; }
+  .day b { font-size: clamp(120px, 17vw, 260px); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .vals { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 28px 0 0; padding: 18px 0; border-top: 1px solid rgb(255 255 255 / 0.12); border-bottom: 1px solid rgb(255 255 255 / 0.12); }
+  .vals dt { font: 400 12px/1.2 'Geist Mono', monospace; color: #8b908a; display: flex; align-items: center; gap: 8px; }
+  .vals dd { margin: 6px 0 0; font-size: 32px; font-weight: 600; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+  .notes { list-style: none; margin: 22px 0 0; padding: 0; display: grid; gap: 10px; }
+  .notes li { font-size: 15px; color: #6c716b; display: grid; grid-template-columns: 64px 1fr; gap: 10px; transition: color 0.35s; }
+  .notes li b { font: 500 12px/1.9 'Geist Mono', monospace; }
+  .notes li.on { color: #e8e9e4; }
+  .notes li.now b { color: var(--c-488); }
+  .chart { margin: 0; }
+  .chart svg { width: 100%; height: auto; overflow: visible; }
+  .chart .grid { stroke: rgb(255 255 255 / 0.09); }
+  .chart .ax { fill: #6c716b; font-size: 11px; }
+  .ln { fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+  .ln-halo { stroke: #6f7dff; }
+  .ghost { fill: none; stroke-width: 1; stroke-dasharray: 2 5; opacity: 0.35; }
+  .ghost-h { stroke: #6f7dff; } .ghost-c { stroke: var(--c-561); }
+  .ln-ctrl { stroke: var(--c-561); }
+  .cur { stroke: rgb(255 255 255 / 0.35); stroke-dasharray: 3 4; }
+  .pt { stroke: var(--night); stroke-width: 3; }
+  .pt-h { fill: #6f7dff; } .pt-c { fill: var(--c-561); }
+  .chart figcaption { margin-top: 14px; font: 400 12px/1.4 'Geist Mono', monospace; color: #6c716b; }
+
+  /* workflow */
+  .workflow { padding: clamp(96px, 12vw, 170px) var(--gut); }
+  .wf-head { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr); gap: 32px 64px; align-items: end; margin-bottom: clamp(48px, 7vw, 96px); }
+  .wf-head .kicker { grid-column: 1 / -1; margin-bottom: 0; }
+  .sub { color: var(--mute); max-width: 44ch; font-size: 18px; }
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(20px, 3vw, 40px); }
+  .steps li:nth-child(2) { margin-top: clamp(0px, 8vw, 120px); }
+  .steps li:nth-child(3) { margin-top: clamp(0px, 4vw, 60px); }
+  .ph { aspect-ratio: 4 / 5; overflow: hidden; border-radius: 6px; background: #d9dad4; margin-bottom: 22px; }
+  .ph img { width: 100%; height: 100%; object-fit: cover; transition: transform 1.2s var(--ease); }
+  .steps li:hover .ph img { transform: scale(1.04); }
+  .steps .n { font-size: 12px; color: var(--mute); }
+  .steps h3 { font-size: 24px; letter-spacing: -0.02em; margin: 8px 0; }
+  .steps p { color: var(--mute); max-width: 36ch; }
+
+  /* channels */
+  .chans { padding: 0 var(--gut) clamp(96px, 12vw, 170px); }
+  .ch-head { max-width: 900px; margin-bottom: 48px; }
+  .ch-list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--ink); }
+  .ch-list li { position: relative; display: grid; grid-template-columns: 110px minmax(0, 0.8fr) minmax(0, 0.8fr) minmax(0, 1.4fr); gap: 24px; align-items: baseline; padding: 28px 0; border-bottom: 1px solid var(--line); isolation: isolate; }
+  .ch-list li::before { content: ''; position: absolute; inset: 0; background: var(--cc); opacity: 0; z-index: -1; transform: scaleY(0.2); transform-origin: bottom; transition: opacity 0.4s var(--ease), transform 0.5s var(--ease); }
+  .ch-list li::after { content: ''; position: absolute; left: 0; bottom: -1px; height: 2px; width: 100%; background: var(--cc); transform: scaleX(0); transform-origin: left; transition: transform 0.6s var(--ease); }
+  .ch-list li:hover::after { transform: scaleX(1); }
+  .ch-list li:hover::before { opacity: 0.06; transform: none; }
+  .nm { font-size: clamp(34px, 3.4vw, 52px); font-weight: 500; letter-spacing: -0.04em; color: var(--cc); line-height: 1; }
+  .ch-list .name { font-size: 22px; font-weight: 600; letter-spacing: -0.02em; }
+  .ex { font-size: 13px; color: var(--mute); }
+  .use { color: var(--mute); }
+
+  /* demo */
+  .demo { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(40px, 6vw, 96px); padding: clamp(80px, 10vw, 140px) var(--gut); background: var(--paper); border-top: 1px solid var(--line); }
+  .demo .sub { margin-top: 28px; }
+  .facts { list-style: none; padding: 0; margin: 36px 0 0; display: grid; gap: 14px; }
+  .facts li { display: flex; align-items: center; gap: 12px; font-size: 16px; }
+  .facts iconify-icon { font-size: 22px; color: var(--c-405); }
+  .form { display: grid; gap: 18px; align-content: start; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .fld { display: grid; gap: 8px; }
+  .fld > span { font: 500 12px/1 'Geist Mono', monospace; letter-spacing: 0.05em; text-transform: uppercase; color: var(--mute); }
+  .fld small { text-transform: none; letter-spacing: 0; }
+  .fld input, .fld select, .fld textarea { font: inherit; font-size: 16px; color: var(--ink); background: var(--bone); border: 1px solid var(--line); border-radius: 10px; padding: 14px 14px; min-height: 50px; box-sizing: border-box; width: 100%; transition: border-color 0.2s, background 0.2s, box-shadow 0.2s; }
+  .fld textarea { resize: vertical; }
+  .fld input:hover, .fld select:hover, .fld textarea:hover { border-color: rgb(17 19 17 / 0.35); }
+  .fld input:focus-visible, .fld select:focus-visible, .fld textarea:focus-visible { outline: none; border-color: var(--c-405); background: #fff; box-shadow: 0 0 0 3px rgb(50 71 255 / 0.18); }
+  .fld [aria-invalid='true'] { border-color: var(--c-561); background: #fff4f8; }
+  .err { font: 400 13px/1.3 'Instrument Sans', sans-serif; color: #c4005a; min-height: 0; }
+  .err:empty { display: none; }
+  .btn-wide { justify-content: space-between; height: 58px; padding: 0 24px; font-size: 17px; }
+  .btn.loading .lbl::after { content: ''; display: inline-block; width: 14px; height: 14px; margin-left: 12px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; vertical-align: -2px; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .status { font-size: 15px; min-height: 1.5em; }
+  .status.ok { color: #127a3f; }
+
+  /* footer */
+  .foot { background: var(--ink); color: var(--paper); padding: clamp(64px, 9vw, 120px) var(--gut) 28px; }
+  .foot .big { font-variation-settings: 'wdth' 75; font-weight: 600; font-size: clamp(64px, 13vw, 200px); line-height: 0.86; letter-spacing: -0.055em; }
+  .foot-row { display: grid; grid-template-columns: auto 1fr auto; gap: 24px 48px; align-items: center; margin-top: clamp(48px, 7vw, 96px); padding-top: 24px; border-top: 1px solid rgb(255 255 255 / 0.14); font-size: 14px; color: #9a9f98; }
+  .foot .brand { color: var(--paper); font-size: 16px; }
+  .totop { color: var(--paper); text-decoration: none; }
+  .totop:hover { text-decoration: underline; }
+
+  /* responsive */
+  @media (max-width: 1100px) {
+    .nav ul { display: none; }
+  }
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: minmax(0, 1fr); padding-top: 84px; min-height: auto; }
+    .hero-copy { display: contents; }
+    .eyebrow { margin-bottom: 20px; }
+    .ctas { order: 1; margin-top: 24px; }
+    .stage { order: 2; width: min(100%, 520px); justify-self: center; margin: 22px 0 6px; padding: 22px; box-sizing: border-box; }
+    .lede { order: 3; margin: 26px 0 32px; }
+    .specs { order: 4; grid-template-columns: 1fr 1fr; }
+    .specs > div:nth-child(2) { border-right: 0; }
+    .specs > div:nth-child(3) { padding-left: 0; }
+    .specs > div:nth-child(n + 3) { border-top: 1px solid var(--line); }
+    .instrument, .demo, .wf-head { grid-template-columns: minmax(0, 1fr); }
+    .inst-copy { position: static; }
+    .inst-media { aspect-ratio: 4 / 3; }
+    .days-grid { grid-template-columns: minmax(0, 1fr); align-items: start; gap: 24px; }
+    .steps { grid-template-columns: minmax(0, 1fr); gap: 48px; }
+    .steps li:nth-child(n) { margin-top: 0; }
+    .ph { aspect-ratio: 3 / 2; }
+    .ch-list li { grid-template-columns: 80px minmax(0, 1fr); gap: 6px 16px; }
+    .ch-list .ex, .ch-list .use { grid-column: 2; }
+    .foot-row { grid-template-columns: minmax(0, 1fr); }
+  }
+  @media (max-width: 560px) {
+    body { font-size: 16px; }
+    h1 { font-size: clamp(40px, 11.6vw, 56px); }
+    .ctas .btn { height: 48px; padding: 0 18px; font-size: 15px; }
+    .readout { font-size: 9.5px; }
+    .r-bl, .r-br { bottom: 0; } .r-tl, .r-tr { top: 0; }
+    .seg button { padding: 0 9px; height: 30px; font-size: 11px; gap: 5px; }
+    .specs dd { font-size: 20px; }
+    .row2 { grid-template-columns: minmax(0, 1fr); }
+    .parts li { grid-template-columns: 32px minmax(0, 1fr); }
+    .parts .v { grid-column: 2; justify-self: start; }
+    .days-inner { padding-top: 56px; gap: 18px; }
+    .day b { font-size: 96px; }
+    .vals { margin-top: 18px; padding: 12px 0; }
+    .notes { margin-top: 14px; }
+    .notes li:not(.now) { display: none; }
+    .chart .ax { font-size: 20px; }
+    .chart svg { margin-left: 18px; width: calc(100% - 18px); }
+    .vals dd { font-size: 24px; }
+    .notes li { font-size: 13.5px; grid-template-columns: 52px 1fr; }
+    .nav .btn-sm { height: 36px; padding: 0 14px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition-duration: 0.01ms !important; }
+  }
+</style>
+
+
+<script>
+  import gsap from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  import Lenis from 'lenis';
+  import 'iconify-icon';
+  import { control, halo, x, y } from '../../components/skills/build-awwwards-quality-sites/growth';
+  import { mount, type Specimen } from '../../components/skills/build-awwwards-quality-sites/specimen';
+
+  gsap.registerPlugin(ScrollTrigger);
+  const params = new URLSearchParams(location.search);
+  const shot = params.has('shot');
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches || params.has('reduced');
+  const $ = <T extends Element = HTMLElement>(s: string) => document.querySelector(s) as T;
+  const $$ = <T extends Element = HTMLElement>(s: string) => [...document.querySelectorAll(s)] as T[];
+
+  // ── Split headings into words. Plain-text elements only; the unsplit sentence stays as the accessible name.
+  $$('[data-split]').forEach((el) => {
+    const text = el.textContent!.trim().replace(/\s+/g, ' ');
+    el.innerHTML = `<span class="sr-only">${text}</span><span aria-hidden="true">${text
+      .split(' ')
+      .map((w) => `<span class="wm"><span class="w">${w}</span></span>`)
+      .join(' ')}</span>`;
+  });
+
+  // ── Hero specimen (WebGL). Reduced motion or failure keeps the static poster and lens.
+  const field = $('#field');
+  const xy = $('#xy');
+  let spec: Specimen | null = null;
+  let lastXY = '';
+  const onLens = (lx: number, ly: number) => {
+    const s = `${Math.round(lx * 860)} · ${Math.round((1 - ly) * 860)} µm`;
+    if (s !== lastXY) xy.textContent = lastXY = s;
+  };
+  const W: Record<string, [number, number, number, number]> = {
+    merge: [0, 0, 0, 1],
+    '405': [1, 0, 0, 0],
+    '561': [0, 1, 0, 0],
+    '488': [0, 0, 1, 0],
+  };
+  const setChannel = (ch: string) => {
+    $$<HTMLButtonElement>('.seg button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.ch === ch)));
+    const lensImg = $<HTMLImageElement>('.poster-lens img');
+    lensImg.style.filter = ch === 'merge' ? '' : `url(#f${ch})`;
+    if (!spec) return;
+    const [a, b, c, m] = W[ch];
+    gsap.to(spec.w, { x: a, y: b, z: c, duration: 0.6, ease: 'power2.out', overwrite: true });
+    gsap.to(spec.u.uMerge, { value: m, duration: 0.6, ease: 'power2.out', overwrite: true });
+  };
+  $$<HTMLButtonElement>('.seg button').forEach((b) => b.addEventListener('click', () => setChannel(b.dataset.ch!)));
+
+  // Live stage clock (decorative readout).
+  const clock = $('#clock');
+  let secs = 2 * 86400 + 14 * 3600 + 6 * 60 + 31;
+  const tickClock = () => {
+    const d = Math.floor(secs / 86400);
+    const h = Math.floor((secs % 86400) / 3600);
+    const m = Math.floor((secs % 3600) / 60);
+    const s = secs % 60;
+    clock.textContent = `${String(d).padStart(2, '0')}d ${[h, m, s].map((v) => String(v).padStart(2, '0')).join(':')}`;
+    secs++;
+  };
+  const clockId = reduced ? 0 : window.setInterval(tickClock, 1000);
+
+  const heroIntro = (s: Specimen | null) => {
+    if (reduced) return;
+    const tl = gsap.timeline({ defaults: { ease: 'expo.out' } });
+    tl.from('h1 .w', { yPercent: 70, opacity: 0.15, duration: 0.9, stagger: 0.035 }, 0)
+      .from('.reticle', { rotate: -40, opacity: 0, duration: 1.6, ease: 'power3.out' }, 0)
+      .from('.readout', { opacity: 0, y: 6, duration: 0.6, stagger: 0.08 }, 0.5)
+      .from('.channels', { opacity: 0, y: 10, duration: 0.6 }, 0.8)
+      .from('.specs > div', { opacity: 0, y: 14, duration: 0.7, stagger: 0.06 }, 0.4);
+    if (s) tl.fromTo(s.u.uReveal, { value: 0 }, { value: 1, duration: 1.8, ease: 'power3.inOut' }, 0.1);
+  };
+
+  const boot = async () => {
+    if (!reduced) {
+      try {
+        spec = await mount(field, '/skills/build-awwwards-quality-sites/specimen.jpg', { shot, onLens });
+      } catch {
+        spec = null;
+      }
+    }
+    heroIntro(spec);
+  };
+  boot();
+
+  // ── Smooth scroll: Lenis is the only engine, driven by GSAP's ticker and feeding ScrollTrigger.
+  let lenis: Lenis | null = null;
+  const raf = (t: number) => lenis?.raf(t * 1000);
+  if (!reduced) {
+    lenis = new Lenis({ lerp: 0.1, anchors: true });
+    lenis.on('scroll', ScrollTrigger.update);
+    gsap.ticker.add(raf);
+    gsap.ticker.lagSmoothing(0);
+  }
+
+  // ── Section choreography.
+  const days = $('#days');
+  const dayN = $('#day-n');
+  const vHalo = $('#v-halo');
+  const vCtrl = $('#v-ctrl');
+  const drawn = $<SVGRectElement>('#drawn-r');
+  const cur = $<SVGLineElement>('#cursor');
+  const dotH = $<SVGCircleElement>('#dot-h');
+  const dotC = $<SVGCircleElement>('#dot-c');
+  const noteEls = $$('.notes li');
+  const setDay = (d: number) => {
+    dayN.textContent = String(Math.round(d)).padStart(2, '0');
+    vHalo.textContent = `${halo(d).toFixed(0)} %`;
+    vCtrl.textContent = `${control(d).toFixed(0)} %`;
+    const cx = String(x(d));
+    drawn.setAttribute('width', cx);
+    cur.setAttribute('x1', cx);
+    cur.setAttribute('x2', cx);
+    dotH.setAttribute('cx', cx);
+    dotH.setAttribute('cy', String(y(halo(d))));
+    dotC.setAttribute('cx', cx);
+    dotC.setAttribute('cy', String(y(control(d))));
+    let now = -1;
+    noteEls.forEach((li, i) => {
+      const on = d >= Number(li.dataset.day) - 0.01;
+      li.classList.toggle('on', on);
+      if (on) now = i;
+    });
+    noteEls.forEach((li, i) => li.classList.toggle('now', i === now));
+  };
+
+  if (reduced) {
+    setDay(14);
+  } else {
+    setDay(0);
+    const mm = gsap.matchMedia();
+    mm.add({ wide: '(min-width: 901px)', narrow: '(max-width: 900px)' }, (ctx) => {
+      ScrollTrigger.create({
+        trigger: days,
+        start: 'top top',
+        end: ctx.conditions!.wide ? '+=170%' : '+=130%',
+        pin: true,
+        scrub: 0.6,
+        onUpdate: (self) => setDay(self.progress * 14),
+      });
+    });
+
+    // Headings rise word by word, then their section's supporting copy follows.
+    $$('[data-reveal]').forEach((h) => {
+      const sec = h.closest('section')!;
+      const tl = gsap.timeline({ scrollTrigger: { trigger: h, start: 'top 82%', once: true } });
+      tl.from(h.querySelectorAll('.w'), { yPercent: 100, duration: 1, ease: 'expo.out', stagger: 0.03 });
+      const support = sec.querySelectorAll('.sub, .parts li, .facts li, .form > *, .ch-list li');
+      if (support.length) tl.from(support, { opacity: 0, y: 24, duration: 0.8, ease: 'power3.out', stagger: 0.06 }, 0.25);
+    });
+
+    // Images open like a shutter; the instrument photo also settles from a slight push-in.
+    $$('[data-clip]').forEach((m) => {
+      gsap.fromTo(m, { clipPath: 'inset(18% 10% 18% 10% round 6px)' }, { clipPath: 'inset(0% 0% 0% 0% round 6px)', duration: 1.4, ease: 'expo.out', scrollTrigger: { trigger: m, start: 'top 85%', once: true } });
+    });
+    gsap.fromTo('.inst-media img', { scale: 1.18 }, { scale: 1, ease: 'none', scrollTrigger: { trigger: '.inst-media', start: 'top bottom', end: 'bottom top', scrub: true } });
+    gsap.from('.steps li', { y: 40, opacity: 0, duration: 1, ease: 'power3.out', stagger: 0.12, scrollTrigger: { trigger: '.steps', start: 'top 80%', once: true } });
+  }
+
+  // Measurements depend on fonts and images.
+  document.fonts?.ready.then(() => ScrollTrigger.refresh());
+  window.addEventListener('load', () => ScrollTrigger.refresh());
+
+  // ── Loan-unit form: client-side validation, loading and success states (demo only; nothing is sent).
+  const form = $<HTMLFormElement>('#form');
+  const status = $('#status');
+  const msg: Record<string, string> = {
+    name: 'Tell us who to address the loan to.',
+    org: 'Which lab or institution is this for?',
+    email: 'We need a work e-mail we can reply to.',
+    assay: 'Pick the closest assay; we prepare the right plate adapter.',
+  };
+  const check = (el: HTMLInputElement | HTMLSelectElement) => {
+    const ok = el.checkValidity();
+    el.setAttribute('aria-invalid', String(!ok));
+    const err = document.getElementById(`e-${el.name}`);
+    if (err) err.textContent = ok ? '' : msg[el.name];
+    return ok;
+  };
+  const fields = $$<HTMLInputElement>('#form [required]');
+  fields.forEach((el) => el.addEventListener('blur', () => el.value && check(el)));
+  fields.forEach((el) => el.addEventListener('input', () => el.getAttribute('aria-invalid') === 'true' && check(el)));
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const bad = fields.filter((el) => !check(el));
+    status.className = 'status';
+    if (bad.length) {
+      status.textContent = '';
+      bad[0].focus();
+      return;
+    }
+    const btn = form.querySelector('button[type=submit]') as HTMLButtonElement;
+    btn.disabled = true;
+    btn.classList.add('loading');
+    btn.querySelector('.lbl')!.textContent = 'Checking the loan calendar';
+    status.textContent = '';
+    window.setTimeout(() => {
+      btn.classList.remove('loading');
+      btn.querySelector('.lbl')!.textContent = 'Request received';
+      status.classList.add('ok');
+      status.textContent = 'Thank you. This is a demo page, so nothing left your browser — but a real Halo loan would start with a call this week.';
+    }, 1400);
+  });
+
+  // ── Cleanup.
+  window.addEventListener('pagehide', () => {
+    spec?.destroy();
+    lenis?.destroy();
+    gsap.ticker.remove(raf);
+    ScrollTrigger.getAll().forEach((t) => t.kill());
+    window.clearInterval(clockId);
+  });
+</script>

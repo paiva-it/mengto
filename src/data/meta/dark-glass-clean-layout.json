@@ -1,0 +1,7 @@
+{
+  "title": "Dark Glass Clean Layout",
+  "kind": "website",
+  "category": "Design systems",
+  "concept": "Fenwright Bindery: a hand bookbinding atelier in Leith presented as a dark-glass bench console — pill nav, left bindery shell, a calm centre stage with a sewn-signature diagram and floating cards, a right press-log shell, then protocol, materials ledger and a commission estimator in the same frosted language.",
+  "notes": "Monochrome smoke/zinc palette with one pale-mint status accent; Geist + Geist Mono. Glass = 1px masked gradient edge over a smoky translucent fill with 22px backdrop blur, used at every scale (nav pill, shells, floating cards, segmented control). Atmosphere is a 2D canvas of drifting dust plus CSS radial washes; pauses when the tab is hidden. Reduced motion: no reveals, drift, thread animation or parallax; dust drawn once."
+}

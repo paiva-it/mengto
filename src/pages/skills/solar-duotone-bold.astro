@@ -1,0 +1,524 @@
+---
+import '../../styles/global.css';
+import BackPill from '../../components/BackPill.astro';
+import Icon from '../../components/skills/solar-duotone-bold/Icon.astro';
+
+type Kind = 'stony' | 'iron' | 'stony-iron' | 'lunar';
+const kinds: { id: 'all' | Kind; label: string; icon: string }[] = [
+  { id: 'all', label: 'All stones', icon: 'layers' },
+  { id: 'stony', label: 'Stony', icon: 'globe' },
+  { id: 'iron', label: 'Iron', icon: 'magnet' },
+  { id: 'stony-iron', label: 'Stony-iron', icon: 'planet' },
+  { id: 'lunar', label: 'Lunar', icon: 'moon-stars' },
+];
+
+const stones = [
+  { name: 'Kessavar Hollow', cls: 'L6 ordinary chondrite', kind: 'stony', icon: 'star-fall', region: 'Ustyurt Plateau', mass: '412.6 g', when: 'Observed fall · 14 Mar 2025', price: '€6,200', note: 'Fresh fusion crust, two regmaglypts' },
+  { name: 'Ouarzane Drift', cls: 'Iron, IAB complex', kind: 'iron', icon: 'magnet', region: 'Draa valley', mass: '2,140 g', when: 'Find · 2019', price: '€3,850', note: 'Etched end face, Widmanstätten visible' },
+  { name: 'Velhorn', cls: 'Pallasite, main group', kind: 'stony-iron', icon: 'planet', region: 'Altai foothills', mass: '88.3 g slice', when: 'Find · 2008', price: '€9,400', note: 'Gem olivine, backlit window' },
+  { name: 'Tamsin Flats', cls: 'H5 ordinary chondrite', kind: 'stony', icon: 'globe', region: 'Nullarbor margin', mass: '1,036 g', when: 'Find · 2022', price: '€1,480', note: 'Complete individual, desert patina' },
+  { name: 'Brennamoor', cls: 'Lunar feldspathic breccia', kind: 'lunar', icon: 'moon-stars', region: 'Dhofar plain', mass: '7.9 g', when: 'Find · 2017', price: '€12,600', note: 'Polished part slice, white clasts' },
+  { name: 'Sarrow Gate', cls: 'Mesosiderite', kind: 'stony-iron', icon: 'fire', region: 'Atacama, El Médano', mass: '264 g', when: 'Observed fall · 1998', price: '€5,100', note: 'Cut and lightly etched face' },
+] satisfies { kind: Kind; [k: string]: string }[];
+
+const chips = [
+  { icon: 'star-fall', t: 'Observed fall', s: 'Witnessed 21:47 UTC', pos: 'c1' },
+  { icon: 'magnet', t: 'Iron-nickel', s: 'Magnet-positive · 18 % Fe', pos: 'c2' },
+  { icon: 'test-tube', t: 'Classified L6', s: 'Thin section, Ostrava lab', pos: 'c3' },
+  { icon: 'diploma-verified', t: 'Bulletin listed', s: 'Approved 02 Jun 2025', pos: 'c4' },
+];
+
+const steps = [
+  { icon: 'star-fall', t: 'Fall witnessed', d: 'All-sky camera networks and eyewitness reports pin the fireball to a window of a few seconds and a bearing.' },
+  { icon: 'map-point-wave', t: 'Field mapped', d: 'We model the strewn field from trajectory and upper winds, then walk it in lines five metres apart.' },
+  { icon: 'magnifer', t: 'Stone recovered', d: 'Every find is logged with GPS, an in-situ photo and the name of the hunter who lifted it.' },
+  { icon: 'test-tube', t: 'Lab tested', d: 'A thin section goes to an independent lab for petrology, magnetic susceptibility and oxygen isotopes.' },
+  { icon: 'diploma-verified', t: 'Certified', d: 'Classification is submitted to the Meteoritical Bulletin before a single gram is listed for sale.' },
+  { icon: 'delivery', t: 'Delivered', d: 'Shipped insured in archival foam, with the whole file in print and a permanent page online.' },
+];
+
+const promises = [
+  { icon: 'shield-check', t: 'Lifetime authenticity', d: 'If a stone is ever reclassified as terrestrial, you get every cent back. It has not happened since 2011.' },
+  { icon: 'scale', t: 'Weighed to 0.01 g', d: 'Mass is measured on a calibrated balance on the day it ships, and printed on the label and the certificate.' },
+  { icon: 'camera', t: 'Photographed on three axes', d: 'Each specimen is shot against a scale cube in daylight, raking and backlit, so nothing surprises you.' },
+  { icon: 'lock-keyhole', t: 'Export paperwork handled', d: 'Country-of-origin permits travel with the stone. We do not sell falls that left their country illegally.' },
+  { icon: 'hand-shake', t: 'Buy-back at 70 %', d: 'Collections change. We will buy any stone we sold you back at seventy percent of its original price.' },
+  { icon: 'eye-scan', t: 'Viewing by appointment', d: 'See the cabinet in person in our Lisbon reading room, loupe and magnet provided, no obligation.' },
+];
+
+const legend = [
+  { icon: 'star-fall', t: 'Observed fall', d: 'Seen arriving, recovered soon after' },
+  { icon: 'magnifer', t: 'Find', d: 'Recovered with no witnessed fall' },
+  { icon: 'globe', t: 'Stony', d: 'Chondrites and achondrites' },
+  { icon: 'magnet', t: 'Iron', d: 'Iron-nickel core material' },
+  { icon: 'planet', t: 'Stony-iron', d: 'Pallasites and mesosiderites' },
+  { icon: 'moon-stars', t: 'Lunar', d: 'Ejected from the Moon' },
+  { icon: 'verified-check', t: 'Certified', d: 'Listed in the Bulletin' },
+];
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Strewnfield — Certified meteorites, traced from fireball to field</title>
+    <meta name="description" content="Strewnfield sells certified meteorites with a readable chain of custody: the fall, the find, the lab and the paperwork." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <BackPill />
+
+    <!-- HERO -->
+    <header class="hero">
+      <div class="hero-dots" aria-hidden="true"></div>
+
+      <nav class="nav wrap" aria-label="Main">
+        <a href="#top" class="brand" id="top">
+          <Icon name="star-fall" size={30} class="duo-ember" />
+          <span>Strewnfield</span>
+        </a>
+        <ul class="nav-links">
+          <li><a href="#catalogue"><Icon name="planet" size={18} class="duo-soft" />Catalogue</a></li>
+          <li><a href="#provenance"><Icon name="documents" size={18} class="duo-soft" />Provenance</a></li>
+          <li><a href="#guarantee"><Icon name="shield-check" size={18} class="duo-soft" />Guarantee</a></li>
+        </ul>
+        <a href="#contact" class="btn btn-white btn-sm"><Icon name="letter" size={18} class="duo-ember" />Request a stone</a>
+      </nav>
+
+      <div class="hero-grid wrap">
+        <div class="hero-copy">
+          <p class="eyebrow"><Icon name="fire" size={16} class="duo-ember" /><span>Fall SF-0412 · arrived 14 Mar 2025</span></p>
+          <h1>Every stone, traced from fireball to field.</h1>
+          <p class="lede">Strewnfield sells certified meteorites with a chain of custody you can read at a glance — the fall, the find, the lab, the paperwork.</p>
+          <div class="cta-row">
+            <a href="#catalogue" class="btn btn-white"><Icon name="cart-large-2" size={20} class="duo-ember" />Browse the cabinet</a>
+            <a href="#provenance" class="btn btn-ghost"><Icon name="compass" size={20} class="duo-soft" />How we trace a fall</a>
+          </div>
+          <dl class="hero-stats">
+            <div><dt><Icon name="verified-check" size={20} class="duo-ember" />Stones certified</dt><dd>1,284</dd></div>
+            <div><dt><Icon name="star-fall-minimalistic-2" size={20} class="duo-ember" />Falls documented</dt><dd>61</dd></div>
+            <div><dt><Icon name="shield-check" size={20} class="duo-ember" />Fakes sold</dt><dd>0</dd></div>
+          </dl>
+        </div>
+
+        <div class="stage" aria-label="Kessavar Hollow, specimen SF-0412, and its four provenance checkpoints" role="group">
+          <div class="stage-glow" aria-hidden="true"></div>
+          <svg class="trail" viewBox="0 0 520 520" aria-hidden="true">
+            <defs>
+              <linearGradient id="tr" x1="1" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#fff" stop-opacity="0" />
+                <stop offset=".7" stop-color="#FFB48A" stop-opacity=".9" />
+                <stop offset="1" stop-color="#FF7A3D" />
+              </linearGradient>
+            </defs>
+            <path d="M505 8 C 420 90, 350 170, 270 250" stroke="url(#tr)" stroke-width="6" stroke-linecap="round" fill="none" />
+            <circle cx="260" cy="260" r="200" fill="none" stroke="#fff" stroke-opacity=".18" stroke-dasharray="2 9" />
+            <circle cx="260" cy="260" r="138" fill="none" stroke="#fff" stroke-opacity=".12" />
+          </svg>
+          <div class="glyph">
+            <Icon name="star-fall" size={260} class="duo-ember" label="Star fall glyph" />
+          </div>
+          {chips.map((c) => (
+            <div class:list={['chip', c.pos]}>
+              <span class="tile tile-ember"><Icon name={c.icon} size={24} /></span>
+              <span><strong>{c.t}</strong><small>{c.s}</small></span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <!-- CATALOGUE -->
+      <section id="catalogue" class="section mist">
+        <div class="wrap">
+          <div class="sec-head">
+            <div>
+              <p class="kicker"><Icon name="tag-price" size={16} />In the cabinet · October</p>
+              <h2>Six stones, each with its whole file.</h2>
+            </div>
+            <div class="filters" role="group" aria-label="Filter by type">
+              {kinds.map((k, i) => (
+                <button type="button" class="filter" data-filter={k.id} aria-pressed={i === 0 ? 'true' : 'false'}>
+                  <Icon name={k.icon} size={18} />{k.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <ul class="cards">
+            {stones.map((s) => (
+              <li class="card" data-kind={s.kind}>
+                <div class="card-top">
+                  <span class={`tile tile-lg tile-${s.kind}`}><Icon name={s.icon} size={32} /></span>
+                  <span class="badge"><Icon name="verified-check" size={16} />Certified</span>
+                </div>
+                <p class="mono cls">{s.cls}</p>
+                <h3>{s.name}</h3>
+                <p class="note">{s.note}</p>
+                <ul class="facts">
+                  <li><Icon name="map-point" size={18} />{s.region}</li>
+                  <li><Icon name="scale" size={18} />{s.mass}</li>
+                  <li><Icon name="calendar-date" size={18} />{s.when}</li>
+                </ul>
+                <div class="card-foot">
+                  <span class="price">{s.price}</span>
+                  <a class="btn btn-ink btn-sm" href="#contact" aria-label={`Reserve ${s.name}`}><Icon name="cart-large-2" size={18} class="duo-ember" />Reserve</a>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      <!-- PROVENANCE -->
+      <section id="provenance" class="section paper">
+        <div class="wrap">
+          <div class="sec-head stack">
+            <p class="kicker"><Icon name="documents" size={16} />Provenance</p>
+            <h2>A meteorite is only as good as its paper.</h2>
+            <p class="sub">Six checkpoints, the same six icons on every certificate, label and listing. If one is missing, the stone is not for sale.</p>
+          </div>
+          <ol class="steps">
+            {steps.map((s, i) => (
+              <li class="step">
+                <span class="tile tile-xl"><Icon name={s.icon} size={36} class="duo-ember" /></span>
+                <span class="mono num">{String(i + 1).padStart(2, '0')}</span>
+                <h3>{s.t}</h3>
+                <p>{s.d}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      <!-- GUARANTEE -->
+      <section id="guarantee" class="section cobalt">
+        <div class="wrap">
+          <div class="sec-head stack">
+            <p class="kicker light"><Icon name="shield-check" size={16} class="duo-ember" />The Strewnfield guarantee</p>
+            <h2>Buying space rock should not feel like a gamble.</h2>
+          </div>
+          <ul class="promises">
+            {promises.map((p) => (
+              <li>
+                <span class="tile tile-glass"><Icon name={p.icon} size={30} class="duo-ember" /></span>
+                <h3>{p.t}</h3>
+                <p>{p.d}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      <!-- FIELD KEY -->
+      <section class="section mist">
+        <div class="wrap key-grid">
+          <div class="sec-head stack">
+            <p class="kicker"><Icon name="compass" size={16} />The field key</p>
+            <h2>One icon per idea, at every size.</h2>
+            <p class="sub">Collectors read our labels the way pilots read a panel. Each glyph keeps its two layers at 20, 32 and 48 pixels — the solid shape says what, the softer layer says where.</p>
+          </div>
+          <div class="key" role="table" aria-label="Icon legend">
+            <div class="key-row key-headrow" role="row">
+              <span role="columnheader">Meaning</span>
+              <span role="columnheader" class="mono">20</span>
+              <span role="columnheader" class="mono">32</span>
+              <span role="columnheader" class="mono">48</span>
+            </div>
+            {legend.map((l) => (
+              <div class="key-row" role="row">
+                <span role="cell" class="key-label"><strong>{l.t}</strong><small>{l.d}</small></span>
+                <span role="cell"><Icon name={l.icon} size={20} /></span>
+                <span role="cell"><Icon name={l.icon} size={32} /></span>
+                <span role="cell"><Icon name={l.icon} size={48} class="duo-ember" /></span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <!-- CONTACT -->
+      <section id="contact" class="section">
+        <div class="wrap">
+          <div class="cta">
+            <div class="cta-glow" aria-hidden="true"></div>
+            <div class="cta-copy">
+              <p class="kicker light"><Icon name="magnifer" size={16} class="duo-ember" />Looking for something specific?</p>
+              <h2>Tell us the fall. We will find the stone.</h2>
+              <p class="sub light">Half of what we place never reaches the public cabinet. Name a fall, a class or a budget and we will write back within two working days.</p>
+            </div>
+            <ul class="contact">
+              <li><a href="mailto:cabinet@strewnfield.example"><span class="tile tile-white"><Icon name="letter" size={24} class="duo-ember" /></span><span><strong>Write to the cabinet</strong><small>cabinet@strewnfield.example</small></span></a></li>
+              <li><a href="#contact"><span class="tile tile-white"><Icon name="chat-round-dots" size={24} class="duo-ember" /></span><span><strong>Book a video viewing</strong><small>Weekdays, 10:00–18:00 WET</small></span></a></li>
+              <li><a href="#contact"><span class="tile tile-white"><Icon name="map-point" size={24} class="duo-ember" /></span><span><strong>Visit the reading room</strong><small>Rua das Pedras 14, Lisbon</small></span></a></li>
+            </ul>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="foot wrap">
+      <span class="brand ink"><Icon name="star-fall" size={24} class="duo-ember" /><span>Strewnfield</span></span>
+      <span class="mono">Certified meteorites since 2011 · Lisbon · A fictional dealer</span>
+    </footer>
+
+    <script>
+      const buttons = document.querySelectorAll<HTMLButtonElement>('.filter');
+      const cards = document.querySelectorAll<HTMLElement>('.card');
+      buttons.forEach((b) =>
+        b.addEventListener('click', () => {
+          const f = b.dataset.filter;
+          buttons.forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+          cards.forEach((c) => (c.hidden = f !== 'all' && c.dataset.kind !== f));
+        }),
+      );
+    </script>
+  </body>
+</html>
+
+<style is:global>
+  :root {
+    --ink: #121640;
+    --ink-2: #4a5080;
+    --cobalt-950: #141f86;
+    --cobalt-800: #2234b4;
+    --cobalt-600: #3d55dc;
+    --cobalt-400: #6c86ee;
+    --peri-100: #e3e8fd;
+    --mist: #eef1fb;
+    --ember: #ff7a3d;
+    --ember-200: #ffc9a8;
+    --line: rgb(18 22 64 / 0.1);
+  }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: #fff; color: var(--ink);
+    font-family: 'Geist', ui-sans-serif, system-ui, sans-serif; -webkit-font-smoothing: antialiased;
+  }
+
+  /* --- Solar duotone: primary shape = currentColor, secondary layer = g[opacity] --- */
+  .sdb { flex: none; display: block; }
+  .sdb [opacity] { opacity: var(--duo-o, 0.5); fill: var(--duo-c, currentColor); }
+  .duo-ember { --duo-c: var(--ember); --duo-o: 1; }
+  .duo-soft { --duo-o: 0.45; }
+</style>
+
+<style>
+  .wrap { width: min(1240px, 100% - 32px); margin-inline: auto; }
+  .mono { font-family: 'Geist Mono', ui-monospace, monospace; }
+  h1, h2, h3 { font-family: 'Bricolage Grotesque', sans-serif; margin: 0; letter-spacing: -0.02em; }
+
+  /* buttons */
+  .btn {
+    display: inline-flex; align-items: center; gap: 10px; height: 52px; padding: 0 22px 0 18px;
+    border-radius: 16px; font-weight: 600; font-size: 15px; text-decoration: none; white-space: nowrap;
+    transition: transform .2s ease, background-color .2s ease, box-shadow .2s ease;
+  }
+  .btn:hover { transform: translateY(-1px); }
+  .btn:focus-visible, .filter:focus-visible, a:focus-visible { outline: 3px solid var(--ember); outline-offset: 3px; }
+  .btn-sm { height: 42px; padding: 0 16px 0 13px; font-size: 14px; border-radius: 13px; }
+  .btn-white { background: #fff; color: var(--ink); box-shadow: 0 10px 30px -12px rgb(10 16 80 / .55); }
+  .btn-ghost { color: #fff; background: rgb(255 255 255 / .12); border: 1px solid rgb(255 255 255 / .28); backdrop-filter: blur(8px); }
+  .btn-ghost:hover { background: rgb(255 255 255 / .2); }
+  .btn-ink { background: var(--ink); color: #fff; }
+  .btn-ink:hover { background: var(--cobalt-800); }
+
+  /* icon tiles */
+  .tile { display: inline-grid; place-items: center; width: 44px; height: 44px; border-radius: 13px; flex: none; }
+  .tile-lg { width: 60px; height: 60px; border-radius: 18px; }
+  .tile-xl { width: 72px; height: 72px; border-radius: 22px; background: var(--peri-100); color: var(--cobalt-800); }
+  .tile-ember { background: linear-gradient(160deg, #fff1e8, var(--ember-200)); color: #c2410c; }
+  .tile-stony { background: #e3e8fd; color: var(--cobalt-800); }
+  .tile-iron { background: #e6e8ee; color: #2d3348; }
+  .tile-stony-iron { background: #ffe7d9; color: #c2410c; }
+  .tile-lunar { background: #ece8fb; color: #4c3bb3; }
+  .tile-glass { background: rgb(255 255 255 / .12); border: 1px solid rgb(255 255 255 / .22); color: #fff; width: 56px; height: 56px; border-radius: 17px; }
+  .tile-white { background: #fff; color: var(--cobalt-800); }
+
+  /* ---------- HERO ---------- */
+  .hero {
+    position: relative; overflow: hidden; color: #fff; min-height: 100svh;
+    display: flex; flex-direction: column;
+    background: linear-gradient(180deg, #6f88ee 0%, #4f69e2 42%, #2c40c4 78%, #1e2fa8 100%);
+  }
+  .hero-dots {
+    position: absolute; inset: 0; pointer-events: none; opacity: .35;
+    background-image: radial-gradient(rgb(255 255 255 / .35) 1px, transparent 1.4px); background-size: 22px 22px;
+    mask-image: linear-gradient(180deg, #000 0%, transparent 85%);
+  }
+  .nav { position: relative; z-index: 2; display: flex; align-items: center; justify-content: space-between; gap: 24px; padding-top: 24px; }
+  .brand { display: inline-flex; align-items: center; gap: 10px; color: #fff; text-decoration: none; font: 800 24px/1 'Bricolage Grotesque', sans-serif; letter-spacing: -0.03em; }
+  .brand.ink { color: var(--ink); font-size: 20px; }
+  .nav-links { display: flex; gap: 6px; list-style: none; margin: 0; padding: 0; }
+  .nav-links a {
+    display: inline-flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: 12px;
+    color: #fff; text-decoration: none; font-weight: 500; font-size: 15px;
+  }
+  .nav-links a:hover { background: rgb(255 255 255 / .12); }
+
+  .hero-grid {
+    position: relative; z-index: 1; flex: 1; display: grid; grid-template-columns: 1.05fr 1fr; align-items: center; gap: 40px;
+    padding-block: 40px 56px;
+  }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px; margin: 0 0 24px; padding: 7px 14px 7px 10px; border-radius: 999px;
+    background: rgb(255 255 255 / .14); border: 1px solid rgb(255 255 255 / .25);
+    font: 500 13px/1 'Geist Mono', monospace; color: #fff;
+  }
+  h1 { font-size: clamp(44px, 6.1vw, 88px); line-height: .96; font-weight: 800; letter-spacing: -0.035em; max-width: 11.5ch; }
+  .lede { font-size: 19px; line-height: 1.55; max-width: 34em; margin: 24px 0 32px; color: rgb(255 255 255 / .88); }
+  .cta-row { display: flex; flex-wrap: wrap; gap: 12px; }
+  .hero-stats { display: flex; gap: 36px; margin: 44px 0 0; padding-top: 24px; border-top: 1px solid rgb(255 255 255 / .2); }
+  .hero-stats div { margin: 0; }
+  .hero-stats dt { display: flex; align-items: center; gap: 7px; font-size: 13px; color: rgb(255 255 255 / .8); }
+  .hero-stats dd { margin: 6px 0 0; font: 700 30px/1 'Bricolage Grotesque', sans-serif; letter-spacing: -0.02em; }
+
+  .stage { position: relative; aspect-ratio: 1; width: min(560px, 100%); justify-self: center; }
+  .stage-glow { position: absolute; inset: -30%; pointer-events: none; background: radial-gradient(circle, rgb(255 140 80 / .5) 0%, rgb(255 140 80 / .16) 30%, transparent 60%); }
+  .trail { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .glyph {
+    position: absolute; inset: 0; display: grid; place-items: center; color: #fff;
+    filter: drop-shadow(0 24px 40px rgb(20 31 134 / .45)) drop-shadow(0 0 60px rgb(255 160 110 / .35));
+  }
+  .glyph :global(.sdb) { width: 48%; height: auto; }
+  .chip {
+    position: absolute; display: flex; align-items: center; gap: 12px; padding: 10px 18px 10px 10px; border-radius: 18px;
+    background: #fff; color: var(--ink); box-shadow: 0 18px 40px -16px rgb(12 18 90 / .55);
+    animation: bob 6s ease-in-out infinite;
+  }
+  .chip strong { display: block; font-size: 15px; font-weight: 600; }
+  .chip small { display: block; font: 400 12px/1.4 'Geist Mono', monospace; color: var(--ink-2); margin-top: 2px; }
+  .c1 { top: 9%; left: 2%; }
+  .c2 { top: 55%; right: -6%; animation-delay: -1.5s; }
+  .c3 { bottom: 22%; left: -4%; animation-delay: -3s; }
+  .c4 { bottom: 3%; right: 10%; animation-delay: -4.5s; }
+  @keyframes bob { 50% { transform: translateY(-8px); } }
+
+  /* ---------- SECTIONS ---------- */
+  .section { padding-block: clamp(72px, 9vw, 120px); }
+  .mist { background: var(--mist); }
+  .paper { background: #fff; }
+  .cobalt { background: linear-gradient(180deg, var(--cobalt-800), var(--cobalt-950)); color: #fff; }
+  .sec-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 32px; flex-wrap: wrap; margin-bottom: 48px; }
+  .sec-head.stack { display: block; max-width: 760px; }
+  .kicker { display: inline-flex; align-items: center; gap: 8px; margin: 0 0 16px; font: 500 13px/1 'Geist Mono', monospace; text-transform: uppercase; letter-spacing: .08em; color: var(--cobalt-600); }
+  .kicker.light { color: var(--ember-200); }
+  h2 { font-size: clamp(34px, 4.4vw, 60px); line-height: 1.02; font-weight: 800; max-width: 16ch; }
+  .sub { font-size: 18px; line-height: 1.6; color: var(--ink-2); margin: 20px 0 0; max-width: 36em; }
+  .sub.light { color: rgb(255 255 255 / .82); }
+
+  /* catalogue */
+  .filters { display: flex; flex-wrap: wrap; gap: 8px; }
+  .filter {
+    display: inline-flex; align-items: center; gap: 8px; height: 42px; padding: 0 16px 0 12px; border-radius: 13px; cursor: pointer;
+    font: 500 14px 'Geist', sans-serif; color: var(--ink); background: #fff; border: 1px solid var(--line);
+    transition: background-color .2s, color .2s;
+  }
+  .filter :global(.sdb) { color: var(--cobalt-600); }
+  .filter:hover { border-color: var(--cobalt-400); }
+  .filter[aria-pressed='true'] { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .filter[aria-pressed='true'] :global(.sdb) { color: #fff; --duo-c: var(--ember); --duo-o: 1; }
+
+  .cards { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .card {
+    display: flex; flex-direction: column; background: #fff; border-radius: 26px; padding: 24px;
+    border: 1px solid rgb(18 22 64 / .06); box-shadow: 0 1px 0 rgb(18 22 64 / .04), 0 24px 48px -32px rgb(30 47 168 / .35);
+    transition: transform .25s ease, box-shadow .25s ease;
+  }
+  .card[hidden] { display: none; }
+  .card:hover { transform: translateY(-3px); box-shadow: 0 1px 0 rgb(18 22 64 / .04), 0 30px 60px -30px rgb(30 47 168 / .45); }
+  .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; }
+  .badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px 6px 8px; border-radius: 999px; background: #ecfdf3; color: #067647; font-size: 12px; font-weight: 600; }
+  .cls { margin: 0; font-size: 12.5px; color: var(--cobalt-600); text-transform: uppercase; letter-spacing: .06em; }
+  .card h3 { font-size: 28px; margin-top: 8px; }
+  .note { margin: 8px 0 20px; color: var(--ink-2); font-size: 15px; line-height: 1.5; }
+  .facts { list-style: none; margin: 0 0 24px; padding: 16px 0 0; border-top: 1px solid var(--line); display: grid; gap: 10px; }
+  .facts li { display: flex; align-items: center; gap: 10px; font-size: 14.5px; color: var(--ink); }
+  .facts :global(.sdb) { color: var(--cobalt-600); }
+  .card-foot { margin-top: auto; display: flex; justify-content: space-between; align-items: center; }
+  .price { font: 700 24px/1 'Bricolage Grotesque', sans-serif; letter-spacing: -0.02em; }
+
+  /* provenance */
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; position: relative; counter-reset: s; }
+  .steps::before { content: ''; position: absolute; left: 36px; right: 36px; top: 36px; height: 2px; background: repeating-linear-gradient(90deg, var(--cobalt-400) 0 6px, transparent 6px 12px); opacity: .5; }
+  .step { position: relative; }
+  .step .tile-xl { position: relative; box-shadow: 0 0 0 8px #fff; }
+  .num { display: block; margin: 22px 0 6px; font-size: 13px; color: var(--cobalt-600); }
+  .step h3 { font-size: 21px; }
+  .step p { margin: 10px 0 0; font-size: 15px; line-height: 1.55; color: var(--ink-2); }
+
+  /* guarantee */
+  .promises { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: rgb(255 255 255 / .14); border-radius: 26px; overflow: hidden; }
+  .promises li { background: var(--cobalt-800); padding: 32px; background: linear-gradient(180deg, #2437b8, #1b2a9a); }
+  .promises h3 { font-size: 22px; margin-top: 22px; }
+  .promises p { margin: 10px 0 0; font-size: 15px; line-height: 1.6; color: rgb(255 255 255 / .78); }
+
+  /* key */
+  .key-grid { display: grid; grid-template-columns: 1fr 1.1fr; gap: 56px; align-items: start; }
+  .key { background: #fff; border-radius: 26px; padding: 8px 24px; border: 1px solid rgb(18 22 64 / .06); }
+  .key-row { display: grid; grid-template-columns: 1fr 64px 64px 72px; align-items: center; gap: 8px; padding: 14px 0; border-bottom: 1px solid var(--line); color: var(--cobalt-800); }
+  .key-row:last-child { border-bottom: 0; }
+  .key-row > span:not(.key-label) { display: grid; place-items: center; }
+  .key-headrow { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-2); padding-block: 16px 12px; }
+  .key-headrow span:first-child { font-family: 'Geist Mono', monospace; }
+  .key-label strong { display: block; color: var(--ink); font-size: 16px; font-weight: 600; }
+  .key-label small { display: block; color: var(--ink-2); font-size: 13.5px; margin-top: 2px; }
+
+  /* contact */
+  .cta {
+    position: relative; overflow: hidden; border-radius: 32px; padding: clamp(32px, 5vw, 64px); color: #fff;
+    display: grid; grid-template-columns: 1.2fr 1fr; gap: 48px; align-items: center;
+    background: linear-gradient(135deg, var(--cobalt-600), var(--cobalt-950));
+  }
+  .cta-glow { position: absolute; width: 700px; height: 700px; left: -200px; bottom: -420px; background: radial-gradient(circle, rgb(255 130 70 / .5), transparent 60%); pointer-events: none; }
+  .cta-copy, .contact { position: relative; }
+  .contact { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+  .contact a {
+    display: flex; align-items: center; gap: 14px; padding: 12px 18px 12px 12px; border-radius: 18px; color: #fff; text-decoration: none;
+    background: rgb(255 255 255 / .1); border: 1px solid rgb(255 255 255 / .2); transition: background-color .2s;
+  }
+  .contact a:hover { background: rgb(255 255 255 / .18); }
+  .contact strong { display: block; font-size: 16px; font-weight: 600; }
+  .contact small { display: block; font: 400 13px/1.4 'Geist Mono', monospace; color: rgb(255 255 255 / .75); margin-top: 2px; }
+
+  .foot { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; padding-block: 8px 72px; font-size: 13px; color: var(--ink-2); }
+
+  /* ---------- RESPONSIVE ---------- */
+  @media (max-width: 1100px) {
+    .steps { grid-template-columns: repeat(3, 1fr); row-gap: 40px; }
+    .steps::before { display: none; }
+    .cards { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 960px) {
+    .nav-links { display: none; }
+    .hero-grid { grid-template-columns: 1fr; padding-top: 28px; }
+    .stage { width: min(480px, 100%); }
+    .key-grid, .cta { grid-template-columns: 1fr; }
+    .promises { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 620px) {
+    .nav .btn { padding: 0 12px 0 10px; font-size: 13px; }
+    .brand { font-size: 21px; }
+    .lede { font-size: 17px; }
+    .hero-stats { gap: 18px; justify-content: space-between; }
+    .hero-stats dt { font-size: 12px; gap: 5px; }
+    .hero-stats dd { font-size: 24px; }
+    .stage { aspect-ratio: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .trail { display: none; }
+    .glyph { position: relative; grid-column: 1 / -1; height: 220px; }
+    .glyph :global(.sdb) { width: 200px; }
+    .chip { position: static; animation: none; padding: 10px; flex-direction: column; align-items: flex-start; gap: 10px; }
+    .cards, .promises, .steps { grid-template-columns: 1fr; }
+    .key { padding: 4px 14px; }
+    .key-row { grid-template-columns: 1fr 34px 44px 56px; }
+    .key-label small { display: none; }
+    .card h3 { font-size: 26px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .chip { animation: none; }
+    .btn, .card { transition: none; }
+    .btn:hover, .card:hover { transform: none; }
+  }
+</style>

@@ -1,0 +1,7 @@
+{
+  "title": "GSAP",
+  "kind": "website",
+  "category": "Motion & scroll",
+  "concept": "Lull, a fictional seven-day dusk yoga retreat on São Jorge: a framed violet hero whose five practice cards fan in on one GSAP timeline and can be thrown around with Draggable + Inertia (velocity tilt, float loops, a keyboard 'Shuffle the week' re-fan), then a looping 4·4·6 breath-clock timeline, a pinned ScrollTrigger scrub through the seven days, SplitText line reveals, batched reveals, counters and a quickTo magnetic CTA.",
+  "notes": "All GSAP plugins (ScrollTrigger, Draggable, InertiaPlugin, SplitText) from the installed gsap 3.15. Three.js dot-field background rendered on the GSAP ticker; it is removed if WebGL is unavailable. gsap.ticker.lagSmoothing(0) keeps the intro on wall-clock time under software WebGL. Reduced motion: no intro, float, pin or scrub — the days become a wrapped grid and the breath clock waits for Play. Portraits are the skill's demo assets."
+}

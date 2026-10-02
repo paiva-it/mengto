@@ -1,0 +1,688 @@
+---
+import '../../styles/global.css';
+import BackPill from '../../components/BackPill.astro';
+
+const img = (id: string, w = 1200) => `https://images.unsplash.com/photo-${id}?w=${w}&q=72&auto=format&fit=crop`;
+const IMG = {
+  limb: '1451187580459-43490279c0fa',
+  station: '1446776811953-b23d57bd21aa',
+  moon: '1522030299830-16b8d3d049fe',
+  deep: '1543722530-d2c3201371e7',
+};
+
+const cabins = [
+  { id: 'berth', label: 'Berth', price: '412,000', note: 'Shared module · 0.9 m porthole' },
+  { id: 'cupola', label: 'Cupola', price: '585,000', note: 'Private pod · 1.6 m dome window' },
+  { id: 'tether', label: 'Tether', price: '760,000', note: 'Cupola + 40 min tethered EVA' },
+];
+
+const trips = [
+  {
+    code: 'AP-LEO',
+    name: 'Low Orbit Weekend',
+    days: '3 nights',
+    alt: '412 km',
+    price: 'from €412k',
+    img: IMG.station,
+    copy: 'Dock at Halcyon, our four-guest station. Forty-six sunrises, one hot meal a day you cook yourself, and a window that never points at the same ocean twice.',
+  },
+  {
+    code: 'AP-LUN',
+    name: 'Cislunar Loop',
+    days: '9 nights',
+    alt: '384,400 km',
+    price: 'from €2.9M',
+    img: IMG.moon,
+    copy: 'A free-return arc around the Moon. On day four the whole Earth fits behind your thumb; on day five you watch it rise over the far-side highlands.',
+  },
+  {
+    code: 'AP-DRK',
+    name: 'Shadow Pass',
+    days: '5 nights',
+    alt: '1,200 km',
+    price: 'from €1.1M',
+    img: IMG.deep,
+    copy: 'A higher, darker orbit timed for the new moon. Lights off in the cupola for the forty-minute eclipse, and Andromeda bright enough to read by.',
+  },
+];
+
+const steps = [
+  { n: '01', t: 'Medical', d: 'Two days in Lisbon. Cardiology, vestibular tests, a centrifuge ride to 3.5 g.' },
+  { n: '02', t: 'Habitat', d: 'A week in the Halcyon mock-up: hatches, galley, the toilet nobody forgets.' },
+  { n: '03', t: 'Parabolic', d: 'Three flights, ninety parabolas, about nine minutes of real weightlessness.' },
+  { n: '04', t: 'Quarantine', d: 'Five days at Kourou with your crew, your family on a glass wall away.' },
+];
+
+const log = [
+  { t: '06:42:10', m: 'Sunrise over the Coral Sea, guest R. Okafor at cupola' },
+  { t: '06:31:55', m: 'Cabin pressure 101.2 kPa, CO₂ 0.21 %' },
+  { t: '06:18:02', m: 'Downlink window Svalbard opened, 4K stream live' },
+  { t: '05:59:40', m: 'Orbit-raise burn complete, Δv 1.8 m/s' },
+];
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Apsis Orbital — Glass Dark UI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  </head>
+  <body data-glass="standard">
+    <BackPill />
+
+    <!-- fixed atmosphere so every glass surface has something to blur -->
+    <div class="sky" aria-hidden="true">
+      <div class="stars"></div>
+      <div class="glow glow-a"></div>
+      <div class="glow glow-b"></div>
+    </div>
+
+    <header class="nav-wrap">
+      <nav class="nav glass-panel border-gradient" aria-label="Primary">
+        <a href="#top" class="brand">
+          <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="12" rx="10" ry="4.2" fill="none" stroke="currentColor" stroke-width="1.4" transform="rotate(-24 12 12)"/><circle cx="12" cy="12" r="3.2" fill="currentColor"/><circle cx="20.2" cy="8.4" r="1.4" fill="var(--accent)"/></svg>
+          Apsis
+        </a>
+        <ul class="nav-links">
+          <li><a href="#trips">Itineraries</a></li>
+          <li><a href="#deck">Flight deck</a></li>
+          <li><a href="#training">Training</a></li>
+        </ul>
+        <button class="btn btn-ghost nav-cta" type="button" data-open-reserve>Reserve</button>
+      </nav>
+    </header>
+
+    <main id="top">
+      <!-- HERO -->
+      <section class="hero">
+        <img class="hero-bg" src={img(IMG.limb, 2000)} alt="" width="2000" height="1333" fetchpriority="high" />
+        <div class="hero-shade" aria-hidden="true"></div>
+
+        <div class="hero-grid wrap">
+          <div class="hero-copy">
+            <p class="eyebrow"><span class="pulse" aria-hidden="true"></span>Flight AP-07 now boarding · 4 seats</p>
+            <h1>Sixteen sunrises a day, seen through glass.</h1>
+            <p class="lede">
+              Apsis flies four guests at a time to Halcyon, a private station 412 km up.
+              Three nights, no tour guide, a dome window the width of a dining table.
+            </p>
+            <div class="hero-actions">
+              <button class="btn btn-primary" type="button" data-open-reserve>Reserve a berth</button>
+              <a class="btn btn-ghost" href="#trips">See itineraries</a>
+            </div>
+            <dl class="hero-facts">
+              <div><dt>Flown</dt><dd>212 guests</dd></div>
+              <div><dt>Since</dt><dd>2024</dd></div>
+              <div><dt>Abort record</dt><dd>0 of 61</dd></div>
+            </dl>
+          </div>
+
+          <div class="hero-stage">
+            <article class="console glass-panel border-gradient" aria-labelledby="console-title">
+              <header class="console-head">
+                <div>
+                  <p class="micro">Next launch · Kourou ELA-4</p>
+                  <h2 id="console-title">Flight AP-07</h2>
+                </div>
+                <span class="chip"><span class="dot" aria-hidden="true"></span>Go for launch</span>
+              </header>
+
+              <div class="countdown" role="timer" aria-label="Time to launch">
+                <div><span data-cd="d">00</span><small>days</small></div>
+                <div><span data-cd="h">00</span><small>hrs</small></div>
+                <div><span data-cd="m">00</span><small>min</small></div>
+                <div><span data-cd="s">00</span><small>sec</small></div>
+              </div>
+
+              <fieldset class="seg" aria-label="Cabin class">
+                <legend class="micro">Cabin</legend>
+                {cabins.map((c, i) => (
+                  <label>
+                    <input type="radio" name="cabin" value={c.id} data-price={c.price} data-note={c.note} checked={i === 1} />
+                    <span>{c.label}</span>
+                  </label>
+                ))}
+              </fieldset>
+
+              <div class="console-foot">
+                <div>
+                  <p class="price"><span>€</span><output id="cabin-price">585,000</output></p>
+                  <p class="muted small" id="cabin-note">Private pod · 1.6 m dome window</p>
+                </div>
+                <button class="btn btn-primary" type="button" data-open-reserve>Hold seat</button>
+              </div>
+            </article>
+
+            <aside class="metric glass-panel border-gradient" aria-label="Orbit metric">
+              <p class="micro">Orbital period</p>
+              <p class="metric-num">92.6<span>min</span></p>
+              <svg class="spark" viewBox="0 0 160 36" aria-hidden="true"><path d="M0 28 C 20 28, 26 6, 40 6 S 60 28, 80 28 S 100 6, 120 6 S 140 28, 160 28" fill="none" stroke="url(#sg)" stroke-width="1.6"/><defs><linearGradient id="sg" x1="0" x2="1"><stop offset="0" stop-color="#60a5fa" stop-opacity=".2"/><stop offset=".6" stop-color="#60a5fa"/><stop offset="1" stop-color="#a855f7"/></linearGradient></defs></svg>
+              <p class="muted small">15.5 sunrises every 24 h</p>
+            </aside>
+
+            <div class="density glass-panel border-gradient" role="group" aria-label="Glass treatment">
+              <span class="micro">Glass</span>
+              <button type="button" data-density="soft" aria-pressed="false">Soft</button>
+              <button type="button" data-density="standard" aria-pressed="true">Standard</button>
+              <button type="button" data-density="solid" aria-pressed="false" title="No-blur fallback">Solid</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ITINERARIES -->
+      <section id="trips" class="section wrap">
+        <div class="section-head">
+          <p class="micro">Itineraries · 2027 manifest</p>
+          <h2>Three ways up. All of them come back.</h2>
+          <p class="muted">Every flight carries one Apsis commander and at most four guests. Prices include training, insurance and the suit, which you keep.</p>
+        </div>
+        <div class="trips">
+          {trips.map((t) => (
+            <article class="trip glass-panel border-gradient">
+              <div class="trip-media">
+                <img src={img(t.img, 900)} alt="" loading="lazy" width="900" height="600" />
+                <span class="chip trip-code">{t.code}</span>
+              </div>
+              <div class="trip-body">
+                <h3>{t.name}</h3>
+                <p class="body">{t.copy}</p>
+                <dl class="trip-meta">
+                  <div><dt>Duration</dt><dd>{t.days}</dd></div>
+                  <div><dt>Altitude</dt><dd>{t.alt}</dd></div>
+                  <div><dt>Fare</dt><dd>{t.price}</dd></div>
+                </dl>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <!-- FLIGHT DECK -->
+      <section id="deck" class="section wrap">
+        <div class="section-head">
+          <p class="micro">Flight deck · for the people you leave behind</p>
+          <h2>Your family watches the same orbit you do.</h2>
+          <p class="muted">Every guest gets a live deck their family can open on any screen: where Halcyon is, when your next sunrise lands, and a log written by the station itself.</p>
+        </div>
+
+        <div class="deck">
+          <article class="track glass-panel border-gradient" aria-labelledby="track-title">
+            <header class="panel-head">
+              <h3 id="track-title">Ground track</h3>
+              <span class="chip"><span class="dot" aria-hidden="true"></span>Live · orbit 31</span>
+            </header>
+            <svg class="map" viewBox="0 0 720 300" role="img" aria-label="Sinusoidal ground track over a world grid, station currently above the Pacific">
+              <defs>
+                <linearGradient id="tg" x1="0" x2="1"><stop offset="0" stop-color="#60a5fa" stop-opacity="0"/><stop offset=".55" stop-color="#60a5fa"/><stop offset="1" stop-color="#c084fc"/></linearGradient>
+                <pattern id="grid" width="40" height="30" patternUnits="userSpaceOnUse"><path d="M40 0H0V30" fill="none" stroke="rgba(148,163,184,.12)" stroke-width="1"/></pattern>
+                <radialGradient id="sat"><stop offset="0" stop-color="#e0f2fe"/><stop offset=".4" stop-color="#60a5fa"/><stop offset="1" stop-color="#60a5fa" stop-opacity="0"/></radialGradient>
+              </defs>
+              <rect width="720" height="300" fill="url(#grid)"/>
+              <path d="M0 150 C 60 40, 120 40, 180 150 S 300 260, 360 150 S 480 40, 540 150 S 660 260, 720 150" fill="none" stroke="rgba(148,163,184,.22)" stroke-dasharray="3 6"/>
+              <path class="track-line" d="M0 150 C 60 40, 120 40, 180 150 S 300 260, 360 150 S 480 40, 528 128" fill="none" stroke="url(#tg)" stroke-width="2.2" stroke-linecap="round"/>
+              <circle cx="528" cy="128" r="22" fill="url(#sat)" opacity=".55"/>
+              <circle cx="528" cy="128" r="4.5" fill="#e0f2fe"/>
+              <text x="540" y="110" fill="#cbd5e1" font-size="12" font-family="Geist Mono, monospace">HALCYON · 18.4°S 172.9°W</text>
+            </svg>
+          </article>
+
+          <div class="deck-stats">
+            <article class="stat glass-panel border-gradient">
+              <p class="micro">Altitude</p>
+              <p class="stat-num"><span data-alt>412.06</span><small>km</small></p>
+            </article>
+            <article class="stat glass-panel border-gradient">
+              <p class="micro">Ground speed</p>
+              <p class="stat-num">27,580<small>km/h</small></p>
+            </article>
+            <article class="stat glass-panel border-gradient">
+              <p class="micro">Next sunrise</p>
+              <p class="stat-num"><span data-sun>31:40</span><small>min</small></p>
+            </article>
+          </div>
+
+          <article class="log glass-panel border-gradient" aria-labelledby="log-title">
+            <header class="panel-head"><h3 id="log-title">Station log</h3><span class="micro">UTC</span></header>
+            <ol>
+              {log.map((l) => (
+                <li><time>{l.t}</time><span>{l.m}</span></li>
+              ))}
+            </ol>
+          </article>
+        </div>
+      </section>
+
+      <!-- TRAINING -->
+      <section id="training" class="section wrap">
+        <div class="section-head">
+          <p class="micro">Before you fly · 19 days</p>
+          <h2>You will be ready. We check.</h2>
+        </div>
+        <ol class="steps">
+          {steps.map((s) => (
+            <li class="step glass-panel border-gradient">
+              <span class="step-n">{s.n}</span>
+              <h3>{s.t}</h3>
+              <p class="body">{s.d}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <!-- CLOSER -->
+      <section class="section wrap">
+        <div class="closer glass-panel border-gradient">
+          <div>
+            <p class="micro">Manifest closes 14 Feb 2027</p>
+            <h2>Four seats. One window. Your name on the hatch.</h2>
+          </div>
+          <button class="btn btn-primary" type="button" data-open-reserve>Reserve a berth</button>
+        </div>
+      </section>
+    </main>
+
+    <footer class="foot wrap">
+      <span>Apsis Orbital S.A. · Lisbon · Kourou</span>
+      <span class="muted">A fictional operator, built to demonstrate dark glass UI.</span>
+    </footer>
+
+    <!-- MODAL -->
+    <dialog id="reserve" class="modal glass-panel border-gradient" aria-labelledby="reserve-title">
+      <form method="dialog" class="modal-form" id="reserve-form">
+        <header class="panel-head">
+          <h2 id="reserve-title">Hold a seat on AP-07</h2>
+          <button class="icon-btn" type="button" data-close aria-label="Close">
+            <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          </button>
+        </header>
+        <p class="muted small">A hold costs nothing for 72 hours. A flight surgeon calls you before anything is charged.</p>
+        <label class="field"><span>Full name</span><input name="name" required autocomplete="name" placeholder="Ada Okafor" /></label>
+        <label class="field"><span>E-mail</span><input name="email" type="email" required autocomplete="email" placeholder="ada@example.com" /></label>
+        <label class="field"><span>Cabin</span>
+          <select name="cabin" id="modal-cabin">
+            {cabins.map((c) => <option value={c.id}>{c.label} — €{c.price}</option>)}
+          </select>
+        </label>
+        <p class="done" id="reserve-done" hidden>Held. Check your inbox for the medical questionnaire.</p>
+        <button class="btn btn-primary wide" type="submit" id="reserve-submit">Hold for 72 hours</button>
+      </form>
+    </dialog>
+
+    <script>
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      // Countdown to a fixed fictional launch; rolls forward if the date has passed.
+      const target = (() => {
+        let t = Date.UTC(2027, 2, 21, 6, 42, 0);
+        while (t < Date.now()) t += 1000 * 60 * 60 * 24 * 90;
+        return t;
+      })();
+      const cd = Object.fromEntries(
+        [...document.querySelectorAll<HTMLElement>('[data-cd]')].map((el) => [el.dataset.cd!, el]),
+      );
+      const pad = (n: number) => String(n).padStart(2, '0');
+      const tick = () => {
+        const s = Math.max(0, Math.floor((target - Date.now()) / 1000));
+        cd.d.textContent = pad(Math.floor(s / 86400));
+        cd.h.textContent = pad(Math.floor((s % 86400) / 3600));
+        cd.m.textContent = pad(Math.floor((s % 3600) / 60));
+        cd.s.textContent = pad(s % 60);
+      };
+      tick();
+      setInterval(tick, 1000);
+
+      // Cabin segmented control -> price + note + modal default.
+      const price = document.getElementById('cabin-price')!;
+      const note = document.getElementById('cabin-note')!;
+      const modalCabin = document.getElementById('modal-cabin') as HTMLSelectElement;
+      document.querySelectorAll<HTMLInputElement>('input[name="cabin"]').forEach((r) => {
+        r.addEventListener('change', () => {
+          price.textContent = r.dataset.price!;
+          note.textContent = r.dataset.note!;
+          modalCabin.value = r.value;
+        });
+      });
+      modalCabin.value = (document.querySelector('input[name="cabin"]:checked') as HTMLInputElement).value;
+
+      // Glass treatment control: soft / standard / solid (the no-blur fallback).
+      const densityBtns = document.querySelectorAll<HTMLButtonElement>('[data-density]');
+      densityBtns.forEach((b) =>
+        b.addEventListener('click', () => {
+          document.body.dataset.glass = b.dataset.density!;
+          densityBtns.forEach((o) => o.setAttribute('aria-pressed', String(o === b)));
+        }),
+      );
+
+      // Live-ish deck numbers.
+      const alt = document.querySelector('[data-alt]')!;
+      const sun = document.querySelector('[data-sun]')!;
+      let sunS = 31 * 60 + 40;
+      if (!reduce) {
+        setInterval(() => {
+          alt.textContent = (412 + Math.sin(Date.now() / 9000) * 0.12).toFixed(2);
+          sunS = sunS <= 0 ? 92 * 60 : sunS - 1;
+          sun.textContent = `${pad(Math.floor(sunS / 60))}:${pad(sunS % 60)}`;
+        }, 1000);
+      }
+
+      // Modal.
+      const dlg = document.getElementById('reserve') as HTMLDialogElement;
+      const form = document.getElementById('reserve-form') as HTMLFormElement;
+      const done = document.getElementById('reserve-done')!;
+      const submit = document.getElementById('reserve-submit') as HTMLButtonElement;
+      document.querySelectorAll('[data-open-reserve]').forEach((b) =>
+        b.addEventListener('click', () => {
+          done.hidden = true;
+          submit.disabled = false;
+          dlg.showModal();
+        }),
+      );
+      dlg.querySelector('[data-close]')!.addEventListener('click', () => dlg.close());
+      dlg.addEventListener('click', (e) => e.target === dlg && dlg.close());
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        done.hidden = false;
+        submit.disabled = true;
+      });
+    </script>
+
+    <style is:global>
+      :root {
+        --bg-0: #020617;
+        --bg-1: #0b1220;
+        --glass-fill: rgba(15, 23, 42, 0.45);
+        --glass-fill-strong: rgba(15, 23, 42, 0.62);
+        --glass-blur: 18px;
+        --glass-sheen: 0.08;
+        --text-main: #e2e8f0;
+        --text-body: #cbd5e1;
+        --text-muted: #94a3b8;
+        --accent: #60a5fa;
+        --accent-2: #a855f7;
+        --edge: 0.36;
+        --sans: 'Geist', ui-sans-serif, system-ui, sans-serif;
+        --mono: 'Geist Mono', ui-monospace, monospace;
+        color-scheme: dark;
+      }
+      body[data-glass='soft'] {
+        --glass-fill: rgba(15, 23, 42, 0.28);
+        --glass-blur: 10px;
+        --glass-sheen: 0.05;
+        --edge: 0.26;
+      }
+      body[data-glass='solid'] {
+        --glass-fill: var(--glass-fill-strong);
+        --glass-blur: 0px;
+        --edge: 0.42;
+      }
+      body[data-glass='solid'] .glass-panel { background-color: rgba(11, 18, 32, 0.94); }
+
+      html { scroll-behavior: smooth; background: var(--bg-0); }
+      @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+      body {
+        margin: 0;
+        /* no body background: the fixed .sky (z -1) must paint above the canvas */
+        color: var(--text-main);
+        font-family: var(--sans);
+        -webkit-font-smoothing: antialiased;
+        overflow-x: clip;
+      }
+      .wrap { width: min(1280px, 100% - 32px); margin-inline: auto; }
+      @media (min-width: 768px) { .wrap { width: min(1280px, 100% - 64px); } }
+
+      /* ---------- atmosphere ---------- */
+      .sky { position: fixed; inset: 0; z-index: -1; pointer-events: none; background: radial-gradient(120% 80% at 50% 120%, var(--bg-1), var(--bg-0) 60%); }
+      .stars {
+        position: absolute; inset: 0; opacity: 0.55;
+        background-image:
+          radial-gradient(1px 1px at 12% 18%, #fff 50%, transparent 51%),
+          radial-gradient(1px 1px at 68% 32%, #cbd5e1 50%, transparent 51%),
+          radial-gradient(1.4px 1.4px at 42% 72%, #e0f2fe 50%, transparent 51%),
+          radial-gradient(1px 1px at 88% 82%, #fff 50%, transparent 51%),
+          radial-gradient(1px 1px at 24% 56%, #94a3b8 50%, transparent 51%);
+        background-size: 340px 340px, 420px 420px, 520px 520px, 380px 380px, 290px 290px;
+      }
+      .glow { position: absolute; border-radius: 50%; filter: blur(90px); }
+      .glow-a { width: 52vw; height: 40vw; left: -14vw; top: 18%; background: rgba(37, 99, 235, 0.32); }
+      .glow-b { width: 44vw; height: 36vw; right: -12vw; top: 52%; background: rgba(147, 51, 234, 0.26); }
+
+      /* ---------- skill: glass panel ---------- */
+      .glass-panel {
+        background: linear-gradient(180deg, rgba(255, 255, 255, var(--glass-sheen)), rgba(255, 255, 255, 0.02));
+        background-color: var(--glass-fill);
+        border-radius: 24px;
+        box-shadow: 0 20px 48px rgba(2, 6, 23, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+        -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+        transition: background-color 0.3s, backdrop-filter 0.3s, box-shadow 0.3s;
+      }
+      @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+        .glass-panel { background-color: var(--glass-fill-strong); }
+      }
+
+      /* ---------- skill: masked gradient border ---------- */
+      .border-gradient { position: relative; }
+      .border-gradient::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        padding: 1px;
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        background: linear-gradient(
+          145deg,
+          rgba(148, 163, 184, 0.28) 0%,
+          rgba(96, 165, 250, var(--edge)) 45%,
+          rgba(168, 85, 247, 0.3) 70%,
+          rgba(148, 163, 184, 0.18) 100%
+        );
+        pointer-events: none;
+      }
+
+      /* ---------- type ---------- */
+      .micro { font: 500 11px/1.3 var(--mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); margin: 0; }
+      .muted { color: var(--text-muted); }
+      .small { font-size: 13px; line-height: 1.5; margin: 0; }
+      .body { color: var(--text-body); font-size: 15px; line-height: 1.6; margin: 0; }
+      h1, h2, h3 { margin: 0; font-weight: 600; letter-spacing: -0.035em; color: #f1f5f9; }
+
+      /* ---------- controls ---------- */
+      .btn {
+        display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+        height: 46px; padding: 0 22px; border-radius: 999px;
+        font: 500 14px/1 var(--sans); color: var(--text-main); text-decoration: none; cursor: pointer;
+        border: 0; position: relative; transition: transform 0.2s, background-color 0.2s, box-shadow 0.2s;
+      }
+      .btn-primary {
+        color: #0b1220;
+        background: linear-gradient(180deg, #bfdbfe, #60a5fa);
+        box-shadow: 0 8px 28px rgba(96, 165, 250, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+      }
+      .btn-primary:hover { box-shadow: 0 10px 36px rgba(96, 165, 250, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.6); transform: translateY(-1px); }
+      .btn-primary:disabled { opacity: 0.5; cursor: default; transform: none; }
+      .btn-ghost {
+        background: rgba(15, 23, 42, 0.4);
+        box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      }
+      .btn-ghost:hover { background: rgba(30, 41, 59, 0.6); box-shadow: inset 0 0 0 1px rgba(96, 165, 250, 0.55); }
+      .wide { width: 100%; }
+      :where(a, button, input, select, label):focus-visible,
+      .seg input:focus-visible + span { outline: 2px solid #93c5fd; outline-offset: 3px; }
+
+      .chip {
+        display: inline-flex; align-items: center; gap: 8px; height: 28px; padding: 0 12px; border-radius: 999px;
+        font: 500 11px/1 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: #bfdbfe;
+        background: rgba(37, 99, 235, 0.16); box-shadow: inset 0 0 0 1px rgba(96, 165, 250, 0.35);
+        white-space: nowrap;
+      }
+      .dot { width: 6px; height: 6px; border-radius: 50%; background: #4ade80; box-shadow: 0 0 10px #4ade80; }
+
+      /* ---------- nav ---------- */
+      .nav-wrap { position: fixed; top: 16px; left: 0; right: 0; z-index: 50; display: flex; justify-content: center; padding-inline: 16px; }
+      .nav { display: flex; align-items: center; gap: 28px; padding: 8px 8px 8px 20px; border-radius: 999px; width: min(760px, 100%); }
+      .brand { display: inline-flex; align-items: center; gap: 10px; color: #f1f5f9; text-decoration: none; font-weight: 600; font-size: 17px; letter-spacing: -0.02em; }
+      .nav-links { display: flex; gap: 24px; list-style: none; margin: 0 auto; padding: 0; }
+      .nav-links a { color: var(--text-body); text-decoration: none; font-size: 14px; }
+      .nav-links a:hover { color: #fff; }
+      .nav-cta { height: 38px; padding: 0 18px; }
+      @media (max-width: 640px) { .nav-links { display: none; } .nav { justify-content: space-between; } }
+
+      /* ---------- hero ---------- */
+      .hero { position: relative; min-height: 100svh; display: flex; align-items: center; padding: 120px 0 64px; isolation: isolate; overflow: hidden; }
+      .hero-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 70%; z-index: -2; }
+      .hero-shade { position: absolute; inset: 0; z-index: -1; background:
+        linear-gradient(90deg, rgba(2, 6, 23, 0.92) 0%, rgba(2, 6, 23, 0.55) 45%, rgba(2, 6, 23, 0.1) 100%),
+        linear-gradient(180deg, rgba(2, 6, 23, 0.7) 0%, transparent 30%, transparent 70%, var(--bg-0) 100%); }
+      .hero-grid { display: grid; gap: 56px; align-items: center; }
+      @media (min-width: 1024px) { .hero-grid { grid-template-columns: 1.05fr 0.95fr; } }
+      .eyebrow { display: inline-flex; align-items: center; gap: 10px; margin: 0 0 24px; font: 500 12px/1 var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: #bfdbfe; }
+      .pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 0 rgba(96, 165, 250, 0.6); animation: pulse 2.4s infinite; }
+      @keyframes pulse { 70% { box-shadow: 0 0 0 10px rgba(96, 165, 250, 0); } 100% { box-shadow: 0 0 0 0 rgba(96, 165, 250, 0); } }
+      h1 { font-size: clamp(44px, 6.6vw, 92px); line-height: 0.98; letter-spacing: -0.045em; max-width: 11ch; }
+      .lede { margin: 28px 0 0; max-width: 470px; font-size: 18px; line-height: 1.6; color: var(--text-body); }
+      .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 36px; }
+      .hero-facts { display: flex; flex-wrap: wrap; gap: 36px; margin: 48px 0 0; }
+      .hero-facts dt { font: 500 11px/1 var(--mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); }
+      .hero-facts dd { margin: 8px 0 0; font-size: 20px; font-weight: 500; letter-spacing: -0.02em; }
+
+      .hero-stage { position: relative; display: grid; gap: 16px; }
+      @media (min-width: 1024px) { .hero-stage { padding-left: 56px; } }
+      .console { padding: 28px; }
+      .console-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+      .console-head h2 { font-size: 26px; margin-top: 8px; }
+      .countdown { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 28px 0; }
+      .countdown div { padding: 16px 0 12px; border-radius: 16px; text-align: center; background: rgba(2, 6, 23, 0.32); box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.14); }
+      .countdown span { display: block; font: 500 clamp(28px, 3.4vw, 44px)/1 var(--mono); letter-spacing: -0.04em; color: #f8fafc; font-variant-numeric: tabular-nums; }
+      .countdown small { display: block; margin-top: 8px; font: 500 10px/1 var(--mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); }
+
+      .seg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin: 0; padding: 4px; border: 0; border-radius: 999px; background: rgba(2, 6, 23, 0.4); box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.16); position: relative; }
+      .seg legend { position: absolute; top: -26px; left: 4px; }
+      .seg { margin-top: 36px; }
+      .seg label { position: relative; }
+      .seg input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+      .seg span { display: block; text-align: center; padding: 11px 0; border-radius: 999px; font-size: 14px; color: var(--text-body); transition: background-color 0.2s, color 0.2s, box-shadow 0.2s; }
+      .seg label:hover span { color: #fff; }
+      .seg input:checked + span { color: #f8fafc; background: linear-gradient(180deg, rgba(96, 165, 250, 0.32), rgba(96, 165, 250, 0.14)); box-shadow: inset 0 0 0 1px rgba(147, 197, 253, 0.5), 0 4px 18px rgba(96, 165, 250, 0.25); }
+
+      .console-foot { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-top: 24px; flex-wrap: wrap; }
+      .price { margin: 0 0 6px; font-size: 34px; font-weight: 600; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; }
+      .price span { font-size: 20px; color: var(--text-muted); margin-right: 4px; vertical-align: 10px; }
+
+      .metric { padding: 20px 22px; }
+      .metric-num { margin: 10px 0 0; font-size: 40px; font-weight: 600; letter-spacing: -0.04em; }
+      .metric-num span { font-size: 15px; color: var(--text-muted); margin-left: 6px; letter-spacing: 0; font-weight: 400; }
+      .spark { width: 100%; height: 36px; margin: 6px 0 8px; }
+
+      .density { display: flex; align-items: center; gap: 4px; padding: 6px 6px 6px 16px; border-radius: 999px; justify-self: start; }
+      .density .micro { margin-right: 8px; }
+      .density button { height: 32px; padding: 0 14px; border: 0; border-radius: 999px; background: transparent; color: var(--text-body); font: 500 13px/1 var(--sans); cursor: pointer; }
+      .density button:hover { color: #fff; }
+      .density button[aria-pressed='true'] { background: rgba(96, 165, 250, 0.2); color: #f8fafc; box-shadow: inset 0 0 0 1px rgba(147, 197, 253, 0.45); }
+
+      @media (min-width: 1024px) {
+        .console { padding-bottom: 76px; }
+        .hero-stage { grid-template-columns: auto 1fr; }
+        .console { grid-column: 1 / -1; }
+        .metric { width: 250px; margin: -64px 0 0 -56px; z-index: 2; }
+        .density { justify-self: end; align-self: start; }
+      }
+      @media (max-width: 1023px) {
+        .hero-stage { grid-template-columns: 1fr; }
+        .hero { align-items: flex-start; }
+      }
+      @media (min-width: 560px) and (max-width: 1023px) {
+        .hero-stage { grid-template-columns: 1fr 1fr; }
+        .console { grid-column: 1 / -1; }
+        .density { align-self: end; }
+      }
+      @media (max-width: 480px) {
+        .console { padding: 20px; }
+        .countdown { gap: 6px; }
+        .console-foot .btn { width: 100%; }
+        .hero-facts { gap: 24px; }
+        .lede { font-size: 16px; }
+      }
+
+      /* ---------- sections ---------- */
+      .section { padding: 96px 0 0; scroll-margin-top: 0; }
+      #trips, #deck, #training { scroll-margin-top: 12px; }
+      .section-head { display: grid; gap: 16px; max-width: 640px; margin-bottom: 40px; }
+      .section-head h2 { font-size: clamp(32px, 4.2vw, 52px); line-height: 1.04; }
+      .section-head .muted { font-size: 17px; line-height: 1.6; margin: 0; }
+
+      .trips { display: grid; gap: 20px; }
+      @media (min-width: 900px) { .trips { grid-template-columns: repeat(3, 1fr); } }
+      .trip { overflow: hidden; display: flex; flex-direction: column; transition: transform 0.3s, box-shadow 0.3s; }
+      .trip:hover { transform: translateY(-4px); box-shadow: 0 28px 60px rgba(2, 6, 23, 0.55), 0 0 0 1px rgba(96, 165, 250, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.14); }
+      .trip-media { position: relative; aspect-ratio: 16 / 10; }
+      .trip-media img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; -webkit-mask-image: linear-gradient(180deg, #000 55%, transparent); mask-image: linear-gradient(180deg, #000 55%, transparent); }
+      .trip-code { position: absolute; top: 16px; left: 16px; background: rgba(15, 23, 42, 0.55); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+      .trip-body { padding: 4px 24px 24px; display: grid; gap: 14px; flex: 1; align-content: start; }
+      .trip-body h3 { font-size: 24px; }
+      .trip-meta { display: grid; grid-template-columns: repeat(3, auto); justify-content: space-between; gap: 12px; margin: 8px 0 0; padding-top: 16px; border-top: 1px solid rgba(148, 163, 184, 0.16); }
+      .trip-meta dt { font: 500 10px/1 var(--mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); }
+      .trip-meta dd { margin: 6px 0 0; font-size: 14px; font-weight: 500; }
+
+      .deck { display: grid; gap: 20px; }
+      @media (min-width: 1000px) { .deck { grid-template-columns: 2fr 1fr; } .log { grid-column: 1 / -1; } }
+      .panel-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 18px; }
+      .panel-head h3 { font-size: 18px; letter-spacing: -0.02em; }
+      .track { padding: 24px; }
+      .map { width: 100%; height: auto; display: block; border-radius: 14px; background: rgba(2, 6, 23, 0.35); }
+      .track-line { stroke-dasharray: 1400; stroke-dashoffset: 1400; animation: draw 3.2s 0.4s cubic-bezier(0.2, 0.7, 0.2, 1) forwards; }
+      @keyframes draw { to { stroke-dashoffset: 0; } }
+      .deck-stats { display: grid; gap: 20px; }
+      @media (min-width: 560px) and (max-width: 999px) { .deck-stats { grid-template-columns: repeat(3, 1fr); } }
+      .stat { padding: 22px 24px; display: grid; align-content: space-between; gap: 16px; }
+      .stat-num { margin: 0; font: 500 clamp(30px, 3vw, 40px)/1 var(--mono); letter-spacing: -0.04em; font-variant-numeric: tabular-nums; }
+      .stat-num small { font: 400 13px var(--sans); color: var(--text-muted); margin-left: 8px; letter-spacing: 0; }
+      .log { padding: 24px; }
+      .log ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+      .log li { display: grid; grid-template-columns: 84px 1fr; gap: 16px; padding: 12px 0; border-top: 1px solid rgba(148, 163, 184, 0.12); font-size: 14px; color: var(--text-body); }
+      .log time { font: 500 12px/1.6 var(--mono); color: #93c5fd; }
+
+      .steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 20px; }
+      @media (min-width: 640px) { .steps { grid-template-columns: repeat(2, 1fr); } }
+      @media (min-width: 1100px) { .steps { grid-template-columns: repeat(4, 1fr); } }
+      .step { padding: 24px; display: grid; gap: 12px; align-content: start; }
+      .step-n { font: 500 13px/1 var(--mono); color: var(--accent); }
+      .step h3 { font-size: 22px; }
+
+      .closer { padding: clamp(28px, 5vw, 56px); display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 28px; overflow: hidden;
+        background-image: radial-gradient(60% 120% at 100% 0%, rgba(96, 165, 250, 0.18), transparent 60%), linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02)); }
+      .closer h2 { font-size: clamp(30px, 4vw, 48px); line-height: 1.05; max-width: 16ch; margin-top: 14px; }
+
+      .foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; padding: 56px 0 88px; font-size: 13px; color: var(--text-body); }
+
+      /* ---------- modal ---------- */
+      .modal { margin: auto; max-height: calc(100dvh - 32px); overflow: auto; width: min(440px, calc(100% - 32px)); padding: 28px; color: var(--text-main); border: 0; background-color: var(--glass-fill-strong); }
+      .modal::backdrop { background: rgba(2, 6, 23, 0.55); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+      .modal[open] { animation: rise 0.3s cubic-bezier(0.2, 0.7, 0.2, 1); }
+      @keyframes rise { from { opacity: 0; transform: translateY(12px) scale(0.98); } }
+      .modal-form { display: grid; gap: 16px; }
+      .modal .panel-head { margin: 0; }
+      .modal h2 { font-size: 22px; letter-spacing: -0.02em; }
+      .icon-btn { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 50%; border: 0; color: var(--text-body); background: rgba(148, 163, 184, 0.12); cursor: pointer; }
+      .icon-btn:hover { color: #fff; background: rgba(148, 163, 184, 0.22); }
+      .field { display: grid; gap: 8px; font-size: 13px; color: var(--text-body); }
+      .field input, .field select {
+        height: 44px; padding: 0 14px; border-radius: 12px; border: 0; font: 400 15px var(--sans); color: var(--text-main);
+        background: rgba(2, 6, 23, 0.45); box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.22);
+      }
+      .field input::placeholder { color: #64748b; }
+      .field input:focus-visible, .field select:focus-visible { outline: none; box-shadow: inset 0 0 0 1px #93c5fd, 0 0 0 3px rgba(96, 165, 250, 0.25); }
+      .done { margin: 0; padding: 12px 14px; border-radius: 12px; font-size: 14px; color: #bbf7d0; background: rgba(34, 197, 94, 0.12); box-shadow: inset 0 0 0 1px rgba(74, 222, 128, 0.3); }
+
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+        .track-line { stroke-dashoffset: 0; }
+      }
+    </style>
+  </body>
+</html>

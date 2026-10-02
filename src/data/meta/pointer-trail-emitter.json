@@ -1,0 +1,7 @@
+{
+  "title": "Pointer Trail Emitter",
+  "kind": "section",
+  "category": "Effects & details",
+  "concept": "Kittiwake Sound Ferries, a fictional island operator, plots its crossing on a pale sea-glass chart: the pointer is a signal-yellow ferry and its wake is a Canvas 2D mote trail emitted by distance travelled, so an autopiloted slow outbound leg and fast return lay the same spacing — with a live mote-count log, emission/spacing/scatter/coast controls and a timetable below.",
+  "notes": "Vanilla JavaScript + Canvas 2D only (no WebGL, shaders or runtime deps). Distance-stepped emission with sub-segment placement, 14-spawn teleport guard, slot-before-advance ring buffer, emitter damped at 16, scatter as a fraction of the field extent, coast damping 1 − k·dt with curl and a small rise, idle mote every 0.42 s. Timer mode (60/s) is the failure toggle. Arrow keys steer (Shift = full ahead, Enter replays); touch drives only during a drag in the open-water lane and parks on release; autopilot resumes after 7 s idle. Reduced motion composes a still with both legs laid. dt clamped to 1/30 s, DPR ≤ 2, paused when hidden or off-screen."
+}

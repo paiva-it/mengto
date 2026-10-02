@@ -1,0 +1,7 @@
+{
+  "title": "Fire-Paper Loader",
+  "kind": "section",
+  "category": "Effects & details",
+  "concept": "Coldwater Trust, a fictional marine-heatwave NGO: a burning-paper ring drawn by a head-started Web Worker keeps opening while the page blocks its own thread, then hands its rim to the hero, which keeps the burnt hole as a porthole onto the reef.",
+  "notes": "Loader is the skill's demo engine: raw WebGL 1 in a Worker on an OffscreenCanvas started from <head>, parallel compile, a waited 1-px warm-up, S-space pacing, a Hermite hand-off, a CSS-faded last frame, and no early terminate. The hero redraws the same GLSL on the main thread with a KB_PAGE alpha branch, so the burnt hole stays as a porthole onto the reef. The build is a stand-in that blocks the thread for 140–280 ms at each of seven stations; ?worker=0 and ?block=0 are there to compare. On software rasterisers (SwiftShader, llvmpipe) both canvases draw at half resolution. In headless Chromium the whole load takes about 7–10 s and the longest frame gap reads about 270–420 ms, because the worker and the page share one software GPU process. The 3.5 s capture therefore shows the loader ring at the hand-off, and the page itself reveals after that. Photos from Unsplash, stored locally."
+}

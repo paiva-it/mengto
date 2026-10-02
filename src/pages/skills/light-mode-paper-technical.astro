@@ -1,0 +1,778 @@
+---
+import '../../styles/global.css';
+import BackPill from '../../components/BackPill.astro';
+
+// Generation curve for "today" (hours 5–21), sampled every 15 min. Cloud dips are hand-placed.
+const W = 560;
+const H = 200;
+const NOW = 14.33;
+const dips: [number, number, number][] = [
+  [10.4, 0.35, 0.22],
+  [12.1, 0.25, 0.14],
+  [15.6, 0.5, 0.18],
+];
+const yieldAt = (h: number) => {
+  const base = Math.exp(-(((h - 13.1) / 3.2) ** 2));
+  const dip = dips.reduce((m, [c, w, d]) => m * (1 - d * Math.exp(-(((h - c) / w) ** 2))), 1);
+  return Math.max(0, base * dip);
+};
+const x = (h: number) => ((h - 5) / 16) * W;
+const y = (v: number) => H - 14 - v * (H - 40);
+const pts = (from: number, to: number) => {
+  const out: string[] = [];
+  for (let h = from; h <= to + 1e-6; h += 0.25) out.push(`${x(h).toFixed(1)},${y(yieldAt(h)).toFixed(1)}`);
+  return out;
+};
+const actual = pts(5, NOW);
+const forecast = pts(NOW, 21);
+const actualLine = `M${actual.join(' L')}`;
+const actualArea = `M${x(5)},${y(0)} L${actual.join(' L')} L${x(NOW).toFixed(1)},${y(0)} Z`;
+const forecastLine = `M${forecast.join(' L')}`;
+const nowX = x(NOW).toFixed(1);
+const nowY = y(yieldAt(NOW)).toFixed(1);
+
+const roofs = [
+  { name: 'Mill Lane Primary', host: 'Riverside Academy Trust', kwp: '214.0', date: 'Mar 2021', ytd: '168.2', status: 'live' },
+  { name: 'Brewery Yard', host: 'Hollow Oak Brewing', kwp: '186.5', date: 'Aug 2020', ytd: '149.7', status: 'live' },
+  { name: 'Carnegie Library', host: 'City Council', kwp: '92.4', date: 'Jun 2022', ytd: '71.3', status: 'live' },
+  { name: 'Kestrel Bus Depot', host: 'Northgate Transit', kwp: '398.0', date: 'Jan 2023', ytd: '301.8', status: 'service' },
+  { name: 'St Brigid’s Hall', host: 'Parish of St Brigid', kwp: '48.6', date: 'Apr 2023', ytd: '37.9', status: 'live' },
+  { name: 'Wharf Street Flats', host: 'Wharf Tenants’ Assoc.', kwp: '126.0', date: 'Oct 2023', ytd: '96.4', status: 'live' },
+  { name: 'Fennimore Leisure', host: 'Fennimore Trust', kwp: '244.8', date: 'May 2024', ytd: '192.6', status: 'live' },
+  { name: 'Cold Store, Unit 4', host: 'Arden Foods', kwp: '312.0', date: 'Feb 2025', ytd: '247.1', status: 'live' },
+  { name: 'Depot Street Garages', host: 'Sunfold (leased)', kwp: '220.0', date: '—', ytd: '—', status: 'funding' },
+];
+const statusLabel: Record<string, string> = { live: 'Generating', service: 'Inverter service', funding: 'Share offer open' };
+
+const sidebar = [
+  { name: 'Mill Lane Primary', kwp: '214.0', live: true },
+  { name: 'Brewery Yard', kwp: '186.5' },
+  { name: 'Carnegie Library', kwp: '92.4' },
+  { name: 'Kestrel Bus Depot', kwp: '398.0', warn: true },
+  { name: 'St Brigid’s Hall', kwp: '48.6' },
+  { name: 'Wharf Street Flats', kwp: '126.0' },
+  { name: 'Fennimore Leisure', kwp: '244.8' },
+  { name: 'Cold Store, Unit 4', kwp: '312.0' },
+];
+
+const log = [
+  ['14:19', 'String B2 back to 98 % of rated output'],
+  ['13:52', 'Export to grid paused — school kitchen load 61 kW'],
+  ['12:07', 'Cloud bank over Mill Lane, yield −14 % for 9 min'],
+];
+
+// 6×10 roof plan for the "We build" card; a few panels highlighted as the member's share.
+const panels = Array.from({ length: 60 }, (_, i) => i);
+const mine = new Set([23, 24, 33, 34]);
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sunfold Co-operative — Power the street you live on</title>
+    <meta name="description" content="Sunfold is a community solar co-operative: members buy shares, the co-op builds on shared roofs, and every kilowatt-hour is published." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <div class="shell">
+      <!-- NAV -->
+      <header class="nav wrap">
+        <a href="#top" class="brand" aria-label="Sunfold Co-operative home">
+          <svg viewBox="0 0 32 32" width="28" height="28" aria-hidden="true">
+            <circle cx="16" cy="16" r="6.5" fill="none" stroke="currentColor" stroke-width="1.6" />
+            <circle cx="16" cy="16" r="2.2" fill="var(--accent)" />
+            <g stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+              <path d="M16 2.5v4M16 25.5v4M2.5 16h4M25.5 16h4M6.4 6.4l2.8 2.8M22.8 22.8l2.8 2.8M6.4 25.6l2.8-2.8M22.8 9.2l2.8-2.8" />
+            </g>
+          </svg>
+          <span class="brand-name">Sunfold</span>
+          <span class="mono brand-tag">Co-op · Est. 2019</span>
+        </a>
+        <nav class="links" aria-label="Primary">
+          <a href="#how">Membership</a>
+          <a href="#register">Roof register</a>
+          <a href="#assembly">Assembly</a>
+          <a href="#offer">Share offer</a>
+        </nav>
+        <a href="#offer" class="btn btn-ink nav-cta">Become a member</a>
+      </header>
+
+      <!-- HERO -->
+      <section class="hero wrap" id="top">
+        <div class="hero-copy">
+          <p class="mono eyebrow reveal-up"><span class="tick" aria-hidden="true"></span>[01] Community solar, owned by the street</p>
+          <h1 class="h1">
+            <span class="line"><span>Power the</span></span>
+            <span class="line"><span><em class="hl">street</em> you</span></span>
+            <span class="line"><span>live on.</span></span>
+          </h1>
+          <p class="lede reveal-up" style="--d: .45s">
+            Sunfold puts solar on the roofs our neighbours already have — schools, depots, a brewery — and
+            sells the power back to the people around them. 412 members own every panel. One share, one vote,
+            every kilowatt-hour published.
+          </p>
+          <div class="cta-row reveal-up" style="--d: .55s">
+            <a href="#offer" class="btn btn-ink"><span class="dot" aria-hidden="true"></span>Buy a share — €250</a>
+            <a href="#register" class="btn btn-line">Read the roof register</a>
+          </div>
+          <dl class="hero-meta mono reveal-up" style="--d: .65s">
+            <div><dt>Members</dt><dd>412</dd></div>
+            <div><dt>Roofs</dt><dd>8 + 1</dd></div>
+            <div><dt>Generating</dt><dd>1.62 MWp</dd></div>
+          </dl>
+        </div>
+
+        <div class="hero-visual reveal-up" style="--d: .25s">
+          <div class="dim mono" aria-hidden="true"><span>Mill Lane Primary · 214.0 kWp · 486 panels</span></div>
+          <figure class="window bk">
+            <div class="chrome">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="url mono">console.sunfold.coop/roofs/mill-lane</span>
+              <span class="mono live-tag"><span class="pulse" aria-hidden="true"></span>Live</span>
+            </div>
+            <div class="app">
+              <aside class="side">
+                <p class="mono side-h">Roofs · 8 live</p>
+                <ul>
+                  {sidebar.map((r) => (
+                    <li class:list={[{ active: r.live }]}>
+                      <span class:list={['sdot', { warn: r.warn, on: r.live }]} aria-hidden="true"></span>
+                      <span class="sname">{r.name}</span>
+                      <span class="mono skwp">{r.kwp}</span>
+                    </li>
+                  ))}
+                </ul>
+                <div class="side-foot mono">
+                  <span>Fleet today</span>
+                  <strong>7.94 MWh</strong>
+                </div>
+              </aside>
+              <div class="main">
+                <div class="main-head">
+                  <div>
+                    <p class="mono muted">Today · Thu 02 Oct · 14:20</p>
+                    <p class="big"><span id="kwh">1,286.4</span><small> kWh</small></p>
+                  </div>
+                  <div class="mono legend">
+                    <span><i class="lg-a"></i>Measured</span>
+                    <span><i class="lg-f"></i>Forecast</span>
+                  </div>
+                </div>
+                <div class="chart">
+                  <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" role="img" aria-label="Today's generation curve for Mill Lane Primary: measured until 14:20, forecast after.">
+                    {[0, 1, 2, 3].map((i) => (
+                      <line x1="0" x2={W} y1={26 + i * 40} y2={26 + i * 40} class="grid" />
+                    ))}
+                    {[6, 9, 12, 15, 18].map((h) => (
+                      <line x1={x(h)} x2={x(h)} y1="10" y2={H - 14} class="grid v" />
+                    ))}
+                    <path d={actualArea} class="area" />
+                    <path d={actualLine} class="curve draw" pathLength="1" />
+                    <path d={forecastLine} class="forecast" />
+                    <line x1={nowX} x2={nowX} y1="8" y2={H - 14} class="now" />
+                    <circle cx={nowX} cy={nowY} r="4.5" class="now-dot" />
+                  </svg>
+                  <div class="axis mono" aria-hidden="true">
+                    <span>06:00</span><span>09:00</span><span>12:00</span><span>15:00</span><span>18:00</span>
+                  </div>
+                </div>
+                <div class="kpis">
+                  <div class="kpi"><p class="mono muted">Used on site</p><p class="kv">71<small>%</small></p><span class="bar"><i style="width:71%"></i></span></div>
+                  <div class="kpi"><p class="mono muted">Exported</p><p class="kv">29<small>%</small></p><span class="bar"><i class="soft" style="width:29%"></i></span></div>
+                  <div class="kpi"><p class="mono muted">CO₂ avoided</p><p class="kv">0.41<small> t</small></p><span class="bar"><i class="soft" style="width:48%"></i></span></div>
+                </div>
+                <ol class="log mono">
+                  {log.map(([t, m], i) => (
+                    <li class:list={[{ first: i === 0 }]}><time>{t}</time><span>{m}</span></li>
+                  ))}
+                </ol>
+              </div>
+            </div>
+          </figure>
+          <p class="mono fig"><span>Fig. 1</span> Live yield, published to every member at five-minute resolution.</p>
+        </div>
+      </section>
+
+      <!-- STATS -->
+      <section class="stats wrap" aria-label="Sunfold in numbers">
+        {[
+          ['Owned by', '412', 'members across Riverside and Northgate'],
+          ['Generated since 2020', '4.71', 'GWh, measured at the meter'],
+          ['Member tariff', '€0.118', 'per kWh, fixed until March 2028'],
+          ['Paid back to members', '4.2 %', 'average annual interest on shares'],
+        ].map(([k, v, s], i) => (
+          <div class="stat reveal-up" style={`--d:${i * 0.06}s`}>
+            <p class="mono muted">{k}</p>
+            <p class="stat-v">{v}</p>
+            <p class="stat-s">{s}</p>
+          </div>
+        ))}
+      </section>
+
+      <!-- HOW -->
+      <section class="section wrap" id="how">
+        <div class="sec-head">
+          <p class="mono eyebrow"><span class="tick" aria-hidden="true"></span>[02] Membership</p>
+          <h2 class="h2 reveal-up">Three steps from <br />neighbour to owner.</h2>
+          <p class="sec-lede reveal-up">No lease to sign, no panels on your own roof. You buy into the roofs that already work, and the co-op does the engineering.</p>
+        </div>
+        <div class="cards">
+          <article class="card bk reveal-up">
+            <p class="mono step">Step 01 / Buy</p>
+            <div class="card-vis cert">
+              <p class="mono muted">Share certificate</p>
+              <p class="cert-no">No. 0413</p>
+              <dl class="mono">
+                <div><dt>Value</dt><dd>€250.00</dd></div>
+                <div><dt>Votes</dt><dd>1</dd></div>
+                <div><dt>Interest</dt><dd>4.2 % p.a.</dd></div>
+              </dl>
+              <span class="stamp mono">Withdrawable after 3 yrs</span>
+            </div>
+            <h3>Buy a share</h3>
+            <p>€250 each, up to forty per household. Every share carries the same single vote at the assembly — whether you hold one or forty.</p>
+          </article>
+          <article class="card bk reveal-up" style="--d:.08s">
+            <p class="mono step">Step 02 / Build</p>
+            <div class="card-vis roof" aria-hidden="true">
+              <div class="panels">
+                {panels.map((i) => <span class:list={[{ mine: mine.has(i) }]}></span>)}
+              </div>
+              <p class="mono roof-cap"><span>Kestrel Depot · bay C</span><span>4 panels ≈ 1 share</span></p>
+            </div>
+            <h3>We build on shared roofs</h3>
+            <p>Hosts lend the roof for twenty-five years and buy the power at a discount. Installation is done by members of the Riverside Electricians’ Guild.</p>
+          </article>
+          <article class="card bk reveal-up" style="--d:.16s">
+            <p class="mono step">Step 03 / Bill</p>
+            <div class="card-vis bill">
+              <p class="mono muted">September statement</p>
+              <ul class="mono">
+                <li><span>Grid import · 212 kWh</span><span>€58.30</span></li>
+                <li><span>Sunfold member credit</span><span class="cr">−€21.70</span></li>
+                <li><span>Share interest (Q3)</span><span class="cr">−€2.63</span></li>
+                <li class="tot"><span>You pay</span><span>€33.97</span></li>
+              </ul>
+            </div>
+            <h3>Your bill gets lighter</h3>
+            <p>Members on the Riverside feeder get a credit for each kWh the roofs export, plus interest on their shares paid quarterly.</p>
+          </article>
+        </div>
+      </section>
+
+      <!-- REGISTER -->
+      <section class="section wrap" id="register">
+        <div class="sec-head row">
+          <div>
+            <p class="mono eyebrow"><span class="tick" aria-hidden="true"></span>[03] Roof register</p>
+            <h2 class="h2 reveal-up">Every roof, every <br />kilowatt-hour.</h2>
+          </div>
+          <p class="sec-lede reveal-up">The register is the co-op’s ledger. It is published in full, updated nightly from the meters, and audited each March by members elected at the assembly.</p>
+        </div>
+        <div class="table-wrap bk reveal-up">
+          <div class="table-chrome mono">
+            <span>register.csv</span><span>9 rows · updated 02 Oct 03:00</span>
+          </div>
+          <table>
+            <thead class="mono">
+              <tr>
+                <th scope="col">Roof</th>
+                <th scope="col" class="c-host">Host</th>
+                <th scope="col" class="num">kWp</th>
+                <th scope="col" class="c-date">Commissioned</th>
+                <th scope="col" class="num c-ytd">MWh YTD</th>
+                <th scope="col">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {roofs.map((r) => (
+                <tr class:list={[{ funding: r.status === 'funding' }]}>
+                  <th scope="row">{r.name}</th>
+                  <td class="c-host">{r.host}</td>
+                  <td class="num mono">{r.kwp}</td>
+                  <td class="mono c-date">{r.date}</td>
+                  <td class="num mono c-ytd">{r.ytd}</td>
+                  <td><span class:list={['pill mono', r.status]}><i aria-hidden="true"></i>{statusLabel[r.status]}</span></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ASSEMBLY -->
+      <section class="section wrap" id="assembly">
+        <div class="sec-head">
+          <p class="mono eyebrow"><span class="tick" aria-hidden="true"></span>[04] Assembly</p>
+          <h2 class="h2 reveal-up">Decided in a school hall, <br />not a boardroom.</h2>
+        </div>
+        <div class="assembly">
+          <figure class="window bk minutes reveal-up">
+            <div class="chrome">
+              <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="url mono">Minutes · AGM 2026 · Mill Lane hall</span>
+            </div>
+            <ol class="transcript">
+              <li><time class="mono">19:04</time><p><b>Chair (Ines Okafor)</b> Quorum is 41 members; we have 138 in the hall and 96 online. We’re quorate.</p></li>
+              <li><time class="mono">19:22</time><p><b>Treasurer (Dev Mahal)</b> Surplus this year was €84,600. The board proposes 4.2 % on shares and €20,000 into the fuel-poverty fund.</p></li>
+              <li class="cur"><time class="mono">19:41</time><p><b>Member (Rosa Lindqvist, Wharf St)</b> Can the Depot Street battery serve the flats at night? Our peak is 7 to 10 pm, not noon.</p></li>
+              <li><time class="mono">19:47</time><p><b>Engineer (Tom Achterberg)</b> A 400 kWh battery covers roughly 60 flats through the evening peak. It’s Motion 4.</p></li>
+            </ol>
+          </figure>
+          <div class="motions">
+            {[
+              ['Motion 2', 'Share interest at 4.2 %', 91, 'Carried'],
+              ['Motion 3', '€20,000 to the fuel-poverty fund', 84, 'Carried'],
+              ['Motion 4', 'Battery at Depot Street, 400 kWh', 78, 'Carried'],
+              ['Motion 5', 'Open membership to Northgate ward', 63, 'Carried'],
+            ].map(([n, t, p, r], i) => (
+              <div class="motion bk reveal-up" style={`--d:${i * 0.07}s`}>
+                <div class="motion-top">
+                  <p class="mono muted">{n}</p>
+                  <p class="mono res">{r} · {p} % for</p>
+                </div>
+                <p class="motion-t">{t}</p>
+                <span class="vote" role="img" aria-label={`${p} percent in favour`}><i style={`--w:${p}%`}></i></span>
+              </div>
+            ))}
+            <p class="mono fig"><span>Fig. 2</span> 234 votes cast, one per member regardless of shares held.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- OFFER -->
+      <section class="offer wrap" id="offer">
+        <div class="offer-card bk reveal-up">
+          <div class="offer-copy">
+            <p class="mono eyebrow"><span class="tick" aria-hidden="true"></span>[05] Share offer open · closes 30 Nov</p>
+            <h2 class="h2">The next roof is <br />Depot Street.</h2>
+            <p class="sec-lede">220 kWp on the old garages and the battery the assembly voted for. We need 1,240 shares to start the build in February.</p>
+            <div class="cta-row">
+              <a href="#top" class="btn btn-ink"><span class="dot" aria-hidden="true"></span>Buy a share — €250</a>
+              <a href="#register" class="btn btn-line">Download the prospectus</a>
+            </div>
+          </div>
+          <div class="raise mono">
+            <div class="raise-row"><span>Raised</span><strong>€214,750</strong></div>
+            <span class="raise-bar" role="img" aria-label="69 percent of target raised"><i style="--w:69%"></i>
+              {[25, 50, 75].map((m) => <b style={`left:${m}%`}></b>)}
+            </span>
+            <div class="raise-row small"><span>859 of 1,240 shares</span><span>Target €310,000</span></div>
+            <dl>
+              <div><dt>New members this month</dt><dd>37</dd></div>
+              <div><dt>Median holding</dt><dd>3 shares</dd></div>
+              <div><dt>Build start</dt><dd>Feb 2027</dd></div>
+            </dl>
+          </div>
+        </div>
+      </section>
+
+      <footer class="foot wrap mono">
+        <span>Sunfold Community Energy Ltd · Registered society no. 8114 · Riverside</span>
+        <span>Fiction for a design study — no shares are on offer.</span>
+      </footer>
+    </div>
+    <BackPill />
+
+    <script>
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const root = document.documentElement;
+      if (reduce) root.classList.add('rm');
+      requestAnimationFrame(() => root.classList.add('ready'));
+
+      // Fade-up anything entering the viewport once.
+      const io = new IntersectionObserver(
+        (entries) => {
+          for (const e of entries) {
+            if (e.isIntersecting) {
+              e.target.classList.add('in');
+              io.unobserve(e.target);
+            }
+          }
+        },
+        { rootMargin: '0px 0px -8% 0px' },
+      );
+      document.querySelectorAll('.reveal-up').forEach((el) => io.observe(el));
+
+      // Live counter: the roof adds a little energy every couple of seconds.
+      const kwh = document.getElementById('kwh');
+      if (kwh && !reduce) {
+        let v = 1286.4;
+        const fmt = new Intl.NumberFormat('en-GB', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+        setInterval(() => {
+          if (document.hidden) return;
+          v += 0.1 + Math.random() * 0.2;
+          kwh.textContent = fmt.format(v);
+        }, 2200);
+      }
+    </script>
+
+    <style is:global>
+      :root {
+        --field: #1a1916;
+        --paper: #f1ece1;
+        --paper-2: #e8e1d2;
+        --paper-3: #ded5c3;
+        --sheet: #fbf8f2;
+        --ink: #1f1d19;
+        --ink-2: #4b463d;
+        --ink-3: #8a8274;
+        --rule: rgb(60 50 35 / 0.16);
+        --rule-2: rgb(60 50 35 / 0.09);
+        --accent: #e0491c;
+        --accent-soft: rgb(224 73 28 / 0.12);
+        --sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
+        --mono: 'IBM Plex Mono', ui-monospace, monospace;
+        --ease: cubic-bezier(0.2, 0.7, 0.1, 1);
+      }
+      html { background: var(--field); }
+      body {
+        margin: 0;
+        background:
+          radial-gradient(1200px 500px at 50% -10%, rgb(255 240 210 / 0.06), transparent 70%),
+          var(--field);
+        color: var(--ink);
+        font-family: var(--sans);
+        -webkit-font-smoothing: antialiased;
+        overflow-x: hidden;
+      }
+      .mono { font-family: var(--mono); letter-spacing: 0.02em; }
+      .muted { color: var(--ink-3); }
+      a { color: inherit; }
+
+      /* Master paper shell inside the dark field */
+      .shell {
+        margin: 14px;
+        border-radius: 28px;
+        background:
+          repeating-linear-gradient(135deg, rgb(70 55 30 / 0.035) 0 1px, transparent 1px 10px),
+          var(--paper);
+        box-shadow: 0 1px 0 rgb(255 255 255 / 0.5) inset, 0 30px 80px -30px rgb(0 0 0 / 0.6);
+        overflow: hidden;
+        position: relative;
+      }
+      .shell::before {
+        content: '';
+        position: absolute;
+        inset: 12px;
+        border: 1px solid var(--rule-2);
+        border-radius: 18px;
+        pointer-events: none;
+      }
+      .wrap { max-width: 1320px; margin-inline: auto; padding-inline: 48px; position: relative; }
+
+      /* L-bracket corners, one pseudo-element */
+      .bk { position: relative; }
+      .bk::after {
+        --c: var(--ink);
+        --l: 10px;
+        content: '';
+        position: absolute;
+        inset: -5px;
+        pointer-events: none;
+        background:
+          linear-gradient(var(--c), var(--c)) top left / var(--l) 1px no-repeat,
+          linear-gradient(var(--c), var(--c)) top left / 1px var(--l) no-repeat,
+          linear-gradient(var(--c), var(--c)) top right / var(--l) 1px no-repeat,
+          linear-gradient(var(--c), var(--c)) top right / 1px var(--l) no-repeat,
+          linear-gradient(var(--c), var(--c)) bottom left / var(--l) 1px no-repeat,
+          linear-gradient(var(--c), var(--c)) bottom left / 1px var(--l) no-repeat,
+          linear-gradient(var(--c), var(--c)) bottom right / var(--l) 1px no-repeat,
+          linear-gradient(var(--c), var(--c)) bottom right / 1px var(--l) no-repeat;
+      }
+
+      /* Nav */
+      .nav { display: flex; align-items: center; gap: 32px; padding-top: 30px; padding-bottom: 18px; }
+      .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+      .brand-name { font-weight: 600; font-size: 19px; letter-spacing: -0.02em; }
+      .brand-tag { font-size: 10.5px; color: var(--ink-3); text-transform: uppercase; padding: 3px 7px; border: 1px solid var(--rule); border-radius: 4px; margin-left: 4px; }
+      .links { display: flex; gap: 28px; margin-left: auto; font-size: 14px; color: var(--ink-2); }
+      .links a { text-decoration: none; }
+      .links a:hover { color: var(--ink); }
+      .btn {
+        display: inline-flex; align-items: center; gap: 10px;
+        height: 44px; padding: 0 20px; border-radius: 10px;
+        font-size: 14px; font-weight: 500; text-decoration: none; white-space: nowrap;
+        transition: transform 0.2s var(--ease), background 0.2s;
+      }
+      .btn:hover { transform: translateY(-1px); }
+      .btn:focus-visible, .links a:focus-visible, .brand:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+      .btn-ink { background: var(--ink); color: var(--paper); box-shadow: 0 1px 0 rgb(255 255 255 / 0.12) inset, 0 8px 20px -10px rgb(0 0 0 / 0.5); }
+      .btn-ink:hover { background: #000; }
+      .btn-line { border: 1px solid var(--rule); background: rgb(255 255 255 / 0.35); color: var(--ink); }
+      .btn-line:hover { background: var(--sheet); }
+      .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 3px rgb(224 73 28 / 0.25); }
+
+      /* Hero */
+      .hero {
+        display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 56px;
+        align-items: center; padding-top: 34px; padding-bottom: 72px;
+        border-top: 1px solid var(--rule-2);
+      }
+      .eyebrow { display: flex; align-items: center; gap: 10px; font-size: 11.5px; text-transform: uppercase; color: var(--ink-2); margin: 0 0 22px; }
+      .tick { width: 14px; height: 1px; background: var(--accent); position: relative; }
+      .tick::after { content: ''; position: absolute; right: 0; top: -3px; width: 1px; height: 7px; background: var(--accent); }
+      .h1 { font-size: clamp(48px, 6.1vw, 92px); line-height: 0.98; letter-spacing: -0.04em; font-weight: 500; margin: 0 0 26px; }
+      .h1 .line { display: block; overflow: hidden; padding-bottom: 0.06em; margin-bottom: -0.06em; }
+      .h1 .line > span { display: inline-block; }
+      .hl { font-style: normal; position: relative; white-space: nowrap; }
+      .hl::after {
+        content: ''; position: absolute; left: 0; right: 0; bottom: 0.06em; height: 0.11em;
+        background: var(--accent); transform-origin: left; border-radius: 1px;
+      }
+      .lede { font-size: 17px; line-height: 1.6; color: var(--ink-2); max-width: 470px; margin: 0 0 30px; }
+      .cta-row { display: flex; flex-wrap: wrap; gap: 12px; }
+      .hero-meta { display: flex; gap: 0; margin: 40px 0 0; border-top: 1px solid var(--rule); max-width: 470px; }
+      .hero-meta div { flex: 1; padding: 14px 0 0; }
+      .hero-meta div + div { border-left: 1px solid var(--rule); padding-left: 16px; }
+      .hero-meta dt { font-size: 10.5px; text-transform: uppercase; color: var(--ink-3); }
+      .hero-meta dd { margin: 6px 0 0; font-size: 18px; color: var(--ink); font-weight: 500; }
+
+      .hero-visual { position: relative; padding-top: 30px; }
+      .dim { position: absolute; top: 0; left: 0; right: 0; height: 14px; border-inline: 1px solid var(--ink-3); display: flex; align-items: center; justify-content: center; }
+      .dim::before { content: ''; position: absolute; left: 0; right: 0; top: 50%; border-top: 1px dashed var(--ink-3); }
+      .dim span { position: relative; background: var(--paper); padding: 0 10px; font-size: 10.5px; color: var(--ink-2); text-transform: uppercase; }
+      .fig { font-size: 11px; color: var(--ink-3); margin: 18px 0 0; }
+      .fig span { color: var(--ink); margin-right: 8px; }
+
+      .window {
+        margin: 0; background: var(--sheet); border: 1px solid var(--rule); border-radius: 14px;
+        box-shadow: 0 1px 0 #fff inset, 0 2px 4px rgb(60 45 20 / 0.05), 0 24px 50px -24px rgb(60 45 20 / 0.35);
+      }
+      .chrome { display: flex; align-items: center; gap: 14px; padding: 11px 14px; border-bottom: 1px solid var(--rule-2); background: linear-gradient(var(--paper), var(--paper-2)); border-radius: 14px 14px 0 0; }
+      .lights { display: flex; gap: 6px; }
+      .lights i { width: 9px; height: 9px; border-radius: 50%; background: var(--paper-3); border: 1px solid var(--rule); }
+      .url { flex: 1; min-width: 0; font-size: 11.5px; color: var(--ink-2); background: var(--sheet); border: 1px solid var(--rule-2); border-radius: 6px; padding: 5px 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .live-tag { display: inline-flex; align-items: center; gap: 7px; font-size: 10.5px; text-transform: uppercase; color: var(--ink); }
+      .pulse { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); position: relative; }
+      .pulse::after { content: ''; position: absolute; inset: -4px; border-radius: 50%; border: 1px solid var(--accent); animation: ping 2s var(--ease) infinite; }
+      @keyframes ping { from { transform: scale(0.5); opacity: 1; } to { transform: scale(1.8); opacity: 0; } }
+
+      .app { display: grid; grid-template-columns: 196px minmax(0, 1fr); }
+      .side { border-right: 1px solid var(--rule-2); padding: 16px 10px 14px; display: flex; flex-direction: column; background: rgb(241 236 225 / 0.45); border-radius: 0 0 0 14px; }
+      .side-h { font-size: 10px; text-transform: uppercase; color: var(--ink-3); margin: 0 8px 10px; }
+      .side ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+      .side li { display: flex; align-items: center; gap: 9px; font-size: 12.5px; padding: 8px; border-radius: 7px; color: var(--ink-2); }
+      .side li.active { background: var(--sheet); color: var(--ink); box-shadow: 0 0 0 1px var(--rule-2), 0 2px 6px -3px rgb(60 45 20 / 0.25); }
+      .sdot { width: 6px; height: 6px; border-radius: 50%; background: var(--ink-3); flex: none; opacity: 0.6; }
+      .sdot.on { background: var(--accent); opacity: 1; }
+      .sdot.warn { background: transparent; border: 1px solid var(--ink-2); opacity: 1; }
+      .sname { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .skwp { font-size: 10.5px; color: var(--ink-3); }
+      .side-foot { margin-top: auto; padding: 14px 8px 0; border-top: 1px dashed var(--rule); display: flex; flex-direction: column; gap: 4px; font-size: 10.5px; color: var(--ink-3); text-transform: uppercase; }
+      .side-foot strong { font-family: var(--sans); font-size: 20px; color: var(--ink); font-weight: 500; letter-spacing: -0.02em; text-transform: none; }
+
+      .main { padding: 18px 20px 16px; min-width: 0; }
+      .main-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; }
+      .main-head p { margin: 0; }
+      .main-head .muted { font-size: 10.5px; text-transform: uppercase; }
+      .big { font-size: 38px; font-weight: 500; letter-spacing: -0.035em; margin-top: 4px !important; font-variant-numeric: tabular-nums; }
+      .big small { font-size: 15px; color: var(--ink-3); letter-spacing: 0; }
+      .legend { display: flex; gap: 14px; font-size: 10.5px; color: var(--ink-2); padding-bottom: 6px; }
+      .legend span { display: inline-flex; align-items: center; gap: 6px; }
+      .legend i { width: 14px; height: 0; border-top: 2px solid var(--ink); }
+      .legend i.lg-f { border-top: 2px dashed var(--ink-3); }
+
+      .chart { margin-top: 10px; }
+      .chart svg { display: block; width: 100%; height: 180px; overflow: visible; }
+      .grid { stroke: var(--rule-2); stroke-width: 1; vector-effect: non-scaling-stroke; }
+      .grid.v { stroke-dasharray: 2 4; }
+      .area { fill: var(--accent-soft); }
+      .curve { fill: none; stroke: var(--ink); stroke-width: 1.8; stroke-linejoin: round; }
+      .forecast { fill: none; stroke: var(--ink-3); stroke-width: 1.5; stroke-dasharray: 4 4; vector-effect: non-scaling-stroke; }
+      .now { stroke: var(--accent); stroke-width: 1; vector-effect: non-scaling-stroke; }
+      .now-dot { fill: var(--sheet); stroke: var(--accent); stroke-width: 2; vector-effect: non-scaling-stroke; }
+      .axis { display: flex; justify-content: space-between; font-size: 10px; color: var(--ink-3); padding: 6px 4% 0 6%; }
+
+      .kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 14px; }
+      .kpi { border: 1px solid var(--rule-2); border-radius: 9px; padding: 10px 12px 12px; background: #fffdf9; }
+      .kpi p { margin: 0; }
+      .kpi .muted { font-size: 10px; text-transform: uppercase; }
+      .kv { font-size: 22px; font-weight: 500; letter-spacing: -0.03em; margin: 4px 0 8px !important; }
+      .kv small { font-size: 13px; color: var(--ink-3); }
+      .bar { display: block; height: 3px; background: var(--paper-2); border-radius: 2px; overflow: hidden; }
+      .bar i { display: block; height: 100%; background: var(--accent); }
+      .bar i.soft { background: var(--ink-2); }
+
+      .log { list-style: none; margin: 14px 0 0; padding: 12px 0 0; border-top: 1px dashed var(--rule); display: grid; gap: 6px; font-size: 11px; color: var(--ink-3); }
+      .log li { display: flex; gap: 14px; min-width: 0; }
+      .log li span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .log li.first { color: var(--ink); }
+      .log li.first time { color: var(--accent); }
+
+      /* Stats */
+      .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); padding-inline: 0; max-width: calc(1320px - 96px); }
+      .stat { padding: 28px 28px 30px; }
+      .stat + .stat { border-left: 1px solid var(--rule); }
+      .stat p { margin: 0; }
+      .stat .muted { font-size: 10.5px; text-transform: uppercase; }
+      .stat-v { font-size: clamp(36px, 3.6vw, 52px); font-weight: 500; letter-spacing: -0.045em; margin: 14px 0 6px !important; }
+      .stat-s { font-size: 14px; color: var(--ink-2); }
+
+      /* Sections */
+      .section { padding-top: 110px; }
+      .sec-head { margin-bottom: 48px; }
+      .sec-head.row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 48px; align-items: end; }
+      .h2 { font-size: clamp(34px, 4vw, 56px); line-height: 1.02; letter-spacing: -0.04em; font-weight: 500; margin: 0; }
+      .sec-lede { font-size: 16px; line-height: 1.6; color: var(--ink-2); max-width: 470px; margin: 18px 0 0; }
+
+      .cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+      .card { background: rgb(251 248 242 / 0.7); border: 1px solid var(--rule); border-radius: 14px; padding: 18px 18px 24px; }
+      .card .step { font-size: 10.5px; text-transform: uppercase; color: var(--ink-3); margin: 0 0 14px; }
+      .card h3 { font-size: 21px; font-weight: 500; letter-spacing: -0.02em; margin: 22px 4px 8px; }
+      .card > p:last-child { font-size: 14.5px; line-height: 1.6; color: var(--ink-2); margin: 0 4px; }
+      .card-vis { height: 196px; border-radius: 10px; border: 1px solid var(--rule-2); background: var(--sheet); padding: 16px; position: relative; overflow: hidden; }
+      .card-vis p { margin: 0; }
+      .card-vis .muted { font-size: 10px; text-transform: uppercase; }
+      .cert-no { font-size: 30px; letter-spacing: -0.03em; font-weight: 500; margin: 6px 0 14px !important; }
+      .cert dl { margin: 0; display: grid; gap: 7px; font-size: 11.5px; }
+      .cert dl div { display: flex; justify-content: space-between; border-bottom: 1px dotted var(--rule); padding-bottom: 5px; }
+      .cert dt { color: var(--ink-3); }
+      .cert dd { margin: 0; }
+      .stamp { position: absolute; right: 12px; top: 18px; transform: rotate(8deg); font-size: 9.5px; text-transform: uppercase; color: var(--accent); border: 1px solid var(--accent); padding: 4px 9px; border-radius: 3px; background: var(--sheet); }
+      .roof { background: repeating-linear-gradient(45deg, var(--paper-2) 0 1px, var(--sheet) 1px 7px); display: flex; flex-direction: column; justify-content: center; gap: 12px; }
+      .panels { display: grid; grid-template-columns: repeat(10, 1fr); gap: 3px; padding: 8px; background: var(--sheet); border: 1px solid var(--rule); border-radius: 4px; transform: perspective(500px) rotateX(18deg); }
+      .panels span { aspect-ratio: 1.6; background: #3a3832; border-radius: 1px; background-image: linear-gradient(90deg, transparent 49%, rgb(255 255 255 / 0.12) 50%, transparent 51%); }
+      .panels span.mine { background-color: var(--accent); }
+      .roof-cap { display: flex; justify-content: space-between; font-size: 10px; color: var(--ink-2); text-transform: uppercase; }
+      .bill ul { list-style: none; margin: 14px 0 0; padding: 0; font-size: 11.5px; display: grid; gap: 9px; }
+      .bill li { display: flex; justify-content: space-between; gap: 10px; color: var(--ink-2); }
+      .bill .cr { color: var(--accent); }
+      .bill li.tot { border-top: 1px solid var(--ink); padding-top: 10px; margin-top: 4px; color: var(--ink); font-weight: 500; font-size: 13px; }
+
+      /* Register */
+      .table-wrap { background: var(--sheet); border: 1px solid var(--rule); border-radius: 14px; }
+      .table-wrap table { clip-path: inset(0 round 0 0 13px 13px); }
+      .table-wrap::after { inset: -6px; }
+      .table-chrome { display: flex; justify-content: space-between; gap: 12px; padding: 12px 20px; font-size: 11px; color: var(--ink-3); border-bottom: 1px solid var(--rule-2); border-radius: 14px 14px 0 0; background: linear-gradient(var(--paper), var(--paper-2)); }
+      table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+      thead th { font-size: 10.5px; text-transform: uppercase; color: var(--ink-3); font-weight: 400; text-align: left; padding: 14px 20px; border-bottom: 1px solid var(--rule); }
+      tbody th, tbody td { text-align: left; padding: 15px 20px; border-bottom: 1px solid var(--rule-2); }
+      tbody th { font-weight: 500; }
+      tbody td { color: var(--ink-2); }
+      tbody tr:last-child > * { border-bottom: 0; }
+      tbody tr:hover { background: rgb(241 236 225 / 0.6); }
+      tr.funding { background: repeating-linear-gradient(135deg, var(--accent-soft) 0 1px, transparent 1px 8px); }
+      .num { text-align: right !important; font-variant-numeric: tabular-nums; }
+      td.mono { font-size: 13px; }
+      .pill { display: inline-flex; align-items: center; gap: 7px; font-size: 10.5px; text-transform: uppercase; padding: 4px 9px; border-radius: 999px; border: 1px solid var(--rule); color: var(--ink-2); white-space: nowrap; }
+      .pill i { width: 6px; height: 6px; border-radius: 50%; background: var(--ink-2); }
+      .pill.live i { background: var(--ink); }
+      .pill.service i { background: transparent; border: 1px solid var(--ink-2); }
+      .pill.funding { border-color: var(--accent); color: var(--accent); background: var(--sheet); }
+      .pill.funding i { background: var(--accent); }
+
+      /* Assembly */
+      .assembly { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 32px; align-items: start; }
+      .transcript { list-style: none; margin: 0; padding: 10px 22px 18px; }
+      .transcript li { display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 14px; padding: 16px 0; border-bottom: 1px dashed var(--rule); }
+      .transcript li:last-child { border-bottom: 0; }
+      .transcript time { font-size: 11px; color: var(--ink-3); padding-top: 3px; }
+      .transcript p { margin: 0; font-size: 15px; line-height: 1.55; color: var(--ink-2); }
+      .transcript b { display: block; font-weight: 500; color: var(--ink); font-size: 13px; margin-bottom: 3px; }
+      .transcript li.cur { position: relative; }
+      .transcript li.cur::before { content: ''; position: absolute; left: -22px; top: 14px; bottom: 14px; width: 2px; background: var(--accent); }
+      .transcript li.cur time { color: var(--accent); }
+      .motions { display: grid; gap: 14px; }
+      .motion { background: var(--sheet); border: 1px solid var(--rule); border-radius: 12px; padding: 14px 16px 16px; }
+      .motion::after { --l: 7px; inset: -4px; }
+      .motion p { margin: 0; }
+      .motion-top { display: flex; justify-content: space-between; gap: 10px; font-size: 10.5px; text-transform: uppercase; }
+      .motion-top .muted { font-size: 10.5px; }
+      .res { color: var(--ink-2); }
+      .motion-t { font-size: 16px; font-weight: 500; letter-spacing: -0.01em; margin: 6px 0 12px !important; }
+      .vote { display: block; height: 6px; background: repeating-linear-gradient(90deg, var(--paper-2) 0 3px, transparent 3px 5px); border-radius: 1px; }
+      .vote i { display: block; height: 100%; width: var(--w); background: var(--ink); transform-origin: left; }
+      .motion:nth-child(3) .vote i { background: var(--accent); }
+
+      /* Offer */
+      .offer { padding-top: 110px; }
+      .offer-card { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 48px; padding: 48px; border-radius: 20px; border: 1px solid var(--rule); background: var(--paper-2); background-image: repeating-linear-gradient(135deg, rgb(70 55 30 / 0.05) 0 1px, transparent 1px 10px); }
+      .offer-card .cta-row { margin-top: 28px; }
+      .raise { background: var(--sheet); border: 1px solid var(--rule); border-radius: 14px; padding: 22px; align-self: center; }
+      .raise-row { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; font-size: 10.5px; text-transform: uppercase; color: var(--ink-3); }
+      .raise-row strong { font-family: var(--sans); font-size: 34px; font-weight: 500; letter-spacing: -0.04em; color: var(--ink); text-transform: none; }
+      .raise-row.small { text-transform: none; font-size: 11px; }
+      .raise-bar { display: block; position: relative; height: 10px; margin: 14px 0 10px; background: var(--paper-2); border: 1px solid var(--rule); border-radius: 3px; }
+      .raise-bar i { position: absolute; inset: 0 auto 0 0; width: var(--w); background: repeating-linear-gradient(135deg, var(--accent) 0 4px, #c93c12 4px 6px); border-radius: 2px 0 0 2px; transform-origin: left; }
+      .raise-bar b { position: absolute; top: -4px; bottom: -4px; width: 1px; background: var(--ink-3); }
+      .raise dl { margin: 20px 0 0; display: grid; gap: 0; font-size: 12px; }
+      .raise dl div { display: flex; justify-content: space-between; padding: 10px 0; border-top: 1px dashed var(--rule); }
+      .raise dt { color: var(--ink-3); }
+      .raise dd { margin: 0; color: var(--ink); }
+
+      .foot { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; padding-top: 72px; padding-bottom: 40px; font-size: 11px; color: var(--ink-3); }
+
+      /* Motion */
+      .ready:not(.rm) .reveal-up { opacity: 0; transform: translateY(18px); transition: opacity 0.9s var(--ease) var(--d, 0s), transform 0.9s var(--ease) var(--d, 0s); }
+      .ready:not(.rm) .reveal-up.in { opacity: 1; transform: none; }
+      .ready:not(.rm) .h1 .line > span { animation: rise 1s var(--ease) both; }
+      .ready:not(.rm) .h1 .line:nth-child(2) > span { animation-delay: 0.08s; }
+      .ready:not(.rm) .h1 .line:nth-child(3) > span { animation-delay: 0.16s; }
+      .ready:not(.rm) .hl::after { animation: sweep 0.8s var(--ease) 0.7s both; }
+      .ready:not(.rm) .draw { stroke-dasharray: 1; animation: draw 1.6s var(--ease) 0.4s both; }
+      .ready:not(.rm) .in .vote i, .ready:not(.rm) .in .raise-bar i { animation: sweep 1.2s var(--ease) 0.2s both; }
+      @keyframes rise { from { transform: translateY(105%); } to { transform: none; } }
+      @keyframes sweep { from { transform: scaleX(0); } to { transform: none; } }
+      @keyframes draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+      @media (prefers-reduced-motion: reduce) {
+        .pulse::after { animation: none; display: none; }
+      }
+
+      /* Responsive */
+      @media (max-width: 1100px) {
+        .hero { grid-template-columns: minmax(0, 1fr); gap: 48px; }
+        .links { display: none; }
+        .nav-cta { margin-left: auto; }
+        .assembly, .offer-card { grid-template-columns: minmax(0, 1fr); }
+        .cards { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+        .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-inline: 48px; }
+        .stat:nth-child(3) { border-left: 0; }
+        .stat:nth-child(n + 3) { border-top: 1px solid var(--rule); }
+      }
+      @media (max-width: 720px) {
+        .shell { margin: 8px; border-radius: 20px; }
+        .shell::before { inset: 8px; border-radius: 14px; }
+        .wrap { padding-inline: 20px; }
+        .nav { padding-top: 22px; gap: 12px; }
+        .brand-tag { display: none; }
+        .nav-cta { height: 38px; padding: 0 14px; font-size: 13px; }
+        .hero { padding-top: 28px; padding-bottom: 56px; }
+        .lede { font-size: 16px; }
+        .app { grid-template-columns: minmax(0, 1fr); }
+        .side { display: none; }
+        .main { padding: 14px; }
+        .big { font-size: 30px; }
+        .legend { display: none; }
+        .chart svg { height: 140px; }
+        .kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+        .kpi { padding: 8px; }
+        .kv { font-size: 18px; }
+        .log li:nth-child(n + 2) { display: none; }
+        .dim span { font-size: 9px; padding: 0 6px; }
+        .live-tag { display: none; }
+        .stats { margin-inline: 20px; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+        .stat { padding: 20px 14px 22px; }
+        .stat-s { font-size: 13px; }
+        .section, .offer { padding-top: 80px; }
+        .sec-head.row { grid-template-columns: minmax(0, 1fr); gap: 0; }
+        .cards { grid-template-columns: minmax(0, 1fr); }
+        .h2 br { display: none; }
+        .card-vis { height: auto; min-height: 196px; }
+        .stamp { position: static; display: inline-block; margin-top: 14px; transform: rotate(-2deg); }
+        .c-host, .c-date, .c-ytd { display: none; }
+        tbody th, tbody td, thead th { padding: 13px 12px; }
+        table { font-size: 13.5px; }
+        .table-chrome span:last-child { display: none; }
+        .transcript { padding: 4px 16px 10px; }
+        .transcript li { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+        .transcript li.cur::before { left: -16px; }
+        .offer-card { padding: 24px 20px; gap: 28px; }
+        .raise-row strong { font-size: 28px; }
+        .foot { padding-bottom: 72px; }
+      }
+    </style>
+  </body>
+</html>

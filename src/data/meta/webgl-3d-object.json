@@ -1,0 +1,7 @@
+{
+  "title": "WebGL 3D Object",
+  "kind": "section",
+  "category": "3D & WebGL",
+  "concept": "Neap, a tide-prediction app: a faceted, cratered icosahedron moon in matte ceramic PBR floats over a vermilion brutalist hero, and its sun light swings with a moon-age slider that redraws the harbour's 24-hour tide curve.",
+  "notes": "Three.js IcosahedronGeometry (detail 2, hash-displaced so facets stay closed), MeshStandardMaterial metalness 0.1 / roughness 0.52 / low emissive, flatShading. Phase-driven directional key, orange rim, ambient fill, and an overhead shadow-only light onto a ShadowMaterial plane. Perspective camera, slow rotation plus 0.08 bob; reduced motion renders still frames on change. Pauses offscreen/hidden; disposes geometry, materials and renderer."
+}

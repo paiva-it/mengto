@@ -1,0 +1,7 @@
+{
+  "title": "Add Shader Cursor Trail",
+  "kind": "section",
+  "category": "Backgrounds & atmosphere",
+  "concept": "Drift-12, a fictional 12HP Eurorack voltage source by Ferrous Modular that 'remembers where your hand has been': a near-black hero where the exact six-node Shaders graph (ChromaFlow-driven DotGrid mask, chromatic ripples, film grain) leaves a white twinkling halftone trail behind the cursor, followed by the module's faceplate, knob notes, specs and a reservation form.",
+  "notes": "Uses the installed shaders 3.2 package (shaders/react, WebGPU only) via the skill's lightweight CursorTrailGate, which lazy-loads the graph only with WebGPU, a fine hover pointer, normal motion/transparency, a visible+focused document and the hero in view; it unmounts otherwise. Normal blending (near-black standalone section). Until the first real mouse move, an idle figure-eight of synthetic window mousemove events drives the same graph so the trail shows on arrival. Fallback (touch, reduced motion/transparency, forced colours, no WebGPU) is the graph's base gradient plus a build-time static halftone poster of the same path. The skill's verify script passes."
+}

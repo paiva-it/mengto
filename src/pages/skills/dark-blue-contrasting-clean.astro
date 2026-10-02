@@ -1,0 +1,636 @@
+---
+import '../../styles/global.css';
+import BackPill from '../../components/BackPill.astro';
+
+const nav = ['The kit', 'Missions', 'For schools', 'Specs'];
+
+const modes = [
+  { id: 'explore', label: 'Explore', status: 'Roaming · avoiding walls', readout: '28 cm' },
+  { id: 'line', label: 'Follow line', status: 'Tracking black tape', readout: 'L 42 · R 39' },
+  { id: 'sleep', label: 'Sleep', status: 'Napping on 4 % power', readout: 'zZz' },
+];
+
+const parts = [
+  {
+    no: '01',
+    tag: 'Frame',
+    title: 'A chassis you snap, not screw.',
+    body: 'Forty-one aluminium-grey plates click together on a 12 mm grid. No glue, no soldering, no tiny screws lost under the sofa.',
+    stat: '41 plates',
+  },
+  {
+    no: '02',
+    tag: 'Rhythm',
+    title: 'Code in blocks, then in Python.',
+    body: 'Missions start as drag-and-drop loops and graduate to real Python on the same robot. The brain board speaks both from day one.',
+    stat: '2 languages',
+  },
+  {
+    no: '03',
+    tag: 'Signal',
+    title: 'Six senses, all swappable.',
+    body: 'Distance, light, line, sound, tilt and touch modules plug into any port. Ohmie lights the port blue when it recognises what you added.',
+    stat: '6 sensors',
+  },
+];
+
+const missions = [
+  ['Week 01', 'Wake Ohmie up', 'Build the frame, flash the brain, make the eyes blink on command.'],
+  ['Week 02', 'Draw a square', 'Loops, turns and why 90° on carpet is never quite 90°.'],
+  ['Week 03', 'Do not touch the wall', 'Read the distance sensor and steer away before the bump.'],
+  ['Week 04', 'The tape road', 'Follow a line of electrical tape around the kitchen floor.'],
+  ['Week 05', 'Clap to start', 'Sound thresholds, debouncing, and a robot that dances on cue.'],
+  ['Week 06', 'Your own mission', 'Combine any three sensors. Share it to the Ohmie mission board.'],
+];
+
+const specs = [
+  ['142', 'parts in the box'],
+  ['0', 'soldering, ever'],
+  ['8–14', 'years, the sweet spot'],
+  ['5 h', 'per charge over USB-C'],
+];
+
+const footer = [
+  ['Kit', ['Ohmie One', 'Sensor packs', 'Spare plates', 'Classroom bundle']],
+  ['Learn', ['Mission board', 'Parent guide', 'Python bridge', 'Teacher notes']],
+  ['Studio', ['About Ohmie', 'Safety & materials', 'Press', 'Contact']],
+];
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Ohmie — Dark Blue Contrasting Clean</title>
+    <meta name="description" content="Ohmie One, a snap-together robotics kit for kids aged 8–14, presented in a dark blue, high-contrast, framed design system." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@200;300;400;500&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <BackPill />
+
+    <div class="glow glow-a" aria-hidden="true"></div>
+    <div class="glow glow-b" aria-hidden="true"></div>
+
+    <div class="shell">
+      <span class="corner tl" aria-hidden="true"></span>
+      <span class="corner tr" aria-hidden="true"></span>
+
+      <!-- Nav -->
+      <header class="nav">
+        <a href="#top" class="brand" aria-label="Ohmie home">
+          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+            <rect x="3.5" y="6.5" width="17" height="13" rx="4" fill="none" stroke="currentColor" stroke-width="1.5" />
+            <circle cx="9" cy="13" r="1.6" fill="currentColor" />
+            <circle cx="15" cy="13" r="1.6" fill="currentColor" />
+            <path d="M12 6.5V3" stroke="currentColor" stroke-width="1.5" />
+            <circle cx="12" cy="2.6" r="1.2" fill="#5b8cff" />
+          </svg>
+          <span>Ohmie</span>
+        </a>
+        <nav aria-label="Primary">
+          <ul>
+            {nav.map((n) => <li><a href="#kit">{n}</a></li>)}
+          </ul>
+        </nav>
+        <a href="#preorder" class="btn btn-ghost nav-cta">
+          <span class="dot" aria-hidden="true"></span> Batch 03 · Pre-order
+        </a>
+      </header>
+
+      <!-- Hero -->
+      <section class="hero" id="top">
+        <div class="hero-copy">
+          <p class="eyebrow"><span class="num">00</span> Robotics kit · Ages 8–14</p>
+          <h1 class="reveal-words" aria-label="Small hands. Real robots.">
+            <span class="w"><span>Small</span></span> <span class="w"><span>hands.</span></span><br />
+            <span class="w"><span>Real</span></span> <span class="w accent"><span>robots.</span></span>
+          </h1>
+          <p class="lede">
+            Ohmie One is a snap-together robot your kid builds on Saturday and codes by Sunday. Six sensors, one
+            friendly brain, and a six-week mission path that ends with them inventing their own.
+          </p>
+          <div class="cta-row">
+            <a href="#preorder" class="btn btn-solid">Pre-order Ohmie One <span aria-hidden="true">→</span></a>
+            <a href="#missions" class="btn btn-ghost">See the missions</a>
+          </div>
+          <dl class="hero-meta">
+            <div><dt>Ships</dt><dd>November 2026</dd></div>
+            <div><dt>Build time</dt><dd>~90 minutes</dd></div>
+            <div><dt>Price</dt><dd>€149</dd></div>
+          </dl>
+        </div>
+
+        <!-- Cobalt feature block -->
+        <div class="feature-wrap">
+          <div class="feature" id="bot-card" data-mode="explore">
+            <div class="feature-top">
+              <span class="mono"><span class="dot live" aria-hidden="true"></span> Ohmie One · unit 0417</span>
+              <span class="mono">Live preview</span>
+            </div>
+
+            <div class="bot-stage" aria-hidden="true">
+              <svg class="traces" viewBox="0 0 400 400">
+                <circle cx="200" cy="200" r="190" />
+                <circle cx="200" cy="200" r="150" />
+                <circle cx="200" cy="200" r="110" stroke-dasharray="2 6" />
+                <line x1="0" y1="200" x2="400" y2="200" />
+                <line x1="200" y1="0" x2="200" y2="400" />
+              </svg>
+              <svg class="bot" viewBox="0 0 240 260">
+                <g class="bot-body">
+                  <!-- antenna -->
+                  <path d="M120 54V28" class="ln" />
+                  <circle cx="120" cy="22" r="7" class="antenna" />
+                  <!-- head -->
+                  <rect x="56" y="54" width="128" height="88" rx="26" class="fill" />
+                  <rect x="70" y="70" width="100" height="56" rx="18" class="screen" />
+                  <g class="eyes">
+                    <rect class="eye" x="88" y="86" width="16" height="24" rx="8" />
+                    <rect class="eye" x="136" y="86" width="16" height="24" rx="8" />
+                  </g>
+                  <path class="zz" d="M190 40h12l-12 14h12M206 22h8l-8 10h8" />
+                  <!-- neck + body -->
+                  <path d="M108 142v12M132 142v12" class="ln" />
+                  <rect x="64" y="154" width="112" height="62" rx="14" class="fill" />
+                  <circle cx="92" cy="185" r="6" class="port p1" />
+                  <circle cx="120" cy="185" r="6" class="port p2" />
+                  <circle cx="148" cy="185" r="6" class="port p3" />
+                  <!-- arms -->
+                  <path d="M64 170 C40 172 34 192 40 206" class="ln arm-l" />
+                  <path d="M176 170 C200 172 206 192 200 206" class="ln arm-r" />
+                </g>
+                <!-- wheels -->
+                <g class="wheels">
+                  <circle cx="86" cy="232" r="18" class="fill" />
+                  <circle cx="154" cy="232" r="18" class="fill" />
+                  <path class="spoke s1" d="M86 220v24M74 232h24" />
+                  <path class="spoke s2" d="M154 220v24M142 232h24" />
+                </g>
+                <path d="M30 254h180" class="floor" />
+              </svg>
+            </div>
+
+            <div class="feature-bottom">
+              <div>
+                <p class="mono dim">Status</p>
+                <p class="status" id="bot-status" aria-live="polite">{modes[0].status}</p>
+              </div>
+              <div class="readout">
+                <p class="mono dim">Sensor</p>
+                <p class="status" id="bot-readout">{modes[0].readout}</p>
+              </div>
+            </div>
+
+            <div class="modes" role="group" aria-label="Try a mode">
+              {modes.map((m, i) => (
+                <button type="button" class="mode" data-mode={m.id} data-status={m.status} data-readout={m.readout} aria-pressed={i === 0 ? 'true' : 'false'}>
+                  {m.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="rule"><span class="corner-sm l"></span><span class="corner-sm r"></span></div>
+
+      <!-- Spec strip -->
+      <section class="specs" aria-label="Kit at a glance">
+        {specs.map(([v, l]) => (
+          <div class="spec fade">
+            <p class="spec-v">{v}</p>
+            <p class="spec-l">{l}</p>
+          </div>
+        ))}
+      </section>
+
+      <div class="rule"><span class="corner-sm l"></span><span class="corner-sm r"></span></div>
+
+      <!-- Kit cards -->
+      <section class="block" id="kit">
+        <div class="block-head fade">
+          <p class="eyebrow"><span class="num">01</span> Inside the box</p>
+          <h2>Three ideas hold the whole kit together.</h2>
+        </div>
+        <div class="cards">
+          {parts.map((p) => (
+            <article class="card-wrap fade">
+              <div class="card">
+                <div class="card-top">
+                  <span class="card-no">{p.no}</span>
+                  <span class="mono">{p.tag}</span>
+                </div>
+                <h3>{p.title}</h3>
+                <p>{p.body}</p>
+                <p class="card-stat"><span class="dot" aria-hidden="true"></span>{p.stat}</p>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <div class="rule"><span class="corner-sm l"></span><span class="corner-sm r"></span></div>
+
+      <!-- Missions index -->
+      <section class="block" id="missions">
+        <div class="block-head split fade">
+          <div>
+            <p class="eyebrow"><span class="num">02</span> Mission path</p>
+            <h2>Six weekends from box to inventor.</h2>
+          </div>
+          <p class="lede small">
+            Every mission is a printed card and a ten-minute video. Parents can sit in, but nobody needs to — the
+            robot tells you when something is plugged in backwards.
+          </p>
+        </div>
+        <ol class="missions">
+          {missions.map(([w, t, d]) => (
+            <li class="fade">
+              <span class="mono">{w}</span>
+              <h3>{t}</h3>
+              <p>{d}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <!-- Cobalt CTA band -->
+      <section class="cta-band-wrap" id="preorder">
+        <div class="cta-band fade">
+          <div class="cta-ring" aria-hidden="true"></div>
+          <div class="cta-copy">
+            <p class="eyebrow light"><span class="num">03</span> Batch 03 · 600 kits</p>
+            <h2>Reserve a robot<br />before the holidays.</h2>
+            <p>€149 with every sensor, the brain board, a USB-C cable and all six mission cards. Free returns until it is built.</p>
+          </div>
+          <div class="cta-cards">
+            <a href="#preorder" class="action">
+              <span class="mono">For families</span>
+              <span class="action-t">Pre-order one kit</span>
+              <span class="action-a" aria-hidden="true">→</span>
+            </a>
+            <a href="#preorder" class="action">
+              <span class="mono">For classrooms</span>
+              <span class="action-t">Bundle of twelve</span>
+              <span class="action-a" aria-hidden="true">→</span>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- Footer -->
+      <footer class="footer">
+        <div class="footer-grid">
+          <div class="footer-brand">
+            <p class="brand-lg">Ohmie</p>
+            <p class="dim-text">Small robots for curious people. Designed in Porto, tested on kitchen floors.</p>
+          </div>
+          {footer.map(([h, links], i) => (
+            <div>
+              <p class="mono"><span class="num">0{i + 4}</span> {h}</p>
+              <ul>
+                {(links as string[]).map((l) => <li><a href="#top">{l}</a></li>)}
+              </ul>
+            </div>
+          ))}
+        </div>
+        <div class="legal">
+          <span>© 2026 Ohmie Robotics, Lda. Fictional brand.</span>
+          <span class="mono"><span class="dot live" aria-hidden="true"></span> All systems nominal</span>
+        </div>
+      </footer>
+
+      <span class="corner bl" aria-hidden="true"></span>
+      <span class="corner br" aria-hidden="true"></span>
+    </div>
+
+    <script>
+      const card = document.getElementById('bot-card');
+      const status = document.getElementById('bot-status');
+      const readout = document.getElementById('bot-readout');
+      const buttons = document.querySelectorAll<HTMLButtonElement>('.mode');
+      buttons.forEach((b) =>
+        b.addEventListener('click', () => {
+          buttons.forEach((o) => o.setAttribute('aria-pressed', String(o === b)));
+          card?.setAttribute('data-mode', b.dataset.mode ?? 'explore');
+          if (status) status.textContent = b.dataset.status ?? '';
+          if (readout) readout.textContent = b.dataset.readout ?? '';
+        }),
+      );
+
+      // Fade-up on enter; reduced motion is handled in CSS.
+      const io = new IntersectionObserver(
+        (entries) =>
+          entries.forEach((e) => {
+            if (e.isIntersecting) {
+              e.target.classList.add('in');
+              io.unobserve(e.target);
+            }
+          }),
+        { rootMargin: '0px 0px -8% 0px' },
+      );
+      document.querySelectorAll('.fade').forEach((el) => io.observe(el));
+      requestAnimationFrame(() => document.documentElement.classList.add('ready'));
+    </script>
+
+    <style is:global>
+      :root {
+        --bg: #04060c;
+        --bg-2: #080d1a;
+        --panel: #0a1022;
+        --line: rgb(255 255 255 / 0.08);
+        --line-2: rgb(255 255 255 / 0.14);
+        --text: #f3f6ff;
+        --pale: #a9bbe0;
+        --dim: #6b7a98;
+        --cobalt: #2b55f5;
+        --royal: #1a3bd1;
+        --deep: #0b1b66;
+        --signal: #5b8cff;
+        --sans: 'Geist', ui-sans-serif, system-ui, sans-serif;
+        --mono: 'Geist Mono', ui-monospace, monospace;
+      }
+      html { background: var(--bg); scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        background: radial-gradient(120% 60% at 70% -10%, #0c1736 0%, transparent 60%), var(--bg);
+        color: var(--text);
+        font-family: var(--sans);
+        font-weight: 300;
+        -webkit-font-smoothing: antialiased;
+        overflow-x: hidden;
+      }
+    </style>
+
+    <style>
+      * { box-sizing: border-box; }
+      a { color: inherit; text-decoration: none; }
+      p, h1, h2, h3, ul, ol, dl, dd { margin: 0; padding: 0; }
+      ul, ol { list-style: none; }
+      :focus-visible { outline: 2px solid var(--signal); outline-offset: 3px; border-radius: 6px; }
+
+      .glow { position: fixed; pointer-events: none; border-radius: 50%; filter: blur(90px); z-index: 0; }
+      .glow-a { width: 620px; height: 620px; right: -120px; top: -160px; background: rgb(43 85 245 / 0.22); }
+      .glow-b { width: 480px; height: 480px; left: -200px; top: 55%; background: rgb(26 59 209 / 0.12); }
+
+      /* Framed shell: border-x rails + corner squares */
+      .shell {
+        position: relative; z-index: 1;
+        width: min(1320px, calc(100% - 24px)); margin: 0 auto;
+        border-left: 1px solid var(--line); border-right: 1px solid var(--line);
+      }
+      .corner { position: absolute; width: 7px; height: 7px; background: var(--bg); border: 1px solid var(--line-2); z-index: 2; }
+      .corner.tl { top: -3px; left: -4px; } .corner.tr { top: -3px; right: -4px; }
+      .corner.bl { bottom: -3px; left: -4px; } .corner.br { bottom: -3px; right: -4px; }
+      .rule { position: relative; height: 1px; background: var(--line); }
+      .corner-sm { position: absolute; top: -3px; width: 7px; height: 7px; background: var(--bg); border: 1px solid var(--line-2); }
+      .corner-sm.l { left: -4px; } .corner-sm.r { right: -4px; }
+
+      .mono, .eyebrow {
+        font-family: var(--mono); font-size: 11px; font-weight: 400;
+        letter-spacing: 0.14em; text-transform: uppercase; color: var(--pale);
+        display: inline-flex; align-items: center; gap: 8px;
+      }
+      .num { color: var(--signal); }
+      .dim { color: rgb(255 255 255 / 0.55); }
+      .dim-text { color: var(--dim); font-size: 14px; line-height: 1.6; max-width: 30ch; margin-top: 12px; }
+      .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--signal); box-shadow: 0 0 10px var(--signal); display: inline-block; flex: none; }
+      .dot.live { animation: pulse 2.4s ease-in-out infinite; }
+      @keyframes pulse { 50% { opacity: 0.35; } }
+
+      /* Nav */
+      .nav {
+        display: flex; align-items: center; justify-content: space-between; gap: 24px;
+        padding: 20px 40px; border-bottom: 1px solid var(--line);
+      }
+      .brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 500; font-size: 18px; letter-spacing: -0.02em; }
+      .nav ul { display: flex; gap: 32px; }
+      .nav ul a { font-size: 14px; color: var(--pale); transition: color 0.2s; }
+      .nav ul a:hover { color: var(--text); }
+
+      .btn {
+        display: inline-flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 400;
+        padding: 12px 20px; border-radius: 999px; transition: transform 0.25s, background 0.25s, border-color 0.25s, color 0.25s;
+      }
+      .btn:hover { transform: translateY(-1px); }
+      .btn-ghost { background: rgb(14 24 54 / 0.55); border: 1px solid rgb(91 140 255 / 0.28); color: var(--pale); }
+      .btn-ghost:hover { border-color: rgb(91 140 255 / 0.6); color: var(--text); background: rgb(20 34 78 / 0.7); }
+      .btn-solid { background: var(--text); color: #050a1c; font-weight: 500; box-shadow: 0 0 0 1px rgb(255 255 255 / 0.2), 0 10px 40px -10px rgb(91 140 255 / 0.6); }
+      .btn-solid:hover { background: #fff; }
+      .nav-cta { padding: 9px 16px; font-size: 13px; }
+
+      /* Hero */
+      .hero {
+        display: grid; grid-template-columns: 1fr 1.02fr; gap: 56px; align-items: center;
+        padding: 64px 40px 72px;
+      }
+      .eyebrow.light { color: rgb(255 255 255 / 0.8); }
+      .eyebrow.light .num { color: #fff; }
+      h1 {
+        font-size: clamp(54px, 7.2vw, 108px); line-height: 0.94; letter-spacing: -0.055em; font-weight: 300;
+        margin-top: 28px;
+      }
+      h1 .w { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: 0.08em; }
+      h1 .w > span { display: inline-block; }
+      h1 .accent > span {
+        background: linear-gradient(100deg, #fff 0%, #9db8ff 55%, var(--signal) 100%);
+        -webkit-background-clip: text; background-clip: text; color: transparent;
+      }
+      .lede { margin-top: 28px; max-width: 46ch; font-size: 17px; line-height: 1.6; color: var(--pale); }
+      .lede.small { font-size: 15px; max-width: 42ch; }
+      .cta-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 36px; }
+      .hero-meta { display: grid; grid-template-columns: repeat(3, auto); justify-content: start; gap: 40px; margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--line); }
+      .hero-meta dt { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--dim); }
+      .hero-meta dd { margin-top: 6px; font-size: 15px; color: var(--text); font-weight: 400; }
+
+      /* Cobalt feature block in border-gradient wrapper */
+      .feature-wrap {
+        padding: 1px; border-radius: 28px;
+        background: linear-gradient(160deg, rgb(160 190 255 / 0.85), rgb(91 140 255 / 0.25) 40%, rgb(255 255 255 / 0.06) 75%, rgb(91 140 255 / 0.4));
+        box-shadow: 0 40px 120px -40px rgb(43 85 245 / 0.65);
+      }
+      .feature {
+        position: relative; overflow: hidden; border-radius: 27px; padding: 22px 24px 20px;
+        background:
+          radial-gradient(80% 60% at 50% 38%, rgb(120 160 255 / 0.35), transparent 70%),
+          linear-gradient(165deg, #3463ff 0%, var(--royal) 45%, var(--deep) 100%);
+        display: flex; flex-direction: column; gap: 8px; min-height: 560px;
+      }
+      .feature-top, .feature-bottom { display: flex; justify-content: space-between; align-items: flex-end; position: relative; z-index: 1; }
+      .feature .mono { color: rgb(255 255 255 / 0.85); }
+      .feature .dot { background: #fff; box-shadow: 0 0 10px #fff; }
+      .bot-stage { position: relative; flex: 1; display: grid; place-items: center; min-height: 300px; }
+      .traces { position: absolute; width: min(92%, 400px); aspect-ratio: 1; fill: none; stroke: rgb(255 255 255 / 0.16); stroke-width: 1; animation: spin 80s linear infinite; }
+      @keyframes spin { to { transform: rotate(360deg); } }
+      .bot { position: relative; width: min(62%, 260px); overflow: visible; }
+      .bot .ln { fill: none; stroke: #fff; stroke-width: 3; stroke-linecap: round; }
+      .bot .fill { fill: rgb(6 16 60 / 0.55); stroke: #fff; stroke-width: 3; }
+      .bot .screen { fill: #050c2e; stroke: rgb(255 255 255 / 0.35); stroke-width: 1.5; }
+      .bot .eye { fill: #cfe0ff; transform-box: fill-box; transform-origin: center; animation: blink 5s infinite; filter: drop-shadow(0 0 6px #8fb2ff); transition: transform 0.4s; }
+      .bot .antenna { fill: #fff; filter: drop-shadow(0 0 8px #fff); animation: pulse 1.8s ease-in-out infinite; }
+      .bot .port { fill: rgb(255 255 255 / 0.15); stroke: #fff; stroke-width: 2; transition: fill 0.3s; }
+      .bot .p1 { fill: #9fc0ff; }
+      .bot .spoke { stroke: #fff; stroke-width: 2; transform-box: fill-box; transform-origin: center; }
+      .bot .floor { stroke: rgb(255 255 255 / 0.3); stroke-width: 1.5; stroke-dasharray: 4 6; }
+      .bot .zz { fill: none; stroke: #fff; stroke-width: 2; stroke-linejoin: round; opacity: 0; transition: opacity 0.4s; }
+      .bot-body { animation: bob 3.6s ease-in-out infinite; transition: transform 0.6s; }
+      @keyframes bob { 50% { transform: translateY(-5px); } }
+      @keyframes blink { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(0.1); } }
+      .eyes { transition: transform 0.5s; }
+
+      .feature[data-mode='explore'] .spoke { animation: roll 2.2s linear infinite; }
+      .feature[data-mode='explore'] .eyes { animation: look 4s ease-in-out infinite; }
+      @keyframes look { 0%, 100% { transform: translateX(-5px); } 50% { transform: translateX(5px); } }
+      .feature[data-mode='line'] .spoke { animation: roll 1.2s linear infinite; }
+      .feature[data-mode='line'] .eyes { transform: translateY(6px); }
+      .feature[data-mode='line'] .p1 { fill: rgb(255 255 255 / 0.15); }
+      .feature[data-mode='line'] .p3 { fill: #9fc0ff; }
+      .feature[data-mode='line'] .floor { stroke: #fff; stroke-dasharray: none; stroke-width: 3; }
+      .feature[data-mode='sleep'] .eye { animation: none; transform: scaleY(0.12); }
+      .feature[data-mode='sleep'] .bot-body { animation: none; transform: translateY(4px); }
+      .feature[data-mode='sleep'] .zz { opacity: 1; }
+      .feature[data-mode='sleep'] .antenna { animation: none; opacity: 0.35; }
+      .feature[data-mode='sleep'] .p1 { fill: rgb(255 255 255 / 0.15); }
+      @keyframes roll { to { transform: rotate(360deg); } }
+
+      .status { margin-top: 6px; font-size: 18px; font-weight: 400; letter-spacing: -0.01em; color: #fff; }
+      .readout { text-align: right; }
+      .modes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 12px; padding: 5px; border-radius: 999px; background: rgb(3 10 40 / 0.45); border: 1px solid rgb(255 255 255 / 0.14); position: relative; z-index: 1; }
+      .mode {
+        font: inherit; font-size: 13px; font-weight: 400; color: rgb(255 255 255 / 0.75);
+        background: transparent; border: 0; border-radius: 999px; padding: 10px 8px; cursor: pointer; transition: background 0.25s, color 0.25s;
+      }
+      .mode:hover { color: #fff; background: rgb(255 255 255 / 0.08); }
+      .mode[aria-pressed='true'] { background: #fff; color: #0b1b66; font-weight: 500; }
+
+      /* Specs */
+      .specs { display: grid; grid-template-columns: repeat(4, 1fr); }
+      .spec { padding: 36px 40px; border-right: 1px solid var(--line); }
+      .spec:last-child { border-right: 0; }
+      .spec-v { font-size: clamp(36px, 4vw, 56px); font-weight: 200; letter-spacing: -0.04em; line-height: 1; }
+      .spec-l { margin-top: 10px; font-size: 13px; color: var(--dim); }
+
+      /* Blocks */
+      .block { padding: 96px 40px; }
+      .block-head h2, .cta-copy h2 { font-size: clamp(32px, 3.8vw, 52px); line-height: 1.04; letter-spacing: -0.04em; font-weight: 300; margin-top: 18px; max-width: 18ch; }
+      .block-head.split { display: flex; justify-content: space-between; align-items: flex-end; gap: 40px; }
+
+      .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 56px; }
+      .card-wrap {
+        padding: 1px; border-radius: 20px;
+        background: linear-gradient(170deg, rgb(91 140 255 / 0.45), rgb(255 255 255 / 0.05) 45%, rgb(255 255 255 / 0.03));
+        transition: background 0.4s, transform 0.4s;
+      }
+      .card-wrap:hover { transform: translateY(-3px); background: linear-gradient(170deg, rgb(120 160 255 / 0.85), rgb(91 140 255 / 0.12) 50%, rgb(255 255 255 / 0.05)); }
+      .card { height: 100%; border-radius: 19px; padding: 28px; background: linear-gradient(180deg, #0b1330, #070b18 70%); display: flex; flex-direction: column; gap: 14px; }
+      .card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 36px; }
+      .card-no { font-size: 40px; font-weight: 200; letter-spacing: -0.04em; color: var(--signal); line-height: 1; }
+      .card h3 { font-size: 22px; font-weight: 400; letter-spacing: -0.02em; line-height: 1.2; }
+      .card p { font-size: 14.5px; line-height: 1.6; color: var(--pale); }
+      .card .card-stat { margin-top: auto; padding-top: 20px; border-top: 1px solid var(--line); display: flex; align-items: center; gap: 10px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text); }
+
+      .missions { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 56px; border-top: 1px solid var(--line); }
+      .missions li { padding: 28px 28px 36px 0; border-bottom: 1px solid var(--line); }
+      .missions li:not(:nth-child(3n + 1)) { padding-left: 28px; border-left: 1px solid var(--line); }
+      .missions h3 { margin-top: 18px; font-size: 20px; font-weight: 400; letter-spacing: -0.02em; }
+      .missions p { margin-top: 10px; font-size: 14px; line-height: 1.6; color: var(--dim); max-width: 34ch; }
+      .missions .mono { color: var(--signal); }
+
+      /* CTA band */
+      .cta-band-wrap { padding: 0 40px 96px; }
+      .cta-band {
+        position: relative; overflow: hidden; border-radius: 28px; padding: 64px 56px;
+        display: grid; grid-template-columns: 1.2fr 1fr; gap: 48px; align-items: end;
+        background: radial-gradient(70% 90% at 85% 10%, rgb(130 165 255 / 0.45), transparent 60%), linear-gradient(140deg, #3a68ff 0%, var(--royal) 50%, var(--deep) 100%);
+        box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.18), 0 40px 120px -50px rgb(43 85 245 / 0.7);
+      }
+      .cta-ring { position: absolute; width: 560px; height: 560px; right: -160px; top: -240px; border-radius: 50%; border: 1px solid rgb(255 255 255 / 0.18); box-shadow: 0 0 0 60px rgb(255 255 255 / 0.03), 0 0 0 120px rgb(255 255 255 / 0.02); }
+      .cta-copy { position: relative; }
+      .cta-copy h2 { max-width: none; color: #fff; }
+      .cta-copy > p:last-child { margin-top: 20px; max-width: 44ch; font-size: 16px; line-height: 1.6; color: rgb(225 234 255 / 0.85); }
+      .cta-cards { position: relative; display: grid; gap: 12px; }
+      .action {
+        display: grid; grid-template-columns: 1fr auto; gap: 6px 16px; align-items: center;
+        padding: 20px 22px; border-radius: 18px;
+        background: linear-gradient(135deg, rgb(255 255 255 / 0.16), rgb(255 255 255 / 0.02)), rgb(4 12 48 / 0.55);
+        border: 1px solid rgb(255 255 255 / 0.2); transition: transform 0.3s, background 0.3s, border-color 0.3s;
+      }
+      .action:hover { transform: translateX(4px); border-color: rgb(255 255 255 / 0.5); background: linear-gradient(135deg, rgb(255 255 255 / 0.22), rgb(255 255 255 / 0.04)), rgb(4 12 48 / 0.45); }
+      .action .mono { grid-column: 1; color: rgb(255 255 255 / 0.7); }
+      .action-t { grid-column: 1; font-size: 20px; font-weight: 400; letter-spacing: -0.02em; }
+      .action-a { grid-column: 2; grid-row: 1 / span 2; font-size: 22px; }
+
+      /* Footer */
+      .footer { border-top: 1px solid var(--line); padding: 64px 40px 0; }
+      .footer-grid { display: grid; grid-template-columns: 1.4fr repeat(3, 1fr); gap: 40px; }
+      .brand-lg { font-size: 40px; font-weight: 300; letter-spacing: -0.05em; line-height: 1; }
+      .footer ul { margin-top: 18px; display: grid; gap: 10px; }
+      .footer ul a { font-size: 14px; color: var(--dim); transition: color 0.2s; }
+      .footer ul a:hover { color: var(--text); }
+      .legal { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-top: 64px; padding: 22px 0 28px; border-top: 1px solid var(--line); font-size: 12.5px; color: var(--dim); }
+      .legal .mono { color: var(--dim); }
+
+      /* Motion: masked word reveal + fade-up */
+      h1 .w > span { transform: translateY(110%); transition: transform 1s cubic-bezier(0.2, 0.7, 0.1, 1); }
+      :global(html.ready) h1 .w > span { transform: none; }
+      h1 .w:nth-of-type(2) > span { transition-delay: 0.08s; }
+      h1 .w:nth-of-type(3) > span { transition-delay: 0.16s; }
+      h1 .w:nth-of-type(4) > span { transition-delay: 0.24s; }
+      .fade { opacity: 0; transform: translateY(18px); transition: opacity 0.9s ease, transform 0.9s cubic-bezier(0.2, 0.7, 0.1, 1); }
+      .fade:global(.in) { opacity: 1; transform: none; }
+      .cards .fade:nth-child(2), .specs .fade:nth-child(2) { transition-delay: 0.08s; }
+      .cards .fade:nth-child(3), .specs .fade:nth-child(3) { transition-delay: 0.16s; }
+      .specs .fade:nth-child(4) { transition-delay: 0.24s; }
+
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after { animation: none !important; transition: none !important; }
+        h1 .w > span, .fade { transform: none !important; opacity: 1 !important; }
+        html { scroll-behavior: auto; }
+      }
+
+      /* Responsive */
+      @media (max-width: 1080px) {
+        .hero { grid-template-columns: 1fr; gap: 48px; }
+        .feature { min-height: 520px; }
+        .cta-band { grid-template-columns: 1fr; }
+        .footer-grid { grid-template-columns: 1fr 1fr; }
+        .footer-brand { grid-column: 1 / -1; }
+      }
+      @media (max-width: 860px) {
+        .nav ul { display: none; }
+        .cards { grid-template-columns: 1fr; }
+        .missions { grid-template-columns: 1fr 1fr; }
+        .missions li:not(:nth-child(3n + 1)) { padding-left: 0; border-left: 0; }
+        .missions li:nth-child(even) { padding-left: 24px; border-left: 1px solid var(--line); }
+        .specs { grid-template-columns: 1fr 1fr; }
+        .spec:nth-child(2) { border-right: 0; }
+        .spec:nth-child(-n + 2) { border-bottom: 1px solid var(--line); }
+        .block-head.split { flex-direction: column; align-items: flex-start; }
+      }
+      @media (max-width: 560px) {
+        .nav, .hero, .block, .footer { padding-left: 20px; padding-right: 20px; }
+        .nav { padding-top: 16px; padding-bottom: 16px; }
+        .hero { padding-top: 36px; padding-bottom: 48px; gap: 36px; }
+        h1 { margin-top: 20px; }
+        .lede { font-size: 16px; margin-top: 20px; }
+        .cta-row { margin-top: 28px; gap: 8px; }
+        .cta-row .btn { padding: 11px 15px; font-size: 13px; }
+        .hero-meta { margin-top: 32px; }
+        .block { padding-top: 72px; padding-bottom: 72px; }
+        .cta-band-wrap { padding: 0 12px 72px; }
+        .cta-band { padding: 40px 22px; border-radius: 22px; }
+        .spec { padding: 28px 20px; }
+        .hero-meta { gap: 20px; }
+        .feature { padding: 18px 16px 16px; min-height: 480px; }
+        .feature-top .mono:last-child { display: none; }
+        .bot { width: 70%; }
+        .missions { grid-template-columns: 1fr; }
+        .missions li:nth-child(even) { padding-left: 0; border-left: 0; }
+        .missions li { padding-right: 0; }
+        .footer-grid { grid-template-columns: 1fr; gap: 32px; }
+      }
+    </style>
+  </body>
+</html>

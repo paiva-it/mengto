@@ -1,0 +1,5 @@
+/* ponytail: the shared dev server's global.css never rescans pages created after it started,
+   so this page compiles its own utilities from its own template. Redundant (and harmless) in a build. */
+@import "tailwindcss/theme";
+@import "tailwindcss/utilities" source(none);
+@source "../../../pages/skills/tailwindcss.astro";

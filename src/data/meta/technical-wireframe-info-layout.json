@@ -1,0 +1,7 @@
+{
+  "title": "Technical Wireframe Info Layout",
+  "kind": "website",
+  "category": "Design systems",
+  "concept": "Skerryworks, a fjord-side kayak outfitter, publishes its Fulmar 17 expedition sea kayak as a monochrome diagnostic teardown: a Three.js wireframe hull exploded into five layers with routed connector tags, mass-allocation and bench-log readouts, then a layer schedule, a cockpit fit cross-section and a fleet of plan-view drawings.",
+  "notes": "Three.js line geometry only (no meshes): hull, deck, bulkheads, hatches and skeg lofted from one beam/rocker law. Tag connectors are SVG beziers re-projected from 3-D anchors every frame. Layer-focus tabs dim the other layers and their tags; view-mode buttons ease between exploded and assembled. Slow yaw drift pauses offscreen and in hidden tabs; reduced motion and ?shot hold a fixed pose and a static log."
+}

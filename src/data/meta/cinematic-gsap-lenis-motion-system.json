@@ -1,0 +1,7 @@
+{
+  "title": "Cinematic GSAP Lenis Motion System",
+  "kind": "website",
+  "category": "Motion & scroll",
+  "concept": "Verdigris, a fictional slow-perfume house in a copper-roofed Ghent chapel, built on one motion language: a four-part hero timeline (media, headline, copy, action) with a visible sequence strip and Replay control, mouse-reactive depth layers, word and line mask reveals, clip image reveals with layered parallax, a pinned three-note anatomy scene, a pinned horizontal collection with tilt cards, magnetic buttons and a labelled cursor follower.",
+  "notes": "GSAP 3 + ScrollTrigger + Lenis (installed), Lenis driven by the GSAP ticker. Pinned scenes run only at 900px and up; phones get stacked panels and a native scroll-snap row. Reduced motion disables Lenis, pins, parallax, cursor and magnetics and shows everything static. Photography from Unsplash, stored locally."
+}

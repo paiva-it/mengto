@@ -1,0 +1,7 @@
+{
+  "title": "Scroll-Scrubbed Visual Sequence",
+  "kind": "section",
+  "category": "Motion & scroll",
+  "concept": "Throwline, a studio-pottery marketplace where every listing carries its making: one sticky chapter throws a stoneware jar from a wedged lump through centring, opening, pulling, kiln firing and a celadon glaze dip, with every frame set by native scroll in both directions.",
+  "notes": "Procedural canvas renderer (no frames or video): one normalized progress value drives the lathe profile morph, wheel spin, grog specks, throwing rings, kiln glow, glaze line, dimension lines, gauges, copy stops and a clickable filmstrip of the six states (same renderer frozen at each stop). Config (scroll 520vh, stops, hold, mm scale, spin turns, reduced-motion frame) lives in one SEQUENCE object. Native sticky + rAF-coalesced scroll measurement, DPR capped at 2, paused offscreen. Reduced motion drops the sticky/scroll length, shows the finished jar, and the strip switches states directly. Market cards reuse the renderer with other profiles and glazes."
+}

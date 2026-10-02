@@ -1,0 +1,7 @@
+{
+  "title": "Dark Blue Contrasting Clean",
+  "kind": "website",
+  "category": "Design systems",
+  "concept": "Ohmie, a fictional snap-together robotics kit for kids aged 8–14: a near-black navy site held in a border-x framed shell with corner squares, whose cobalt gradient hero card shows a line-drawn robot you can switch between Explore, Follow line and Sleep, followed by spec strip, Frame/Rhythm/Signal kit cards, a six-week mission index and a cobalt pre-order band.",
+  "notes": "Pure CSS + one small vanilla script (mode toggle, IntersectionObserver fade-ups, masked word reveal). Geist + Geist Mono from Google Fonts. No images or external libraries. Reduced motion disables all animation and shows content static."
+}

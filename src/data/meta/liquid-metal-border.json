@@ -1,0 +1,7 @@
+{
+  "title": "Liquid Metal Border",
+  "kind": "section",
+  "category": "Effects & details",
+  "concept": "Anneal, a fictional incident-response firm, whose graphite hero puts metal-fx liquid-metal rings only where state lives: the 'Report an active incident' CTA (reflecting onto its ghost neighbour), a live engagement console framed in a slow chromatic hairline, its selected response-phase tab, and the checked retainer plan below.",
+  "notes": "metal-fx 2.0.11 as React islands (client:load). One shared GL program means one preset page-wide (chromatic); theme pinned dark. Idle tabs/plans sit at strength 0.06\u20130.12 and paused; selection, hover and focus raise them; state also lives in aria-selected/aria-checked, weight and surface tint, with arrow-key tablist/radiogroup navigation. Reduced motion pauses every ring and drops the glow. Children keep normalizeHostStyles=false with their own focus outline; unsupported WebGL2 falls back to .metal-fx-fallback hairline borders. Workarounds for 2.0.11: the ring mounts after hydration (its render-time support check otherwise mismatches SSR), pausing waits until the ring has been on screen (paused-while-offscreen freezes at full opacity), and the large frames use shaderScale 14/10 because the shader is sampled against a 140\u00d740 baseline and big boxes otherwise show almost no metal."
+}

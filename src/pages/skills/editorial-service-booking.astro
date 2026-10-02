@@ -1,0 +1,1195 @@
+---
+import '../../styles/global.css';
+import BackPill from '../../components/BackPill.astro';
+
+// Calder Street Library — a fictional public library in Hollins Cross, reopened after a two-year
+// redesign. Every librarian and room can be booked; the page reads like a lookbook of services.
+const u = (id: string, w = 1400) => `https://images.unsplash.com/photo-${id}?w=${w}&q=72&auto=format&fit=crop`;
+
+type Service = {
+  id: string;
+  name: string;
+  short: string;
+  body: string;
+  duration: string;
+  price: string;
+  img: string;
+  alt: string;
+  caption: string;
+};
+
+const services: Service[] = [
+  {
+    id: 'desk',
+    name: 'A desk in the Long Room',
+    short: 'Three quiet hours under the west windows.',
+    body: 'A reserved desk with a lamp, a socket and nobody asking you to move. Bring your own work or borrow from the open shelves; we hold the desk for twenty minutes past your start time.',
+    duration: '3 hours',
+    price: 'Free',
+    img: u('1568667256549-094345857637'),
+    alt: 'Curved wooden shelves wrapping a reading floor under soft ceiling light',
+    caption: 'Long Room · 42 desks',
+  },
+  {
+    id: 'archive',
+    name: 'Archive appointment',
+    short: 'Handle the town’s papers with an archivist beside you.',
+    body: 'Rate books, mill ledgers, school logbooks and the 1911 street directory. Tell us what you are looking for when you book and the boxes will be waiting on the table.',
+    duration: '90 min',
+    price: 'Free · copies 20p a sheet',
+    img: u('1491841573634-28140fc7ced7'),
+    alt: 'A stack of worn leather-bound volumes on a wooden table',
+    caption: 'Strongroom, lower ground',
+  },
+  {
+    id: 'family',
+    name: 'Family history session',
+    short: 'Census, parish and newspaper records, one name at a time.',
+    body: 'Sit with a family-history librarian and the paid databases we subscribe to so you do not have to. Bring one ancestor’s name and a date; leave with a sourced family sheet.',
+    duration: '45 min',
+    price: 'Free',
+    img: u('1434030216411-0b793f4b4173'),
+    alt: 'A hand in a grey jumper writing notes at a desk beside a cup of tea',
+    caption: 'Local studies table',
+  },
+  {
+    id: 'advice',
+    name: 'What to read next',
+    short: 'Half an hour with a reader, not an algorithm.',
+    body: 'Tell a librarian the last three books you loved and one you abandoned. You leave with a short stack, already issued to your card, and a reason for each.',
+    duration: '30 min',
+    price: 'Free',
+    img: u('1490633874781-1c63cc424610'),
+    alt: 'An open paperback with a dry autumn leaf resting across the pages',
+    caption: 'Readers’ corner, ground floor',
+  },
+];
+
+const locations = [
+  {
+    id: 'calder',
+    name: 'Calder Street',
+    tag: 'Central library',
+    address: ['14 Calder Street', 'Hollins Cross HX4 2LP'],
+    hours: [
+      ['Mon – Fri', '08:30 – 21:00'],
+      ['Saturday', '09:00 – 17:00'],
+      ['Sunday', '11:00 – 16:00'],
+    ],
+    access: 'Step-free entrance on Calder Street, lift to all floors, hearing loop at every desk, Changing Places toilet on the ground floor.',
+    phone: '01422 604 180',
+    next: 'Next free desk: today, 14:00',
+  },
+  {
+    id: 'mill',
+    name: 'Mill Lane',
+    tag: 'Branch library',
+    address: ['Mill Lane, above the market hall', 'Hollins Cross HX4 7DS'],
+    hours: [
+      ['Tue, Thu', '10:00 – 19:00'],
+      ['Wed, Fri', '10:00 – 17:00'],
+      ['Saturday', '10:00 – 13:00'],
+    ],
+    access: 'Lift from the market hall (Gate B). Six quiet desks, one large-print station. No archive collection at this branch.',
+    phone: '01422 604 233',
+    next: 'Next free desk: Thursday, 10:00',
+  },
+];
+
+const ledger = [
+  { n: '1,204', what: 'Long Room desks', note: 'Booked out by 10:00 most weekdays since the reopening.' },
+  { n: '312', what: 'Family history sessions', note: 'The 1921 census is the most requested record set.' },
+  { n: '188', what: 'Archive appointments', note: 'Mill ledgers and school logbooks, in that order.' },
+];
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Calder Street Library — Book a librarian</title>
+    <meta name="description" content="Hollins Cross public library, reopened after a two-year redesign. Book a desk, an archivist or a librarian." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="preload" as="image" href={u('1506880018603-83d5b814b5a6', 1600)} />
+  </head>
+  <body class="csl">
+    <a class="skip" href="#book">Skip to booking</a>
+
+    <header class="hdr">
+      <nav class="hdr-nav" aria-label="Primary">
+        <a href="#story">The redesign</a>
+        <a href="#services">Services</a>
+        <a href="#visit">Visit</a>
+      </nav>
+      <a class="wordmark" href="#top" aria-label="Calder Street Library, home">Calder Street <span>Library</span></a>
+      <div class="hdr-end">
+        <span class="status"><i aria-hidden="true"></i>Calder St · open until 21:00</span>
+        <a class="link-cta" href="#book">Book a visit</a>
+      </div>
+    </header>
+
+    <main id="top">
+      <!-- HERO -->
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <p class="label">Hollins Cross public library · reopened 14 September</p>
+          <h1 id="hero-title" class="display">Room to read,<br /><em>again.</em></h1>
+          <div class="hero-foot">
+            <p class="lede">
+              Two years, a new roof and four hundred shelves lowered to eye height. The Calder Street library is open again, and
+              every desk and librarian in it can be booked.
+            </p>
+            <a class="round" href="#services" aria-label="See the services"><span aria-hidden="true">↓</span></a>
+          </div>
+        </div>
+        <figure class="hero-media">
+          <img
+            src={u('1506880018603-83d5b814b5a6', 1600)}
+            alt="A reader in jeans holding an open book in a band of late-afternoon sunlight"
+            width="1600"
+            height="1200"
+            fetchpriority="high"
+          />
+          <figcaption>Long Room, west window · 4 pm</figcaption>
+        </figure>
+      </section>
+
+      <!-- TREATMENTS / SERVICES -->
+      <section class="svc" id="services" aria-labelledby="svc-title">
+        <div class="svc-intro">
+          <p class="label">Choose a service</p>
+          <h2 id="svc-title" class="h2">Services</h2>
+          <p class="note">Four ways to use the building. Every one is free with a library card.</p>
+        </div>
+
+        <div class="svc-tabs" role="tablist" aria-orientation="vertical" aria-label="Library services">
+          {
+            services.map((s, i) => (
+              <button
+                class="tab"
+                role="tab"
+                type="button"
+                id={`tab-${s.id}`}
+                aria-controls={`panel-${s.id}`}
+                aria-selected={i === 0 ? 'true' : 'false'}
+                tabindex={i === 0 ? 0 : -1}
+                data-id={s.id}
+              >
+                <span>{s.name}</span>
+                <span class="num">{String(i + 1).padStart(2, '0')}</span>
+              </button>
+            ))
+          }
+        </div>
+
+        <div class="svc-stage">
+          {
+            services.map((s, i) => (
+              <article
+                class="panel"
+                role="tabpanel"
+                id={`panel-${s.id}`}
+                aria-labelledby={`tab-${s.id}`}
+                data-active={i === 0 ? 'true' : 'false'}
+                tabindex="0"
+              >
+                <h3 class="h3">{s.name}</h3>
+                <p class="panel-short">{s.short}</p>
+                <p class="panel-body">{s.body}</p>
+                <dl class="meta">
+                  <div>
+                    <dt>Duration</dt>
+                    <dd>{s.duration}</dd>
+                  </div>
+                  <div>
+                    <dt>Price</dt>
+                    <dd>{s.price}</dd>
+                  </div>
+                </dl>
+                <a class="btn-line" href="#book" data-book={s.id}>
+                  Book this <span aria-hidden="true">→</span>
+                </a>
+                <figure class="panel-media">
+                  <img src={s.img} alt={s.alt} width="1400" height="933" loading={i === 0 ? 'eager' : 'lazy'} />
+                  <figcaption>{s.caption}</figcaption>
+                </figure>
+              </article>
+            ))
+          }
+        </div>
+        <p class="sr-only" aria-live="polite" id="svc-live"></p>
+      </section>
+
+      <!-- CONFIDENCE LOOP -->
+      <div class="loop" aria-label="Free to enter, free to stay, open until nine on weekdays, no card needed to sit down.">
+        <div class="loop-track" aria-hidden="true">
+          {
+            [0, 1].map(() => (
+              <p>
+                Free to enter <i>·</i> Free to stay <i>·</i> Open until nine on weekdays <i>·</i> No card needed to sit down <i>·</i>
+                Every librarian bookable <i>·</i>
+              </p>
+            ))
+          }
+        </div>
+      </div>
+
+      <!-- ABOUT / THE REDESIGN -->
+      <section class="story" id="story" aria-labelledby="story-title">
+        <div class="story-copy reveal">
+          <p class="label">The redesign, 2024 – 2026</p>
+          <h2 id="story-title" class="h2 big">We took the gates out and gave the windows back.</h2>
+          <div class="cols">
+            <p>
+              The 1904 building had been carved into offices, a server room and a turnstile lobby. The redesign undid most of it. The
+              security gates went first; then the false ceiling in the Long Room, which had hidden the original roof lights for forty
+              years.
+            </p>
+            <p>
+              Shelving now stops at 1.4 metres, so a child can reach the top and a librarian can see the whole floor. The desks moved
+              to the windows. The staff room moved to the basement. The archive moved up from it, into a room with air you can
+              breathe.
+            </p>
+          </div>
+          <ol class="facts">
+            <li><b>1.4 m</b><span>tallest public shelf</span></li>
+            <li><b>42</b><span>bookable desks</span></li>
+            <li><b>11</b><span>librarians on the floor, not behind a counter</span></li>
+          </ol>
+        </div>
+        <div class="story-media reveal" aria-label="Photographs of the reopened library">
+          <figure class="sm-a">
+            <img src={u('1529148482759-b35b25c5f217', 1200)} alt="A bright white atrium with stairs and galleries of shelves on every side" width="1200" height="1500" loading="lazy" />
+            <figcaption><b>01</b> The atrium, where the turnstiles stood.</figcaption>
+          </figure>
+          <figure class="sm-b">
+            <img src={u('1507842217343-583bb7270b66', 900)} alt="Warm wooden shelves filled with books, lit from above" width="900" height="1100" loading="lazy" />
+            <figcaption><b>02</b> Open stacks, lowered to eye height.</figcaption>
+          </figure>
+          <figure class="sm-c">
+            <img src={u('1456513080510-7bf3a84b82f8', 700)} alt="Two open books lying on a reading table" width="700" height="520" loading="lazy" />
+            <figcaption><b>03</b> Reading table, local studies.</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <!-- FAVOURITES (dark chapter) -->
+      <section class="dark" aria-labelledby="fav-title">
+        <div class="dark-inner reveal">
+          <div class="dark-head">
+            <p class="label">Since the doors reopened</p>
+            <h2 id="fav-title" class="h2 big">What Hollins Cross booked first.</h2>
+            <p class="note">Counts from the booking ledger, 14 September – 1 October. Illustrative figures for this concept page.</p>
+          </div>
+          <ol class="ledger">
+            {
+              ledger.map((l, i) => (
+                <li>
+                  <span class="num">{String(i + 1).padStart(2, '0')}</span>
+                  <b class="ledger-n">{l.n}</b>
+                  <span class="ledger-what">{l.what}</span>
+                  <span class="ledger-note">{l.note}</span>
+                </li>
+              ))
+            }
+          </ol>
+        </div>
+      </section>
+
+      <!-- LOCATIONS -->
+      <section class="visit" id="visit" aria-labelledby="visit-title">
+        <div class="visit-head reveal">
+          <p class="label">Visit</p>
+          <h2 id="visit-title" class="h2">Two doors, one card.</h2>
+        </div>
+        <div class="visit-grid">
+          {
+            locations.map((l) => (
+              <article class="loc reveal">
+                <header>
+                  <h3 class="h3">{l.name}</h3>
+                  <span class="label">{l.tag}</span>
+                </header>
+                <address>
+                  {l.address[0]}
+                  <br />
+                  {l.address[1]}
+                </address>
+                <table class="hours">
+                  <caption class="sr-only">Opening hours, {l.name}</caption>
+                  <tbody>
+                    {l.hours.map(([d, h]) => (
+                      <tr>
+                        <th scope="row">{d}</th>
+                        <td>{h}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                <p class="access">
+                  <span class="label">Access</span>
+                  {l.access}
+                </p>
+                <p class="loc-foot">
+                  <a href={`tel:${l.phone.replace(/\s/g, '')}`}>{l.phone}</a>
+                  <span class="avail">{l.next}</span>
+                </p>
+              </article>
+            ))
+          }
+        </div>
+      </section>
+
+      <!-- BOOKING -->
+      <section class="book" id="book" aria-labelledby="book-title">
+        <div class="book-head">
+          <p class="label">Book a visit</p>
+          <h2 id="book-title" class="h2 big">Hold a desk, or a librarian.</h2>
+          <p class="note">Nothing is held until the desk confirms it. Your choices stay put if anything goes wrong.</p>
+        </div>
+
+        <div class="book-grid">
+          <aside class="summary" aria-label="Your booking so far">
+            <p class="label">Your visit</p>
+            <dl>
+              <div><dt>Service</dt><dd data-sum="service">—</dd></div>
+              <div><dt>Library</dt><dd data-sum="location">—</dd></div>
+              <div><dt>With</dt><dd data-sum="librarian">—</dd></div>
+              <div><dt>When</dt><dd data-sum="time">—</dd></div>
+            </dl>
+            <p class="sum-note">Free with a Hollins Cross library card. No card yet? Bring photo ID and we will make one at the desk.</p>
+          </aside>
+
+          <div class="flow">
+            <form id="book-form" novalidate>
+              <fieldset class="step" id="f-service">
+                <legend><span class="num">01</span> Service</legend>
+                <div class="opts">
+                  {
+                    services.map((s) => (
+                      <label class="opt">
+                        <input type="radio" name="service" value={s.id} />
+                        <span class="opt-name">{s.name}</span>
+                        <span class="opt-meta">{s.duration} · {s.price.split(' · ')[0]}</span>
+                      </label>
+                    ))
+                  }
+                </div>
+              </fieldset>
+
+              <fieldset class="step" id="f-location">
+                <legend><span class="num">02</span> Library</legend>
+                <div class="opts two">
+                  {
+                    locations.map((l) => (
+                      <label class="opt">
+                        <input type="radio" name="location" value={l.id} />
+                        <span class="opt-name">{l.name}</span>
+                        <span class="opt-meta">{l.address[0]}</span>
+                      </label>
+                    ))
+                  }
+                </div>
+                <p class="field-msg" id="loc-msg" aria-live="polite"></p>
+              </fieldset>
+
+              <fieldset class="step" id="f-librarian">
+                <legend><span class="num">03</span> Librarian</legend>
+                <div class="opts two" id="librarian-opts">
+                  <p class="empty">Choose a service and a library first.</p>
+                </div>
+              </fieldset>
+
+              <fieldset class="step" id="f-time">
+                <legend><span class="num">04</span> Day and time</legend>
+                <div class="days" id="day-opts" role="radiogroup" aria-label="Day"></div>
+                <div class="slots" id="slot-opts" aria-busy="false">
+                  <p class="empty">Times appear once a librarian is chosen.</p>
+                </div>
+                <p class="field-msg" id="time-msg" role="status"></p>
+              </fieldset>
+
+              <fieldset class="step" id="f-details">
+                <legend><span class="num">05</span> Your details</legend>
+                <div class="fields">
+                  <label class="field">
+                    <span>Full name</span>
+                    <input name="name" autocomplete="name" required aria-describedby="err-name" />
+                    <span class="err" id="err-name"></span>
+                  </label>
+                  <label class="field">
+                    <span>Email</span>
+                    <input name="email" type="email" autocomplete="email" required aria-describedby="err-email" />
+                    <span class="err" id="err-email"></span>
+                  </label>
+                  <label class="field">
+                    <span>Library card number <small>(optional, 8 digits)</small></span>
+                    <input name="card" inputmode="numeric" pattern="[0-9]{8}" aria-describedby="hint-card err-card" />
+                    <span class="hint" id="hint-card">Demo desk: a card starting 0000 simulates a dropped connection.</span>
+                    <span class="err" id="err-card"></span>
+                  </label>
+                  <label class="field wide">
+                    <span>Anything we should prepare? <small>(optional)</small></span>
+                    <textarea name="notes" rows="2" placeholder="e.g. Hollins Mill wage books, 1890s"></textarea>
+                  </label>
+                </div>
+              </fieldset>
+
+              <div class="submit-row">
+                <p class="form-msg" id="form-msg" role="alert"></p>
+                <button class="btn" type="submit" id="submit">Request this booking</button>
+              </div>
+            </form>
+
+            <div class="done" id="done" hidden tabindex="-1">
+              <p class="label" id="done-label">Confirmed by the desk</p>
+              <h3 class="h3 big" id="done-title">See you on Thursday.</h3>
+              <p class="done-ref">Reference <b id="done-ref">CS-0000</b> · a copy is on its way to <span id="done-email"></span></p>
+              <div class="done-actions" id="done-actions">
+                <button class="btn" type="button" id="resched">Change the time</button>
+                <button class="btn-line" type="button" id="cancel">Cancel booking</button>
+              </div>
+              <button class="btn" type="button" id="again" hidden>Book another visit</button>
+              <div class="cancel-confirm" id="cancel-confirm" hidden>
+                <p>Release this booking for someone else?</p>
+                <button class="btn" type="button" id="cancel-yes">Yes, release it</button>
+                <button class="btn-line" type="button" id="cancel-no">Keep it</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="ftr">
+      <div>
+        <p class="wordmark small">Calder Street <span>Library</span></p>
+        <p class="note">Part of Hollins Cross Libraries. Run by the town, paid for by everyone.</p>
+      </div>
+      <div>
+        <p class="label">Today</p>
+        <p>Calder Street 08:30 – 21:00<br />Mill Lane 10:00 – 19:00</p>
+      </div>
+      <div>
+        <p class="label">Contact</p>
+        <p><a href="tel:01422604180">01422 604 180</a><br /><a href="mailto:desk@calderstreet.example">desk@calderstreet.example</a></p>
+      </div>
+      <div>
+        <p class="label">Returns</p>
+        <p>The book drop on Calder Street is open all night. Fines were abolished in 2025.</p>
+      </div>
+      <p class="credit">Photography via Unsplash. A fictional library for a design study.</p>
+    </footer>
+
+    <BackPill />
+
+    <style is:global>
+      :root {
+        --paper: #efe7dc;
+        --paper-2: #e6dccd;
+        --ink: #1c1b19;
+        --ink-2: #3a3733;
+        --muted: #6e665c;
+        --rule: rgb(28 27 25 / 0.16);
+        --accent: #8b4a36;
+        --dark: #191816;
+        --dark-ink: #eee6da;
+        --dark-muted: #a39a8d;
+        --dark-rule: rgb(238 230 218 / 0.16);
+        --serif: 'Newsreader', 'Iowan Old Style', Georgia, serif;
+        --sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+        --gut: clamp(16px, 2.6vw, 40px);
+        --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+      }
+      html { scroll-behavior: smooth; }
+      @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+      .csl {
+        margin: 0;
+        background: var(--paper);
+        color: var(--ink);
+        font: 400 15px/1.55 var(--sans);
+        -webkit-font-smoothing: antialiased;
+        overflow-x: clip;
+      }
+      .csl a { color: inherit; }
+      .csl [hidden] { display: none !important; }
+      .csl section[id], .csl fieldset { scroll-margin-top: 84px; }
+      .csl :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+      .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+      .skip { position: absolute; left: -999px; top: 8px; background: var(--ink); color: var(--paper) !important; padding: 8px 12px; z-index: 10; }
+      .skip:focus { left: 8px; }
+
+      .label { margin: 0; font: 500 11px/1.4 var(--sans); letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-2); }
+      .num { font: 400 14px/1 var(--sans); font-variant-numeric: tabular-nums; }
+      .display { font: 400 clamp(56px, 8.4vw, 132px)/0.92 var(--serif); letter-spacing: -0.035em; margin: 0; }
+      .display em { font-style: italic; }
+      .h2 { font: 400 clamp(30px, 3vw, 42px)/1.05 var(--serif); letter-spacing: -0.02em; margin: 10px 0 0; }
+      .h2.big { font-size: clamp(36px, 4.6vw, 68px); line-height: 1; max-width: 16ch; }
+      .h3 { font: 400 clamp(28px, 2.6vw, 38px)/1.05 var(--serif); letter-spacing: -0.015em; margin: 0; }
+      .h3.big { font-size: clamp(36px, 4vw, 56px); }
+      .note { color: var(--ink-2); margin: 14px 0 0; max-width: 34ch; font-size: 15px; }
+
+      /* Header */
+      .hdr {
+        position: sticky; top: 0; z-index: 5;
+        display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;
+        height: 68px; padding: 0 var(--gut);
+        background: var(--paper); border-bottom: 1px solid var(--rule);
+      }
+      .hdr-nav { display: flex; gap: 30px; }
+      .hdr-nav a, .link-cta { font: 500 11px/1 var(--sans); letter-spacing: 0.14em; text-transform: uppercase; text-decoration: none; }
+      .hdr-nav a:hover { color: var(--accent); }
+      .wordmark { font: italic 400 26px/1 var(--serif); letter-spacing: -0.02em; text-decoration: none; white-space: nowrap; }
+      .wordmark span { font-style: normal; }
+      .hdr-end { display: flex; gap: 26px; justify-content: flex-end; align-items: center; }
+      .status { font-size: 12px; color: var(--ink-2); display: inline-flex; gap: 8px; align-items: center; }
+      .status i { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+      .link-cta { padding-bottom: 5px; border-bottom: 1px solid currentColor; transition: color 180ms; }
+      .link-cta:hover { color: var(--accent); }
+
+      /* Hero */
+      .hero { display: grid; grid-template-columns: 48% 52%; min-height: min(600px, calc(100svh - 68px - 210px)); border-bottom: 1px solid var(--rule); }
+      .hero-copy { display: flex; flex-direction: column; padding: 40px var(--gut) 30px; gap: 28px; }
+      .hero-copy .display { margin-top: auto; }
+      .hero-foot { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; margin-top: auto; }
+      .lede { margin: 0; max-width: 46ch; color: var(--ink-2); font-size: 15px; }
+      .round {
+        flex: none; width: 50px; height: 50px; border-radius: 50%; border: 1px solid var(--ink);
+        display: grid; place-items: center; text-decoration: none; transition: background 180ms, color 180ms;
+      }
+      .round:hover { background: var(--ink); color: var(--paper); }
+      .hero-media { position: relative; margin: 0; overflow: hidden; background: var(--paper-2); }
+      .hero-media img {
+        position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 45%;
+        animation: heroIn 760ms var(--ease) both;
+      }
+      .hero-media figcaption, .panel-media figcaption {
+        position: absolute; right: 20px; bottom: 18px; color: #fff;
+        font: 500 10.5px/1 var(--sans); letter-spacing: 0.14em; text-transform: uppercase; text-shadow: 0 1px 2px rgb(0 0 0 / 0.5), 0 0 14px rgb(0 0 0 / 0.45);
+      }
+      @keyframes heroIn { from { clip-path: inset(0 0 0 18%); transform: scale(1.03); } to { clip-path: inset(0 0 0 0); transform: none; } }
+
+      /* Services */
+      .svc { display: grid; grid-template-columns: 22% 1fr 40%; border-bottom: 1px solid var(--rule); }
+      .svc > * { padding: 34px var(--gut) 40px; }
+      .svc-intro { border-right: 1px solid var(--rule); }
+      .svc-tabs { display: flex; flex-direction: column; padding-top: 60px; border-right: 1px solid var(--rule); }
+      .tab {
+        all: unset; box-sizing: border-box; cursor: pointer;
+        display: flex; justify-content: space-between; align-items: baseline; gap: 16px;
+        padding: 14px 0; border-top: 1px solid var(--rule); font: 400 16px/1.3 var(--sans);
+        transition: color 180ms var(--ease), padding 200ms var(--ease);
+      }
+      .tab:last-child { border-bottom: 1px solid var(--rule); }
+      .tab:hover { color: var(--accent); }
+      .tab[aria-selected='true'] { color: var(--accent); padding-left: 10px; }
+      .tab:focus-visible { outline-offset: -2px; }
+      .svc-stage { display: grid; }
+      .panel {
+        grid-area: 1 / 1; display: flex; flex-direction: column;
+        transition: opacity 200ms var(--ease), visibility 200ms;
+      }
+      .panel[data-active='false'] { opacity: 0; visibility: hidden; }
+      .panel:focus-visible { outline-offset: 6px; }
+      .panel-short { margin: 12px 0 0; font-size: 16px; }
+      .panel-body { margin: 10px 0 0; color: var(--muted); max-width: 52ch; font-size: 14px; }
+      .meta { display: flex; justify-content: space-between; margin: 22px 0 18px; padding-top: 12px; border-top: 1px solid var(--rule); font-size: 13px; }
+      .meta dt { color: var(--muted); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; }
+      .meta dd { margin: 4px 0 0; }
+      .meta div:last-child { text-align: right; }
+      .btn-line, .btn {
+        align-self: flex-start; display: inline-flex; gap: 10px; align-items: center;
+        padding: 12px 22px; border-radius: 999px; border: 1px solid var(--ink);
+        font: 500 12px/1 var(--sans); letter-spacing: 0.08em; text-transform: uppercase; text-decoration: none;
+        background: transparent; color: var(--ink); cursor: pointer; transition: background 180ms, color 180ms, opacity 180ms;
+      }
+      .btn-line:hover { background: var(--ink); color: var(--paper); }
+      .btn { background: var(--ink); color: var(--paper); }
+      .btn:hover { background: #000; }
+      .btn[disabled] { opacity: 0.45; cursor: progress; }
+      .panel-media { position: relative; margin: 26px 0 0; aspect-ratio: 3 / 2; overflow: hidden; background: var(--paper-2); }
+      .panel-media img { width: 100%; height: 100%; object-fit: cover; display: block; }
+      .panel-media img.broken { visibility: hidden; }
+
+      /* static fallback for reduced motion */
+      .svc.is-static .svc-tabs { display: none; }
+      .svc.is-static { grid-template-columns: 22% 1fr; }
+      .svc.is-static .svc-stage { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+      .svc.is-static .panel { grid-area: auto; }
+
+      /* Loop */
+      .loop { overflow: hidden; border-bottom: 1px solid var(--rule); padding: 22px 0; }
+      .loop-track { display: flex; width: max-content; animation: loop 48s linear infinite; }
+      .loop.paused .loop-track { animation-play-state: paused; }
+      .loop p { margin: 0; padding-right: 0.6em; white-space: nowrap; font: italic 400 clamp(26px, 3vw, 42px)/1 var(--serif); letter-spacing: -0.01em; }
+      .loop i { font-style: normal; color: var(--accent); padding: 0 0.35em; }
+      @keyframes loop { to { transform: translateX(-50%); } }
+
+      /* Story */
+      .story { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(32px, 5vw, 90px); padding: clamp(64px, 9vw, 130px) var(--gut); }
+      .story-copy { align-self: start; position: sticky; top: 110px; }
+      .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin-top: 34px; color: var(--ink-2); }
+      .cols p { margin: 0; }
+      .facts { list-style: none; margin: 46px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--rule); }
+      .facts li { padding: 18px 16px 0 0; display: grid; gap: 6px; }
+      .facts b { font: 400 40px/1 var(--serif); }
+      .facts span { font-size: 13px; color: var(--muted); }
+      .story-media { position: relative; display: grid; grid-template-columns: repeat(12, 1fr); grid-template-rows: auto auto; }
+      .story-media figure { margin: 0; }
+      .story-media img { display: block; width: 100%; height: 100%; object-fit: cover; background: var(--paper-2); }
+      .story-media figcaption { margin-top: 10px; font-size: 12px; color: var(--muted); }
+      .story-media figcaption b { font-weight: 500; color: var(--ink); margin-right: 6px; }
+      .sm-a { grid-column: 1 / 9; grid-row: 1; aspect-ratio: 4 / 5; }
+      .sm-b { grid-column: 8 / 13; grid-row: 1; align-self: end; margin-bottom: -110px !important; aspect-ratio: 4 / 5; z-index: 1; border: 8px solid var(--paper); border-bottom: 0; }
+      .sm-b figcaption { padding: 0 0 0 2px; }
+      .sm-c { grid-column: 2 / 7; grid-row: 2; margin-top: 64px !important; aspect-ratio: 4 / 3; }
+      .sm-a img, .sm-b img, .sm-c img { aspect-ratio: inherit; height: auto; }
+
+      /* Dark chapter */
+      .dark { background: var(--dark); color: var(--dark-ink); }
+      .dark .label { color: var(--dark-muted); }
+      .dark .note { color: var(--dark-muted); font-size: 13px; }
+      .dark-inner { padding: clamp(70px, 9vw, 130px) var(--gut); display: grid; grid-template-columns: 1fr 1.3fr; gap: 60px; }
+      .ledger { list-style: none; margin: 0; padding: 0; }
+      .ledger li {
+        display: grid; grid-template-columns: 40px 180px 1fr; grid-template-areas: 'num n what' 'num n note';
+        column-gap: 20px; padding: 26px 0; border-top: 1px solid var(--dark-rule); align-items: baseline;
+      }
+      .ledger li:last-child { border-bottom: 1px solid var(--dark-rule); }
+      .ledger .num { grid-area: num; color: var(--dark-muted); }
+      .ledger-n { grid-area: n; font: 400 clamp(48px, 5vw, 76px)/0.9 var(--serif); letter-spacing: -0.03em; }
+      .ledger-what { grid-area: what; font: 400 24px/1.2 var(--serif); }
+      .ledger-note { grid-area: note; color: var(--dark-muted); font-size: 14px; }
+
+      /* Visit */
+      .visit { padding: clamp(64px, 8vw, 120px) var(--gut); border-bottom: 1px solid var(--rule); }
+      .visit-grid { display: grid; grid-template-columns: 1fr 1fr; margin-top: 44px; border-top: 1px solid var(--ink); }
+      .loc { padding: 26px 40px 10px 0; display: grid; gap: 20px; align-content: start; }
+      .loc + .loc { padding-left: 40px; border-left: 1px solid var(--rule); }
+      .loc header { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+      .loc address { font-style: normal; font-size: 16px; }
+      .hours { border-collapse: collapse; width: 100%; max-width: 380px; font-size: 14px; }
+      .hours th, .hours td { padding: 7px 0; border-bottom: 1px solid var(--rule); text-align: left; font-weight: 400; }
+      .hours th { color: var(--muted); }
+      .hours td { text-align: right; font-variant-numeric: tabular-nums; }
+      .access { margin: 0; max-width: 48ch; color: var(--ink-2); font-size: 14px; display: grid; gap: 6px; }
+      .loc-foot { margin: 0; display: flex; flex-wrap: wrap; gap: 8px 24px; font-size: 14px; }
+      .avail { color: var(--accent); }
+
+      /* Booking */
+      .book { padding: clamp(64px, 8vw, 120px) var(--gut); }
+      .book-grid { display: grid; grid-template-columns: 320px 1fr; gap: clamp(32px, 5vw, 80px); margin-top: 48px; align-items: start; }
+      .summary { position: sticky; top: 92px; border-top: 1px solid var(--ink); padding-top: 18px; }
+      .summary dl { margin: 18px 0 0; }
+      .summary dl div { display: grid; grid-template-columns: 80px 1fr; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--rule); }
+      .summary dt { color: var(--muted); font-size: 13px; }
+      .summary dd { margin: 0; font: 400 18px/1.25 var(--serif); }
+      .summary dd.set { color: var(--ink); }
+      .sum-note { font-size: 13px; color: var(--muted); margin: 18px 0 0; }
+      .flow form { display: grid; gap: 8px; }
+      .step { border: 0; border-top: 1px solid var(--ink); margin: 0; padding: 18px 0 34px; min-width: 0; }
+      .step[disabled] { opacity: 0.5; }
+      .step legend { float: left; width: 100%; padding: 0; margin-bottom: 18px; font: 400 26px/1.1 var(--serif); }
+      .step legend .num { color: var(--muted); margin-right: 14px; vertical-align: 4px; }
+      .step legend + * { clear: both; }
+      .opts { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 0 24px; }
+      .opt {
+        position: relative; display: grid; grid-template-columns: 18px 1fr; column-gap: 12px; row-gap: 2px;
+        padding: 14px 0; border-bottom: 1px solid var(--rule); cursor: pointer; transition: color 180ms;
+      }
+      .opt input { grid-row: span 2; margin: 3px 0 0; accent-color: var(--accent); width: 15px; height: 15px; }
+      .opt-name { font-size: 15px; }
+      .opt-meta { font-size: 12.5px; color: var(--muted); }
+      .opt:has(input:checked) .opt-name { color: var(--accent); }
+      .opt:has(input:disabled) { cursor: not-allowed; opacity: 0.45; }
+      .opt:hover:not(:has(input:disabled)) .opt-name { color: var(--accent); }
+      .empty { margin: 0; padding: 14px 0; color: var(--muted); font-size: 14px; border-bottom: 1px dashed var(--rule); grid-column: 1 / -1; }
+      .days { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+      .chip { position: relative; }
+      .chip input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+      .chip span {
+        display: grid; gap: 2px; min-width: 64px; padding: 9px 12px; text-align: center;
+        border: 1px solid var(--rule); border-radius: 2px; font-size: 12px; color: var(--ink-2); transition: border-color 180ms, background 180ms, color 180ms;
+      }
+      .chip span b { font: 400 20px/1 var(--serif); color: var(--ink); }
+      .chip input:checked + span { border-color: var(--ink); background: var(--ink); color: var(--paper); }
+      .chip input:checked + span b { color: var(--paper); }
+      .chip input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+      .chip input:disabled + span { opacity: 0.4; text-decoration: line-through; }
+      .slots { display: flex; flex-wrap: wrap; gap: 8px; min-height: 52px; align-items: flex-start; }
+      .slots .chip span { min-width: 76px; font: 500 14px/1 var(--sans); padding: 12px; font-variant-numeric: tabular-nums; }
+      .slots[aria-busy='true'] { opacity: 0.55; }
+      .skel { width: 76px; height: 40px; border: 1px solid var(--rule); border-radius: 2px; background: linear-gradient(90deg, transparent, rgb(28 27 25 / 0.05), transparent) var(--paper); background-size: 200% 100%; animation: skel 1.1s linear infinite; }
+      @keyframes skel { to { background-position: -200% 0; } }
+      .field-msg, .form-msg { margin: 12px 0 0; font-size: 13.5px; color: var(--accent); min-height: 1em; }
+      .form-msg:empty, .field-msg:empty { margin: 0; min-height: 0; }
+      .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 20px 28px; }
+      .field { display: grid; gap: 6px; font-size: 13px; color: var(--ink-2); }
+      .field small { color: var(--muted); }
+      .field.wide { grid-column: 1 / -1; }
+      .field input, .field textarea {
+        font: 400 16px/1.3 var(--sans); color: var(--ink); background: transparent;
+        border: 0; border-bottom: 1px solid var(--ink-2); border-radius: 0; padding: 8px 0; resize: vertical;
+      }
+      .field input:focus, .field textarea:focus { outline: none; border-bottom: 2px solid var(--accent); padding-bottom: 7px; }
+      .field input[aria-invalid='true'] { border-bottom-color: var(--accent); }
+      .hint { font-size: 12px; color: var(--muted); }
+      .err { font-size: 12.5px; color: var(--accent); }
+      .err:empty { display: none; }
+      .submit-row { display: flex; flex-wrap: wrap; gap: 16px 28px; justify-content: space-between; align-items: center; border-top: 1px solid var(--ink); padding-top: 22px; }
+      .form-msg { margin: 0; flex: 1 1 280px; }
+      .form-msg button { margin-left: 10px; }
+      .done { border-top: 1px solid var(--ink); padding: 26px 0 0; display: grid; gap: 16px; }
+      .done:focus { outline: none; }
+      .done .label { color: var(--accent); }
+      .done-ref { margin: 0; color: var(--ink-2); }
+      .done-actions:not([hidden]), .cancel-confirm:not([hidden]) { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+      .cancel-confirm p { margin: 0 12px 0 0; }
+
+      /* Footer */
+      .ftr { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1.2fr; gap: 32px; padding: 54px var(--gut) 80px; border-top: 1px solid var(--rule); background: var(--paper-2); font-size: 14px; }
+      .ftr p { margin: 8px 0 0; }
+      .ftr .label { margin: 0; }
+      .wordmark.small { font-size: 22px; margin: 0; }
+      .credit { grid-column: 1 / -1; color: var(--muted); font-size: 12px; border-top: 1px solid var(--rule); padding-top: 18px; }
+
+      /* Section entrances */
+      .reveal { opacity: 1; }
+      .js .reveal { opacity: 0; transform: translateY(18px); transition: opacity 640ms var(--ease), transform 640ms var(--ease); }
+      .js .reveal.in { opacity: 1; transform: none; }
+
+      @media (prefers-reduced-motion: reduce) {
+        .hero-media img, .loop-track, .skel { animation: none !important; }
+        .js .reveal { opacity: 1; transform: none; transition: none; }
+        .panel, .tab { transition: none; }
+      }
+
+      /* Tablet / mobile */
+      @media (max-width: 1080px) {
+        .svc { grid-template-columns: 1fr 1fr; }
+        .svc-intro { grid-column: 1 / -1; border-right: 0; border-bottom: 1px solid var(--rule); padding-bottom: 24px; }
+        .svc-tabs { padding-top: 34px; }
+        .status { display: none; }
+        .story, .dark-inner { grid-template-columns: 1fr; }
+        .story-media { margin-bottom: 40px; }
+        .story-copy { position: static; }
+        .book-grid { grid-template-columns: 1fr; }
+        .summary { position: static; }
+        .ftr { grid-template-columns: 1fr 1fr; }
+      }
+      @media (max-width: 720px) {
+        .hdr { grid-template-columns: 1fr auto; height: 60px; }
+        .hdr-nav { display: none; }
+        .wordmark { font-size: 21px; }
+        .hero { grid-template-columns: 1fr; min-height: 0; }
+        .hero-copy { padding-top: 28px; gap: 22px; }
+        .hero-copy .display { margin-top: 24px; }
+        .hero-media { aspect-ratio: 4 / 3.4; }
+        .svc, .svc.is-static { grid-template-columns: 1fr; }
+        .svc > * { padding: 26px var(--gut); }
+        .svc-tabs { border-right: 0; padding-top: 0; padding-bottom: 0; }
+        .svc.is-static .svc-stage { grid-template-columns: 1fr; }
+        .cols, .fields { grid-template-columns: 1fr; }
+        .facts b { font-size: 32px; }
+        .sm-b { margin-bottom: -70px !important; }
+        .sm-c { margin-top: 40px !important; }
+        .ledger li { grid-template-columns: 30px 1fr; grid-template-areas: 'num n' 'num what' 'num note'; row-gap: 6px; }
+        .visit-grid { grid-template-columns: 1fr; }
+        .loc { padding-right: 0; }
+        .loc + .loc { padding-left: 0; border-left: 0; border-top: 1px solid var(--rule); }
+        .ftr { grid-template-columns: 1fr; }
+      }
+    </style>
+
+    <script>
+      type Lib = { id: string; name: string; role: string; at: string[]; does: string[] };
+
+      document.documentElement.classList.add('js');
+      const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      /* ---------- Section entrances + loop visibility ---------- */
+      const io = new IntersectionObserver(
+        (entries) => entries.forEach((e) => e.isIntersecting && (e.target.classList.add('in'), io.unobserve(e.target))),
+        { rootMargin: '0px 0px -8% 0px' },
+      );
+      document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+      const loop = document.querySelector('.loop');
+      if (loop) new IntersectionObserver(([e]) => loop.classList.toggle('paused', !e.isIntersecting)).observe(loop);
+
+      /* ---------- Service selector (manual-activation tabs) ---------- */
+      const svc = document.querySelector<HTMLElement>('.svc')!;
+      const tabs = [...document.querySelectorAll<HTMLButtonElement>('.tab')];
+      const live = document.getElementById('svc-live')!;
+      const select = (i: number, announce = true) => {
+        tabs.forEach((t, j) => {
+          const on = i === j;
+          t.setAttribute('aria-selected', String(on));
+          t.tabIndex = on ? 0 : -1;
+          document.getElementById(t.getAttribute('aria-controls')!)!.dataset.active = String(on);
+        });
+        if (announce) live.textContent = `Selected: ${tabs[i].querySelector('span')!.textContent}`;
+        // preload only the next likely image
+        const next = document.querySelector<HTMLImageElement>(`#${tabs[(i + 1) % tabs.length].getAttribute('aria-controls')} img`);
+        if (next) next.loading = 'eager';
+      };
+      if (reduced) {
+        svc.classList.add('is-static');
+        document.querySelectorAll<HTMLElement>('.panel').forEach((p) => {
+          p.dataset.active = 'true';
+          p.removeAttribute('role');
+          p.removeAttribute('tabindex');
+        });
+      } else {
+        select(0, false);
+        tabs.forEach((t, i) => {
+          t.addEventListener('click', () => select(i));
+          t.addEventListener('keydown', (e) => {
+            const k = e.key;
+            const n = tabs.length;
+            const move = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 }[k as 'ArrowDown'];
+            let to = -1;
+            if (move) to = (i + move + n) % n;
+            if (k === 'Home') to = 0;
+            if (k === 'End') to = n - 1;
+            if (to > -1) {
+              e.preventDefault();
+              tabs[to].focus();
+            }
+          });
+        });
+      }
+      document.querySelectorAll<HTMLImageElement>('img').forEach((img) =>
+        img.addEventListener('error', () => img.classList.add('broken')),
+      );
+
+      /* ---------- Booking ---------- */
+      const SERVICES: Record<string, { name: string; mins: number }> = {
+        desk: { name: 'A desk in the Long Room', mins: 180 },
+        archive: { name: 'Archive appointment', mins: 90 },
+        family: { name: 'Family history session', mins: 45 },
+        advice: { name: 'What to read next', mins: 30 },
+      };
+      const LOCS: Record<string, string> = { calder: 'Calder Street', mill: 'Mill Lane' };
+      const LIBS: Lib[] = [
+        { id: 'any', name: 'Whoever is on the floor', role: 'Desk staff', at: ['calder', 'mill'], does: ['desk'] },
+        { id: 'maren', name: 'Maren Okafor', role: 'Archivist', at: ['calder'], does: ['archive'] },
+        { id: 'ruth', name: 'Ruth Danby', role: 'Assistant archivist', at: ['calder'], does: ['archive'] },
+        { id: 'tomasz', name: 'Tomasz Wilk', role: 'Local & family history', at: ['calder'], does: ['family'] },
+        { id: 'joe', name: 'Joe Pennant', role: 'Branch librarian', at: ['mill'], does: ['family', 'advice'] },
+        { id: 'ines', name: 'Ines Abara', role: 'Reader services', at: ['calder', 'mill'], does: ['advice'] },
+      ];
+
+      const form = document.getElementById('book-form') as HTMLFormElement;
+      const libBox = document.getElementById('librarian-opts')!;
+      const dayBox = document.getElementById('day-opts')!;
+      const slotBox = document.getElementById('slot-opts')!;
+      const timeMsg = document.getElementById('time-msg')!;
+      const locMsg = document.getElementById('loc-msg')!;
+      const formMsg = document.getElementById('form-msg')!;
+      const submit = document.getElementById('submit') as HTMLButtonElement;
+      const done = document.getElementById('done')!;
+      const sum = (k: string) => document.querySelector<HTMLElement>(`[data-sum="${k}"]`)!;
+
+      type State = { service?: string; location?: string; librarian?: string; day?: string; slot?: string; booking?: string };
+      const KEY = 'csl-booking-v1';
+      let state: State = {};
+      try {
+        state = JSON.parse(sessionStorage.getItem(KEY) || '{}');
+      } catch {}
+      const save = () => {
+        try {
+          sessionStorage.setItem(KEY, JSON.stringify(state));
+        } catch {}
+      };
+      const taken = new Set<string>(); // slots the server reported stale this session
+      let attempts = 0;
+      let reschedule = false;
+
+      const days = (() => {
+        const out: { key: string; dow: string; d: number; mon: string; idx: number }[] = [];
+        const t = new Date();
+        for (let i = 0; out.length < 6 && i < 10; i++) {
+          const d = new Date(t.getFullYear(), t.getMonth(), t.getDate() + i);
+          out.push({
+            key: d.toISOString().slice(0, 10),
+            dow: d.toLocaleDateString('en-GB', { weekday: 'short' }),
+            d: d.getDate(),
+            mon: d.toLocaleDateString('en-GB', { month: 'short' }),
+            idx: d.getDay(),
+          });
+        }
+        return out;
+      })();
+
+      const open = (loc: string, dow: number) =>
+        loc === 'calder' ? true : [2, 3, 4, 5, 6].includes(dow); // Mill Lane closed Sun & Mon
+
+      const hash = (s: string) => [...s].reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7);
+
+      // ponytail: fake availability server, 450 ms latency, deterministic per (service, place, person, day)
+      const fetchSlots = (s: State): Promise<string[]> =>
+        new Promise((res) =>
+          setTimeout(() => {
+            const day = days.find((d) => d.key === s.day)!;
+            if (!open(s.location!, day.idx)) return res([]);
+            const base = s.service === 'desk' ? ['09:00', '10:00', '14:00', '18:00'] : ['09:30', '10:30', '11:30', '14:00', '15:30', '16:30', '18:00'];
+            const h = hash(`${s.service}${s.location}${s.librarian}${s.day}`);
+            res(base.filter((_, i) => (h >> i) % 3 !== 0));
+          }, 450),
+        );
+
+      // The first slot offered is always the one another reader just took: the server says so at confirmation.
+      const staleSlot = (slots: string[]) => slots[0];
+      let currentSlots: string[] = [];
+
+      const radio = (name: string, value: string, label: string, meta: string, checked: boolean, disabled = false) => `
+        <label class="opt"><input type="radio" name="${name}" value="${value}" ${checked ? 'checked' : ''} ${disabled ? 'disabled' : ''}/>
+        <span class="opt-name">${label}</span><span class="opt-meta">${meta}</span></label>`;
+
+      const renderLibrarians = () => {
+        const { service, location } = state;
+        if (!service || !location) {
+          libBox.innerHTML = '<p class="empty">Choose a service and a library first.</p>';
+          return;
+        }
+        const list = LIBS.filter((l) => l.does.includes(service) && l.at.includes(location));
+        if (!list.length) {
+          libBox.innerHTML = `<p class="empty">Nobody at ${LOCS[location]} offers this. Archive appointments happen at Calder Street, where the papers live.</p>`;
+          return;
+        }
+        if (!list.some((l) => l.id === state.librarian)) state.librarian = list.length === 1 ? list[0].id : undefined;
+        libBox.innerHTML = list.map((l) => radio('librarian', l.id, l.name, l.role, l.id === state.librarian)).join('');
+      };
+
+      const renderDays = () => {
+        dayBox.innerHTML = days
+          .map(
+            (d) => `<label class="chip"><input type="radio" name="day" value="${d.key}" aria-label="${d.dow} ${d.d} ${d.mon}" ${d.key === state.day ? 'checked' : ''} ${state.location && !open(state.location, d.idx) ? 'disabled' : ''}/><span>${d.dow}<b>${d.d}</b></span></label>`,
+          )
+          .join('');
+      };
+
+      let reqId = 0;
+      const renderSlots = async () => {
+        const ready = state.service && state.location && state.librarian && state.day;
+        if (!ready) {
+          slotBox.innerHTML = `<p class="empty">${state.librarian ? 'Pick a day to see times.' : 'Times appear once a librarian is chosen.'}</p>`;
+          return;
+        }
+        const id = ++reqId;
+        slotBox.setAttribute('aria-busy', 'true');
+        slotBox.innerHTML = '<span class="skel"></span>'.repeat(4);
+        const slots = await fetchSlots(state);
+        if (id !== reqId) return; // a newer request superseded this one
+        currentSlots = slots;
+        slotBox.setAttribute('aria-busy', 'false');
+        if (!slots.length) {
+          slotBox.innerHTML = '<p class="empty">The library is closed that day. Try another.</p>';
+          state.slot = undefined;
+          return;
+        }
+        if (state.slot && !slots.includes(state.slot)) state.slot = undefined;
+        slotBox.innerHTML = slots
+          .map((t) => {
+            const k = `${state.day}${t}${state.location}`;
+            const gone = taken.has(k);
+            return `<label class="chip"><input type="radio" name="slot" value="${t}" aria-label="${t}${gone ? ', just taken' : ''}" ${t === state.slot ? 'checked' : ''} ${gone ? 'disabled' : ''}/><span>${t}</span></label>`;
+          })
+          .join('');
+        updateSummary();
+      };
+
+      const prettyDay = (key?: string) => {
+        const d = days.find((x) => x.key === key);
+        return d ? `${d.dow} ${d.d} ${d.mon}` : '';
+      };
+
+      const updateSummary = () => {
+        const set = (k: string, v?: string) => {
+          sum(k).textContent = v || '—';
+          sum(k).classList.toggle('set', !!v);
+        };
+        set('service', state.service && SERVICES[state.service].name);
+        set('location', state.location && LOCS[state.location]);
+        set('librarian', state.librarian && LIBS.find((l) => l.id === state.librarian)?.name);
+        set('time', state.day && [prettyDay(state.day), state.slot].filter(Boolean).join(', '));
+        save();
+      };
+
+      const syncRadios = () => {
+        (['service', 'location'] as const).forEach((n) => {
+          form.querySelectorAll<HTMLInputElement>(`input[name="${n}"]`).forEach((r) => (r.checked = r.value === state[n]));
+        });
+        // Archive work only happens at Calder Street.
+        const mill = form.querySelector<HTMLInputElement>('input[name="location"][value="mill"]')!;
+        locMsg.textContent = state.service === 'archive' && state.location === 'mill' ? 'Mill Lane has no archive collection — switch to Calder Street.' : '';
+        mill.closest('.opt')!.querySelector('.opt-meta')!.textContent = state.service === 'archive' ? 'No archive at this branch' : 'Mill Lane, above the market hall';
+      };
+
+      const renderAll = () => {
+        syncRadios();
+        renderLibrarians();
+        renderDays();
+        updateSummary();
+        renderSlots();
+      };
+
+      form.addEventListener('change', (e) => {
+        const t = e.target as HTMLInputElement;
+        if (t.type !== 'radio') return;
+        const n = t.name as keyof State;
+        state[n] = t.value;
+        timeMsg.textContent = '';
+        if (n === 'slot') return updateSummary();
+        if (n !== 'day') state.slot = undefined;
+        if (n === 'service' || n === 'location') renderAll();
+        else if (n === 'librarian') (updateSummary(), renderSlots());
+        else if (n === 'day') (updateSummary(), renderSlots());
+      });
+
+      document.querySelectorAll<HTMLAnchorElement>('[data-book]').forEach((a) =>
+        a.addEventListener('click', () => {
+          state.service = a.dataset.book;
+          state.slot = undefined;
+          renderAll();
+        }),
+      );
+
+      /* validation */
+      const fieldErr = (name: string, msg: string) => {
+        const input = form.elements.namedItem(name) as HTMLInputElement;
+        input.setAttribute('aria-invalid', msg ? 'true' : 'false');
+        document.getElementById(`err-${name}`)!.textContent = msg;
+        return msg ? input : null;
+      };
+      const validate = (): HTMLElement | null => {
+        const v = (n: string) => (form.elements.namedItem(n) as HTMLInputElement).value.trim();
+        const firstStep = (['service', 'location', 'librarian', 'slot'] as const).find((k) => !state[k]);
+        const stepFocus: Record<string, string> = { service: 'f-service', location: 'f-location', librarian: 'f-librarian', slot: 'f-time' };
+        const errs = [
+          fieldErr('name', v('name') ? '' : 'Tell us who to expect.'),
+          fieldErr('email', /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v('email')) ? '' : 'Enter an email address like name@example.com.'),
+          fieldErr('card', !v('card') || /^\d{8}$/.test(v('card')) ? '' : 'A library card number is 8 digits.'),
+        ].filter(Boolean) as HTMLElement[];
+        if (firstStep) {
+          const box = document.getElementById(stepFocus[firstStep])!;
+          return (box.querySelector('input:not(:disabled)') as HTMLElement) || box;
+        }
+        return errs[0] ?? null;
+      };
+
+      // ponytail: fake confirmation server; stale first slot, 0000-cards fail once so Retry can be shown
+      const confirmBooking = (card: string): Promise<{ ok: true; ref: string } | { ok: false; code: 'stale' | 'network' }> =>
+        new Promise((res) =>
+          setTimeout(() => {
+            if (state.slot === staleSlot(currentSlots) && !taken.has(`${state.day}${state.slot}${state.location}`))
+              return res({ ok: false, code: 'stale' });
+            if (card.startsWith('0000') && attempts++ === 0) return res({ ok: false, code: 'network' });
+            res({ ok: true, ref: `CS-${(hash(`${state.day}${state.slot}${state.librarian}`) % 9000) + 1000}` });
+          }, 700),
+        );
+
+      const send = async () => {
+        submit.disabled = true;
+        submit.textContent = 'Checking with the desk…';
+        formMsg.textContent = '';
+        const card = (form.elements.namedItem('card') as HTMLInputElement).value.trim();
+        const r = await confirmBooking(card);
+        submit.disabled = false;
+        submit.textContent = reschedule ? 'Move my booking' : 'Request this booking';
+        if (!r.ok && r.code === 'stale') {
+          taken.add(`${state.day}${state.slot}${state.location}`);
+          const lost = state.slot;
+          state.slot = undefined;
+          await renderSlots();
+          timeMsg.textContent = `${lost} was taken by another reader a moment ago. Everything else is kept — pick another time.`;
+          formMsg.textContent = 'That time is no longer free.';
+          const first = slotBox.querySelector<HTMLInputElement>('input:not(:disabled)');
+          (first ?? slotBox).focus();
+          return;
+        }
+        if (!r.ok) {
+          formMsg.innerHTML = 'The catalogue connection dropped. Your choices are kept. <button type="button" class="btn-line" id="retry">Try again</button>';
+          document.getElementById('retry')!.addEventListener('click', send);
+          document.getElementById('retry')!.focus();
+          return;
+        }
+        state.booking = r.ref;
+        save();
+        showDone(r.ref);
+      };
+
+      const showDone = (ref: string) => {
+        const email = (form.elements.namedItem('email') as HTMLInputElement).value.trim();
+        form.hidden = true;
+        done.hidden = false;
+        document.getElementById('done-label')!.textContent = reschedule ? 'Moved — confirmed by the desk' : 'Confirmed by the desk';
+        document.getElementById('done-title')!.textContent = `See you ${prettyDay(state.day)} at ${state.slot}.`;
+        document.getElementById('done-ref')!.textContent = ref;
+        document.getElementById('done-email')!.textContent = email || 'your inbox';
+        document.getElementById('done-actions')!.hidden = false;
+        document.getElementById('cancel-confirm')!.hidden = true;
+        document.getElementById('again')!.hidden = true;
+        done.focus();
+      };
+
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const bad = validate();
+        if (bad) {
+          formMsg.textContent = 'A few things need attention before the desk can confirm.';
+          bad.focus();
+          return;
+        }
+        send();
+      });
+
+      document.getElementById('resched')!.addEventListener('click', () => {
+        reschedule = true;
+        state.slot = undefined;
+        done.hidden = true;
+        form.hidden = false;
+        submit.textContent = 'Move my booking';
+        renderAll();
+        document.getElementById('f-time')!.scrollIntoView({ block: 'start' });
+        (dayBox.querySelector('input:checked') as HTMLElement | null)?.focus();
+      });
+      document.getElementById('cancel')!.addEventListener('click', () => {
+        document.getElementById('done-actions')!.hidden = true;
+        document.getElementById('cancel-confirm')!.hidden = false;
+        document.getElementById('cancel-no')!.focus();
+      });
+      document.getElementById('cancel-no')!.addEventListener('click', () => {
+        document.getElementById('cancel-confirm')!.hidden = true;
+        document.getElementById('done-actions')!.hidden = false;
+        document.getElementById('cancel')!.focus();
+      });
+      document.getElementById('again')!.addEventListener('click', () => {
+        done.hidden = true;
+        form.hidden = false;
+        submit.textContent = 'Request this booking';
+        renderAll();
+        document.getElementById('f-service')!.scrollIntoView({ block: 'start' });
+        form.querySelector<HTMLInputElement>('input[name="service"]:checked, input[name="service"]')?.focus();
+      });
+      document.getElementById('cancel-yes')!.addEventListener('click', () => {
+        document.getElementById('done-label')!.textContent = 'Released';
+        document.getElementById('done-title')!.textContent = 'Booking cancelled. The slot is free again.';
+        document.getElementById('done-ref')!.textContent = state.booking ?? '';
+        document.getElementById('cancel-confirm')!.hidden = true;
+        state.slot = undefined;
+        state.booking = undefined;
+        reschedule = false;
+        document.getElementById('again')!.hidden = false;
+        done.focus();
+      });
+
+      renderAll();
+    </script>
+  </body>
+</html>

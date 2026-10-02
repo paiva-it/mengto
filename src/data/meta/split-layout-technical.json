@@ -1,0 +1,7 @@
+{
+  "title": "Split Layout Technical",
+  "kind": "website",
+  "category": "Layout",
+  "concept": "Undercroft, a fictional hydroponic restaurant nine metres below Antwerp: every band is a two-panel split of framed display surfaces (inset rules, 5 px corner squares, mono rails) with an explanatory paper half beside an immersive dark half: a live canvas render of a lit grow rack in the hero, a sticky rack map against the harvest list, a germination photo against the grow-room spec sheet, and a booking form against the address panel.",
+  "notes": "The hero rack is a procedural 2D canvas (no photos of it exist): staggered plant growth, LED light cones, nutrient-film flow and a survey crosshair that steps between plants ready to cut. It pauses offscreen or in a hidden tab, and reduced motion draws one static frame. Hovering or focusing a dish lights its cell on the rack map. The single accent is grow-light magenta. Seedling photo from Unsplash; fonts Geist and Geist Mono."
+}

@@ -1,0 +1,7 @@
+{
+  "title": "Nested Container Clean Agency",
+  "kind": "website",
+  "category": "Design systems",
+  "concept": "Kessa Ridge Volcano Observatory: a warm off-white editorial shell with rails and corner squares that houses dark rounded blocks — a topographic hero with a live seismogram card, an instrument network, field-night and research-feed plans, a plain-words bulletin log and a 24 h duty-line CTA.",
+  "notes": "No dependencies beyond Google Fonts (Inter Tight + JetBrains Mono). Contours are generated at build time; the seismogram is a 2D canvas paused offscreen/hidden and drawn as a still frame under reduced motion."
+}

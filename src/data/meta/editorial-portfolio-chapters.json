@@ -1,0 +1,7 @@
+{
+  "title": "Editorial Portfolio Chapters",
+  "kind": "website",
+  "category": "Page types",
+  "concept": "Socalco, a fictional wine cooperative of sixty-three terrace growers: a near-black frame around an abstract terraced-hillside campaign hero, four vintages told as colour-fielded magazine-cover chapters, the cooperative's story only after the wine, oversized service disclosures, and a vermilion harvest-booking finale.",
+  "notes": "Hero and the N.º 9 label are original inline SVG; other photos are Unsplash, saved locally. Vanilla IntersectionObserver reveals (720ms media masks, 55ms staggers), header tone follows section boundaries, services are button disclosures with Escape + focus return. Reduced motion renders everything static."
+}

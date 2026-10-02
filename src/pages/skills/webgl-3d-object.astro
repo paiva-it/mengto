@@ -1,0 +1,711 @@
+---
+import '../../styles/global.css';
+import BackPill from '../../components/BackPill.astro';
+
+const features = [
+  {
+    no: '01',
+    title: 'Slack-water alerts',
+    body: 'A buzz twenty minutes before the stream turns, so you leave the pontoon with the tide instead of against it.',
+  },
+  {
+    no: '02',
+    title: 'Surge offset',
+    body: 'Pressure and wind from the shipping forecast nudge each prediction. A deep low adds water; Neap shows how much.',
+  },
+  {
+    no: '03',
+    title: 'Offline tables',
+    body: 'Twelve months of tables for every saved harbour live on the phone. No signal past the breakwater, no problem.',
+  },
+];
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Neap — The moon pulls. We do the maths.</title>
+    <meta
+      name="description"
+      content="Neap, a tide-prediction app: a faceted WebGL moon whose lit side follows the lunar phase and drives the day's tide table."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=JetBrains+Mono:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <header class="nav">
+      <a class="brand" href="#top" aria-label="Neap home"><span class="brand-mark">N</span>NEAP</a>
+      <nav aria-label="Primary">
+        <a href="#table">Tables</a>
+        <a href="#features">Alerts</a>
+        <a href="#table">Harbours</a>
+        <a href="#features">Offline</a>
+      </nav>
+      <a class="btn btn-ink nav-cta" href="#get">Get the app <span aria-hidden="true">→</span></a>
+    </header>
+
+    <main id="top">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <p class="tag"><span aria-hidden="true">◆</span> Tide prediction · 1,240 harbours</p>
+          <h1 id="hero-title">The moon<br />pulls.<br />We do the<br />maths.</h1>
+          <p class="lede">
+            Neap turns 37 harmonic constituents and the age of the moon into a tide table you can read from a wet
+            cockpit: high water, low water and slack, to the minute, from Brest to Bergen.
+          </p>
+          <div class="ctas" id="get">
+            <a class="btn btn-ink" href="#get">Download for iOS <span aria-hidden="true">↗</span></a>
+            <a class="btn btn-paper" href="#table">Today's table</a>
+          </div>
+        </div>
+
+        <div class="stage">
+          <div class="moon-shell">
+            <canvas class="moon-canvas" data-moon aria-hidden="true"></canvas>
+            <span class="axis axis-tl">LUNATION<br /><b data-out="phase">Waxing gibbous</b></span>
+            <span class="axis axis-tr">ILLUMINATED<br /><b data-out="illum">—</b></span>
+          </div>
+
+          <div class="instrument">
+            <div class="inst-row">
+              <label for="age">Moon age</label>
+              <output for="age" data-out="age">Day 11</output>
+            </div>
+            <input id="age" type="range" min="0" max="29" step="1" value="11" aria-describedby="age-hint" />
+            <p id="age-hint" class="hint">Drag the moon through its month. The tide follows.</p>
+            <div class="readouts">
+              <div>
+                <span>Range</span>
+                <b data-out="range">—</b>
+              </div>
+              <div>
+                <span>Next high</span>
+                <b data-out="hw">—</b>
+              </div>
+              <div>
+                <span>Tides</span>
+                <b data-out="kind">—</b>
+              </div>
+            </div>
+            <div class="meter" aria-hidden="true"><i data-out="meter"></i></div>
+            <div class="meter-scale" aria-hidden="true"><span>Neap 1.9 m</span><span>Spring 4.6 m</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="band" id="table" aria-labelledby="table-title">
+        <div class="band-head">
+          <h2 id="table-title">Port Calder,<br />next 24 hours</h2>
+          <p>
+            Heights above chart datum. Spring tides land about a day and a half after new and full moon, and Neap
+            accounts for the lag, so the biggest range on this chart trails the brightest moon.
+          </p>
+        </div>
+        <div class="chart-card">
+          <svg class="chart" viewBox="0 0 960 300" role="img" aria-labelledby="chart-desc" preserveAspectRatio="none">
+            <desc id="chart-desc">Tide height curve for the next 24 hours at Port Calder.</desc>
+            <g class="grid">
+              <line x1="0" y1="60" x2="960" y2="60"></line>
+              <line x1="0" y1="140" x2="960" y2="140"></line>
+              <line x1="0" y1="220" x2="960" y2="220"></line>
+              <line x1="240" y1="0" x2="240" y2="300"></line>
+              <line x1="480" y1="0" x2="480" y2="300"></line>
+              <line x1="720" y1="0" x2="720" y2="300"></line>
+            </g>
+            <path class="fill" data-out="fill" d=""></path>
+            <path class="curve" data-out="curve" d=""></path>
+          </svg>
+          <div class="chart-axis" aria-hidden="true"><span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>24:00</span></div>
+          <ol class="events" data-out="events" aria-label="High and low waters"></ol>
+        </div>
+      </section>
+
+      <section class="features" id="features" aria-label="What Neap does">
+        {
+          features.map((f) => (
+            <article class="card">
+              <span class="card-no">{f.no}</span>
+              <h3>{f.title}</h3>
+              <p>{f.body}</p>
+            </article>
+          ))
+        }
+      </section>
+    </main>
+
+    <footer class="foot">
+      <span class="brand"><span class="brand-mark">N</span>NEAP</span>
+      <p>Predictions are astronomical with a weather offset. Always check the harbour notices before you sail.</p>
+    </footer>
+
+    <BackPill />
+
+    <script>
+      import { mountMoon } from '../../components/skills/webgl-3d-object/moon';
+
+      const LUNATION = 29.53;
+      const MSL = 2.6; // mean sea level above chart datum, metres
+      const M2 = 12.42; // semidiurnal period, hours
+      const PHASES = [
+        'New moon',
+        'Waxing crescent',
+        'First quarter',
+        'Waxing gibbous',
+        'Full moon',
+        'Waning gibbous',
+        'Last quarter',
+        'Waning crescent',
+      ];
+
+      const out = (k: string) => document.querySelector<HTMLElement>(`[data-out="${k}"]`)!;
+      const hhmm = (h: number) => {
+        const m = Math.round(((h % 24) + 24) % 24 * 60);
+        return `${String(Math.floor(m / 60) % 24).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
+      };
+
+      const tideFor = (day: number) => {
+        const p = day / LUNATION;
+        const lagged = p - 1.5 / LUNATION; // age of the tide
+        const range = 1.9 + 2.7 * Math.abs(Math.cos(2 * Math.PI * lagged));
+        const t0 = (1.75 + day * 0.8417) % M2; // first high water, drifts ~50 min a day
+        return { p, range, t0 };
+      };
+
+      const update = (day: number) => {
+        const { p, range, t0 } = tideFor(day);
+        const illum = (1 - Math.cos(2 * Math.PI * p)) / 2;
+        const spring = (range - 1.9) / 2.7;
+
+        out('age').textContent = `Day ${day}`;
+        out('phase').textContent = PHASES[Math.round(p * 8) % 8];
+        out('illum').textContent = `${Math.round(illum * 100)} %`;
+        out('range').textContent = `${range.toFixed(1)} m`;
+        out('hw').textContent = hhmm(t0);
+        out('kind').textContent = spring > 0.66 ? 'Springs' : spring < 0.33 ? 'Neaps' : 'Mid-cycle';
+        out('meter').style.transform = `scaleX(${0.06 + spring * 0.94})`;
+
+        // 24 h curve. y: 0 m at 300, 5.5 m at 0.
+        const y = (h: number) => 300 - (h / 5.5) * 300;
+        const level = (t: number) => MSL + (range / 2) * Math.cos((2 * Math.PI * (t - t0)) / M2);
+        let d = '';
+        for (let i = 0; i <= 96; i++) {
+          const t = i / 4;
+          d += `${i ? 'L' : 'M'}${(t / 24) * 960},${y(level(t)).toFixed(1)}`;
+        }
+        out('curve').setAttribute('d', d);
+        out('fill').setAttribute('d', `${d}L960,300L0,300Z`);
+
+        const events: { t: number; hi: boolean }[] = [];
+        for (let k = -2; k < 4; k++) {
+          events.push({ t: t0 + k * M2, hi: true }, { t: t0 + k * M2 + M2 / 2, hi: false });
+        }
+        out('events').innerHTML = events
+          .filter((e) => e.t >= 0 && e.t < 24)
+          .sort((a, b) => a.t - b.t)
+          .map(
+            (e) =>
+              `<li class="${e.hi ? 'hi' : 'lo'}"><span>${e.hi ? 'High water' : 'Low water'}</span><b>${hhmm(e.t)}</b><em>${(e.hi ? MSL + range / 2 : MSL - range / 2).toFixed(1)} m</em></li>`,
+          )
+          .join('');
+        return p;
+      };
+
+      const slider = document.querySelector<HTMLInputElement>('#age')!;
+      const canvas = document.querySelector<HTMLCanvasElement>('[data-moon]')!;
+      const moon = mountMoon(canvas, update(Number(slider.value)));
+      slider.addEventListener('input', () => moon.setPhase(update(Number(slider.value))));
+    </script>
+
+    <style>
+      :root {
+        --sea: #e9572b;
+        --sea-deep: #c4421d;
+        --ink: #111111;
+        --paper: #f4ede1;
+        --line: 3px solid var(--ink);
+        --hard: 6px 6px 0 var(--ink);
+        --mono: 'JetBrains Mono', ui-monospace, monospace;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        margin: 0;
+        background: var(--sea);
+        color: var(--ink);
+        font-family: 'Archivo', system-ui, sans-serif;
+        overflow-x: hidden;
+      }
+      a {
+        color: inherit;
+      }
+      :focus-visible {
+        outline: 3px solid var(--paper);
+        outline-offset: 3px;
+      }
+
+      .nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+        padding: 18px clamp(16px, 3.4vw, 48px);
+        border-bottom: var(--line);
+      }
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        font-weight: 900;
+        font-size: 24px;
+        letter-spacing: -0.02em;
+        text-decoration: none;
+      }
+      .brand-mark {
+        display: grid;
+        place-items: center;
+        width: 36px;
+        height: 36px;
+        background: var(--paper);
+        border: var(--line);
+        font-size: 18px;
+      }
+      .nav nav {
+        display: flex;
+        gap: 32px;
+      }
+      .nav nav a {
+        font-size: 14px;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        text-decoration: none;
+      }
+      .nav nav a:hover {
+        text-decoration: underline;
+        text-underline-offset: 4px;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 15px 22px;
+        font-weight: 800;
+        font-size: 15px;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        text-decoration: none;
+        border: var(--line);
+        box-shadow: var(--hard);
+        transition:
+          transform 0.15s,
+          box-shadow 0.15s;
+      }
+      .btn:hover {
+        transform: translate(3px, 3px);
+        box-shadow: 3px 3px 0 var(--ink);
+      }
+      .btn-ink {
+        background: var(--ink);
+        color: var(--paper);
+      }
+      .btn-paper {
+        background: var(--paper);
+      }
+
+      .hero {
+        position: relative;
+        display: grid;
+        grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+        gap: clamp(24px, 3vw, 48px);
+        align-items: center;
+        min-height: calc(100svh - 75px);
+        padding: clamp(28px, 4vw, 48px) clamp(16px, 3.4vw, 48px) clamp(40px, 5vw, 64px);
+        border-bottom: var(--line);
+        overflow: hidden;
+      }
+      .hero::before {
+        /* a deep-orange tidal swell behind the moon */
+        content: '';
+        position: absolute;
+        right: -12%;
+        bottom: -42%;
+        width: 78%;
+        aspect-ratio: 1;
+        border-radius: 50%;
+        background: var(--sea-deep);
+        z-index: 0;
+      }
+      .hero > * {
+        position: relative;
+        z-index: 1;
+      }
+      .tag {
+        display: inline-flex;
+        gap: 10px;
+        margin: 0 0 24px;
+        padding: 8px 14px;
+        background: var(--paper);
+        border: var(--line);
+        box-shadow: 4px 4px 0 var(--ink);
+        font-family: var(--mono);
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      h1 {
+        margin: 0;
+        font-size: clamp(52px, 7.6vw, 118px);
+        font-weight: 900;
+        font-stretch: 92%;
+        line-height: 0.88;
+        letter-spacing: -0.035em;
+        text-transform: uppercase;
+      }
+      .lede {
+        max-width: 34em;
+        margin: 28px 0 32px;
+        font-size: clamp(16px, 1.25vw, 19px);
+        line-height: 1.5;
+        font-weight: 500;
+      }
+      .ctas {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 18px;
+      }
+
+      .stage {
+        display: grid;
+        justify-items: center;
+      }
+      .moon-shell {
+        position: relative;
+        width: min(100%, 540px);
+        aspect-ratio: 1 / 1;
+        margin-bottom: -60px;
+      }
+      .moon-canvas {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+      .axis {
+        position: absolute;
+        font-family: var(--mono);
+        font-size: 11px;
+        letter-spacing: 0.1em;
+        line-height: 1.6;
+      }
+      .axis b {
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+      }
+      .axis-tl {
+        left: 0;
+        top: 4%;
+      }
+      .axis-tr {
+        right: 0;
+        top: 4%;
+        text-align: right;
+      }
+
+      .instrument {
+        position: relative;
+        width: min(100%, 460px);
+        padding: 20px 22px 18px;
+        background: var(--paper);
+        border: var(--line);
+        box-shadow: 8px 8px 0 var(--ink);
+      }
+      .inst-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        font-family: var(--mono);
+        font-size: 12px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+      .inst-row output {
+        font-family: 'Archivo', sans-serif;
+        font-size: 22px;
+        font-weight: 900;
+        letter-spacing: -0.01em;
+      }
+      input[type='range'] {
+        width: 100%;
+        margin: 12px 0 6px;
+        accent-color: var(--ink);
+        height: 28px;
+        cursor: pointer;
+      }
+      input[type='range']:focus-visible {
+        outline: 3px solid var(--sea);
+      }
+      .hint {
+        margin: 0 0 14px;
+        font-size: 13px;
+        color: #4a4038;
+      }
+      .readouts {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        border-top: 2px solid var(--ink);
+      }
+      .readouts div {
+        display: grid;
+        gap: 4px;
+        padding: 12px 0 10px;
+      }
+      .readouts div + div {
+        padding-left: 14px;
+        border-left: 2px solid var(--ink);
+      }
+      .readouts span {
+        font-family: var(--mono);
+        font-size: 11px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      .readouts b {
+        font-size: 22px;
+        font-weight: 900;
+        letter-spacing: -0.01em;
+        font-variant-numeric: tabular-nums;
+      }
+      .meter {
+        height: 12px;
+        border: 2px solid var(--ink);
+        background: repeating-linear-gradient(90deg, transparent 0 9px, rgb(17 17 17 / 0.18) 9px 10px);
+      }
+      .meter i {
+        display: block;
+        height: 100%;
+        background: var(--sea);
+        transform-origin: left;
+        transition: transform 0.4s cubic-bezier(0.2, 0.7, 0.2, 1);
+      }
+      .meter-scale {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 6px;
+        font-family: var(--mono);
+        font-size: 10px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .band {
+        display: grid;
+        grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.6fr);
+        gap: clamp(24px, 4vw, 64px);
+        padding: clamp(56px, 7vw, 104px) clamp(16px, 3.4vw, 48px);
+        background: var(--paper);
+        border-bottom: var(--line);
+      }
+      .band-head h2 {
+        margin: 0 0 20px;
+        font-size: clamp(36px, 4.4vw, 64px);
+        font-weight: 900;
+        font-stretch: 92%;
+        line-height: 0.92;
+        letter-spacing: -0.03em;
+        text-transform: uppercase;
+      }
+      .band-head p {
+        max-width: 30em;
+        margin: 0;
+        font-size: 16px;
+        line-height: 1.55;
+      }
+      .chart-card {
+        border: var(--line);
+        box-shadow: var(--hard);
+        background: #fff8ee;
+        padding: 20px;
+        min-width: 0;
+      }
+      .chart {
+        display: block;
+        width: 100%;
+        height: clamp(160px, 20vw, 260px);
+      }
+      .chart .grid line {
+        stroke: rgb(17 17 17 / 0.14);
+        stroke-width: 1;
+        vector-effect: non-scaling-stroke;
+      }
+      .chart .fill {
+        fill: var(--sea);
+      }
+      .chart .curve {
+        fill: none;
+        stroke: var(--ink);
+        stroke-width: 3;
+        vector-effect: non-scaling-stroke;
+      }
+      .chart-axis {
+        display: flex;
+        justify-content: space-between;
+        padding-top: 8px;
+        font-family: var(--mono);
+        font-size: 11px;
+      }
+      .events {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        margin: 18px 0 0;
+        padding: 0;
+        list-style: none;
+        border-top: 2px solid var(--ink);
+      }
+      .events :global(li) {
+        display: grid;
+        gap: 2px;
+        padding: 14px 12px 0;
+      }
+      .events :global(li + li) {
+        border-left: 2px solid var(--ink);
+      }
+      .events :global(span) {
+        font-family: var(--mono);
+        font-size: 11px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      .events :global(b) {
+        font-size: clamp(22px, 2.2vw, 30px);
+        font-weight: 900;
+        font-variant-numeric: tabular-nums;
+      }
+      .events :global(em) {
+        font-style: normal;
+        font-family: var(--mono);
+        font-size: 12px;
+      }
+      .events :global(.hi b) {
+        color: var(--sea-deep);
+      }
+
+      .features {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 28px;
+        padding: clamp(56px, 7vw, 96px) clamp(16px, 3.4vw, 48px);
+      }
+      .card {
+        padding: 26px;
+        background: var(--paper);
+        border: var(--line);
+        box-shadow: var(--hard);
+      }
+      .card-no {
+        display: inline-block;
+        padding: 4px 8px;
+        background: var(--ink);
+        color: var(--paper);
+        font-family: var(--mono);
+        font-size: 12px;
+      }
+      .card h3 {
+        margin: 20px 0 10px;
+        font-size: 28px;
+        font-weight: 900;
+        font-stretch: 92%;
+        letter-spacing: -0.02em;
+        text-transform: uppercase;
+        line-height: 0.95;
+      }
+      .card p {
+        margin: 0;
+        font-size: 16px;
+        line-height: 1.5;
+      }
+
+      .foot {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        padding: 28px clamp(16px, 3.4vw, 48px) 80px;
+        background: var(--ink);
+        color: var(--paper);
+      }
+      .foot .brand-mark {
+        color: var(--ink);
+      }
+      .foot p {
+        margin: 0;
+        font-size: 14px;
+        max-width: 40em;
+      }
+
+      @media (max-width: 1080px) {
+        .nav nav {
+          display: none;
+        }
+      }
+      @media (max-width: 920px) {
+        .hero {
+          grid-template-columns: 1fr;
+          min-height: 0;
+        }
+        .hero::before {
+          right: -40%;
+          bottom: -10%;
+          width: 140%;
+        }
+        .moon-shell {
+          width: min(100%, 460px);
+          margin-bottom: -48px;
+        }
+        .band {
+          grid-template-columns: 1fr;
+        }
+        .features {
+          grid-template-columns: 1fr;
+        }
+      }
+      @media (max-width: 560px) {
+        .nav-cta {
+          padding: 11px 14px;
+          font-size: 13px;
+        }
+        .events {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        .events :global(li:nth-child(3)) {
+          border-left: 0;
+        }
+        .events :global(li:nth-child(n + 3)) {
+          padding-top: 14px;
+        }
+        .readouts b {
+          font-size: 18px;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+        .btn,
+        .meter i {
+          transition: none;
+        }
+      }
+    </style>
+  </body>
+</html>

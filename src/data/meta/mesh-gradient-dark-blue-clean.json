@@ -1,0 +1,7 @@
+{
+  "title": "Mesh Gradient Dark Blue Clean",
+  "kind": "website",
+  "category": "Design systems",
+  "concept": "Smalt Hot Shop: a cobalt-glass blowing studio in Ghent, where a drifting cobalt/indigo/steel mesh field powers the hero shell, framed process stations, a live annealing-curve log and the booking finale.",
+  "notes": "Raw WebGL fragment shader (domain-warped fbm with contour iso-lines and a sparse scan streak), rendered at half resolution per shell and paused offscreen; falls back to the skill's 2D radial-gradient canvas when WebGL is missing. Reduced motion freezes the mesh on one frame and drops the reveal, node pulse and dash animations. Vessels are inline SVG, no images. Fonts: Inter Tight + IBM Plex Mono."
+}

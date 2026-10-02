@@ -1,0 +1,296 @@
+---
+import '../../styles/global.css';
+import BackPill from '../../components/BackPill.astro';
+import Vessel from '../../components/skills/beautiful-shadows/Vessel.astro';
+
+// The three Beautiful Shadows presets, verbatim. One strength per component state.
+const SM = 'shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)]';
+const MD = 'shadow-[0px_0px_0px_1px_rgba(0,0,0,0.06),0px_1px_1px_-0.5px_rgba(0,0,0,0.06),0px_3px_3px_-1.5px_rgba(0,0,0,0.06),_0px_6px_6px_-3px_rgba(0,0,0,0.06),0px_12px_12px_-6px_rgba(0,0,0,0.06),0px_24px_24px_-12px_rgba(0,0,0,0.06)]';
+const LG = 'shadow-[0_2.8px_2.2px_rgba(0,_0,_0,_0.034),_0_6.7px_5.3px_rgba(0,_0,_0,_0.048),_0_12.5px_10px_rgba(0,_0,_0,_0.06),_0_22.3px_17.9px_rgba(0,_0,_0,_0.072),_0_41.8px_33.4px_rgba(0,_0,_0,_0.086),_0_100px_80px_rgba(0,_0,_0,_0.12)]';
+// Interaction that clearly changes elevation: a piece card lifts from md to lg.
+const LIFT = 'hover:shadow-[0_2.8px_2.2px_rgba(0,_0,_0,_0.034),_0_6.7px_5.3px_rgba(0,_0,_0,_0.048),_0_12.5px_10px_rgba(0,_0,_0,_0.06),_0_22.3px_17.9px_rgba(0,_0,_0,_0.072),_0_41.8px_33.4px_rgba(0,_0,_0,_0.086),_0_100px_80px_rgba(0,_0,_0,_0.12)] focus-within:shadow-[0_2.8px_2.2px_rgba(0,_0,_0,_0.034),_0_6.7px_5.3px_rgba(0,_0,_0,_0.048),_0_12.5px_10px_rgba(0,_0,_0,_0.06),_0_22.3px_17.9px_rgba(0,_0,_0,_0.072),_0_41.8px_33.4px_rgba(0,_0,_0,_0.086),_0_100px_80px_rgba(0,_0,_0,_0.12)]';
+
+const glazes = [
+  { id: 'celadon', name: 'Celadon', hex: '#9fb9a8', note: 'Celadon over iron slip', price: '€420' },
+  { id: 'ash', name: 'Oat ash', hex: '#d9d1c2', note: 'Oak-ash glaze, unsifted', price: '€390' },
+  { id: 'tenmoku', name: 'Tenmoku', hex: '#3d2921', note: 'Tenmoku breaking to rust', price: '€440' },
+  { id: 'iron', name: 'Iron red', hex: '#a3533a', note: 'Kaki iron red, reduction', price: '€460' },
+] as const;
+const hex = (id: string) => glazes.find((g) => g.id === id)!.hex;
+
+const pieces = [
+  { no: '214', name: 'Moon jar', shape: 'jar', glaze: 'celadon', size: '31 cm', price: '€420', tile: '#e9ece7' },
+  { no: '207', name: 'Tall bottle', shape: 'bottle', glaze: 'ash', size: '34 cm', price: '€260', tile: '#efece5' },
+  { no: '198', name: 'Breakfast bowl', shape: 'bowl', glaze: 'tenmoku', size: 'Ø 16 cm', price: '€48', tile: '#ebe8e3' },
+  { no: '191', name: 'Morning cup', shape: 'cup', glaze: 'iron', size: '280 ml', price: '€34', tile: '#efe8e3' },
+  { no: '186', name: 'Shoulder vase', shape: 'vase', glaze: 'celadon', size: '22 cm', price: '€140', tile: '#e9ece7' },
+  { no: '179', name: 'Tea bowl', shape: 'cup', glaze: 'ash', size: 'Ø 12 cm', price: '€56', tile: '#efece5', sold: true },
+] as const;
+
+const classes = [
+  { d: 'Sat 12 Oct', t: '10:00', name: 'Wheel I — centring & cylinders', who: 'Inês Ferraz', seats: '3 of 8 left', price: '€75' },
+  { d: 'Sun 13 Oct', t: '15:00', name: 'Handbuilding — pinch & coil', who: 'Duarte Lobo', seats: '5 of 10 left', price: '€60' },
+  { d: 'Thu 17 Oct', t: '18:30', name: 'Glaze night — ash & celadon', who: 'Inês Ferraz', seats: '2 of 6 left', price: '€45' },
+  { d: 'Sat 26 Oct', t: '10:00', name: 'Wheel II — lids & trimming', who: 'Duarte Lobo', seats: 'Full', price: '€90', full: true },
+];
+
+const weights = [
+  { name: 'Shelf', token: 'Beautiful sm', cls: SM, body: 'For the quiet things — pills, inputs, the price tag, the button you press last.', h: 'h-28' },
+  { name: 'Table', token: 'Beautiful md', cls: MD, body: 'Where most pieces live. Cards, panels, the popover that says the kiln is hot.', h: 'h-36' },
+  { name: 'Plinth', token: 'Beautiful lg', cls: LG, body: 'One per view. The piece we want you to look at first, and nothing else.', h: 'h-44' },
+];
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Ode Clay Studio — Beautiful Shadows</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  </head>
+  <body class="bg-[#f3f2ee] text-[#191c21] antialiased">
+    <BackPill />
+
+    <!-- Nav: a quiet md bar floating over the stone ground -->
+    <header class="rise sticky top-3 z-40 mx-auto mt-3 w-[calc(100%-24px)] max-w-[1240px] md:top-4 md:mt-4 md:w-[calc(100%-48px)]">
+      <nav aria-label="Main" class={`flex items-center justify-between gap-4 rounded-2xl bg-white/90 px-4 py-2.5 backdrop-blur md:px-5 ${MD}`}>
+        <a href="#top" class="flex items-baseline gap-2">
+          <span class="text-[19px] font-semibold tracking-[-0.03em]">Ode</span>
+          <span class="mono hidden text-[11px] uppercase tracking-[0.14em] text-[#6c6f75] sm:inline">clay studio · porto</span>
+        </a>
+        <ul class="hidden items-center gap-7 text-[14px] text-[#4b4f56] md:flex">
+          <li><a class="hover:text-[#191c21]" href="#pieces">Pieces</a></li>
+          <li><a class="hover:text-[#191c21]" href="#weights">Studio</a></li>
+          <li><a class="hover:text-[#191c21]" href="#classes">Classes</a></li>
+          <li><a class="hover:text-[#191c21]" href="#letters">Kiln letters</a></li>
+        </ul>
+        <a href="#pieces" class={`rounded-full bg-white px-3.5 py-1.5 text-[13px] font-medium ${SM}`}>Basket <span class="mono text-[#6c6f75]">1</span></a>
+      </nav>
+    </header>
+
+    <main id="top">
+      <!-- HERO -->
+      <section class="mx-auto grid max-w-[1240px] items-center gap-12 px-5 pb-20 pt-10 md:px-8 lg:min-h-[calc(100svh-84px)] lg:grid-cols-[1fr_1.08fr] lg:gap-16 lg:pb-12 lg:pt-6">
+        <div class="max-w-[560px]">
+          <p class={`rise inline-flex items-center gap-2 rounded-full bg-white px-3 py-1.5 text-[13px] text-[#4b4f56] ${SM}`} style="--d:.05s">
+            <span class="relative flex size-2"><span class="ping absolute inset-0 rounded-full bg-[#6f8f7c]"></span><span class="relative size-2 rounded-full bg-[#6f8f7c]"></span></span>
+            Kiln opening · Sat 12 Oct, 10:00
+          </p>
+          <h1 class="rise mt-7 text-[44px] font-medium leading-[0.98] tracking-[-0.045em] sm:text-[60px] lg:text-[76px]" style="--d:.12s">
+            Stoneware that sits lightly on the table.
+          </h1>
+          <p class="rise mt-6 max-w-[470px] text-[17px] leading-[1.6] text-[#5b5f66]" style="--d:.2s">
+            Ode is a two-wheel studio in Porto. We throw moon jars, bottles and everyday cups in a local iron-rich clay,
+            glaze them in ash and celadon, and fire them slowly over two days.
+          </p>
+          <div class="rise mt-8 flex flex-wrap gap-3" style="--d:.28s">
+            <a href="#pieces" class={`rounded-full bg-[#191c21] px-5 py-3 text-[15px] font-medium text-white ${SM}`}>Shop the October batch</a>
+            <a href="#classes" class={`rounded-full bg-white px-5 py-3 text-[15px] font-medium ${SM}`}>Book a wheel class</a>
+          </div>
+          <dl class="rise mt-12 grid max-w-[460px] grid-cols-3 gap-4 border-t border-[rgba(25,28,33,0.08)] pt-5" style="--d:.36s">
+            <div><dt class="text-[12px] text-[#6c6f75]">Pieces this year</dt><dd class="mono mt-1 text-[20px]">214</dd></div>
+            <div><dt class="text-[12px] text-[#6c6f75]">Top temperature</dt><dd class="mono mt-1 text-[20px]">1,268 °C</dd></div>
+            <div><dt class="text-[12px] text-[#6c6f75]">Per firing</dt><dd class="mono mt-1 text-[20px]">38 h</dd></div>
+          </dl>
+        </div>
+
+        <!-- The plinth: one lg surface, md popovers around it, sm controls inside -->
+        <div id="hero-piece" class="relative mx-auto w-full max-w-[600px] lg:max-w-none" style={`--glaze:${hex('celadon')}`}>
+          <figure class={`rise relative rounded-[28px] bg-white p-2.5 ${LG}`} style="--d:.18s">
+            <div class="relative h-[300px] overflow-hidden rounded-[20px] bg-[linear-gradient(180deg,#f1efea_0%,#e7e4dd_100%)] sm:h-[380px] lg:h-[400px]">
+              <div class="absolute inset-x-0 bottom-[22%] h-px bg-[rgba(25,28,33,0.07)]"></div>
+              <Vessel shape="bottle" glaze={hex('ash')} id="h-bottle" label="Tall bottle in oat ash" class="absolute bottom-[14%] left-[7%] h-[62%] lg:left-[22%] lg:h-[58%]" />
+              <Vessel shape="jar" glaze="var(--glaze)" id="h-jar" label="Moon jar No. 214" class="absolute bottom-[9%] left-1/2 h-[78%] -translate-x-1/2 lg:left-[60%] lg:h-[74%]" />
+              <Vessel shape="cup" glaze={hex('tenmoku')} id="h-cup" label="Morning cup in tenmoku" class="absolute bottom-[12%] right-[9%] h-[34%] lg:right-[3%] lg:h-[30%]" />
+            </div>
+            <figcaption class="flex flex-col gap-3.5 px-2.5 pb-1.5 pt-4">
+              <div>
+                <p class="mono text-[11px] uppercase tracking-[0.14em] text-[#6c6f75]">No. 214 · Moon jar · 31 cm</p>
+                <p class="mt-1 text-[17px] font-medium tracking-[-0.01em]"><span id="glaze-note">Celadon over iron slip</span> <span class="text-[#6c6f75]">— <span id="glaze-price" class="mono">€420</span></span></p>
+              </div>
+              <fieldset class="flex flex-wrap gap-1.5">
+                <legend class="sr-only">Glaze</legend>
+                {glazes.map((g, i) => (
+                  <label class={`flex cursor-pointer items-center gap-1.5 rounded-full bg-white py-1 pl-1.5 pr-2.5 text-[12px] font-medium text-[#4b4f56] transition-colors has-[:checked]:bg-[#191c21] has-[:checked]:text-white has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-[#191c21] ${SM}`}>
+                    <input class="sr-only" type="radio" name="glaze" value={g.id} checked={i === 0} data-hex={g.hex} data-note={g.note} data-price={g.price} />
+                    <span class="size-3.5 rounded-full ring-1 ring-black/10" style={`background:${g.hex}`}></span>{g.name}
+                  </label>
+                ))}
+              </fieldset>
+            </figcaption>
+          </figure>
+
+          <aside class={`rise absolute -top-5 right-3 w-[200px] rounded-2xl bg-white p-3.5 sm:right-5 sm:w-[228px] lg:-right-6 lg:-top-7 ${MD}`} style="--d:.45s" aria-label="Kiln status">
+            <div class="flex items-center justify-between">
+              <p class="text-[12px] font-medium">Kiln 03 · glaze firing</p>
+              <span class="mono rounded-full bg-[#f3f2ee] px-1.5 py-0.5 text-[10px] text-[#6c6f75]">cone 9</span>
+            </div>
+            <p class="mono mt-2 text-[26px] tracking-[-0.03em] sm:text-[30px]"><span id="temp" data-to="1268">1,268</span><span class="text-[#6c6f75]"> °C</span></p>
+            <div class="mt-2.5 h-1.5 overflow-hidden rounded-full bg-[#eeece7]"><div class="bar h-full w-[82%] rounded-full bg-[linear-gradient(90deg,#d9c3a8,#a3533a)]"></div></div>
+            <p class="mt-2 text-[11px] text-[#6c6f75]">Hour 31 of 38 · opens Saturday 10:00</p>
+          </aside>
+
+          <aside class={`rise absolute -bottom-6 left-3 hidden w-[250px] rounded-2xl bg-white p-3.5 sm:block lg:-left-12 lg:bottom-[150px] lg:w-[232px] ${MD}`} style="--d:.55s" aria-label="Next class">
+            <p class="mono text-[10px] uppercase tracking-[0.14em] text-[#6c6f75]">Next class · Sat 10:00</p>
+            <p class="mt-1 text-[14px] font-medium">Wheel I — centring</p>
+            <div class="mt-3 flex items-center justify-between">
+              <div class="flex -space-x-2">
+                {['#c8ab8f', '#9fb9a8', '#3d2921', '#d9d1c2', '#a3533a'].map((c) => <span class="size-6 rounded-full ring-2 ring-white" style={`background:${c}`}></span>)}
+              </div>
+              <span class="text-[12px] text-[#4b4f56]"><span class="mono">3</span> of 8 seats left</span>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <!-- PIECES: md cards that lift to lg on hover/focus -->
+      <section id="pieces" class="mx-auto max-w-[1240px] px-5 py-20 md:px-8 lg:py-28">
+        <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+          <div>
+            <p class="mono text-[11px] uppercase tracking-[0.14em] text-[#6c6f75]">The October batch</p>
+            <h2 class="mt-3 max-w-[620px] text-[34px] font-medium leading-[1.05] tracking-[-0.035em] md:text-[46px]">Six pieces out of kiln three, each one signed on the foot.</h2>
+          </div>
+          <p class="max-w-[340px] text-[15px] leading-[1.6] text-[#5b5f66]">Every piece is a one-off. Reserve it and we hold it for seven days — collect at the studio or we pack it in wool.</p>
+        </div>
+        <ul class="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {pieces.map((p) => (
+            <li class={`group rounded-[22px] bg-white p-2 transition-[box-shadow,translate] duration-300 ease-out hover:-translate-y-1 focus-within:-translate-y-1 ${MD} ${LIFT}`}>
+              <div class="relative grid h-[260px] place-items-center overflow-hidden rounded-[16px]" style={`background:${p.tile}`}>
+                <Vessel shape={p.shape} glaze={hex(p.glaze)} id={`p-${p.no}`} label={`${p.name}, No. ${p.no}`} class="h-[78%] transition-transform duration-500 ease-out group-hover:scale-[1.03]" />
+                <span class={`mono absolute left-3 top-3 rounded-full bg-white px-2 py-0.5 text-[11px] text-[#4b4f56] ${SM}`}>No. {p.no}</span>
+              </div>
+              <div class="flex items-center justify-between gap-3 px-3 pb-2.5 pt-4">
+                <div>
+                  <h3 class="text-[16px] font-medium tracking-[-0.01em]">{p.name}</h3>
+                  <p class="mt-0.5 text-[13px] text-[#6c6f75]">{glazes.find((g) => g.id === p.glaze)!.name} · {p.size}</p>
+                </div>
+                {('sold' in p && p.sold)
+                  ? <span class="mono text-[13px] text-[#6c6f75]">Sold</span>
+                  : <a href="#letters" class={`rounded-full bg-white px-3 py-1.5 text-[13px] font-medium ${SM}`}>Reserve <span class="mono text-[#6c6f75]">{p.price}</span></a>}
+              </div>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <!-- WEIGHTS: the elevation system, explained in studio terms -->
+      <section id="weights" class="bg-[#eae8e2]">
+        <div class="mx-auto grid max-w-[1240px] gap-12 px-5 py-20 md:px-8 lg:grid-cols-[0.8fr_1.2fr] lg:py-28">
+          <div>
+            <p class="mono text-[11px] uppercase tracking-[0.14em] text-[#6c6f75]">How we light the shop</p>
+            <h2 class="mt-3 text-[34px] font-medium leading-[1.05] tracking-[-0.035em] md:text-[46px]">Shelf, table, plinth.</h2>
+            <p class="mt-5 max-w-[400px] text-[15px] leading-[1.65] text-[#5b5f66]">
+              In the studio a pot earns its height. We built this page the same way: three neutral shadows, never tinted,
+              never stacked — and the tallest one used once per view.
+            </p>
+          </div>
+          <ol class="grid items-end gap-6 sm:grid-cols-3">
+            {weights.map((w, i) => (
+              <li>
+                <div class={`grid ${w.h} place-items-center rounded-[18px] bg-white ${w.cls}`}>
+                  <span class="mono text-[12px] text-[#6c6f75]">0{i + 1}</span>
+                </div>
+                <h3 class="mt-6 text-[18px] font-medium tracking-[-0.02em]">{w.name}</h3>
+                <p class="mono mt-1 text-[11px] uppercase tracking-[0.12em] text-[#6f8f7c]">{w.token}</p>
+                <p class="mt-2 text-[14px] leading-[1.6] text-[#5b5f66]">{w.body}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      <!-- CLASSES: one md panel, flat rows inside (no lg on dense lists) -->
+      <section id="classes" class="mx-auto grid max-w-[1240px] gap-10 px-5 py-20 md:px-8 lg:grid-cols-[0.75fr_1.25fr] lg:py-28">
+        <div>
+          <p class="mono text-[11px] uppercase tracking-[0.14em] text-[#6c6f75]">Classes</p>
+          <h2 class="mt-3 text-[34px] font-medium leading-[1.05] tracking-[-0.035em] md:text-[46px]">Two wheels, eight stools, one long table.</h2>
+          <p class="mt-5 max-w-[380px] text-[15px] leading-[1.65] text-[#5b5f66]">Clay, aprons, glaze and two firings are included. You leave with what you made, about three weeks later.</p>
+        </div>
+        <div class={`overflow-hidden rounded-[22px] bg-white ${MD}`}>
+          {classes.map((c, i) => (
+            <div class={`grid grid-cols-[1fr_auto] items-center gap-x-4 gap-y-1 px-5 py-5 sm:grid-cols-[120px_1fr_auto] md:px-7 ${i ? 'border-t border-[rgba(25,28,33,0.07)]' : ''}`}>
+              <p class="mono col-span-2 text-[12px] text-[#6c6f75] sm:col-span-1">{c.d}<br class="hidden sm:block" /><span class="sm:hidden"> · </span>{c.t}</p>
+              <div>
+                <p class="text-[16px] font-medium tracking-[-0.01em]">{c.name}</p>
+                <p class="mt-0.5 text-[13px] text-[#6c6f75]">with {c.who} · {c.seats}</p>
+              </div>
+              {c.full
+                ? <a href="#letters" class="rounded-full px-3 py-1.5 text-[13px] font-medium text-[#6c6f75] ring-1 ring-[rgba(25,28,33,0.1)]">Waitlist</a>
+                : <a href="#letters" class={`rounded-full bg-white px-3.5 py-1.5 text-[13px] font-medium ${SM}`}>Book <span class="mono text-[#6c6f75]">{c.price}</span></a>}
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <!-- LETTERS -->
+      <section id="letters" class="mx-auto max-w-[1240px] px-5 pb-28 md:px-8">
+        <div class={`grid gap-8 rounded-[28px] bg-white p-6 md:grid-cols-[1fr_auto] md:items-center md:p-10 ${MD}`}>
+          <div>
+            <h2 class="text-[28px] font-medium leading-[1.1] tracking-[-0.03em] md:text-[36px]">Kiln letters, four times a year.</h2>
+            <p class="mt-3 max-w-[460px] text-[15px] leading-[1.6] text-[#5b5f66]">A note the week a kiln opens: what came out, what cracked, and first pick before the shop.</p>
+          </div>
+          <form id="letters-form" class="flex w-full flex-col gap-2.5 sm:flex-row md:w-[440px]">
+            <label for="email" class="sr-only">Email address</label>
+            <input id="email" type="email" required placeholder="you@example.com" class={`min-w-0 flex-1 rounded-full bg-white px-4 py-3 text-[15px] outline-none placeholder:text-[#9a9da3] focus-visible:ring-2 focus-visible:ring-[#6f8f7c] ${SM}`} />
+            <button class={`rounded-full bg-[#191c21] px-5 py-3 text-[15px] font-medium text-white ${SM}`}>Subscribe</button>
+          </form>
+          <p id="letters-status" role="status" class="empty:hidden text-[13px] text-[#6f8f7c] md:col-span-2 md:-mt-4"></p>
+        </div>
+        <footer class="mt-14 flex flex-col gap-3 text-[13px] text-[#6c6f75] sm:flex-row sm:justify-between">
+          <p><span class="font-medium text-[#191c21]">Ode Clay Studio</span> · Rua do Almada 214, Porto</p>
+          <p class="mono">Wed–Sun · 11:00–19:00</p>
+        </footer>
+      </section>
+    </main>
+
+    <style>
+      .mono { font-family: 'Geist Mono', ui-monospace, monospace; font-feature-settings: 'zero' 0; }
+      body { font-family: 'Geist', ui-sans-serif, system-ui, sans-serif; }
+      .rise { animation: rise .9s cubic-bezier(.2,.7,.2,1) both; animation-delay: var(--d, 0s); }
+      @keyframes rise { from { opacity: 0; transform: translateY(14px); } }
+      .ping { animation: ping 2.4s cubic-bezier(0,0,.2,1) infinite; }
+      @keyframes ping { 75%, 100% { transform: scale(2.4); opacity: 0; } }
+      .bar { animation: fill 2.2s cubic-bezier(.2,.7,.2,1) .5s both; transform-origin: left; }
+      @keyframes fill { from { transform: scaleX(0); } }
+      @media (prefers-reduced-motion: reduce) {
+        .rise, .ping, .bar { animation: none; }
+        *, *::before, *::after { transition-duration: 0s !important; }
+      }
+    </style>
+
+    <script>
+      const hero = document.getElementById('hero-piece')!;
+      const note = document.getElementById('glaze-note')!;
+      const price = document.getElementById('glaze-price')!;
+      document.querySelectorAll<HTMLInputElement>('input[name="glaze"]').forEach((r) =>
+        r.addEventListener('change', () => {
+          hero.style.setProperty('--glaze', r.dataset.hex!);
+          note.textContent = r.dataset.note!;
+          price.textContent = r.dataset.price!;
+        }),
+      );
+
+      // Kiln readout climbs to temperature once; static under reduced motion.
+      const temp = document.getElementById('temp')!;
+      if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        const to = Number(temp.dataset.to);
+        const fmt = new Intl.NumberFormat('en-GB');
+        const t0 = performance.now();
+        const tick = (now: number) => {
+          const k = Math.min(1, (now - t0) / 2200);
+          temp.textContent = fmt.format(Math.round(to * (0.6 + 0.4 * (1 - (1 - k) ** 3))));
+          if (k < 1) requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+      }
+
+      const form = document.getElementById('letters-form') as HTMLFormElement;
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        document.getElementById('letters-status')!.textContent = 'Thank you — the next letter goes out the week kiln three opens.';
+        form.reset();
+      });
+    </script>
+  </body>
+</html>

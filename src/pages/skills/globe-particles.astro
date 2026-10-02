@@ -1,0 +1,528 @@
+---
+import '../../styles/global.css';
+import BackPill from '../../components/BackPill.astro';
+
+// Sotavento — a commons of backyard weather stations. The particle globe IS the network:
+// the dense core is the ground stations, the tilted ring is the upper-air soundings.
+const readings = [
+  { id: 'STV-0412', place: 'Ullapool, Wester Ross', kind: 'Rooftop', temp: '9.4', hpa: '1003.1', wind: 'WSW 31', note: 'Pressure falling 2.6 hPa in three hours.' },
+  { id: 'STV-1187', place: 'Ponta Delgada, Azores', kind: 'Harbour mast', temp: '19.8', hpa: '1021.7', wind: 'NE 12', note: 'The high that will reach Lisbon on Sunday.' },
+  { id: 'STV-2290', place: 'Ouarzazate, Drâa', kind: 'School yard', temp: '27.2', hpa: '1012.4', wind: 'S 8', note: 'Dust in the 4 µm channel since noon.' },
+  { id: 'STV-3051', place: 'Abisko, Lapland', kind: 'Ski hut', temp: '−3.1', hpa: '998.6', wind: 'W 22', note: 'First snow of the season, 6 cm overnight.' },
+  { id: 'STV-3778', place: 'Valdivia, Los Ríos', kind: 'Farm gate', temp: '12.6', hpa: '1016.0', wind: 'N 17', note: 'Front arriving; dew point 0.4° below air.' },
+  { id: 'STV-4006', place: 'Hilo, Hawai‘i', kind: 'Garden pole', temp: '24.1', hpa: '1014.9', wind: 'ENE 19', note: '41 mm of rain since dawn, trade-wind showers.' },
+];
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sotavento — a weather network you can see</title>
+    <meta name="description" content="4,112 backyard weather stations and 1,300 balloon soundings, drawn as one particle globe. Sotavento is a commons of people who measure the sky." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <BackPill />
+    <div class="atmos" aria-hidden="true">
+      <svg class="isobars" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
+        <g fill="none" stroke="currentColor" stroke-width="1">
+          <ellipse cx="980" cy="430" rx="250" ry="190" />
+          <ellipse cx="985" cy="432" rx="370" ry="280" />
+          <ellipse cx="992" cy="436" rx="500" ry="380" />
+          <ellipse cx="1000" cy="440" rx="650" ry="490" />
+          <ellipse cx="1010" cy="446" rx="820" ry="610" />
+          <ellipse cx="1020" cy="452" rx="1010" ry="740" />
+        </g>
+      </svg>
+    </div>
+
+    <header class="bar">
+      <a class="brand" href="#top" aria-label="Sotavento, home">
+        <span class="brand-mark" aria-hidden="true"><i></i></span>
+        <span>Sotavento</span>
+      </a>
+      <nav class="nav mono" aria-label="Primary">
+        <a href="#network">Network</a>
+        <a href="#readings">Readings</a>
+        <a href="#host">Host a station</a>
+      </nav>
+      <span class="mono bar-meta"><span class="live" aria-hidden="true"></span> Synoptic 12:00 UTC</span>
+    </header>
+
+    <main id="top">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <p class="mono eyebrow">SOTAVENTO // CITIZEN WEATHER COMMONS</p>
+          <h1 id="hero-title">The sky,<br />measured from<br /><span class="soft">4,112 back gardens.</span></h1>
+          <p class="lede">
+            Every point in the sphere is a station someone bolted to a fence, a roof or a harbour mast.
+            Every point in the ring is a balloon that climbed past the clouds this week. Together they
+            report every ten minutes, and the forecast is free.
+          </p>
+          <div class="cta-row">
+            <a class="btn" href="#host">Host a station <span aria-hidden="true">→</span></a>
+            <button class="ghost mono" type="button" id="motion-toggle" aria-pressed="false">Pause rotation</button>
+          </div>
+          <dl class="stats">
+            <div><dt class="mono">Ground stations</dt><dd><span data-tick="stations">4,112</span></dd></div>
+            <div><dt class="mono">Soundings / week</dt><dd>1,300</dd></div>
+            <div><dt class="mono">Median latency</dt><dd><span data-tick="latency">38</span><small> s</small></dd></div>
+          </dl>
+        </div>
+
+        <div class="hero-globe">
+          <div class="globe-particles-shell">
+            <div class="halo" aria-hidden="true"></div>
+            <canvas class="globe-particles-canvas" data-globe-particles role="img"
+              aria-label="A slowly turning globe of white particles — the ground stations — circled by a tilted green ring of upper-air soundings."></canvas>
+            <div class="callout c-core" aria-hidden="true">
+              <span class="mono k">Station core</span>
+              <span class="v">4,000 points · the ground network</span>
+            </div>
+            <div class="callout c-ring" aria-hidden="true">
+              <span class="mono k">Upper-air ring</span>
+              <span class="v">Radiosondes to 30 km</span>
+            </div>
+          </div>
+          <p class="mono globe-foot" aria-live="polite" id="globe-status">Rotation 0.12 rad/s · tilt −24°</p>
+        </div>
+      </section>
+
+      <section id="network" class="network" aria-labelledby="network-title">
+        <div class="section-head">
+          <p class="mono eyebrow">01 — Two populations</p>
+          <h2 id="network-title">One object, two altitudes.</h2>
+        </div>
+        <div class="pops">
+          <article class="pop">
+            <span class="swatch core" aria-hidden="true"></span>
+            <h3>The core is the ground.</h3>
+            <p>Temperature, humidity, pressure and wind at two metres, from stations that cost less than a bicycle.
+              We draw them white because they are the baseline every model leans on.</p>
+            <ul class="mono spec">
+              <li><span>Cadence</span><span>10 min</span></li>
+              <li><span>Calibrated</span><span>94.6 %</span></li>
+              <li><span>Countries</span><span>71</span></li>
+            </ul>
+          </article>
+          <article class="pop">
+            <span class="swatch ring" aria-hidden="true"></span>
+            <h3>The ring is the air above it.</h3>
+            <p>Volunteer launch sites release a latex balloon at dawn. It reports every second until it bursts,
+              somewhere near thirty kilometres, and that profile is what turns readings into a forecast.</p>
+            <ul class="mono spec">
+              <li><span>Launch sites</span><span>186</span></li>
+              <li><span>Median burst</span><span>29.4 km</span></li>
+              <li><span>Recovered</span><span>61 %</span></li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section id="readings" class="readings" aria-labelledby="readings-title">
+        <div class="section-head">
+          <p class="mono eyebrow">02 — From the field, 12:00 UTC</p>
+          <h2 id="readings-title">Six of the 4,112.</h2>
+        </div>
+        <ol class="feed">
+          {readings.map((r) => (
+            <li class="row">
+              <span class="mono id">{r.id}</span>
+              <span class="place"><strong>{r.place}</strong><span class="mono kind">{r.kind}</span></span>
+              <span class="mono num">{r.temp}<small>°C</small></span>
+              <span class="mono num">{r.hpa}<small>hPa</small></span>
+              <span class="mono num wind">{r.wind}<small>km/h</small></span>
+              <span class="note">{r.note}</span>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section id="host" class="host" aria-labelledby="host-title">
+        <div>
+          <p class="mono eyebrow">03 — Join</p>
+          <h2 id="host-title">Put one more point on the globe.</h2>
+          <p class="lede">A station kit is a sensor mast, a solar cell and a radio the size of a matchbox. We
+            post it, you choose the spot, and your garden is in the next model run.</p>
+        </div>
+        <div class="host-card">
+          <ul class="mono spec">
+            <li><span>Kit</span><span>€ 89, or free for schools</span></li>
+            <li><span>Install</span><span>About 40 minutes</span></li>
+            <li><span>Power</span><span>Solar, 9 days in the dark</span></li>
+            <li><span>Your data</span><span>Open, CC BY 4.0</span></li>
+          </ul>
+          <a class="btn" href="#top">Request a kit <span aria-hidden="true">→</span></a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="foot mono">
+      <span>Sotavento Commons · Station 0001, Sagres</span>
+      <span>Network uptime 99.94 % · 2,940,177 reports today</span>
+    </footer>
+
+    <style>
+      :root {
+        --bg: #050706;
+        --ink: #eef3f0;
+        --mute: #8a958f;
+        --dim: #4c5550;
+        --line: rgb(238 243 240 / 0.09);
+        --panel: rgb(14 19 17 / 0.72);
+        --brand-accent: #6cf0a4;
+        --sans: 'Geist', ui-sans-serif, system-ui, sans-serif;
+        --mono: 'Geist Mono', ui-monospace, monospace;
+      }
+      html { background: var(--bg); scroll-behavior: smooth; }
+      body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); font-weight: 350; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+      .mono { font-family: var(--mono); letter-spacing: 0.08em; text-transform: uppercase; font-size: 11px; }
+      a { color: inherit; }
+
+      .atmos { position: fixed; inset: 0; z-index: 0; pointer-events: none;
+        background:
+          radial-gradient(60vw 50vw at 72% 42%, rgb(108 240 164 / 0.07), transparent 60%),
+          radial-gradient(40vw 40vw at 10% 90%, rgb(70 120 140 / 0.08), transparent 60%),
+          repeating-linear-gradient(135deg, rgb(255 255 255 / 0.012) 0 1px, transparent 1px 9px);
+      }
+      .isobars { position: absolute; inset: 0; width: 100%; height: 100%; color: rgb(108 240 164 / 0.07); }
+
+      .bar { position: relative; z-index: 2; display: flex; align-items: center; gap: 24px; padding: 22px clamp(16px, 4vw, 56px); border-bottom: 1px solid var(--line); }
+      .brand { display: inline-flex; align-items: center; gap: 12px; text-decoration: none; font-weight: 500; font-size: 15px; letter-spacing: -0.01em; }
+      .brand-mark { width: 26px; height: 26px; border: 1px solid rgb(108 240 164 / 0.45); border-radius: 50%; display: grid; place-items: center; }
+      .brand-mark i { width: 8px; height: 8px; border-radius: 50%; background: var(--brand-accent); box-shadow: 0 0 12px var(--brand-accent); }
+      .nav { display: flex; gap: 32px; margin-left: auto; }
+      .nav a { text-decoration: none; color: var(--mute); transition: color .2s; }
+      .nav a:hover, .nav a:focus-visible { color: var(--ink); }
+      .bar-meta { color: var(--mute); display: inline-flex; align-items: center; gap: 8px; padding-left: 24px; border-left: 1px solid var(--line); }
+      .live { width: 6px; height: 6px; border-radius: 50%; background: var(--brand-accent); animation: pulse 2.4s ease-in-out infinite; }
+      @keyframes pulse { 50% { opacity: .25; } }
+
+      main { position: relative; z-index: 1; }
+      .hero { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); align-items: center; gap: clamp(16px, 3vw, 48px);
+        min-height: calc(100svh - 72px); padding: 0 clamp(16px, 4vw, 56px); }
+      .hero-copy { max-width: 520px; padding: 48px 0; }
+      .eyebrow { color: var(--brand-accent); margin: 0 0 28px; }
+      h1 { font-size: clamp(42px, 5.4vw, 80px); line-height: 0.98; letter-spacing: -0.045em; font-weight: 400; margin: 0; }
+      h1 .soft { color: var(--mute); }
+      .lede { color: var(--mute); font-size: 16px; line-height: 1.65; margin: 28px 0 0; max-width: 46ch; }
+      .cta-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 32px; }
+      .btn { display: inline-flex; align-items: center; gap: 10px; padding: 13px 20px; background: var(--ink); color: #050706; text-decoration: none; font-weight: 500; font-size: 14px; border-radius: 2px; transition: background .2s; }
+      .btn:hover, .btn:focus-visible { background: var(--brand-accent); }
+      .ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); padding: 13px 16px; border-radius: 2px; cursor: pointer; transition: border-color .2s; }
+      .ghost:hover, .ghost:focus-visible { border-color: rgb(108 240 164 / 0.5); }
+      :focus-visible { outline: 1px solid var(--brand-accent); outline-offset: 3px; }
+      .stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 44px 0 0; border-top: 1px solid var(--line); }
+      .stats div { padding: 16px 12px 0 0; }
+      .stats dt { color: var(--dim); font-size: 10px; }
+      .stats dd { margin: 8px 0 0; font-size: 26px; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+      .stats small { color: var(--mute); font-size: 14px; }
+
+      .hero-globe { display: flex; flex-direction: column; align-items: center; min-width: 0; }
+      .globe-particles-shell { position: relative; width: min(100%, 760px, calc(100svh - 150px)); aspect-ratio: 1 / 1; }
+      .globe-particles-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; pointer-events: none; }
+      .halo { position: absolute; inset: 22%; border-radius: 50%; background: radial-gradient(circle, rgb(238 243 240 / 0.07), rgb(108 240 164 / 0.05) 45%, transparent 70%); filter: blur(18px); }
+      .callout { position: absolute; display: flex; flex-direction: column; gap: 4px; padding: 10px 12px; background: var(--panel); border: 1px solid var(--line); backdrop-filter: blur(6px); font-size: 13px; white-space: nowrap; }
+      .callout .k { color: var(--brand-accent); font-size: 10px; }
+      .callout::before { content: ''; position: absolute; top: 50%; height: 1px; width: 56px; background: linear-gradient(90deg, transparent, rgb(108 240 164 / 0.6)); }
+      .c-core { left: -2%; top: 28%; }
+      .c-core::before { left: 100%; transform: scaleX(-1); }
+      .c-ring { right: 0; bottom: 22%; }
+      .c-ring::before { right: 100%; }
+      .globe-foot { color: var(--dim); margin: 4px 0 0; }
+
+      .network, .readings, .host { padding: clamp(72px, 10vw, 140px) clamp(16px, 4vw, 56px) 0; max-width: 1440px; margin: 0 auto; box-sizing: border-box; }
+      .section-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 16px; border-bottom: 1px solid var(--line); padding-bottom: 24px; }
+      .section-head .eyebrow { margin: 0; order: 2; }
+      h2 { font-size: clamp(32px, 4vw, 54px); letter-spacing: -0.04em; font-weight: 400; line-height: 1.02; margin: 0; }
+      .pops { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .pop { padding: 40px 40px 8px 0; }
+      .pop + .pop { padding-left: 40px; border-left: 1px solid var(--line); }
+      .swatch { display: block; width: 28px; height: 28px; border-radius: 50%; margin-bottom: 28px; }
+      .swatch.core { background: radial-gradient(circle, #fff 0 18%, rgb(255 255 255 / .35) 40%, transparent 70%); }
+      .swatch.ring { border: 2px solid var(--brand-accent); transform: scaleY(.38) rotate(-12deg); box-shadow: 0 0 14px rgb(108 240 164 / .5); }
+      h3 { font-size: 22px; font-weight: 450; letter-spacing: -0.02em; margin: 0 0 12px; }
+      .pop p { color: var(--mute); line-height: 1.65; margin: 0; max-width: 52ch; }
+      .spec { list-style: none; padding: 0; margin: 28px 0 0; }
+      .spec li { display: flex; justify-content: space-between; gap: 16px; padding: 12px 0; border-top: 1px solid var(--line); color: var(--mute); }
+      .spec li span:last-child { color: var(--ink); text-align: right; }
+
+      .feed { list-style: none; padding: 0; margin: 0; }
+      .row { display: grid; grid-template-columns: 96px minmax(0, 1.4fr) 84px 110px 120px minmax(0, 1.6fr); gap: 20px; align-items: baseline; padding: 20px 0; border-bottom: 1px solid var(--line); }
+      .row .id { color: var(--brand-accent); }
+      .place strong { display: block; font-weight: 450; font-size: 16px; }
+      .kind { color: var(--dim); font-size: 10px; }
+      .num { font-size: 14px; color: var(--ink); text-transform: none; letter-spacing: 0; font-variant-numeric: tabular-nums; }
+      .num small { color: var(--dim); margin-left: 4px; font-size: 10px; }
+      .note { color: var(--mute); font-size: 14px; line-height: 1.5; }
+
+      .host { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 56px; align-items: end; padding-bottom: 96px; }
+      .host .eyebrow { margin-bottom: 20px; }
+      .host-card { border: 1px solid var(--line); background: var(--panel); padding: 28px; }
+      .host-card .spec { margin: 0 0 24px; }
+      .host-card .spec li:first-child { border-top: 0; }
+
+      .foot { position: relative; z-index: 1; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; padding: 24px clamp(16px, 4vw, 56px) 72px; border-top: 1px solid var(--line); color: var(--dim); }
+
+      @media (max-width: 980px) {
+        .hero { grid-template-columns: minmax(0, 1fr); min-height: 0; padding-top: 8px; }
+        .hero-globe { order: -1; }
+        .globe-particles-shell { width: min(100%, 620px); }
+        .hero-copy { padding-top: 8px; }
+        .row { grid-template-columns: 84px minmax(0, 1fr) repeat(3, auto); }
+        .row .note { grid-column: 2 / -1; }
+      }
+      @media (max-width: 720px) {
+        .nav { display: none; }
+        .bar { padding-top: 16px; padding-bottom: 16px; }
+        .bar-meta { margin-left: auto; }
+        .pops, .host { grid-template-columns: minmax(0, 1fr); }
+        .pop, .pop + .pop { padding: 36px 0 8px; border-left: 0; }
+        .pop + .pop { border-top: 1px solid var(--line); margin-top: 32px; }
+        .callout { display: none; }
+        .stats dd { font-size: 22px; }
+        .row { grid-template-columns: repeat(2, max-content) minmax(0, 1fr); gap: 8px 20px; }
+        .row .id, .row .place, .row .note { grid-column: 1 / -1; }
+        .host { gap: 32px; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        html { scroll-behavior: auto; }
+        .live { animation: none; }
+      }
+    </style>
+
+    <script>
+      import * as THREE from 'three';
+
+      // Shaders verbatim from the globe-particles skill.
+      const globeParticleVertex = `
+attribute float a_size;
+attribute float a_layer;
+uniform float u_time;
+uniform float u_pointSize;
+varying float v_layer;
+varying float v_depth;
+varying float v_falloff;
+void main() {
+  vec3 pos = position;
+  float breathe = 1.0 + sin(u_time * 0.65 + a_layer * 4.0) * 0.012;
+  pos *= breathe;
+  vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
+  gl_PointSize = u_pointSize * a_size * (1.0 / max(0.18, -mvPosition.z));
+  gl_Position = projectionMatrix * mvPosition;
+  v_layer = a_layer;
+  v_depth = smoothstep(-1.8, 1.8, pos.z);
+  v_falloff = smoothstep(2.45, 0.25, length(pos));
+}`;
+
+      const globeParticleFragment = `
+precision highp float;
+uniform vec3 u_coreColor;
+uniform vec3 u_accentColor;
+varying float v_layer;
+varying float v_depth;
+varying float v_falloff;
+void main() {
+  vec2 uv = gl_PointCoord - 0.5;
+  float d = length(uv);
+  float alpha = smoothstep(0.5, 0.0, d);
+  alpha *= alpha;
+  vec3 color = mix(u_coreColor, u_accentColor, smoothstep(0.35, 1.0, v_layer));
+  color += vec3(1.0) * v_depth * 0.08;
+  color = mix(color * 0.42, color, clamp(v_falloff + v_layer * 0.28, 0.0, 1.0));
+  alpha *= mix(0.52, 1.0, clamp(v_falloff + v_layer * 0.24, 0.0, 1.0));
+  gl_FragColor = vec4(color, alpha);
+}`;
+
+      type Opts = {
+        sphereCount: number; ringCount: number; radius: number; ringRadius: number; ringThickness: number;
+        cameraDistance: number; pointSize: number; rotationSpeed: number; mouseStrength: number;
+        tiltX: number; tiltZ: number; maxDpr: number; coreColor: number;
+      };
+
+      // ponytail: Math.random is fine — the shape is statistical, not seeded per visit.
+      function buildGeometry(o: Opts) {
+        const total = o.sphereCount + o.ringCount;
+        const positions = new Float32Array(total * 3);
+        const sizes = new Float32Array(total);
+        const layers = new Float32Array(total);
+        for (let i = 0; i < o.sphereCount; i++) {
+          const z = Math.random() * 2 - 1;
+          const theta = Math.random() * Math.PI * 2;
+          const r = o.radius * (0.58 + Math.pow(Math.random(), 0.42) * 0.42);
+          const root = Math.sqrt(1 - z * z);
+          positions.set([Math.cos(theta) * root * r, Math.sin(theta) * root * r, z * r], i * 3);
+          sizes[i] = 0.72 + Math.random() * 0.72;
+          layers[i] = Math.random() * 0.28;
+        }
+        for (let i = 0; i < o.ringCount; i++) {
+          const p = o.sphereCount + i;
+          const angle = Math.random() * Math.PI * 2;
+          const r = o.ringRadius + (Math.random() - 0.5) * o.ringThickness;
+          const y = (Math.random() - 0.5) * o.ringThickness * 0.58;
+          positions.set([Math.cos(angle) * r, y, Math.sin(angle) * r], p * 3);
+          sizes[p] = 0.62 + Math.random() * 0.58;
+          layers[p] = 0.72 + Math.random() * 0.28;
+        }
+        const g = new THREE.BufferGeometry();
+        g.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        g.setAttribute('a_size', new THREE.BufferAttribute(sizes, 1));
+        g.setAttribute('a_layer', new THREE.BufferAttribute(layers, 1));
+        return g;
+      }
+
+      function initGlobeParticles(canvas: HTMLCanvasElement, o: Opts) {
+        let renderer: THREE.WebGLRenderer;
+        try {
+          renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+        } catch {
+          canvas.closest('.globe-particles-shell')?.classList.add('no-webgl');
+          return () => {};
+        }
+        renderer.setClearColor(0x000000, 0);
+        renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
+        camera.position.set(0, 0, o.cameraDistance);
+
+        const accentHex = getComputedStyle(document.documentElement).getPropertyValue('--brand-accent').trim() || '#6cf0a4';
+        const geometry = buildGeometry(o);
+        const material = new THREE.ShaderMaterial({
+          vertexShader: globeParticleVertex,
+          fragmentShader: globeParticleFragment,
+          transparent: true,
+          depthWrite: false,
+          blending: THREE.AdditiveBlending,
+          uniforms: {
+            u_time: { value: 0 },
+            u_pointSize: { value: o.pointSize },
+            u_coreColor: { value: new THREE.Color(o.coreColor) },
+            u_accentColor: { value: new THREE.Color(accentHex) },
+          },
+        });
+        const particles = new THREE.Points(geometry, material);
+        particles.rotation.set(o.tiltX, 0, o.tiltZ);
+        scene.add(particles);
+
+        const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const pointer = new THREE.Vector2();
+        const eased = new THREE.Vector2(); // damped copy so the globe drifts rather than swings
+        let paused = reduceMotion;
+        let spin = 0.6; // start angle that shows the ring crossing in front
+        let last = performance.now();
+        let rafId = 0;
+        let visible = true;
+
+        function resize() {
+          const dpr = Math.min(window.devicePixelRatio || 1, o.maxDpr);
+          renderer.setPixelRatio(dpr);
+          renderer.setSize(Math.max(1, canvas.clientWidth), Math.max(1, canvas.clientHeight), false);
+          // keep points the same visual size as the canvas scales
+          material.uniforms.u_pointSize.value = o.pointSize * dpr * (canvas.clientWidth / 720);
+          camera.aspect = 1;
+          camera.updateProjectionMatrix();
+        }
+
+        function render(now = performance.now()) {
+          const dt = Math.min(0.05, (now - last) / 1000);
+          last = now;
+          const t = now * 0.001;
+          if (!paused) spin += dt * o.rotationSpeed;
+          material.uniforms.u_time.value = paused ? 0 : t;
+          eased.lerp(pointer, 1 - Math.pow(1 - 0.04, dt * 60));
+          particles.rotation.y = spin;
+          particles.rotation.x = o.tiltX + eased.y * o.mouseStrength;
+          particles.rotation.z = o.tiltZ + eased.x * o.mouseStrength;
+          particles.scale.setScalar(1 + (paused ? 0 : Math.sin(t * 0.55) * 0.045));
+          renderer.render(scene, camera);
+        }
+
+        function loop(now: number) {
+          render(now);
+          rafId = visible && !reduceMotion ? requestAnimationFrame(loop) : 0;
+        }
+        function start() { if (!rafId && !reduceMotion) { last = performance.now(); rafId = requestAnimationFrame(loop); } }
+
+        const onResize = () => { resize(); render(); };
+        const onPointer = (e: PointerEvent) => {
+          if (e.pointerType !== 'mouse') return;
+          const rect = canvas.getBoundingClientRect();
+          pointer.set(Math.max(-1, Math.min(1, ((e.clientX - rect.left) / rect.width - 0.5) * 2)),
+                      Math.max(-1, Math.min(1, ((e.clientY - rect.top) / rect.height - 0.5) * 2)));
+        };
+        const io = new IntersectionObserver(([entry]) => {
+          visible = entry.isIntersecting && !document.hidden;
+          if (visible) start();
+        });
+        const onVis = () => { visible = !document.hidden; if (visible) start(); };
+
+        resize();
+        render();
+        start();
+        io.observe(canvas);
+        addEventListener('resize', onResize);
+        addEventListener('pointermove', onPointer);
+        document.addEventListener('visibilitychange', onVis);
+
+        const api = {
+          setPaused(v: boolean) { paused = v; },
+          get paused() { return paused; },
+          reduceMotion,
+          destroy() {
+            cancelAnimationFrame(rafId);
+            io.disconnect();
+            removeEventListener('resize', onResize);
+            removeEventListener('pointermove', onPointer);
+            document.removeEventListener('visibilitychange', onVis);
+            geometry.dispose();
+            material.dispose();
+            renderer.dispose();
+          },
+        };
+        return api;
+      }
+
+      const canvas = document.querySelector<HTMLCanvasElement>('[data-globe-particles]');
+      const globe = canvas && initGlobeParticles(canvas, {
+        sphereCount: 4000,
+        ringCount: 1800,
+        radius: 1.35,
+        ringRadius: 2.05,
+        ringThickness: 0.12,
+        cameraDistance: 6.8,
+        pointSize: 25,
+        rotationSpeed: 0.12,
+        mouseStrength: 0.08,
+        tiltX: -0.42,
+        tiltZ: 0.22,
+        maxDpr: 1.6,
+        coreColor: 0xf4f7f5,
+      });
+
+      const toggle = document.getElementById('motion-toggle') as HTMLButtonElement;
+      const status = document.getElementById('globe-status')!;
+      if (!globe || typeof globe === 'function') {
+        toggle.hidden = true;
+      } else {
+        const sync = () => {
+          toggle.setAttribute('aria-pressed', String(globe.paused));
+          toggle.textContent = globe.paused ? 'Resume rotation' : 'Pause rotation';
+          status.textContent = globe.paused ? 'Rotation paused · tilt −24°' : 'Rotation 0.12 rad/s · tilt −24°';
+        };
+        if (globe.reduceMotion) toggle.hidden = true;
+        toggle.addEventListener('click', () => { globe.setPaused(!globe.paused); sync(); });
+        sync();
+      }
+
+      // Gentle live ticker on the hero stats (off for reduced motion and captures).
+      const still = matchMedia('(prefers-reduced-motion: reduce)').matches || new URLSearchParams(location.search).has('shot');
+      if (!still) {
+        const latency = document.querySelector('[data-tick="latency"]')!;
+        setInterval(() => { latency.textContent = String(34 + Math.round(Math.random() * 9)); }, 2600);
+      }
+    </script>
+  </body>
+</html>

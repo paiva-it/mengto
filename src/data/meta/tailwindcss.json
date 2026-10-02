@@ -1,0 +1,7 @@
+{
+  "title": "Tailwind CSS",
+  "kind": "website",
+  "category": "Design systems",
+  "concept": "Halvard Drum Works, a fictional steam-bent snare workshop in Bergen: a stone-and-sky utility-first site whose hero is a live snare build — pick a wood and a depth and the SVG drum and its Shell / Edge / Tone spec cards update — followed by the bench process, this season's models, a numbers band and a visit form.",
+  "notes": "Pure Tailwind 4 utilities; the configurator has no JavaScript — radios drive it through has-[…:checked], group-has-[…] and peer-checked variants plus a --wood CSS variable (fill-(--wood)). Class names come from static maps, never string-built. Only JS is the visit-form confirmation. The page also imports its own small Tailwind entry (components/skills/tailwindcss/page.css: theme + utilities with @source on this page) because the shared dev server's global.css did not rescan pages created after it started; in a build it is redundant."
+}

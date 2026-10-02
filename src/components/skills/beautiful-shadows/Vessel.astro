@@ -1,0 +1,68 @@
+---
+// A thrown stoneware vessel drawn from a lathe profile: [y, radius] pairs, top to bottom,
+// mirrored around x=100 in a 200x240 box. Glaze comes from `glaze` (any CSS colour, incl. var()).
+interface Props { shape: 'jar' | 'bottle' | 'bowl' | 'cup' | 'vase'; glaze: string; id: string; class?: string; label: string }
+const { shape, glaze, id, class: cls = '', label } = Astro.props;
+
+const profiles: Record<Props['shape'], { pts: [number, number][]; foot: number }> = {
+  jar: { pts: [[34, 30], [44, 27], [78, 76], [128, 88], [178, 70], [216, 40], [230, 36]], foot: 206 },
+  bottle: { pts: [[14, 13], [24, 11], [64, 11], [104, 32], [160, 64], [200, 56], [224, 40], [230, 38]], foot: 212 },
+  bowl: { pts: [[118, 92], [146, 86], [186, 60], [216, 36], [230, 33]], foot: 214 },
+  cup: { pts: [[104, 46], [160, 49], [206, 42], [224, 36], [230, 35]], foot: 210 },
+  vase: { pts: [[40, 34], [52, 30], [92, 40], [150, 58], [196, 50], [222, 36], [230, 34]], foot: 208 },
+};
+const { pts, foot } = profiles[shape];
+
+// Catmull-Rom through the right-hand profile, as cubic beziers.
+const side = (p: [number, number][], dir: 1 | -1) => {
+  const xy = p.map(([y, r]) => [100 + dir * r, y]);
+  let d = '';
+  for (let i = 0; i < xy.length - 1; i++) {
+    const p0 = xy[i - 1] ?? xy[i], p1 = xy[i], p2 = xy[i + 1], p3 = xy[i + 2] ?? p2;
+    const c1 = [p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6];
+    const c2 = [p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6];
+    d += ` C${c1[0].toFixed(1)},${c1[1].toFixed(1)} ${c2[0].toFixed(1)},${c2[1].toFixed(1)} ${p2[0].toFixed(1)},${p2[1].toFixed(1)}`;
+  }
+  return d;
+};
+const [topY, topR] = pts[0];
+const [botY, botR] = pts[pts.length - 1];
+const leftUp = side([...pts].reverse(), -1);
+const body = `M${100 + topR},${topY}${side(pts, 1)} L${100 - botR},${botY}${leftUp} Z`;
+// Glaze line: a slow, uneven drip edge above the bare foot.
+const wave = Array.from({ length: 21 }, (_, i) => {
+  const x = i * 10;
+  const y = foot + Math.sin(i * 1.7) * 2.2 + (i % 5 === 2 ? 4 : 0);
+  return `${i ? 'L' : 'M'}${x},${y.toFixed(1)}`;
+}).join(' ');
+const rimRy = Math.max(4, topR * 0.16);
+---
+<svg viewBox="0 0 200 240" class={cls} role="img" aria-label={label} style={`--g:${glaze}`}>
+  <defs>
+    <linearGradient id={`${id}-shade`} x1="0" x2="1">
+      <stop offset="0" stop-color="#000" stop-opacity=".34" />
+      <stop offset=".3" stop-color="#fff" stop-opacity=".26" />
+      <stop offset=".42" stop-color="#fff" stop-opacity=".06" />
+      <stop offset=".78" stop-color="#000" stop-opacity=".12" />
+      <stop offset="1" stop-color="#000" stop-opacity=".4" />
+    </linearGradient>
+    <radialGradient id={`${id}-hi`} cx=".34" cy=".3" r=".34">
+      <stop offset="0" stop-color="#fff" stop-opacity=".45" />
+      <stop offset="1" stop-color="#fff" stop-opacity="0" />
+    </radialGradient>
+    <clipPath id={`${id}-clip`}><path d={body} /></clipPath>
+    <filter id={`${id}-blur`} x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="5" /></filter>
+  </defs>
+  <ellipse cx="100" cy={botY + 1} rx={botR * 1.9} ry="7" fill="#000" opacity=".16" filter={`url(#${id}-blur)`} />
+  <g clip-path={`url(#${id}-clip)`}>
+    <rect width="200" height="240" fill="var(--g)" class="vessel-glaze" />
+    <path d={`${wave} L200,240 L0,240 Z`} fill="#c8ab8f" />
+    <path d={`${wave} L200,${foot + 1.5} L0,${foot + 1.5} Z`} fill="#000" opacity=".12" />
+    <rect width="200" height="240" fill={`url(#${id}-shade)`} />
+    <rect width="200" height="240" fill={`url(#${id}-hi)`} />
+  </g>
+  <ellipse cx="100" cy={topY} rx={topR} ry={rimRy} fill="var(--g)" class="vessel-glaze" />
+  <ellipse cx="100" cy={topY} rx={topR} ry={rimRy} fill="#000" opacity=".28" />
+  <ellipse cx="100" cy={topY + rimRy * 0.25} rx={topR * 0.86} ry={rimRy * 0.7} fill="#000" opacity=".3" />
+</svg>
+<style>.vessel-glaze { transition: fill .6s ease; }</style>

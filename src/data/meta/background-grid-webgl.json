@@ -1,0 +1,7 @@
+{
+  "title": "Background Grid WebGL",
+  "kind": "section",
+  "category": "Backgrounds & atmosphere",
+  "concept": "Holdfast, a chain of six late-night bouldering halls drilled on one 200 mm bolt pattern, set over a Three.js perspective floor grid that drifts toward the horizon with chalk-dust particles, a single orange circuit lane and damped mouse parallax.",
+  "notes": "Grid is a custom shader plane (fwidth anti-aliased lines, distance fade, seamless drift cycle); dust is an additive Points layer. Reduced motion renders one still frame; no-WebGL falls back to a CSS line veil. Parallax is mouse-only, render loop pauses when the tab is hidden."
+}

@@ -1,0 +1,7 @@
+{
+  "title": "Documentary Brutalist Agency",
+  "kind": "website",
+  "category": "Design systems",
+  "concept": "OFFCUT®, a fictional Rotterdam skate brand and film unit that documents spots before the city pours over them: billboard Anton headline over three B&W documentary frames, black spot-file chapters, a warm-white position cut, a seven-step narrative collage, pale mint/pink proof cards, updates, a hard-ruled FAQ and an oversized footer wordmark.",
+  "notes": "No dependencies beyond Google Fonts (Anton, Archivo). Unsplash photography stored locally and graded to greyscale in CSS. Full-screen menu is a native modal <dialog> (Escape, inert background, aria-expanded, focus return); FAQ uses <details>. Collage parallax is capped below 5% of frame height and off under prefers-reduced-motion; captions show on hover/focus and stay visible on touch."
+}

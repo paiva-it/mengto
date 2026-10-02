@@ -1,0 +1,7 @@
+{
+  "title": "Progressive Blur",
+  "kind": "section",
+  "category": "Effects & details",
+  "concept": "Brightwell Fusion: a compact-tokamak startup's power-offtake page where programme cards with glowing plasma tori slide under fixed top and bottom progressive-blur edges built from the skill's eight stepped backdrop-filter layers.",
+  "notes": "Pure CSS, exact skill blur steps (0.5 → 64 px) and mask stops; top edge 12 %, bottom height tuned from 65 % to 42 % so the headline stays sharp. A placement switch (both / bottom / top / off) demonstrates each snippet; keyboard tabs swap the card set. Browsers without backdrop-filter get a plain paper fade. Reduced motion stops the plasma breathing and card rise."
+}

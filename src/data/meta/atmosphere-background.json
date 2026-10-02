@@ -1,0 +1,7 @@
+{
+  "title": "Atmosphere Background",
+  "kind": "section",
+  "category": "Backgrounds & atmosphere",
+  "concept": "Vey Lume Works, a Ghent vintage-watch restorer: a fixed near-black atmosphere of drifting lume-green light folds pools into a lower-right bloom behind the hero, a live timegrapher bench readout and the restoration process.",
+  "notes": "Single WebGL fragment shader (no deps): 18 vertical folds (11 under 700px) with sine sway along height and in time, soft body plus crease highlight, screen-blended, fading toward the top, one narrow moving signal beam, and a radial bloom at the lower right. Tint comes from the page accent; the Lume compound picker (C3 green, BGW9 blue, aged radium) retints both. Rendered at 0.7x with DPR capped at 1.5, dithered against banding, dims as you scroll, pauses when hidden; Pause drift toggle; reduced motion draws one still frame. CSS gradient fallback without WebGL."
+}

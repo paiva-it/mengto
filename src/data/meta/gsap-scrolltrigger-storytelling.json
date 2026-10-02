@@ -1,0 +1,7 @@
+{
+  "title": "GSAP ScrollTrigger Storytelling",
+  "kind": "website",
+  "category": "Motion & scroll",
+  "concept": "Lowlathe Pressworks, a fictional Ghent vinyl plant: one pinned, scrubbed story follows order A-2219 from lacquer cut through nickel stamper, PVC biscuit, 150-tonne press, flash trim and test listen, with a live Pressline panel counting each state, then hands off to formats, plant stats and a clip-path booking reveal.",
+  "notes": "GSAP + ScrollTrigger (installed), no Lenis. One timeline with a label per step, scrub 0.8, gsap.matchMedia for desktop/mobile/reduced-motion; under reduced motion nothing pins and the story renders as a static list. The record and all product states are inline SVG/CSS, no images."
+}

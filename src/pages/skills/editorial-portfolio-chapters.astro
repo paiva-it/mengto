@@ -1,0 +1,685 @@
+---
+import '../../styles/global.css';
+import BackPill from '../../components/BackPill.astro';
+
+const img = (f: string) => `/skills/editorial-portfolio-chapters/${f}`;
+
+// Each vintage is one chapter: its own muted field, its own cover.
+type Vintage = {
+  id: string;
+  no: string;
+  title: string;
+  kind: string;
+  year: string;
+  body: string;
+  meta: [string, string][];
+  tone: 'field' | 'dark';
+  field: string;
+  ink: string;
+  media: { src: string; alt: string; pos: string } | 'label';
+  flip: boolean;
+};
+const vintages: Vintage[] = [
+  {
+    id: 'xisto-lento',
+    no: '01',
+    title: 'Xisto Lento',
+    kind: 'Red field blend',
+    year: '2021',
+    body: 'Fourteen old-vine parcels picked in the same cold week and fermented together in one lagar, the way the founding families did it when nobody could afford a vat of their own.',
+    meta: [['Vintage', '2021'], ['Growers', '31'], ['Terraces', '300–420 m'], ['Bottles', '8,400']],
+    tone: 'field',
+    field: '#c9a196',
+    ink: '#1b1412',
+    media: { src: img('glass-grapes.jpg'), alt: 'A glass of deep red wine beside bunches of dark grapes and a vine leaf on a rusted iron table.', pos: '50% 35%' },
+    flip: false,
+  },
+  {
+    id: 'branco-de-altitude',
+    no: '02',
+    title: 'Branco de Altitude',
+    kind: 'White, high terraces',
+    year: '2023',
+    body: 'Rabigato and Códega from the top three walls of the valley, pressed before the sun clears the ridge. Twelve growers, all of them over seventy, all of them still climbing.',
+    meta: [['Vintage', '2023'], ['Growers', '12'], ['Terraces', '520–610 m'], ['Bottles', '5,100']],
+    tone: 'dark',
+    field: '#a7b097',
+    ink: '#f1ece2',
+    media: { src: img('rows-sunrise.jpg'), alt: 'Rows of vines on a slope at sunrise, mist lying in the valley beyond.', pos: '50% 62%' },
+    flip: true,
+  },
+  {
+    id: 'curtimenta',
+    no: '03',
+    title: 'Curtimenta',
+    kind: 'Skin-contact white',
+    year: '2022',
+    body: 'Three weeks on the skins in the cement tanks we were told to tear out in 1994. We kept them. The wine is amber, dry and a little stubborn, like the people who argued for it.',
+    meta: [['Vintage', '2022'], ['Growers', '9'], ['Tanks', 'Cement, 1961'], ['Bottles', '2,300']],
+    tone: 'field',
+    field: '#cfb27e',
+    ink: '#1d170e',
+    media: { src: img('tank-hall.jpg'), alt: 'A long cellar corridor lined with tall steel fermentation tanks, the floor washed red.', pos: '30% 50%' },
+    flip: false,
+  },
+  {
+    id: 'vinha-velha-9',
+    no: '04',
+    title: 'Vinha Velha N.º 9',
+    kind: 'Single-terrace red',
+    year: '2020',
+    body: 'One wall of vines planted in 1931 and never replanted. The parcel is too steep for a tractor and too small to sell on its own, so the whole cooperative carries it, one vintage a year.',
+    meta: [['Vintage', '2020'], ['Planted', '1931'], ['Terrace', 'N.º 9, 470 m'], ['Bottles', '1,180']],
+    tone: 'dark',
+    field: '#a1aeba',
+    ink: '#f1ece2',
+    media: 'label',
+    flip: true,
+  },
+];
+
+const services = [
+  {
+    id: 'bottling',
+    title: 'Grower bottling',
+    body: 'Bring us your grapes and leave with your own wine. We press, ferment and bottle small lots under the grower’s name, from 300 bottles up, and the label says whose hill it came from.',
+  },
+  {
+    id: 'barrels',
+    title: 'Barrel shares',
+    body: 'Buy a twelfth of one 228-litre barrel of the coming vintage. You taste it from the wood each spring and collect your twenty-five bottles when it is ready, not when the calendar says so.',
+  },
+  {
+    id: 'harvest',
+    title: 'Harvest weeks',
+    body: 'Six weeks each September, twelve places per week. You carry crates up the walls in the morning, sort at the press house after lunch, and eat with the growers at the long table.',
+  },
+  {
+    id: 'table',
+    title: 'The cellar table',
+    body: 'Saturday lunches in the old cement-tank room for twenty people at most. Cooked by whichever member family is on the rota, poured from whatever is open, and paid at the door.',
+  },
+];
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Socalco — Cooperative winery of the Vale da Lousa</title>
+    <meta name="description" content="Socalco is a wine cooperative of sixty-three growers working the schist terraces of the Vale da Lousa. Selected vintages, the cooperative and how to join a harvest." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <a class="skip" href="#vintages">Skip to selected vintages</a>
+
+    <header class="site-head" data-head data-tone="dark">
+      <nav class="head-side" aria-label="Primary">
+        <a class="pill" href="#vintages">Vintages</a>
+        <a class="pill hide-sm" href="#services">Services</a>
+      </nav>
+      <a class="brand" href="#top" aria-label="Socalco, back to top">SOCALCO<sup>®</sup></a>
+      <nav class="head-side end" aria-label="Secondary">
+        <a class="pill hide-sm" href="#cooperative">Cooperative</a>
+        <a class="pill" href="#visit">Visit</a>
+      </nav>
+    </header>
+
+    <main id="top">
+      <!-- Chapter 0 · Campaign hero -->
+      <section class="hero" data-tone="dark" aria-labelledby="hero-title">
+        <p class="side-label" aria-hidden="true">Cooperative winery · Vale da Lousa · Since 1958</p>
+        <figure class="hero-frame">
+          <svg class="hero-art" viewBox="0 0 1600 900" preserveAspectRatio="xMaxYMid slice" role="img" aria-label="Abstract campaign image: terraced hillsides drawn as stacked bands of slate, sage, ochre, clay and oxblood under a low peach sun.">
+            <defs>
+              <filter id="sun-blur" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="38" /></filter>
+              <filter id="grain"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch" /><feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .55 0" /></filter>
+              <linearGradient id="beam" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0" stop-color="#fff" stop-opacity="0" />
+                <stop offset=".5" stop-color="#fff" stop-opacity=".55" />
+                <stop offset="1" stop-color="#fff" stop-opacity="0" />
+              </linearGradient>
+            </defs>
+            <rect width="1600" height="900" fill="#e4d8c4" />
+            <circle cx="1210" cy="250" r="190" fill="#f1ad83" filter="url(#sun-blur)" />
+            <circle cx="1210" cy="250" r="118" fill="#f3c19c" />
+            <path d="M0 330 C 300 270 620 300 900 360 S 1400 450 1600 420 V900 H0Z" fill="#7d8b97" />
+            <path d="M0 455 C 330 400 660 450 980 505 S 1420 590 1600 560 V900 H0Z" fill="#8a9470" />
+            <path d="M0 575 C 300 530 700 590 1010 635 S 1450 715 1600 695 V900 H0Z" fill="#c8964e" />
+            <path d="M0 690 C 350 650 720 705 1060 745 S 1450 815 1600 800 V900 H0Z" fill="#b45a3b" />
+            <path d="M0 795 C 420 765 820 820 1600 880 V900 H0Z" fill="#45181d" />
+            <g fill="none" stroke="#f4eee4" stroke-opacity=".32" stroke-width="2">
+              <path d="M0 365 C 300 305 620 335 900 395 S 1400 485 1600 455" />
+              <path d="M0 395 C 300 335 620 365 900 425 S 1400 515 1600 485" />
+              <path d="M0 490 C 330 435 660 485 980 540 S 1420 625 1600 595" />
+              <path d="M0 520 C 330 465 660 515 980 570 S 1420 655 1600 625" />
+              <path d="M0 610 C 300 565 700 625 1010 670 S 1450 750 1600 730" />
+              <path d="M0 640 C 300 595 700 655 1010 700 S 1450 780 1600 760" />
+              <path d="M0 725 C 350 685 720 740 1060 780 S 1450 850 1600 835" />
+            </g>
+            <rect x="-200" y="380" width="2200" height="70" fill="url(#beam)" opacity=".28" transform="rotate(-17 800 450)" />
+            <rect width="1600" height="900" filter="url(#grain)" opacity=".22" />
+          </svg>
+          <h1 id="hero-title" class="wordmark" aria-label="Socalco">
+            <span class="wm-line" aria-hidden="true">
+              {['S', 'O', 'C', 'A', 'L', 'C', 'O'].map((ch, i) => <span class="wm-ch" style={`--i:${i}`}>{ch}</span>)}
+            </span>
+          </h1>
+          <figcaption class="hero-line">
+            <span class="eyebrow">Adega cooperativa · 63 growers</span>
+            Sixty-three families, one press house and the steepest schist in the valley. We bottle what the terraces say.
+          </figcaption>
+        </figure>
+      </section>
+
+      <!-- Chapters 1–4 · Selected vintages, each a cover -->
+      <section id="vintages" aria-labelledby="vintages-title" class="vintages">
+        <h2 id="vintages-title" class="sr-only">Selected vintages</h2>
+        {vintages.map((v) => (
+          <article
+            class:list={['chapter', `chapter--${v.tone}`, { 'chapter--flip': v.flip }]}
+            data-tone={v.tone === 'field' ? 'light' : 'dark'}
+            style={`--field:${v.field};--ink:${v.ink}`}
+            id={v.id}
+            aria-labelledby={`${v.id}-title`}
+          >
+            <div class="chapter-grid">
+              <div class="chapter-copy" data-stagger>
+                <p class="label">Selected vintages · {v.no} / 04</p>
+                <h3 id={`${v.id}-title`} class="chapter-title">{v.title}</h3>
+                <p class="chapter-kind">{v.kind}, {v.year}</p>
+                <p class="chapter-body">{v.body}</p>
+                <dl class="meta">
+                  {v.meta.map(([k, val]) => (
+                    <div>
+                      <dt>{k}</dt>
+                      <dd>{val}</dd>
+                    </div>
+                  ))}
+                </dl>
+                <a class="action" href={`#${v.id}`} data-media-link>
+                  Read the vintage notes <span aria-hidden="true">→</span>
+                </a>
+              </div>
+              <div class="chapter-media" data-mask>
+                {v.media === 'label' ? (
+                  <div class="media-layer">
+                    <svg class="label-art" viewBox="0 0 600 600" role="img" aria-label="The Vinha Velha N.º 9 bottle label: cream paper printed with slate contour lines tracing terrace nine and a large numeral nine.">
+                      <rect width="600" height="600" fill="#ebe3d3" />
+                      <g fill="none" stroke="#5f6f7d" stroke-width="1.6">
+                        {Array.from({ length: 16 }, (_, k) => (
+                          <path d={`M-20 ${120 + k * 26} C 140 ${90 + k * 26} 300 ${150 + k * 24} 620 ${110 + k * 27}`} opacity={k === 9 ? 1 : 0.45} stroke-width={k === 9 ? 4 : 1.6} />
+                        ))}
+                      </g>
+                      <circle cx="388" cy="364" r="9" fill="#b45a3b" />
+                      <text x="40" y="72" font-family="Archivo, sans-serif" font-size="22" font-weight="700" letter-spacing="4" fill="#22262b">SOCALCO</text>
+                      <text x="560" y="72" text-anchor="end" font-family="Inter, sans-serif" font-size="16" fill="#22262b">2020</text>
+                      <text x="34" y="560" font-family="Archivo, sans-serif" font-size="210" font-weight="800" fill="#22262b" letter-spacing="-8">N.º 9</text>
+                      <text x="40" y="100" font-family="Inter, sans-serif" font-size="14" fill="#22262b">Terrace planted 1931 · 470 m</text>
+                    </svg>
+                  </div>
+                ) : (
+                  <img class="media-layer" src={v.media.src} alt={v.media.alt} style={`object-position:${v.media.pos}`} width="1400" height="1400" loading="lazy" decoding="async" />
+                )}
+              </div>
+            </div>
+          </article>
+        ))}
+      </section>
+
+      <!-- Chapter 5 · The cooperative, after the work -->
+      <section id="cooperative" class="coop" data-tone="light" aria-labelledby="coop-title">
+        <div class="coop-grid">
+          <figure class="coop-portrait" data-mask>
+            <img class="media-layer" src={img('rows-sunrise.jpg')} alt="A grower's view down a single row of vines toward the misty valley floor." width="1400" height="2080" loading="lazy" decoding="async" style="object-position:50% 40%" />
+            <figcaption>Terrace 41, east wall, the morning the 2023 white was picked.</figcaption>
+          </figure>
+          <div class="coop-copy" data-stagger>
+            <p class="label">The cooperative</p>
+            <h2 id="coop-title" class="coop-title">A press house shared by sixty-three families.</h2>
+            <p>Socalco began in 1958, when eleven households on the Lousa walls admitted that none of them could afford a press alone. They built one, together, at the bottom of the hill, and agreed to carry their grapes down to it.</p>
+            <p>The rule has not changed: every member brings every grape, every lot is weighed in front of whoever grew it, and the vote on what goes into each bottle is one family, one hand. It is slow. It is also why the old terraces are still farmed.</p>
+            <dl class="facts">
+              <div><dt>Founded</dt><dd>1958</dd></div>
+              <div><dt>Member growers</dt><dd>63</dd></div>
+              <div><dt>Terraces worked</dt><dd>212</dd></div>
+              <div><dt>Presses</dt><dd>1</dd></div>
+            </dl>
+          </div>
+          <figure class="coop-detail" data-mask>
+            <img class="media-layer" src={img('open-rows.jpg')} alt="Long green rows of young vines running to a line of trees under an open sky." width="1400" height="1050" loading="lazy" decoding="async" />
+          </figure>
+        </div>
+      </section>
+
+      <!-- Chapter 6 · Oversized service handoff -->
+      <section id="services" class="services" data-tone="dark" aria-labelledby="services-title">
+        <div class="services-head">
+          <p class="label">What we do for you</p>
+          <h2 id="services-title" class="sr-only">Services</h2>
+          <p class="services-lede">Four ways in, from a lot of your own to a seat at lunch. Open one to read how it works.</p>
+        </div>
+        <ul class="service-list" role="list">
+          {services.map((s, i) => (
+            <li class="service">
+              <h3 class="service-h">
+                <button class="service-btn" type="button" aria-expanded="false" aria-controls={`svc-${s.id}`} data-svc>
+                  <span class="svc-no" aria-hidden="true">0{i + 1}</span>
+                  <span class="svc-mask"><span class="svc-text">{s.title}</span></span>
+                  <span class="svc-plus" aria-hidden="true"></span>
+                </button>
+              </h3>
+              <div class="service-panel" id={`svc-${s.id}`} hidden>
+                <p>{s.body}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <!-- Chapter 7 · Contact, one signal colour -->
+      <section id="visit" class="contact" data-tone="signal" aria-labelledby="visit-title">
+        <div class="contact-grid" data-stagger>
+          <p class="label">Harvest 2027 · Sept 6 – Oct 15</p>
+          <h2 id="visit-title" class="contact-title">Come up for the harvest.</h2>
+          <p class="contact-body">Twelve places a week, six weeks a year. You pick, you sort, you eat at the long table with the families who farm the walls. Bring boots; we have the crates.</p>
+          <a class="cta" href="mailto:colheita@socalco.example?subject=Harvest%20week%202027">Reserve a harvest week <span aria-hidden="true">↗</span></a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="foot" data-tone="dark">
+      <div class="foot-grid">
+        <p class="foot-mark">SOCALCO<sup>®</sup></p>
+        <nav aria-label="Footer">
+          <p class="label">Index</p>
+          <ul role="list">
+            <li><a href="#vintages">Vintages</a></li>
+            <li><a href="#cooperative">Cooperative</a></li>
+            <li><a href="#services">Services</a></li>
+            <li><a href="#visit">Visit</a></li>
+          </ul>
+        </nav>
+        <div>
+          <p class="label">Press house</p>
+          <address>Estrada do Lagar, 4<br />Vale da Lousa<br />Open Thu–Sat, 10:00–17:00</address>
+        </div>
+        <div>
+          <p class="label">Elsewhere</p>
+          <ul role="list">
+            <li><a href="#top">Instagram</a></li>
+            <li><a href="#top">Newsletter, twice a year</a></li>
+            <li><a href="mailto:adega@socalco.example">adega@socalco.example</a></li>
+          </ul>
+        </div>
+      </div>
+      <p class="legal">© Socalco, Adega Cooperativa do Vale da Lousa — a fictional cooperative. Drink with the people who made it.</p>
+    </footer>
+
+    <BackPill />
+  </body>
+</html>
+
+<style is:global>
+  :root {
+    --night: #121211;
+    --night-2: #1b1a18;
+    --paper: #f1ece2;
+    --signal: #ff5a2a;
+    --edge: clamp(16px, 3.9vw, 56px);
+    --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+    --display: 'Archivo', 'Helvetica Neue', Arial, sans-serif;
+    --text: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  body {
+    margin: 0;
+    background: var(--night);
+    color: var(--paper);
+    font-family: var(--text);
+    font-size: 16px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: clip;
+  }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+  .skip { position: absolute; left: 12px; top: -60px; z-index: 60; padding: 10px 14px; background: var(--paper); color: var(--night); border-radius: 999px; font-weight: 600; }
+  .skip:focus { top: 12px; }
+  :focus-visible { outline: 2px solid var(--signal); outline-offset: 3px; }
+
+  .label {
+    margin: 0;
+    font: 500 11px/1.3 var(--text);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  /* ---------- Header: outer-edge pills, centred mark, tone follows the section under it ---------- */
+  .site-head {
+    position: fixed; inset: 0 0 auto; z-index: 50;
+    display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;
+    padding: 16px var(--edge);
+    color: var(--paper);
+    transition: color 200ms var(--ease), transform 420ms var(--ease);
+  }
+  .site-head.is-tucked { transform: translateY(-100%); }
+  .site-head[data-tone='light'], .site-head[data-tone='signal'] { color: #141210; }
+  .head-side { display: flex; gap: 8px; }
+  .head-side.end { justify-content: flex-end; }
+  .pill {
+    display: inline-flex; align-items: center; height: 32px; padding: 0 14px;
+    border: 1px solid color-mix(in srgb, currentColor 30%, transparent);
+    border-radius: 999px;
+    font: 500 11px/1 var(--text); letter-spacing: 0.14em; text-transform: uppercase;
+    color: inherit; text-decoration: none;
+    background: color-mix(in srgb, var(--night) 55%, transparent);
+    backdrop-filter: blur(10px);
+    transition: background-color 180ms var(--ease), border-color 180ms var(--ease);
+  }
+  .site-head[data-tone='light'] .pill, .site-head[data-tone='signal'] .pill { background: rgb(255 255 255 / 0.28); }
+  .pill:hover { border-color: currentColor; }
+  .brand {
+    font: 800 20px/1 var(--display); font-stretch: 110%; letter-spacing: -0.01em;
+    color: inherit; text-decoration: none;
+  }
+  .brand sup, .foot-mark sup { font-size: 0.45em; vertical-align: 0.9em; margin-left: 1px; }
+
+  /* ---------- Hero ---------- */
+  .hero { position: relative; padding: 64px var(--edge) 0; }
+  .side-label {
+    position: absolute; left: calc(var(--edge) - 2px); top: 50%;
+    margin: 0; transform: translateY(-50%) rotate(180deg);
+    writing-mode: vertical-rl;
+    font: 500 10.5px/1 var(--text); letter-spacing: 0.2em; text-transform: uppercase;
+    color: rgb(241 236 226 / 0.72);
+  }
+  .hero-frame {
+    position: relative; margin: 0 0 0 clamp(0px, 3.4vw, 56px);
+    height: calc(100svh - 64px - 52px); min-height: 460px; max-height: 980px;
+    overflow: hidden; border-radius: 4px; background: #e4d8c4;
+  }
+  .hero-art { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .wordmark {
+    position: absolute; left: 0; right: 0; top: 47%; transform: translateY(-50%);
+    margin: 0; text-align: center;
+    font: 800 clamp(64px, 15.2vw, 236px)/0.82 var(--display); font-stretch: 112%;
+    letter-spacing: -0.045em;
+  }
+  .wm-line { display: inline-block; white-space: nowrap; overflow: hidden; padding: 0.04em 0.02em 0.06em; }
+  .wm-ch { display: inline-block; color: #f4eee4; }
+  .wm-ch:nth-child(2) { color: #45181d; }
+  .wm-ch:nth-child(4) { color: #22303b; }
+  .wm-ch:nth-child(7) { color: #45181d; }
+  .hero-line {
+    position: absolute; right: clamp(16px, 3vw, 48px); bottom: clamp(16px, 3vw, 44px);
+    max-width: 34ch; margin: 0;
+    font: 500 clamp(14px, 1.15vw, 16.5px)/1.45 var(--text); color: #fbf6ee;
+    text-shadow: 0 1px 12px rgb(40 10 12 / 0.35);
+  }
+  .hero-line .eyebrow { display: block; margin-bottom: 8px; font-size: 10.5px; letter-spacing: 0.18em; text-transform: uppercase; opacity: 0.85; }
+
+  /* ---------- Vintage chapters ---------- */
+  .vintages { margin-top: 52px; }
+  .chapter { color: var(--ink); }
+  .chapter--field { background: var(--field); }
+  .chapter--dark { background: var(--night); color: var(--paper); border-top: 1px solid rgb(241 236 226 / 0.12); }
+  .chapter-grid {
+    display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 24px;
+    padding: clamp(56px, 8vw, 120px) var(--edge);
+    align-items: end;
+  }
+  .chapter-copy { grid-column: 1 / span 6; display: flex; flex-direction: column; gap: 18px; padding-bottom: 4px; }
+  .chapter-media { grid-column: 7 / -1; }
+  .chapter--flip .chapter-copy { grid-column: 7 / -1; grid-row: 1; }
+  .chapter--flip .chapter-media { grid-column: 1 / span 6; grid-row: 1; }
+  .chapter-title {
+    margin: 10px 0 0;
+    font: 800 clamp(48px, 7.6vw, 124px)/0.88 var(--display); font-stretch: 104%;
+    letter-spacing: -0.04em; text-wrap: balance;
+  }
+  .chapter--dark .chapter-title { color: var(--field); }
+  .chapter-kind { margin: 0; font: 600 15px/1.3 var(--text); }
+  .chapter-body { margin: 0; max-width: 46ch; font-size: 16px; opacity: 0.86; }
+  .meta { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 10px 0 0; border-top: 1px solid color-mix(in srgb, currentColor 32%, transparent); }
+  .meta div { padding: 12px 12px 0 0; }
+  .meta div + div { padding-left: 12px; border-left: 1px solid color-mix(in srgb, currentColor 18%, transparent); }
+  .meta dt { font: 500 10.5px/1.3 var(--text); letter-spacing: 0.14em; text-transform: uppercase; opacity: 0.7; }
+  .meta dd { margin: 4px 0 0; font: 700 17px/1.2 var(--display); font-stretch: 100%; }
+  .action {
+    align-self: flex-start; margin-top: 10px;
+    display: inline-flex; align-items: center; gap: 10px; height: 44px; padding: 0 20px;
+    border-radius: 999px; border: 1px solid currentColor;
+    color: inherit; text-decoration: none; font: 600 14px/1 var(--text);
+    transition: background-color 180ms var(--ease), color 180ms var(--ease);
+  }
+  .action:hover, .action:focus-visible { background: var(--ink); color: var(--field); }
+  .chapter--dark .action:hover, .chapter--dark .action:focus-visible { background: var(--field); color: var(--night); border-color: var(--field); }
+  .action span { transition: transform 180ms var(--ease); }
+  .action:hover span, .action:focus-visible span { transform: translateX(3px); }
+
+  /* Media: height reserved, only the image layer is clipped/scaled. */
+  .chapter-media, .coop-portrait, .coop-detail { position: relative; overflow: hidden; border-radius: 3px; margin: 0; }
+  .chapter-media { aspect-ratio: 1; background: color-mix(in srgb, var(--field) 70%, #000); }
+  .media-layer { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 700ms var(--ease); }
+  .label-art { width: 100%; height: 100%; display: block; }
+  .chapter-media.is-hot .media-layer, .chapter-media:hover .media-layer { transform: scale(1.02); }
+
+  /* ---------- Cooperative ---------- */
+  .coop { background: var(--paper); color: #171512; }
+  .coop-grid {
+    display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 24px;
+    padding: clamp(72px, 10vw, 150px) var(--edge);
+  }
+  .coop-portrait { grid-column: 1 / span 5; grid-row: 1 / span 2; aspect-ratio: 4 / 5.4; background: #cfc6b5; }
+  .coop-portrait figcaption {
+    position: absolute; left: 14px; bottom: 12px; right: 14px;
+    font: 500 12px/1.4 var(--text); color: #fbf6ee; text-shadow: 0 1px 10px rgb(0 0 0 / 0.5);
+  }
+  .coop-copy { grid-column: 7 / span 6; display: flex; flex-direction: column; gap: 18px; }
+  .coop-copy p:not(.label) { margin: 0; max-width: 52ch; color: #3a3631; }
+  .coop-title {
+    margin: 8px 0 8px;
+    font: 800 clamp(36px, 4.6vw, 72px)/0.95 var(--display); font-stretch: 100%; letter-spacing: -0.035em;
+    text-wrap: balance;
+  }
+  .facts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 16px 0 0; border-top: 1px solid #17151233; }
+  .facts div { padding-top: 12px; }
+  .facts dt { font: 500 10.5px/1.3 var(--text); letter-spacing: 0.14em; text-transform: uppercase; color: #6b655c; }
+  .facts dd { margin: 6px 0 0; font: 800 clamp(30px, 3.4vw, 52px)/1 var(--display); letter-spacing: -0.03em; }
+  .coop-detail { grid-column: 9 / span 3; grid-row: 2; align-self: end; margin-top: 56px; aspect-ratio: 4 / 3; background: #cfc6b5; }
+
+  /* ---------- Services handoff ---------- */
+  .services { background: var(--night); padding: clamp(72px, 9vw, 140px) var(--edge) clamp(56px, 7vw, 100px); }
+  .services-head { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 24px; align-items: end; margin-bottom: 36px; color: rgb(241 236 226 / 0.75); }
+  .services-head .label { grid-column: 1 / span 4; }
+  .services-lede { grid-column: 8 / -1; margin: 0; max-width: 40ch; }
+  .service-list { list-style: none; margin: 0; padding: 0; border-top: 1px solid rgb(241 236 226 / 0.18); }
+  .service { border-bottom: 1px solid rgb(241 236 226 / 0.18); }
+  .service-h { margin: 0; }
+  .service-btn {
+    all: unset; box-sizing: border-box; cursor: pointer;
+    display: grid; grid-template-columns: 56px minmax(0, 1fr) 40px; align-items: center; width: 100%;
+    padding: clamp(10px, 1.4vw, 18px) 0;
+    color: rgb(241 236 226 / 0.9);
+  }
+  .service-btn:focus-visible { outline: 2px solid var(--signal); outline-offset: 2px; }
+  .svc-no { align-self: start; padding-top: 0.9em; font: 500 12px/1 var(--text); letter-spacing: 0.12em; color: rgb(241 236 226 / 0.5); }
+  .svc-mask { display: block; overflow: hidden; padding-bottom: 0.06em; }
+  .svc-text {
+    display: inline-block;
+    font: 800 clamp(40px, 9.4vw, 150px)/0.95 var(--display); font-stretch: 100%; letter-spacing: -0.045em;
+    text-decoration: underline; text-decoration-thickness: 0.04em; text-underline-offset: 0.1em;
+    text-decoration-color: transparent;
+    transition: color 200ms var(--ease), text-decoration-color 200ms var(--ease), transform 640ms var(--ease);
+  }
+  .service-btn:hover .svc-text, .service-btn:focus-visible .svc-text, .service-btn[aria-expanded='true'] .svc-text { color: var(--signal); text-decoration-color: currentColor; }
+  .svc-plus { position: relative; width: 28px; height: 28px; justify-self: end; }
+  .svc-plus::before, .svc-plus::after { content: ''; position: absolute; left: 50%; top: 50%; width: 22px; height: 2px; margin: -1px 0 0 -11px; background: currentColor; transition: transform 200ms var(--ease); }
+  .svc-plus::after { transform: rotate(90deg); }
+  .service-btn[aria-expanded='true'] .svc-plus::after { transform: rotate(0deg); }
+  .service-panel { padding: 0 40px 28px 56px; }
+  .service-panel p { margin: 0; max-width: 58ch; font-size: 17px; color: rgb(241 236 226 / 0.82); }
+
+  /* ---------- Contact ---------- */
+  .contact { background: var(--signal); color: #160a05; }
+  .contact-grid { padding: clamp(80px, 11vw, 170px) var(--edge); display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 24px; row-gap: 24px; }
+  .contact-grid > * { grid-column: 1 / -1; }
+  .contact-title {
+    margin: 0; font: 800 clamp(56px, 11.5vw, 190px)/0.86 var(--display); font-stretch: 104%; letter-spacing: -0.05em;
+    max-width: 10ch;
+  }
+  .contact-body { grid-column: 1 / span 6; margin: 8px 0 0; max-width: 44ch; font-size: 18px; }
+  .cta {
+    grid-column: 8 / -1; grid-row: 3; align-self: end; justify-self: end;
+    display: inline-flex; align-items: center; gap: 14px; height: 64px; padding: 0 30px;
+    background: #160a05; color: var(--signal); border-radius: 999px;
+    font: 700 18px/1 var(--text); text-decoration: none;
+    transition: background-color 180ms var(--ease), color 180ms var(--ease);
+  }
+  .cta:hover, .cta:focus-visible { background: var(--paper); color: #160a05; }
+  .cta:focus-visible { outline-color: #160a05; }
+
+  /* ---------- Footer ---------- */
+  .foot { background: var(--night); color: rgb(241 236 226 / 0.8); padding: 56px var(--edge) 88px; font-size: 14px; }
+  .foot-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 24px; row-gap: 32px; padding-bottom: 40px; border-bottom: 1px solid rgb(241 236 226 / 0.14); }
+  .foot-mark { grid-column: 1 / span 5; margin: 0; font: 800 clamp(32px, 4vw, 56px)/1 var(--display); font-stretch: 112%; color: var(--paper); letter-spacing: -0.03em; }
+  .foot-grid > :nth-child(2) { grid-column: 7 / span 2; }
+  .foot-grid > :nth-child(3) { grid-column: 9 / span 2; }
+  .foot-grid > :nth-child(4) { grid-column: 11 / span 2; }
+  .foot .label { color: rgb(241 236 226 / 0.5); margin-bottom: 12px; }
+  .foot ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+  .foot a { color: inherit; text-decoration: none; overflow-wrap: anywhere; }
+  .foot a:hover { color: var(--paper); text-decoration: underline; text-underline-offset: 3px; }
+  .foot address { font-style: normal; }
+  .legal { margin: 20px 0 0; font-size: 12px; color: rgb(241 236 226 / 0.45); }
+
+  /* ---------- Motion (only when JS is on and motion is welcome) ---------- */
+  .motion .wm-ch { transform: translateY(105%); animation: wm-rise 760ms var(--ease) forwards; animation-delay: calc(120ms + var(--i) * 60ms); }
+  .motion .hero-line { opacity: 0; animation: fade-up 640ms var(--ease) 620ms forwards; }
+  @keyframes wm-rise { to { transform: none; } }
+  @keyframes fade-up { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+  .motion [data-mask] .media-layer { clip-path: inset(100% 0 0 0); transition: clip-path 720ms var(--ease), transform 700ms var(--ease); }
+  .motion [data-mask].is-in .media-layer { clip-path: inset(0 0 0 0); }
+  .motion [data-stagger] > * { opacity: 0; transform: translateY(14px); transition: opacity 620ms var(--ease), transform 620ms var(--ease); transition-delay: calc(var(--i, 0) * 55ms); }
+  .motion [data-stagger].is-in > * { opacity: 1; transform: none; }
+  .motion .service .svc-text { transform: translateY(102%); }
+  .motion .service.is-in .svc-text { transform: none; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .media-layer, .svc-text, .action span { transition: none !important; }
+  }
+
+  /* ---------- Narrow ---------- */
+  @media (max-width: 860px) {
+    .hide-sm { display: none; }
+    .side-label { display: none; }
+    .hero { padding-top: 60px; }
+    .hero-frame { margin-left: 0; height: calc(100svh - 60px - 76px); min-height: 520px; }
+    .wordmark { top: 57%; font-size: 16.2vw; letter-spacing: -0.055em; }
+    .hero-line { left: 16px; right: 16px; max-width: none; }
+    .vintages { margin-top: 76px; }
+    .chapter-grid, .coop-grid, .services-head, .contact-grid, .foot-grid { grid-template-columns: minmax(0, 1fr); row-gap: 28px; }
+    .chapter-copy, .chapter-media, .chapter--flip .chapter-copy, .chapter--flip .chapter-media { grid-column: 1; grid-row: auto; }
+    .chapter-media, .chapter--flip .chapter-media { grid-row: 1; }
+    .meta { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .meta div:nth-child(3) { padding-left: 0; border-left: 0; }
+    .meta div:nth-child(n + 3) { padding-top: 14px; }
+    .coop-portrait { grid-column: 1; grid-row: auto; width: 82%; }
+    .coop-copy, .coop-detail { grid-column: 1; grid-row: auto; }
+    .coop-detail { width: 58%; justify-self: end; margin-top: -8px; }
+    .facts { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 16px; }
+    .services-head .label, .services-lede { grid-column: 1; }
+    .service-btn { grid-template-columns: 34px minmax(0, 1fr) 32px; }
+    .svc-text { font-size: clamp(34px, 11vw, 64px); overflow-wrap: anywhere; }
+    .service-panel { padding: 0 0 24px 34px; }
+    .contact-body, .cta { grid-column: 1; grid-row: auto; justify-self: start; }
+    .cta { height: 56px; font-size: 16px; padding: 0 24px; }
+    .foot-mark, .foot-grid > :nth-child(n) { grid-column: 1; }
+  }
+</style>
+
+<script>
+  const root = document.documentElement;
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!reduce && 'IntersectionObserver' in window) root.classList.add('motion');
+
+  // Stagger direct children (45–70ms band), reveal media masks and service lines on entry.
+  document.querySelectorAll<HTMLElement>('[data-stagger]').forEach((g) =>
+    [...g.children].forEach((c, i) => (c as HTMLElement).style.setProperty('--i', String(i))),
+  );
+  const targets = document.querySelectorAll('[data-stagger], [data-mask], .service');
+  if (root.classList.contains('motion')) {
+    const io = new IntersectionObserver(
+      (entries) =>
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            e.target.classList.add('is-in');
+            io.unobserve(e.target); // ponytail: one-shot reveals, nothing left running offscreen
+          }
+        }),
+      { rootMargin: '0px 0px -12% 0px', threshold: 0.12 },
+    );
+    targets.forEach((t) => io.observe(t));
+  }
+
+  // Header tone follows the section boundary under it.
+  const head = document.querySelector<HTMLElement>('[data-head]')!;
+  const toneIO = new IntersectionObserver(
+    (entries) =>
+      entries.forEach((e) => {
+        if (e.isIntersecting) head.dataset.tone = (e.target as HTMLElement).dataset.tone || 'dark';
+      }),
+    { rootMargin: '-28px 0px -96% 0px' },
+  );
+  document.querySelectorAll('main [data-tone], footer[data-tone]').forEach((s) => toneIO.observe(s));
+
+  // Header tucks away while reading down, returns on the way up (never over the hero).
+  let lastY = scrollY;
+  addEventListener(
+    'scroll',
+    () => {
+      const y = scrollY;
+      head.classList.toggle('is-tucked', y > lastY && y > innerHeight * 0.8 && !head.contains(document.activeElement));
+      lastY = y;
+    },
+    { passive: true },
+  );
+
+  // Project action and media share one hover/focus cue.
+  document.querySelectorAll<HTMLElement>('.chapter').forEach((ch) => {
+    const media = ch.querySelector('.chapter-media');
+    const link = ch.querySelector('[data-media-link]');
+    if (!media || !link) return;
+    const on = () => media.classList.add('is-hot');
+    const off = () => media.classList.remove('is-hot');
+    link.addEventListener('mouseenter', on);
+    link.addEventListener('focus', on);
+    link.addEventListener('mouseleave', off);
+    link.addEventListener('blur', off);
+  });
+
+  // Service disclosures: one open at a time, Escape closes and returns focus.
+  const btns = [...document.querySelectorAll<HTMLButtonElement>('[data-svc]')];
+  const setOpen = (b: HTMLButtonElement, open: boolean) => {
+    b.setAttribute('aria-expanded', String(open));
+    document.getElementById(b.getAttribute('aria-controls')!)!.hidden = !open;
+  };
+  btns.forEach((b) =>
+    b.addEventListener('click', () => {
+      const open = b.getAttribute('aria-expanded') !== 'true';
+      btns.forEach((o) => setOpen(o, false));
+      setOpen(b, open);
+    }),
+  );
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    const open = btns.find((b) => b.getAttribute('aria-expanded') === 'true');
+    if (!open) return;
+    setOpen(open, false);
+    open.focus();
+  });
+</script>

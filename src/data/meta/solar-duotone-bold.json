@@ -1,0 +1,7 @@
+{
+  "title": "Solar Duotone Bold",
+  "kind": "website",
+  "category": "Components",
+  "concept": "Strewnfield, a fictional dealer in certified meteorites: a periwinkle-to-cobalt hero with a giant Solar Duotone Bold star-fall glyph and labelled provenance chips, then a filterable specimen cabinet, a six-checkpoint provenance trail, a guarantee grid and a field-key legend — every icon one Solar Duotone Bold glyph whose secondary layer is recoloured ember or kept at its native 50 % opacity.",
+  "notes": "Icons are inlined SVG from a snapshot of the Iconify Solar set (src/components/skills/solar-duotone-bold/solar.json) rather than the iconify-icon web component, so the duotone secondary layer can be styled from CSS and nothing depends on the Iconify API at runtime. Reduced motion stops the floating hero chips."
+}

@@ -1,0 +1,7 @@
+{
+  "title": "Globe Particles",
+  "kind": "section",
+  "category": "3D & WebGL",
+  "concept": "Sotavento, a commons of 4,112 backyard weather stations: a Three.js particle globe whose white-hot core is the ground network and whose tilted radar-green ring is the week's balloon soundings, set in a Geist/Geist Mono instrument-panel hero with isobar contours.",
+  "notes": "Skill shaders and geometry recipe used verbatim (additive blending, radius 1.35, ring 2.05 ± 0.06, tilt −0.42/0.22, 0.12 rad/s, mouse strength 0.08), tuned through its own knobs: 4,000 sphere + 1,800 ring points, camera at 6.8 so the ring is never clipped, point size 25 scaled to canvas width. Plain WebGL, so headless SwiftShader renders it as designed. Accent read from --brand-accent. Pointer is damped and mouse-only; rendering pauses offscreen and in hidden tabs. Reduced motion draws one still frame and hides the pause control; a Pause/Resume button covers everyone else. Supporting sections explain the two populations, field readings and the station kit."
+}

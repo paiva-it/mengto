@@ -1,0 +1,7 @@
+{
+  "title": "Scroll-Scrubbed Word Reveal",
+  "kind": "section",
+  "category": "Motion & scroll",
+  "concept": "Northcorrie Avalanche Bulletin, a fictional mountain forecasting office: today's danger headline sits on a pinned snow-white stage and sharpens word by word with native scroll (opacity, blur and lift from one normalized progress), with a live percent-read counter and danger badge, then an in-flow passage on buried surface hoar using the same reversible mapping and a snowpack profile below.",
+  "notes": "Dependency-free: TreeWalker splits text nodes only, so em/mark/strong/link keep their semantics and wrapping stays free; one rAF maps scroll to --wp per word with ~22 % overlap. The stage opens at 36 % read so the first viewport shows the scrub. Reduced motion: no split, no pin, full text. Teardown restores the original subtrees."
+}

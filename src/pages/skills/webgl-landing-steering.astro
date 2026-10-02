@@ -1,0 +1,668 @@
+---
+import '../../styles/global.css';
+import BackPill from '../../components/BackPill.astro';
+
+// Halden Nib Works — a fictional fountain-pen workshop taking reservations for one pen.
+// Steering: pre-launch reservation page + premium craft brand → Lane A (subtle depth field).
+// The poster below is the same 18-band field the shader draws, rendered at build time,
+// so the hero is complete before (or without) WebGL.
+
+const BANDS = 18;
+const posterPaths = Array.from({ length: BANDS }, (_, i) => {
+  const k = i / (BANDS - 1);
+  const base = 0.08 + k * 0.46; // mirrors the shader's band span (GL y, 0 = bottom)
+  const pts: string[] = [];
+  for (let s = 0; s <= 48; s++) {
+    const u = s / 48;
+    const x = u * 1.6;
+    const y = base + 0.035 * Math.sin(x * 1.6 + i * 0.45) + 0.018 * Math.sin(x * 3.7 + i * 1.3);
+    pts.push(`${(u * 1440).toFixed(1)},${((1 - y) * 900).toFixed(1)}`);
+  }
+  return { d: `M${pts.join(' L')}`, o: (0.5 - k * 0.34).toFixed(2) };
+});
+
+const specs = [
+  { n: '01', t: 'Nib', v: '14k gold', d: 'Ground by hand in EF, F, M, B and a 1.1 mm stub. Every nib is tuned on our own paper before it is fitted.' },
+  { n: '02', t: 'Feed', v: '18 fins', d: 'Turned ebonite, one fin for every band on the barrel. It buffers a full page with the pen held nib-down in a warm pocket.' },
+  { n: '03', t: 'Barrel', v: '9 hours', d: 'Cast resin engraved on a 1904 rose engine. Eighteen waves, cut one pass at a time, so no two barrels drift alike.' },
+  { n: '04', t: 'Fill', v: '1.6 ml', d: 'A brass piston that draws about forty-two A5 pages at a fine nib. No converter, no cartridge, nothing to lose.' },
+];
+
+const lanes = [
+  { id: 'A', name: 'Subtle depth field', fit: 'Chosen', why: 'A reservation page for a quiet object. Slow bands sit behind the copy and never compete with the button.', chosen: true },
+  { id: 'B', name: 'Data / particle intelligence', fit: 'Rejected', why: 'Particle networks say "system". A pen is a hand tool; flowing nodes would borrow credibility it does not need.' },
+  { id: 'C', name: 'Object-centric 3D', fit: 'Later', why: 'Right for the launch film, wrong for a waitlist. A turntable model before the photographs exist would oversell the pen.' },
+  { id: 'D', name: 'Immersive cinematic', fit: 'Rejected', why: 'Volumetrics and post FX to sell 240 pens is a budget mismatch, and a phone in a café would pay for it.' },
+];
+
+const build = [
+  ['MVP', 'Paper colour, copy, button and the SVG poster of the eighteen bands. Ships and converts with no script at all.'],
+  ['Enhance', 'One fragment shader on a full-screen triangle draws the same bands, now drifting, plus the nib beam.'],
+  ['Guard', 'DPR cap 1.5, pause when hidden or scrolled away, context-loss restore, a still frame under reduced motion.'],
+  ['Stop', 'No bloom, no particles, no model. The next idea goes in a different section, never in the hero.'],
+];
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Halden Meridian 18 — Reserve a fountain pen from Batch 03</title>
+    <meta name="description" content="The Halden Meridian 18: a piston-fill fountain pen with eighteen engraved waves. 240 pens in Batch 03, reservations open." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <a class="skip" href="#reserve">Skip to reservation</a>
+
+    <header class="top wrap">
+      <a class="brand" href="#top" aria-label="Halden Nib Works, home">
+        <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M10 1 L15 9 L10 19 L5 9 Z" fill="currentColor" /><circle cx="10" cy="9.5" r="1.6" style="fill: var(--paper)" /></svg>
+        <span>Halden Nib Works</span>
+      </a>
+      <nav aria-label="Primary">
+        <a href="#pen">The pen</a>
+        <a href="#steering">Steering</a>
+        <a href="#reserve" class="nav-cta">Reserve</a>
+      </nav>
+    </header>
+
+    <main id="top">
+      <!-- HERO -->
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="field" aria-hidden="true">
+          <svg class="poster" viewBox="0 0 1440 900" preserveAspectRatio="none">
+            {posterPaths.map((p) => <path d={p.d} fill="none" style="stroke: var(--ink)" stroke-opacity={p.o} stroke-width="1" vector-effect="non-scaling-stroke" />)}
+          </svg>
+          <canvas id="field"></canvas>
+        </div>
+
+        <div class="hero-copy wrap">
+          <p class="eyebrow mono"><span class="dot"></span>Batch 03 · 240 pens · ships Feb 2027</p>
+          <h1 id="hero-title">Eighteen waves.<br />One steady line.</h1>
+          <div class="hero-side">
+            <p class="lede">The Meridian 18 is a piston-fill fountain pen with a hand-ground gold nib and a barrel engraved on a 1904 rose engine. We make 240 a year. Reserve yours for a €60 deposit.</p>
+            <div class="ctas">
+              <a class="btn btn-ink" href="#reserve">Reserve a Meridian</a>
+              <a class="btn btn-line" href="#pen">See the nib</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="meta wrap" aria-label="Live field readout">
+          <div class="meta-grid">
+            <div class="cell ink-cell">
+              <span class="k mono">Ink</span>
+              <div class="swatches" role="group" aria-label="Choose an ink colour">
+                <button type="button" class="sw" data-ink="blueblack" aria-pressed="true" style="--c:#1d2a48"><span class="sr">Iron-gall blue-black</span></button>
+                <button type="button" class="sw" data-ink="oxblood" aria-pressed="false" style="--c:#6b1d24"><span class="sr">Oxblood</span></button>
+                <button type="button" class="sw" data-ink="verdigris" aria-pressed="false" style="--c:#1f5953"><span class="sr">Verdigris</span></button>
+              </div>
+              <span class="v mono" id="ink-name">Iron-gall blue-black</span>
+            </div>
+            <div class="cell"><span class="k mono">Flow</span><span class="v mono">0.42 ml / page</span></div>
+            <div class="cell"><span class="k mono">Nib position</span><span class="v mono" id="beam-x">x 0.000</span></div>
+            <div class="cell"><span class="k mono">Render</span><span class="v mono" id="render-state">Poster</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- THE PEN -->
+      <section id="pen" class="section wrap" aria-labelledby="pen-title">
+        <div class="sec-head">
+          <p class="eyebrow mono">01 — The pen</p>
+          <h2 id="pen-title">Made to write the same line on page one and page four hundred.</h2>
+        </div>
+
+        <figure class="pen-figure">
+          <svg viewBox="0 0 1200 150" role="img" aria-labelledby="pen-cap">
+            <title id="pen-cap">Side view of the Meridian 18 with its engraved barrel</title>
+            <defs>
+              <clipPath id="barrel-clip"><rect x="210" y="40" width="760" height="70" rx="35" /></clipPath>
+              <linearGradient id="barrel-shade" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#fff" stop-opacity="0.22" />
+                <stop offset="0.45" stop-color="#fff" stop-opacity="0" />
+                <stop offset="1" stop-color="#000" stop-opacity="0.28" />
+              </linearGradient>
+            </defs>
+            <path d="M40 75 L150 58 L210 52 L210 98 L150 92 Z" fill="#b8a27a" />
+            <path d="M40 75 L150 58 L150 92 Z" fill="#d7c39b" />
+            <line x1="44" y1="75" x2="146" y2="75" stroke="#6d5b3c" stroke-width="1" />
+            <circle cx="126" cy="75" r="3" fill="#6d5b3c" />
+            <rect x="210" y="40" width="760" height="70" rx="35" class="ink-fill" />
+            <g clip-path="url(#barrel-clip)" fill="none" stroke="#fff" stroke-opacity="0.16" stroke-width="1.2">
+              {Array.from({ length: 18 }, (_, i) => {
+                const y = 43 + i * 3.8;
+                let d = `M210 ${y}`;
+                for (let x = 210; x <= 970; x += 10) d += ` L${x} ${(y + 2.2 * Math.sin(x / 22 + i * 0.6)).toFixed(1)}`;
+                return <path d={d} />;
+              })}
+            </g>
+            <rect x="210" y="40" width="760" height="70" rx="35" fill="url(#barrel-shade)" />
+            <rect x="960" y="44" width="16" height="62" fill="#c9b68e" />
+            <rect x="976" y="46" width="170" height="58" rx="22" class="ink-fill" />
+            <rect x="976" y="46" width="170" height="58" rx="22" fill="url(#barrel-shade)" />
+          </svg>
+          <figcaption class="mono">Meridian 18 · 148 mm capped · 24 g · nib shown in F</figcaption>
+        </figure>
+
+        <ol class="specs">
+          {specs.map((s) => (
+            <li class="spec">
+              <span class="num mono">{s.n}</span>
+              <h3>{s.t}</h3>
+              <p class="spec-v">{s.v}</p>
+              <p class="spec-d">{s.d}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <!-- STEERING -->
+      <section id="steering" class="section steering" aria-labelledby="steer-title">
+        <div class="wrap">
+          <div class="sec-head">
+            <p class="eyebrow mono">02 — How this page was steered</p>
+            <h2 id="steer-title">One lane, chosen before a line of shader was written.</h2>
+            <p class="sec-lede">A pre-launch reservation page for a craft object. The steering matrix allows Lane A or B; the brand is quiet and analogue, so the field stays behind the copy and the button stays the loudest thing on screen.</p>
+          </div>
+
+          <ul class="lanes">
+            {lanes.map((l) => (
+              <li class:list={['lane', { chosen: l.chosen }]}>
+                <div class="lane-top">
+                  <span class="lane-id mono">Lane {l.id}</span>
+                  <span class="lane-fit mono">{l.fit}</span>
+                </div>
+                <h3>{l.name}</h3>
+                <p>{l.why}</p>
+              </li>
+            ))}
+          </ul>
+
+          <div class="spec-sheet">
+            <div class="sheet-col">
+              <h3 class="mono">Visual spec</h3>
+              <dl>
+                <div><dt>Palette</dt><dd><span class="chip" style="--c:#efe9dd"></span>Paper #EFE9DD · <span class="chip" style="--c:#1d2a48"></span>Ink #1D2A48 · <span class="chip" style="--c:#e0502c"></span>Nib beam #E0502C</dd></div>
+                <div><dt>Motion</dt><dd>18 bands drift at 0.18 rad/s; the nib beam crosses the page in 16 s. Amplitude ≤ 3.5 % of the viewport height.</dd></div>
+                <div><dt>Composition</dt><dd>Copy in the upper half, field in the lower half, readout pinned to the frame. Bands fade out before they reach the headline.</dd></div>
+              </dl>
+            </div>
+            <div class="sheet-col">
+              <h3 class="mono">Stack &amp; tier</h3>
+              <dl>
+                <div><dt>Renderer</dt><dd>Raw WebGL 1, one fragment shader on a full-screen triangle. No Three.js: there is nothing to scene-graph.</dd></div>
+                <div><dt>Risk tier</dt><dd>Low. 18 loop iterations per pixel, no textures, no post-processing.</dd></div>
+                <div><dt>Fallback</dt><dd>The SVG poster above the fold is the same bands, built at compile time. The canvas fades in only after its first frame.</dd></div>
+              </dl>
+            </div>
+          </div>
+
+          <div class="gates">
+            <h3 class="mono">Quality gates · read from this page, now</h3>
+            <ul>
+              <li><span class="g-k">Message</span><span class="g-v">Headline and button sit on flat paper at 13.5 : 1 (body copy 5.2 : 1)</span><span class="g-s pass mono">pass</span></li>
+              <li><span class="g-k">Pixel ratio</span><span class="g-v" id="g-dpr">min(devicePixelRatio, 1.5)</span><span class="g-s pass mono">cap</span></li>
+              <li><span class="g-k">Motion</span><span class="g-v" id="g-motion">Checking prefers-reduced-motion…</span><span class="g-s mono" id="g-motion-s">…</span></li>
+              <li><span class="g-k">Renderer</span><span class="g-v" id="g-gl">Checking WebGL…</span><span class="g-s mono" id="g-gl-s">…</span></li>
+              <li><span class="g-k">Frame time</span><span class="g-v" id="g-ft">Measured while the hero is visible</span><span class="g-s mono" id="g-ft-s">…</span></li>
+              <li><span class="g-k">Reliability</span><span class="g-v">Pauses when hidden or off-screen; restores on context loss</span><span class="g-s pass mono">armed</span></li>
+            </ul>
+          </div>
+
+          <ol class="build">
+            {build.map(([k, v], i) => (
+              <li><span class="mono">{String(i + 1).padStart(2, '0')} {k}</span><p>{v}</p></li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      <!-- RESERVE -->
+      <section id="reserve" class="section wrap reserve" aria-labelledby="reserve-title">
+        <div class="reserve-copy">
+          <p class="eyebrow mono">03 — Batch 03</p>
+          <h2 id="reserve-title">Reserve one of 240.</h2>
+          <p class="sec-lede">€480 in full, €60 now. We write to you when your barrel comes off the engine, with a photograph of its waves, and you pay the rest only if you still want it.</p>
+          <p class="left mono"><strong id="left">173</strong> of 240 still open</p>
+        </div>
+        <form class="form" id="reserve-form" novalidate>
+          <label for="email">E-mail</label>
+          <input id="email" name="email" type="email" autocomplete="email" required placeholder="you@studio.com" />
+          <label for="nib">Nib</label>
+          <select id="nib" name="nib">
+            <option>Extra fine</option>
+            <option selected>Fine</option>
+            <option>Medium</option>
+            <option>Broad</option>
+            <option>1.1 mm stub</option>
+          </select>
+          <button class="btn btn-ink" type="submit">Hold my pen</button>
+          <p class="form-msg" id="form-msg" role="status" aria-live="polite"></p>
+        </form>
+      </section>
+    </main>
+
+    <footer class="foot wrap">
+      <span>Halden Nib Works · Bench 4, Rope Walk Yard</span>
+      <span class="mono">A fictional workshop, made to demonstrate the webgl-landing-steering skill</span>
+    </footer>
+
+    <BackPill />
+
+    <style is:global>
+      :root {
+        --paper: #efe9dd;
+        --paper-2: #e6dfd0;
+        --ink: #1d2a48;
+        --ink-live: #1d2a48;
+        --text: #18202f;
+        --muted: #5b6070;
+        --rule: rgb(24 32 47 / 0.14);
+        --beam: #e0502c;
+        --pad: clamp(16px, 4vw, 48px);
+      }
+      html { scroll-behavior: smooth; }
+      @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+      body {
+        margin: 0; background: var(--paper); color: var(--text);
+        font-family: 'Inter Tight', ui-sans-serif, system-ui, sans-serif;
+        -webkit-font-smoothing: antialiased; overflow-x: clip;
+      }
+      .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+      .wrap { width: 100%; max-width: 1440px; margin-inline: auto; padding-inline: var(--pad); box-sizing: border-box; }
+      .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+      .skip { position: absolute; left: -999px; top: 8px; z-index: 50; background: var(--text); color: var(--paper); padding: 8px 12px; border-radius: 6px; }
+      .skip:focus { left: 16px; }
+      :focus-visible { outline: 2px solid var(--beam); outline-offset: 3px; border-radius: 4px; }
+
+      /* header */
+      .top { position: absolute; inset: 0 0 auto; z-index: 5; display: flex; align-items: center; justify-content: space-between; height: 72px; left: 50%; transform: translateX(-50%); }
+      .top::after { content: ''; position: absolute; left: var(--pad); right: var(--pad); bottom: 0; border-bottom: 1px solid var(--rule); }
+      .brand { display: inline-flex; align-items: center; gap: 10px; color: var(--text); text-decoration: none; font-weight: 600; letter-spacing: -0.01em; font-size: 15px; }
+      .brand svg { color: var(--ink-live); transition: color .6s; }
+      nav { display: flex; gap: clamp(14px, 3vw, 32px); align-items: center; font-size: 14px; }
+      nav a { color: var(--muted); text-decoration: none; }
+      nav a:hover { color: var(--text); }
+      nav .nav-cta { color: var(--text); font-weight: 600; border-bottom: 1.5px solid var(--beam); padding-bottom: 2px; }
+
+      /* hero */
+      .hero { position: relative; min-height: 100svh; display: flex; flex-direction: column; overflow: hidden; isolation: isolate; }
+      .field { position: absolute; inset: 0; z-index: -1; }
+      .field .poster, .field canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+      .field canvas { opacity: 0; transition: opacity 1.2s ease; }
+      .field.live canvas { opacity: 1; }
+      .field.live .poster { opacity: 0; transition: opacity 1.2s ease; }
+      .hero-copy { padding-top: clamp(120px, 17vh, 168px); display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 24px; align-items: end; }
+      .eyebrow { grid-column: 1 / -1; font-size: 11.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin: 0 0 22px; display: flex; align-items: center; gap: 10px; }
+      .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--beam); box-shadow: 0 0 0 4px rgb(224 80 44 / 0.15); flex: none; }
+      h1 { grid-column: 1 / span 8; margin: 0; font-weight: 600; font-size: clamp(46px, 7.6vw, 118px); line-height: 0.9; letter-spacing: -0.055em; color: var(--text); }
+      .hero-side { grid-column: 9 / span 4; padding-bottom: 8px; }
+      .lede { margin: 0 0 26px; font-size: clamp(15px, 1.15vw, 17px); line-height: 1.55; color: var(--muted); max-width: 40ch; }
+      .ctas { display: flex; flex-wrap: wrap; gap: 10px; }
+      .btn { display: inline-flex; align-items: center; justify-content: center; height: 48px; padding: 0 22px; border-radius: 999px; font: 600 15px/1 'Inter Tight', sans-serif; text-decoration: none; cursor: pointer; border: 0; transition: transform .2s, background .3s; }
+      .btn:active { transform: translateY(1px); }
+      .btn-ink { background: var(--text); color: var(--paper); box-shadow: 0 1px 0 rgb(255 255 255 / .2) inset, 0 8px 24px -10px rgb(24 32 47 / .6); }
+      .btn-ink:hover { background: #000; }
+      .btn-line { color: var(--text); background: rgb(239 233 221 / .7); box-shadow: inset 0 0 0 1px var(--rule); backdrop-filter: blur(6px); }
+      .btn-line:hover { box-shadow: inset 0 0 0 1px var(--text); }
+
+      .meta { margin-top: auto; padding-bottom: 28px; }
+      .meta-grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; border: 1px solid var(--rule); border-radius: 14px; background: rgb(239 233 221 / 0.72); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); position: relative; }
+      .meta-grid::before, .meta-grid::after { content: ''; position: absolute; width: 10px; height: 10px; border-color: var(--text); border-style: solid; }
+      .meta-grid::before { top: -5px; left: -5px; border-width: 1px 0 0 1px; }
+      .meta-grid::after { bottom: -5px; right: -5px; border-width: 0 1px 1px 0; }
+      .cell { padding: 16px 20px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+      .cell + .cell { border-left: 1px solid var(--rule); }
+      .k { font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+      .v { font-size: 13px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .ink-cell { flex-direction: row; flex-wrap: wrap; align-items: center; column-gap: 14px; }
+      .ink-cell .k { flex-basis: 100%; }
+      .ink-cell .v { white-space: normal; }
+      .swatches { display: flex; gap: 8px; }
+      .sw { width: 24px; height: 24px; border-radius: 50%; border: 0; padding: 0; cursor: pointer; background: var(--c); box-shadow: 0 0 0 2px var(--paper), 0 0 0 3px transparent; transition: box-shadow .2s, transform .2s; }
+      .sw:hover { transform: scale(1.08); }
+      .sw[aria-pressed='true'] { box-shadow: 0 0 0 2px var(--paper), 0 0 0 3.5px var(--c); }
+
+      /* sections */
+      .section { padding-block: clamp(80px, 12vw, 160px); }
+      .sec-head { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 24px; margin-bottom: clamp(40px, 6vw, 72px); }
+      .sec-head .eyebrow { margin-bottom: 18px; }
+      h2 { grid-column: 1 / span 9; margin: 0; font-weight: 600; font-size: clamp(32px, 4.4vw, 64px); line-height: 1; letter-spacing: -0.045em; }
+      .sec-lede { grid-column: 1 / span 7; margin: 22px 0 0; font-size: 17px; line-height: 1.6; color: var(--muted); }
+
+      .pen-figure { margin: 0 0 clamp(48px, 7vw, 88px); padding: clamp(20px, 4vw, 56px) clamp(12px, 3vw, 40px) 20px; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); background: linear-gradient(180deg, transparent, var(--paper-2)); }
+      .pen-figure svg { width: 100%; height: auto; display: block; filter: drop-shadow(0 18px 18px rgb(24 32 47 / .18)); }
+      .ink-fill { fill: var(--ink-live); transition: fill .6s; }
+      .pen-figure figcaption { margin-top: 18px; font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+
+      .specs { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--text); }
+      .spec { padding: 22px 24px 8px 0; }
+      .spec + .spec { padding-left: 24px; border-left: 1px solid var(--rule); }
+      .num { font-size: 11.5px; color: var(--beam); }
+      .spec h3 { margin: 14px 0 4px; font-size: 14px; font-weight: 500; color: var(--muted); }
+      .spec-v { margin: 0 0 14px; font-size: clamp(30px, 3vw, 44px); font-weight: 600; letter-spacing: -0.04em; }
+      .spec-d { margin: 0; font-size: 15px; line-height: 1.55; color: var(--muted); }
+
+      /* steering */
+      .steering { background: #e7e0d2; border-block: 1px solid var(--rule); }
+      .lanes { list-style: none; margin: 0 0 clamp(40px, 6vw, 72px); padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+      .lane { border: 1px solid var(--rule); border-radius: 14px; padding: 20px; background: rgb(239 233 221 / .5); }
+      .lane.chosen { background: var(--text); color: var(--paper); border-color: var(--text); }
+      .lane-top { display: flex; justify-content: space-between; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; }
+      .lane-id { color: inherit; opacity: .7; }
+      .lane-fit { color: var(--muted); }
+      .lane.chosen .lane-fit { color: var(--beam); }
+      .lane h3 { margin: 40px 0 10px; font-size: 21px; font-weight: 600; letter-spacing: -0.02em; }
+      .lane p { margin: 0; font-size: 14.5px; line-height: 1.55; opacity: .75; }
+
+      .spec-sheet { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(24px, 4vw, 56px); margin-bottom: clamp(40px, 6vw, 72px); }
+      .sheet-col h3, .gates h3 { margin: 0 0 14px; font-size: 11.5px; font-weight: 500; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+      dl { margin: 0; border-top: 1px solid var(--text); }
+      dl > div { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--rule); }
+      dt { font-weight: 600; font-size: 15px; }
+      dd { margin: 0; font-size: 15px; line-height: 1.55; color: var(--muted); }
+      .chip { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--c); box-shadow: inset 0 0 0 1px rgb(0 0 0 / .15); margin-right: 6px; vertical-align: -1px; }
+
+      .gates { margin-bottom: clamp(40px, 6vw, 72px); }
+      .gates ul { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--text); }
+      .gates li { display: grid; grid-template-columns: 160px minmax(0, 1fr) auto; gap: 16px; align-items: baseline; padding: 14px 0; border-bottom: 1px solid var(--rule); font-size: 15px; }
+      .g-k { font-weight: 600; }
+      .g-v { color: var(--muted); }
+      .g-s { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; padding: 4px 8px; border-radius: 999px; box-shadow: inset 0 0 0 1px var(--rule); color: var(--muted); }
+      .g-s.pass { color: #22603a; box-shadow: inset 0 0 0 1px rgb(34 96 58 / .35); background: rgb(34 96 58 / .07); }
+      .g-s.note { color: #8a4b12; box-shadow: inset 0 0 0 1px rgb(138 75 18 / .35); background: rgb(138 75 18 / .07); }
+
+      .build { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; }
+      .build li { border-top: 1px solid var(--text); padding-top: 14px; }
+      .build span { font-size: 11.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--beam); }
+      .build p { margin: 10px 0 0; font-size: 15px; line-height: 1.55; color: var(--muted); }
+
+      /* reserve */
+      .reserve { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 24px; align-items: start; }
+      .reserve-copy { grid-column: 1 / span 6; }
+      .reserve-copy h2 { font-size: clamp(40px, 6vw, 88px); }
+      .reserve-copy .sec-lede { max-width: 46ch; }
+      .left { margin: 28px 0 0; font-size: 13px; color: var(--muted); }
+      .left strong { color: var(--text); font-weight: 500; font-size: 15px; }
+      .form { grid-column: 8 / span 5; display: grid; gap: 8px; padding: 28px; border-radius: 18px; background: #f6f2ea; box-shadow: inset 0 0 0 1px var(--rule), 0 24px 48px -32px rgb(24 32 47 / .45); }
+      .form label { font-size: 13px; font-weight: 500; color: var(--muted); margin-top: 8px; }
+      .form input, .form select { height: 48px; padding: 0 14px; border-radius: 10px; border: 1px solid var(--rule); background: var(--paper); font: 400 16px 'Inter Tight', sans-serif; color: var(--text); width: 100%; box-sizing: border-box; }
+      .form .btn { margin-top: 16px; width: 100%; }
+      .form-msg { margin: 6px 0 0; min-height: 1.4em; font-size: 14px; color: var(--muted); }
+
+      .foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; padding-block: 28px 80px; border-top: 1px solid var(--rule); font-size: 13px; color: var(--muted); }
+      .foot .mono { font-size: 11.5px; }
+
+      @media (max-width: 1024px) {
+        h1 { grid-column: 1 / -1; }
+        .hero-side { grid-column: 1 / span 9; margin-top: 28px; }
+        .meta-grid { grid-template-columns: 1fr 1fr; }
+        .cell:nth-child(3) { border-left: 0; }
+        .cell:nth-child(n + 3) { border-top: 1px solid var(--rule); }
+        .specs, .build { grid-template-columns: 1fr 1fr; }
+        .spec:nth-child(3) { padding-left: 0; border-left: 0; }
+        .lanes { grid-template-columns: 1fr 1fr; }
+        .spec-sheet { grid-template-columns: 1fr; }
+        .reserve-copy, .form { grid-column: 1 / -1; }
+        .form { margin-top: 40px; }
+        h2, .sec-lede { grid-column: 1 / -1; }
+      }
+      @media (max-width: 640px) {
+        nav a:not(.nav-cta) { display: none; }
+        .hero-copy { padding-top: 112px; }
+        .hero-side { grid-column: 1 / -1; }
+        .ctas .btn { flex: 1 1 auto; }
+        .meta { padding-bottom: 16px; }
+        .cell { padding: 12px 14px; }
+        .specs, .build, .lanes { grid-template-columns: 1fr; }
+        .spec, .spec + .spec { padding-left: 0; border-left: 0; }
+        .spec + .spec { border-top: 1px solid var(--rule); }
+        dl > div { grid-template-columns: 1fr; gap: 4px; }
+        .gates li { grid-template-columns: minmax(0, 1fr) auto; }
+        .g-v { grid-column: 1 / -1; grid-row: 2; }
+        .form { padding: 20px; }
+      }
+    </style>
+
+    <script>
+      // Lane A field: 18 slow ink bands + one narrow "nib" beam, one fragment shader, WebGL 1.
+      // Fallback first: the SVG poster is already on screen; the canvas only fades in after a frame.
+      const INKS = {
+        blueblack: { name: 'Iron-gall blue-black', ink: '#1d2a48', beam: '#e0502c' },
+        oxblood: { name: 'Oxblood', ink: '#6b1d24', beam: '#2f63d6' },
+        verdigris: { name: 'Verdigris', ink: '#1f5953', beam: '#e0502c' },
+      } as const;
+      type InkKey = keyof typeof INKS;
+
+      const hex = (h: string) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16) / 255) as [number, number, number];
+      const $ = (id: string) => document.getElementById(id)!;
+
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+      const DPR_CAP = 1.5;
+
+      const VERT = `attribute vec2 p; void main(){ gl_Position = vec4(p, 0.0, 1.0); }`;
+      const FRAG = `
+precision highp float;
+uniform vec2 uRes; uniform float uTime; uniform float uBeamX; uniform float uSpan;
+uniform vec3 uInk; uniform vec3 uPaper; uniform vec3 uBeam;
+float h(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+float n(vec2 p){ vec2 i = floor(p), f = fract(p); f = f*f*(3.0-2.0*f);
+  return mix(mix(h(i), h(i+vec2(1,0)), f.x), mix(h(i+vec2(0,1)), h(i+vec2(1,1)), f.x), f.y); }
+void main(){
+  vec2 uv = gl_FragCoord.xy / uRes;
+  float aspect = uRes.x / uRes.y;
+  float px = 1.0 / uRes.y;
+  float x = uv.x * aspect;
+  float line = 0.0; float wash = 0.0; float hit = 0.0;
+  float bd = abs(uv.x - uBeamX) * aspect;
+  float beamCore = exp(-bd * 900.0);
+  float beamHalo = exp(-bd * 28.0);
+  for (int i = 0; i < 18; i++) {
+    float fi = float(i); float k = fi / 17.0;
+    float base = 0.08 + k * uSpan;
+    float y = base + 0.035 * sin(x * 1.6 + uTime * 0.18 + fi * 0.45)
+                   + 0.018 * sin(x * 3.7 - uTime * 0.11 + fi * 1.3)
+                   + 0.012 * (n(vec2(x * 1.3 + uTime * 0.04, fi * 3.1)) - 0.5);
+    float d = abs(uv.y - y);
+    float w = px * (0.45 + 0.8 * (1.0 - k));
+    float l = 1.0 - smoothstep(w, w + 1.4 * px, d);
+    float a = mix(0.78, 0.2, k);
+    line = max(line, l * a);
+    float below = y - uv.y;
+    wash += step(0.0, below) * exp(-below * 34.0) * 0.022 * (1.0 - k * 0.7);
+    hit = max(hit, (1.0 - smoothstep(0.0, 0.006, d)) * beamHalo);
+  }
+  float topFade = 1.0 - smoothstep(0.08 + uSpan, 0.2 + uSpan, uv.y);
+  vec3 col = uPaper;
+  col = mix(col, uInk, clamp(wash, 0.0, 0.18));
+  col = mix(col, uInk, line);
+  float beam = (beamCore * 0.75 + beamHalo * 0.08) * topFade;
+  col = mix(col, uBeam, clamp(beam + hit * 0.9, 0.0, 1.0));
+  // paper tooth + soft edge vignette
+  col -= (h(gl_FragCoord.xy) - 0.5) * 0.018;
+  float v = smoothstep(1.25, 0.35, length((uv - vec2(0.5, 0.55)) * vec2(1.0, 1.3)));
+  col *= mix(0.94, 1.0, v);
+  gl_FragColor = vec4(col, 1.0);
+}`;
+
+      const fieldWrap = document.querySelector<HTMLElement>('.field')!;
+      const canvas = $('field') as HTMLCanvasElement;
+      const renderState = $('render-state');
+      const beamOut = $('beam-x');
+
+      let ink: InkKey = 'blueblack';
+      const setGate = (id: string, text: string, status: string, cls: string) => {
+        $(id).textContent = text;
+        const s = $(`${id}-s`);
+        s.textContent = status;
+        s.className = `g-s mono ${cls}`;
+      };
+
+      const gl = canvas.getContext('webgl', { antialias: false, alpha: false, powerPreference: 'low-power', preserveDrawingBuffer: false });
+      type Prog = { prog: WebGLProgram; u: Record<string, WebGLUniformLocation | null> };
+      let prog: Prog | null = null;
+
+      const compile = (g: WebGLRenderingContext): Prog | null => {
+        const sh = (type: number, src: string) => {
+          const s = g.createShader(type)!;
+          g.shaderSource(s, src);
+          g.compileShader(s);
+          return g.getShaderParameter(s, g.COMPILE_STATUS) ? s : null;
+        };
+        const vs = sh(g.VERTEX_SHADER, VERT);
+        const fs = sh(g.FRAGMENT_SHADER, FRAG);
+        if (!vs || !fs) return null;
+        const p = g.createProgram()!;
+        g.attachShader(p, vs);
+        g.attachShader(p, fs);
+        g.linkProgram(p);
+        if (!g.getProgramParameter(p, g.LINK_STATUS)) return null;
+        g.useProgram(p);
+        const buf = g.createBuffer();
+        g.bindBuffer(g.ARRAY_BUFFER, buf);
+        g.bufferData(g.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), g.STATIC_DRAW);
+        const loc = g.getAttribLocation(p, 'p');
+        g.enableVertexAttribArray(loc);
+        g.vertexAttribPointer(loc, 2, g.FLOAT, false, 0, 0);
+        const u: Prog['u'] = {};
+        for (const k of ['uRes', 'uTime', 'uBeamX', 'uSpan', 'uInk', 'uPaper', 'uBeam']) u[k] = g.getUniformLocation(p, k);
+        g.uniform3fv(u.uPaper, hex('#efe9dd'));
+        return { prog: p, u };
+      };
+
+      let w = 0, h = 0;
+      const resize = () => {
+        const dpr = Math.min(devicePixelRatio || 1, DPR_CAP);
+        const r = canvas.getBoundingClientRect();
+        w = Math.max(1, Math.round(r.width * dpr));
+        h = Math.max(1, Math.round(r.height * dpr));
+        canvas.width = w;
+        canvas.height = h;
+        $('g-dpr').textContent = `min(devicePixelRatio ${(devicePixelRatio || 1).toFixed(2)}, ${DPR_CAP}) → rendering at ${dpr.toFixed(2)}×, ${w}×${h} px`;
+      };
+
+      // ponytail: frame time is a rolling average of rAF deltas, not GPU timer queries.
+      let t0 = performance.now(), last = t0, avg = 16.7, frames = 0, raf = 0;
+      let visible = true, onscreen = true, lost = false;
+
+      const draw = (now: number) => {
+        if (!gl || !prog) return;
+        const t = reduce.matches ? 12 : (now - t0) / 1000;
+        const beamX = reduce.matches ? 0.62 : 0.06 + 0.88 * (0.5 - 0.5 * Math.cos((t / 16) * Math.PI));
+        const span = w / h < 1 ? 0.3 : 0.44;
+        gl.viewport(0, 0, w, h);
+        gl.uniform2f(prog.u.uRes, w, h);
+        gl.uniform1f(prog.u.uTime, t);
+        gl.uniform1f(prog.u.uBeamX, beamX);
+        gl.uniform1f(prog.u.uSpan, span);
+        gl.uniform3fv(prog.u.uInk, hex(INKS[ink].ink));
+        gl.uniform3fv(prog.u.uBeam, hex(INKS[ink].beam));
+        gl.drawArrays(gl.TRIANGLES, 0, 3);
+        beamOut.textContent = `x ${beamX.toFixed(3)}`;
+        if (!fieldWrap.classList.contains('live')) fieldWrap.classList.add('live');
+      };
+
+      const loop = (now: number) => {
+        const dt = now - last;
+        last = now;
+        if (frames++ > 2) avg = avg * 0.92 + dt * 0.08;
+        draw(now);
+        if (frames % 30 === 0) {
+          const fps = Math.round(1000 / avg);
+          $('g-ft').textContent = `${avg.toFixed(1)} ms average (${fps} fps) on this device`;
+          const s = $('g-ft-s');
+          s.textContent = avg < 20 ? 'pass' : 'slow';
+          s.className = `g-s mono ${avg < 20 ? 'pass' : 'note'}`;
+          renderState.textContent = `WebGL · ${fps} fps`;
+        }
+        raf = requestAnimationFrame(loop);
+      };
+
+      const sync = () => {
+        cancelAnimationFrame(raf);
+        raf = 0;
+        if (!gl || !prog || lost) return;
+        if (reduce.matches) {
+          draw(performance.now());
+          renderState.textContent = 'WebGL · still frame';
+          setGate('g-motion', 'Reduced motion requested: one still frame, no drift, no beam travel', 'still', 'pass');
+          $('g-ft').textContent = 'Not measured: nothing animates under reduced motion';
+          $('g-ft-s').textContent = 'n/a';
+          return;
+        }
+        setGate('g-motion', 'Full motion allowed: bands drift, beam travels. Reduced motion freezes both.', 'live', 'pass');
+        if (visible && onscreen) {
+          last = performance.now();
+          raf = requestAnimationFrame(loop);
+        } else {
+          renderState.textContent = 'WebGL · paused';
+        }
+      };
+
+      if (!gl) {
+        renderState.textContent = 'SVG poster';
+        setGate('g-gl', 'WebGL unavailable: the SVG poster of the same bands stays in place', 'poster', 'note');
+        setGate('g-motion', reduce.matches ? 'Reduced motion requested' : 'Poster is static', 'static', 'pass');
+        $('g-ft').textContent = 'Nothing to render';
+        $('g-ft-s').textContent = 'n/a';
+      } else {
+        prog = compile(gl);
+        if (!prog) {
+          renderState.textContent = 'SVG poster';
+          setGate('g-gl', 'Shader failed to compile: poster kept', 'poster', 'note');
+        } else {
+          setGate('g-gl', 'WebGL 1 · one fragment shader · 18 bands · no textures', 'live', 'pass');
+          resize();
+          new ResizeObserver(() => { resize(); if (reduce.matches) draw(performance.now()); }).observe(canvas);
+          new IntersectionObserver(([e]) => { onscreen = e.isIntersecting; sync(); }).observe(canvas);
+          document.addEventListener('visibilitychange', () => { visible = !document.hidden; sync(); });
+          reduce.addEventListener('change', sync);
+          canvas.addEventListener('webglcontextlost', (e) => {
+            e.preventDefault();
+            lost = true;
+            cancelAnimationFrame(raf);
+            fieldWrap.classList.remove('live');
+            renderState.textContent = 'Context lost · poster';
+          });
+          canvas.addEventListener('webglcontextrestored', () => {
+            lost = false;
+            prog = compile(gl);
+            resize();
+            sync();
+          });
+          sync();
+        }
+      }
+
+      // Ink swatches: re-tint the field, the pen and the brand mark.
+      document.querySelectorAll<HTMLButtonElement>('.sw').forEach((b) =>
+        b.addEventListener('click', () => {
+          ink = b.dataset.ink as InkKey;
+          document.querySelectorAll('.sw').forEach((o) => o.setAttribute('aria-pressed', String(o === b)));
+          $('ink-name').textContent = INKS[ink].name;
+          document.documentElement.style.setProperty('--ink-live', INKS[ink].ink);
+          if (reduce.matches) draw(performance.now());
+        }),
+      );
+
+      // Reservation: no backend in this demo, so confirm locally.
+      const form = $('reserve-form') as HTMLFormElement;
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const email = form.elements.namedItem('email') as HTMLInputElement;
+        const msg = $('form-msg');
+        if (!email.checkValidity()) {
+          msg.textContent = 'That e-mail does not look right yet.';
+          email.focus();
+          return;
+        }
+        const nib = (form.elements.namedItem('nib') as HTMLSelectElement).value;
+        msg.textContent = `Held: one Meridian 18, ${nib.toLowerCase()} nib, for ${email.value}. We will write when your barrel is cut.`;
+        $('left').textContent = '172';
+        form.querySelector('button')!.setAttribute('disabled', '');
+      });
+    </script>
+  </body>
+</html>

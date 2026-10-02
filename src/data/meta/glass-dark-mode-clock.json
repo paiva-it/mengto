@@ -1,0 +1,7 @@
+{
+  "title": "Glass Dark Mode Clock",
+  "kind": "website",
+  "category": "Design systems",
+  "concept": "Rook & Ledger: a furniture workshop that seasons every board one year per inch, told through a frosted-black calibration dial that tracks a walnut stack while its hands keep live workshop time, with glass ledger dials, a tick-ruler process and a thickness-to-delivery commission dial.",
+  "notes": "Pure SVG + CSS, no WebGL. Dial layers: rim, rotating text path, 120 ticks, seasoning arc, month ring, rotating dashed ring and hex frame, glass core; hands run on Europe/London time via Intl. Reduced motion stops rotations, beam sweeps, wisps and reveals and ticks the hands once a second."
+}

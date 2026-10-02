@@ -1,0 +1,286 @@
+---
+import '../../styles/global.css';
+import BackPill from '../../components/BackPill.astro';
+
+const times = [
+  { id: 'dawn', label: 'Dawn', clock: '06:12' },
+  { id: 'noon', label: 'Noon', clock: '13:40' },
+  { id: 'dusk', label: 'Dusk', clock: '19:58' },
+  { id: 'night', label: 'Night', clock: '23:31' },
+];
+
+const programmes = [
+  {
+    no: '01',
+    title: 'Slow forecasting',
+    body: 'Sequence models trained on eleven years of moor telemetry — soil moisture, peat temperature, wind at three heights — asked to predict the next season rather than the next token.',
+    meta: '3 researchers · 41 sensors',
+  },
+  {
+    no: '02',
+    title: 'Grounded perception',
+    body: 'A vision model that learns what “wet”, “grazed” and “burnt” mean from the hillside it can see, then explains its reading against the field notes our ecologists keep by hand.',
+    meta: '2 researchers · 1 hillside',
+  },
+  {
+    no: '03',
+    title: 'Inference on 40 watts',
+    body: 'Everything we publish has to run on the station’s solar budget through a Halden winter. Distillation, sparsity and patience, in that order.',
+    meta: '4 researchers · 1 battery wall',
+  },
+];
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Fallow — Field Station 04</title>
+    <meta name="description" content="Fallow, an independent AI research lab on Halden Moor: a live procedural landscape with a weather mast, instanced grass and four interpolated times of day." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <BackPill />
+    <main>
+      <section class="hero" aria-label="Field Station 04 on Halden Moor">
+        <canvas id="land" tabindex="0" aria-label="Live landscape of Halden Moor with the station's weather mast. Drag or use the arrow keys to look around; scroll, pinch or plus and minus to zoom."></canvas>
+
+        <header class="bar">
+          <a class="mark" href="#top" aria-label="Fallow home">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 18 L9 9 L13 14 L16 11 L22 18" fill="none" stroke="currentColor" stroke-width="1.6" /><circle cx="17" cy="6" r="2" fill="currentColor" /></svg>
+            Fallow
+          </a>
+          <nav aria-label="Primary">
+            <a href="#work">Research</a>
+            <a href="#station">Station</a>
+            <a href="#work">Papers</a>
+            <a href="#station">Join</a>
+          </nav>
+        </header>
+
+        <div class="copy">
+          <p class="eyebrow">Field Station 04 &mdash; Halden Moor, 412 m</p>
+          <h1>Models that learn from the weather, not the web.</h1>
+          <p class="lede">Fallow is a twelve-person AI research lab working from a converted sheep barn on the moor. Our training data is the ground you are looking at: wind, light, peat and eleven winters of patience.</p>
+          <div class="ctas">
+            <a class="btn solid" href="#work">Read the 2026 field report</a>
+            <a class="btn" href="#station">Visit the station</a>
+          </div>
+        </div>
+
+        <dl class="tele" aria-label="Renderer telemetry">
+          <div><dt>frame</dt><dd id="t-fps">&mdash;</dd></div>
+          <div><dt>triangles</dt><dd id="t-tris">&mdash;</dd></div>
+          <div><dt>draw calls</dt><dd id="t-calls">&mdash;</dd></div>
+          <div><dt>local</dt><dd id="t-clock">19:58</dd></div>
+        </dl>
+
+        <div class="controls">
+          <div class="seg" role="radiogroup" aria-label="Observation window">
+            {times.map((t) => (
+              <button type="button" role="radio" aria-checked={t.id === 'dusk' ? 'true' : 'false'} data-time={t.id} data-clock={t.clock}>
+                {t.label}
+              </button>
+            ))}
+          </div>
+          <div class="toggles">
+            <button type="button" class="tog" data-toggle="grass" aria-pressed="true">Grass <span>on</span></button>
+            <button type="button" class="tog" data-toggle="grid" aria-pressed="false">Grid <span>off</span></button>
+          </div>
+        </div>
+
+        <p class="hint" aria-hidden="true">Drag to look around &middot; scroll or pinch to zoom</p>
+      </section>
+
+      <section id="work" class="work">
+        <div class="wrap">
+          <div class="work-head">
+            <p class="eyebrow">Current programmes</p>
+            <h2>Three questions we can only ask from up here.</h2>
+            <p>Every dataset on this page was measured within four kilometres of the mast. We publish the models, the sensors’ calibration logs and the weeks where nothing happened.</p>
+          </div>
+          <ol class="cards">
+            {programmes.map((p) => (
+              <li class="card">
+                <span class="no">{p.no}</span>
+                <h3>{p.title}</h3>
+                <p>{p.body}</p>
+                <span class="meta">{p.meta}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      <footer id="station" class="foot">
+        <div class="wrap foot-in">
+          <p class="big">Visits by appointment, April&ndash;October. Bring boots; the barn is a 900 m walk from the road.</p>
+          <dl>
+            <div><dt>Station</dt><dd>Halden Barn, Moor Road, 56.82&deg; N</dd></div>
+            <div><dt>Power</dt><dd>22 kWp solar &middot; 3 small turbines</dd></div>
+            <div><dt>Write to</dt><dd>field@fallow.example</dd></div>
+          </dl>
+        </div>
+      </footer>
+    </main>
+
+    <style is:global>
+      :root {
+        --ink: #fff6ee;
+        --paper: #f1ebe0;
+        --earth: #22241c;
+        --moss: #5b6a3a;
+        --ember: #c8643c;
+        --sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
+        --mono: 'IBM Plex Mono', ui-monospace, monospace;
+      }
+      html { background: var(--earth); }
+      body { margin: 0; font-family: var(--sans); color: var(--earth); background: var(--paper); overflow-x: clip; }
+    </style>
+
+    <style>
+      .hero { position: relative; height: 100svh; min-height: 560px; overflow: hidden; color: var(--ink); background: #e8b391; }
+      #land { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: grab; touch-action: none; outline: none; }
+      #land:active { cursor: grabbing; }
+      #land:focus-visible { box-shadow: inset 0 0 0 2px var(--ink); }
+      .hero > :not(canvas) { position: absolute; z-index: 1; }
+      .hero::after { content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none; background: linear-gradient(100deg, color-mix(in srgb, var(--scrim, #000) 46%, transparent) 0%, color-mix(in srgb, var(--scrim, #000) 20%, transparent) 34%, transparent 58%), linear-gradient(to top, rgb(20 12 16 / 0.28), transparent 22%); }
+      .hero .bar, .hero .copy, .hero .tele, .hero .controls, .hero .hint { text-shadow: 0 1px 14px color-mix(in srgb, var(--scrim, #000) 45%, transparent); }
+
+      .bar { top: 0; left: 0; right: 0; display: flex; align-items: center; justify-content: space-between; padding: 22px clamp(16px, 3vw, 40px); border-bottom: 1px solid color-mix(in srgb, var(--ink) 34%, transparent); pointer-events: none; }
+      .bar a { pointer-events: auto; color: inherit; text-decoration: none; }
+      .mark { display: inline-flex; align-items: center; gap: 10px; font-weight: 600; font-size: 17px; letter-spacing: 0.26em; text-transform: uppercase; }
+      .mark svg { width: 22px; height: 22px; }
+      nav { display: flex; gap: clamp(16px, 2.4vw, 34px); font-size: 13px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; }
+      nav a { padding-bottom: 4px; border-bottom: 1px solid transparent; }
+      nav a:hover, nav a:focus-visible { border-color: currentColor; }
+
+      .copy { top: clamp(92px, 13vh, 128px); left: clamp(16px, 3vw, 40px); max-width: 560px; }
+      .eyebrow { margin: 0 0 18px; font-family: var(--mono); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.86; }
+      h1 { margin: 0; font-weight: 500; font-size: clamp(38px, 4.6vw, 66px); line-height: 1.02; letter-spacing: -0.03em; text-wrap: balance; }
+      .lede { margin: 22px 0 0; max-width: 46ch; font-size: clamp(15px, 1.15vw, 17px); line-height: 1.55; opacity: 0.92; }
+      .ctas { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+      .btn { display: inline-flex; align-items: center; height: 44px; padding: 0 20px; border-radius: 999px; font-size: 14px; font-weight: 500; color: var(--ink); text-decoration: none; border: 1px solid color-mix(in srgb, var(--ink) 55%, transparent); backdrop-filter: blur(6px); text-shadow: none; transition: background 0.2s; }
+      .btn:hover, .btn:focus-visible { background: color-mix(in srgb, var(--ink) 14%, transparent); }
+      .btn.solid { background: var(--ink); color: var(--inv, #2a2230); border-color: transparent; }
+      .btn.solid:hover, .btn.solid:focus-visible { background: color-mix(in srgb, var(--ink) 86%, transparent); }
+
+      .tele { top: 96px; right: clamp(16px, 3vw, 40px); margin: 0; display: grid; gap: 6px; font-family: var(--mono); font-size: 12px; text-align: right; pointer-events: none; }
+      .tele div { display: flex; justify-content: flex-end; gap: 12px; }
+      .tele dt { opacity: 0.66; }
+      .tele dd { margin: 0; min-width: 9ch; font-variant-numeric: tabular-nums; }
+
+      .controls { right: clamp(16px, 3vw, 40px); bottom: clamp(16px, 3vw, 36px); display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-end; }
+      .seg, .toggles { display: flex; padding: 4px; gap: 2px; border-radius: 999px; background: color-mix(in srgb, var(--earth) 38%, transparent); backdrop-filter: blur(14px) saturate(1.3); border: 1px solid rgb(255 255 255 / 0.16); }
+      .controls button { height: 38px; padding: 0 16px; border: 0; border-radius: 999px; font: 500 13px/1 var(--sans); letter-spacing: 0.04em; color: #f6f1ea; background: transparent; cursor: pointer; text-shadow: none; transition: background 0.2s, color 0.2s; }
+      .controls button:hover { background: rgb(255 255 255 / 0.1); }
+      .controls button:focus-visible { outline: 2px solid #fff; outline-offset: 1px; }
+      .seg button[aria-checked='true'] { background: #f6f1ea; color: #22241c; }
+      .tog span { font-family: var(--mono); font-size: 11px; opacity: 0.7; margin-left: 4px; text-transform: uppercase; }
+      .tog[aria-pressed='true'] span { color: #d9e6a6; opacity: 1; }
+
+      .hint { left: 150px; bottom: clamp(24px, 3vw, 44px); margin: 0; font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: #f6f1ea; opacity: 0.8; text-shadow: 0 1px 8px rgb(0 0 0 / 0.5); }
+
+      @media (max-width: 760px) {
+        nav { display: none; }
+        .bar { padding: 18px 16px; }
+        .copy { top: 82px; left: 16px; right: 16px; }
+        h1 { font-size: 36px; }
+        .lede { font-size: 15px; margin-top: 14px; }
+        .ctas { margin-top: 18px; }
+        .btn { height: 40px; padding: 0 16px; font-size: 13px; }
+        .tele { display: none; }
+        .controls { left: 16px; right: 16px; bottom: 16px; justify-content: stretch; }
+        .seg, .toggles { flex: 1 1 100%; }
+        .controls button { flex: 1; padding: 0 8px; }
+        .hint { display: none; }
+      }
+
+      .wrap { max-width: 1240px; margin: 0 auto; padding: 0 clamp(16px, 3vw, 40px); }
+      .work { padding: clamp(72px, 10vw, 140px) 0; }
+      .work-head { display: grid; grid-template-columns: 1fr 1.25fr; gap: 24px 64px; align-items: end; }
+      .work-head .eyebrow { grid-column: 1 / -1; color: var(--moss); opacity: 1; margin: 0; }
+      .work-head h2 { margin: 0; font-weight: 500; font-size: clamp(30px, 3.6vw, 48px); line-height: 1.05; letter-spacing: -0.025em; text-wrap: balance; }
+      .work-head p:last-child { margin: 0; font-size: 17px; line-height: 1.6; color: #4a4a40; max-width: 52ch; }
+      .cards { list-style: none; margin: clamp(48px, 6vw, 80px) 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid #22241c; }
+      .card { padding: 28px 28px 32px 0; display: flex; flex-direction: column; gap: 14px; border-right: 1px solid rgb(34 36 28 / 0.18); }
+      .card + .card { padding-left: 28px; }
+      .card:last-child { border-right: 0; }
+      .no { font-family: var(--mono); font-size: 12px; color: var(--ember); }
+      .card h3 { margin: 0; font-size: 22px; font-weight: 500; letter-spacing: -0.01em; }
+      .card p { margin: 0; font-size: 15px; line-height: 1.6; color: #45453c; flex: 1; }
+      .meta { font-family: var(--mono); font-size: 12px; letter-spacing: 0.04em; color: var(--moss); padding-top: 14px; border-top: 1px dashed rgb(34 36 28 / 0.25); }
+      @media (max-width: 900px) {
+        .work-head { grid-template-columns: 1fr; }
+        .cards { grid-template-columns: 1fr; }
+        .card, .card + .card { padding: 26px 0; border-right: 0; border-bottom: 1px solid rgb(34 36 28 / 0.18); }
+      }
+
+      .foot { background: var(--earth); color: #ece5d8; padding: clamp(64px, 8vw, 110px) 0 clamp(80px, 9vw, 120px); }
+      .foot-in { display: grid; grid-template-columns: 1.3fr 1fr; gap: 48px; align-items: end; }
+      .big { margin: 0; font-size: clamp(24px, 2.6vw, 36px); line-height: 1.2; letter-spacing: -0.02em; font-weight: 500; max-width: 24ch; }
+      .foot dl { margin: 0; display: grid; gap: 14px; }
+      .foot dl div { display: grid; grid-template-columns: 9ch 1fr; gap: 16px; padding-bottom: 14px; border-bottom: 1px solid rgb(236 229 216 / 0.16); }
+      .foot dt { font-family: var(--mono); font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: #a8ae86; }
+      .foot dd { margin: 0; font-size: 15px; }
+      @media (max-width: 900px) { .foot-in { grid-template-columns: 1fr; } }
+    </style>
+
+    <script>
+      import { createLandscape } from '../../components/skills/threejs-landscape/scene';
+
+      const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches || new URLSearchParams(location.search).has('reduced');
+      const root = document.querySelector<HTMLElement>('.hero')!;
+      const $ = (id: string) => document.getElementById(id)!;
+      const fmt = new Intl.NumberFormat('en-GB');
+      const asked = new URLSearchParams(location.search).get('time') ?? '';
+      const startTime = ['dawn', 'noon', 'dusk', 'night'].includes(asked) ? asked : 'dusk';
+
+      const land = createLandscape({
+        canvas: $('land') as HTMLCanvasElement,
+        reduced,
+        initial: startTime,
+        onInk: (ink) => {
+          root.style.setProperty('--ink', `#${ink.getHexString()}`);
+          const lum = 0.2126 * ink.r + 0.7152 * ink.g + 0.0722 * ink.b;
+          root.style.setProperty('--inv', lum > 0.5 ? '#2a2230' : '#f6f1ea');
+          // continuous inverse of the ink, so the scrim cross-fades with the time of day
+          root.style.setProperty('--scrim', `rgb(${Math.round((1 - ink.r) * 232)} ${Math.round((1 - ink.g) * 222)} ${Math.round((1 - ink.b) * 214)})`);
+        },
+        onStats: ({ fps, tris, calls }) => {
+          $('t-fps').textContent = `${fps} fps`;
+          $('t-tris').textContent = fmt.format(tris);
+          $('t-calls').textContent = String(calls);
+        },
+      });
+
+      const radios = [...document.querySelectorAll<HTMLButtonElement>('[data-time]')];
+      const pick = (b: HTMLButtonElement, focus = false) => {
+        radios.forEach((r) => { r.setAttribute('aria-checked', String(r === b)); r.tabIndex = r === b ? 0 : -1; });
+        if (focus) { b.focus(); }
+        $('t-clock').textContent = b.dataset.clock!;
+        land.setTime(b.dataset.time!);
+      };
+      radios.forEach((b, i) => {
+        if (startTime !== 'dusk') { b.setAttribute('aria-checked', String(b.dataset.time === startTime)); }
+        if (b.dataset.time === startTime) { $('t-clock').textContent = b.dataset.clock!; }
+        b.tabIndex = b.getAttribute('aria-checked') === 'true' ? 0 : -1;
+        b.addEventListener('click', () => pick(b));
+        b.addEventListener('keydown', (e) => {
+          const d = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 0;
+          if (d) { e.preventDefault(); pick(radios[(i + d + radios.length) % radios.length], true); }
+        });
+      });
+
+      document.querySelectorAll<HTMLButtonElement>('[data-toggle]').forEach((b) => {
+        b.addEventListener('click', () => {
+          const on = b.getAttribute('aria-pressed') !== 'true';
+          b.setAttribute('aria-pressed', String(on));
+          b.querySelector('span')!.textContent = on ? 'on' : 'off';
+          if (b.dataset.toggle === 'grass') { land.setGrass(on); } else { land.setGrid(on); }
+        });
+      });
+    </script>
+  </body>
+</html>

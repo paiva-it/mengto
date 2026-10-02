@@ -1,0 +1,7 @@
+{
+  "title": "Blue Laser Clean Glass Layout",
+  "kind": "website",
+  "category": "Design systems",
+  "concept": "Lightline, Corvane Museum of Natural History's open scan room: a thin blue scanning laser and eighteen slow wave bands sit behind frosted glass shells, a live specimen-scan console, a four-step process and a visit panel.",
+  "notes": "Canvas 2D, no dependencies: 18 procedural wave bands, one slanted moving beam drawn in five passes (70 px halo down to a 1.2 px white core) so thickness and glow tune separately, smoke puffs drifting up the beam, scan dots where bands cross it. Redraws at ~30 fps, DPR capped at 1.75, paused when the tab is hidden, a single static frame under reduced motion. Glass is a padding-box fill over a border-box gradient with backdrop blur. Fonts: Inter Tight, Inter, JetBrains Mono."
+}

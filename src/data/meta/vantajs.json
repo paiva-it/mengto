@@ -1,0 +1,7 @@
+{
+  "title": "Vanta.js",
+  "kind": "section",
+  "category": "Backgrounds & atmosphere",
+  "concept": "Volta, a night school for aerial circus arts in a Porto tram depot: a full-bleed Vanta WAVES field tuned to read as hanging crimson silk sits behind the hero, and the rig console's apparatus picker (silks, trapeze, lyra, low wire) retunes it live through setOptions.",
+  "notes": "Uses the installed vanta 0.5.24 ESM source (vanta/src/vanta.waves.js) with the installed three passed as the THREE option, so no global. Vanta's point light predates three r155 physical units and decays to nothing, so the page sets its decay to 0 after init. DPR capped at 1.5 via Vanta's scale; the loop is paused offscreen (IntersectionObserver) and in hidden tabs; apparatus changes ease colour/height/shininess/zoom and rescale Vanta's time so a waveSpeed change morphs rather than jumps. Reduced motion settles the camera and draws one still frame. Without WebGL a CSS folded-cloth gradient stands in; destroy() on pagehide."
+}

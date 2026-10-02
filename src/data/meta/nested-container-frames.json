@@ -1,0 +1,7 @@
+{
+  "title": "Nested Container Frames",
+  "kind": "website",
+  "category": "Layout",
+  "concept": "Lugwork, a fictional two-person steel bicycle frame workshop in Ghent: a 1320 px outer frame with full-height hairlines and square corner markers at every band seam, level-2 panels inset by one shared gap (blue hero with a coral pinwheel bloom, paper process panel, white model frames, cobalt proof, blue CTA), and level-3 modules inset again — a live build sheet with tabbed geometry drawings and a fitting-slot form.",
+  "notes": "Three levels only (outer frame → inset panel → one inset module), with hairline dividers instead of further boxes. The bloom is a CSS repeating-conic-gradient, masked and blurred, rotating slowly; reduced motion stops it and the frame draw-in. Geometry SVGs are generated in the page frontmatter. Photos from Unsplash; the form only confirms locally."
+}

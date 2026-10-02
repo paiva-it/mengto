@@ -1,0 +1,431 @@
+---
+import '../../styles/global.css';
+import BackPill from '../../components/BackPill.astro';
+
+const chapters = [
+  { id: 'orbit', n: '00', label: 'Orbit' },
+  { id: 'instrument', n: '01', label: 'Instrument' },
+  { id: 'swath', n: '02', label: 'Swath' },
+  { id: 'downlink', n: '03', label: 'Downlink' },
+  { id: 'constellation', n: '04', label: 'Constellation' },
+  { id: 'task', n: '05', label: 'Task a pass' },
+];
+const hotspots = [
+  { id: 'aperture', name: 'Aperture', text: 'A 0.7 m off-axis telescope that only ever looks straight down. Its pushbroom detector reads 32,000 pixels across the swath — a fresh line every 66 microseconds.' },
+  { id: 'arrays', name: 'Solar arrays', text: 'Two 1.2 kW wings. Because the bird crosses every latitude at 10:30 local time, the sun angle barely changes orbit to orbit, so the arrays almost never have to slew.' },
+  { id: 'tracker', name: 'Star trackers', text: 'Two cameras match 4,000 catalogued stars ten times a second and hold pointing to 3 arcseconds — about eight metres on the ground from 524 km up.' },
+  { id: 'antenna', name: 'X-band antenna', text: 'A gimballed 14 cm dish that locks onto a ground antenna for the whole contact and moves 1.6 Gbit/s of imagery down while the station is in view.' },
+];
+const bands = [
+  { name: 'True colour', note: 'Red, green and blue at 0.5 m — what your eye would see, with the haze taken out.' },
+  { name: 'Near-infrared', note: 'Healthy leaves reflect infrared hard, so crops and forest burn red and water goes black.' },
+  { name: 'Radar', note: 'Synthetic aperture radar sees through cloud and darkness. Calm water is a mirror; towns and ridges glitter.' },
+];
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Tern Orbital — Same light, every pass</title>
+    <meta name="description" content="Follow one sun-synchronous imaging pass through a single persistent Three.js world: the satellite, its swath, the downlink and the constellation." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <div id="tern">
+      <div class="poster" aria-hidden="true"></div>
+      <canvas id="tern-canvas" aria-hidden="true"></canvas>
+      <div class="scrim" aria-hidden="true"></div>
+      <div class="grain" aria-hidden="true"></div>
+
+      <header class="bar">
+        <a class="brand" href="#orbit" data-go="0" aria-label="Tern Orbital, back to the top">
+          <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M3 15c5-1 8.5-4 11-9 .6 4.3 2.4 7 5.6 8.4L29 12l-6.8 5.2c-1.9 1.4-4.3 2-6.7 1.6L9 26l2.6-8.2C8.4 17.6 5.6 16.6 3 15Z" fill="currentColor"/></svg>
+          <span><b>Tern</b> Orbital</span>
+        </a>
+        <nav aria-label="Chapters">
+          <ul>
+            {chapters.slice(1).map((c, i) => (
+              <li><a href={`#${c.id}`} data-go={i + 1} data-nav={i + 1}>{c.label}</a></li>
+            ))}
+          </ul>
+        </nav>
+        <p class="clock" aria-hidden="true"><span>UTC</span> <time id="utc">10:30:00</time></p>
+      </header>
+
+      <nav class="rail" aria-label="Chapter rail">
+        <ol>
+          {chapters.map((c, i) => (
+            <li><a href={`#${c.id}`} data-go={i} data-nav={i}><span>{c.n}</span><em>{c.label}</em></a></li>
+          ))}
+        </ol>
+      </nav>
+
+      <div class="telemetry" aria-hidden="true">
+        <span>Tern-7</span>
+        <span>ALT <b>524 km</b></span>
+        <span>LAT <b id="t-lat">47.0°N</b></span>
+        <span class="hide-sm">V <b>7.61 km/s</b></span>
+        <span class="hide-sm">LTDN <b>10:30</b></span>
+        <span>T+ <b id="t-t">00:00</b></span>
+        <i><i id="t-bar"></i></i>
+      </div>
+
+      <p class="fallback-note" role="status" hidden></p>
+
+      <main>
+        <section id="orbit" class="ch ch--hero" data-cam data-ch="0" aria-labelledby="h-orbit">
+          <div class="stage">
+            <div class="copy">
+              <p class="eyebrow" data-rv><span class="dot"></span>00 · Orbit — 524 km, sun-synchronous</p>
+              <h1 id="h-orbit" data-split>Same light over every place, every morning.</h1>
+              <p class="lede" data-rv>Tern flies twelve imaging satellites on a sun-synchronous orbit. Each one crosses every latitude at 10:30 local solar time, so the field you photographed last June and the field you see today are lit by the same sun, from the same angle.</p>
+              <p class="actions" data-rv>
+                <a class="btn btn--solid" href="#task" data-go="5">Task a pass</a>
+                <a class="btn" href="#instrument" data-go="1">Follow one orbit <span aria-hidden="true">↓</span></a>
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section id="instrument" class="ch" data-cam data-ch="1" aria-labelledby="h-instrument">
+          <div class="stage">
+            <div class="copy">
+              <p class="eyebrow" data-rv><span class="dot"></span>01 · The instrument</p>
+              <h2 id="h-instrument" data-split>A telescope that only looks down.</h2>
+              <p class="body" data-rv>Tern-7 is the size of a washing machine and carries one thing that matters: a pushbroom telescope. Everything else on board exists to keep it pointed, powered and cold. Pick a part — on the bird or here.</p>
+              <ul class="hotspots" data-rv>
+                {hotspots.map((h) => (
+                  <li><button type="button" data-hot={h.id} aria-pressed="false" aria-controls="hot-detail">{h.name}</button></li>
+                ))}
+              </ul>
+              <p id="hot-detail" class="detail" aria-live="polite" data-rv>Hover the rings on the satellite, or choose a part above.</p>
+              <template id="hot-text">{hotspots.map((h) => <p data-for={h.id}>{h.text}</p>)}</template>
+            </div>
+          </div>
+        </section>
+
+        <section id="swath" class="ch" data-cam data-ch="2" aria-labelledby="h-swath">
+          <div class="stage">
+            <div class="copy">
+              <p class="eyebrow" data-rv><span class="dot"></span>02 · The swath</p>
+              <h2 id="h-swath" data-split>Sixteen kilometres wide, one line at a time.</h2>
+              <p class="body" data-rv>A pushbroom sensor never takes a picture. It reads a single line of 32,000 pixels, again and again, and lets the orbit sweep that line across the ground at 7.6 km a second. The strip behind the bird is this morning's product.</p>
+              <div class="bands" role="group" aria-label="Spectral band" data-rv>
+                {bands.map((b, i) => (
+                  <button type="button" data-band={i} aria-pressed={i === 0 ? 'true' : 'false'}>{b.name}</button>
+                ))}
+              </div>
+              <p class="detail" id="band-note" aria-live="polite" data-rv>{bands[0].note}</p>
+              <template id="band-text">{bands.map((b) => <p>{b.note}</p>)}</template>
+              <dl class="stats" data-rv>
+                <div><dt>Ground sample</dt><dd>0.5 m</dd></div>
+                <div><dt>Swath</dt><dd>16 km</dd></div>
+                <div><dt>Bands</dt><dd>11</dd></div>
+              </dl>
+            </div>
+          </div>
+        </section>
+
+        <section id="downlink" class="ch ch--right" data-cam data-ch="3" aria-labelledby="h-downlink">
+          <div class="stage">
+            <div class="copy">
+              <p class="eyebrow eyebrow--lime" data-rv><span class="dot"></span>03 · Downlink</p>
+              <h2 id="h-downlink" data-split>Eight minutes to empty the camera.</h2>
+              <p class="body" data-rv>Over Svalbard, Inuvik or Punta Arenas the X-band dish swings onto a ground antenna and holds it for the whole pass. Imagery shot over Lisbon at 10:30 is calibrated, orthorectified and in your bucket before 11:15.</p>
+              <dl class="stats" data-rv>
+                <div><dt>Link rate</dt><dd>1.6 Gbit/s</dd></div>
+                <div><dt>Stations</dt><dd>14</dd></div>
+                <div><dt>To delivery</dt><dd>&lt; 45 min</dd></div>
+              </dl>
+            </div>
+          </div>
+        </section>
+
+        <section id="constellation" class="ch" data-cam data-ch="4" aria-labelledby="h-constellation">
+          <div class="stage">
+            <div class="copy">
+              <p class="eyebrow" data-rv><span class="dot"></span>04 · Constellation</p>
+              <h2 id="h-constellation" data-split>Twelve birds, six planes, two looks a day.</h2>
+              <p class="body" data-rv>The fleet is spaced across six orbital planes, so anywhere between the polar circles is seen twice daily — at 10:30 in sunlight by the telescopes, and again at 22:30 by radar on the night side.</p>
+              <dl class="stats" data-rv>
+                <div><dt>Satellites</dt><dd>12</dd></div>
+                <div><dt>Planes</dt><dd>6</dd></div>
+                <div><dt>Revisit</dt><dd>2× daily</dd></div>
+              </dl>
+            </div>
+          </div>
+        </section>
+
+        <section id="task" class="ch ch--last" data-cam data-ch="5" aria-labelledby="h-task">
+          <div class="stage">
+            <div class="copy">
+              <p class="eyebrow" data-rv><span class="dot"></span>05 · Task a pass</p>
+              <h2 id="h-task" data-split>Name a place. We'll be overhead at 10:30.</h2>
+              <form class="task" id="task-form" data-rv>
+                <label for="place">Where should we look?</label>
+                <div class="field">
+                  <input id="place" name="place" type="text" autocomplete="off" placeholder="A field, a port, a glacier, or coordinates" required />
+                  <button type="submit" class="btn btn--solid">Request a pass</button>
+                </div>
+                <p class="detail" id="task-out" aria-live="polite">The next free slot is booked on the first bird whose ground track crosses your point.</p>
+              </form>
+              <footer class="colophon" data-rv>
+                <p><b>Tern Orbital</b> · Tromsø &amp; Lisbon · Twelve birds since 2024</p>
+                <p>A fictional operator, drawn as one live Three.js world: the planet, its clouds and city lights, the satellite and its ground station are all generated in the browser.</p>
+              </footer>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+    <BackPill />
+
+    <style>
+      :root {
+        --ink: #07080a;
+        --chalk: #ece9e1;
+        --mute: #a3a097;
+        --signal: #ff5b26;
+        --lime: #c6f25e;
+        --line: rgb(236 233 225 / 0.16);
+        --pad: clamp(18px, 4.4vw, 64px);
+        --mono: 'IBM Plex Mono', ui-monospace, monospace;
+        --sans: 'Archivo', ui-sans-serif, system-ui, sans-serif;
+      }
+      html { background: var(--ink); scroll-behavior: auto; }
+      body { margin: 0; background: var(--ink); color: var(--chalk); font-family: var(--sans); font-variation-settings: 'wdth' 100; -webkit-font-smoothing: antialiased; overflow-x: clip; }
+      #tern canvas, .poster, .scrim, .grain { position: fixed; inset: 0; width: 100%; height: 100%; }
+      #tern canvas { display: block; z-index: 0; opacity: 0; transition: opacity 0.9s ease; }
+      #tern.is-ready canvas { opacity: 1; }
+      .poster { z-index: 0; background: radial-gradient(120% 70% at 62% 118%, #1d4b63 0%, #0c1f2b 38%, transparent 62%), radial-gradient(40% 40% at 88% 8%, rgb(255 190 140 / 0.25), transparent 70%), var(--ink); background-size: cover; background-position: 60% 50%; }
+      #tern.is-fallback .poster { background-image: url('/skills/build-threejs-scroll-worlds/poster.jpg'); }
+      .scrim { z-index: 1; pointer-events: none; background: linear-gradient(90deg, rgb(7 8 10 / 0.62) 0%, rgb(7 8 10 / 0.32) 30%, transparent 52%); transition: opacity 0.8s ease; }
+      #tern[data-ch='3'] .scrim { background: linear-gradient(270deg, rgb(7 8 10 / 0.55) 0%, rgb(7 8 10 / 0.25) 32%, transparent 55%); }
+      .grain { z-index: 1; pointer-events: none; opacity: 0.09; mix-blend-mode: overlay; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); animation: grain 0.9s steps(4) infinite; }
+      @keyframes grain { 0% { transform: translate(0, 0); } 25% { transform: translate(-3%, 2%); } 50% { transform: translate(2%, -3%); } 75% { transform: translate(-2%, -1%); } }
+
+      .bar { position: fixed; z-index: 5; inset: 0 0 auto 0; display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 22px var(--pad); }
+      .brand { display: inline-flex; align-items: center; gap: 10px; color: var(--chalk); text-decoration: none; font: 500 15px/1 var(--sans); font-variation-settings: 'wdth' 125; letter-spacing: 0.08em; text-transform: uppercase; }
+      .brand b { font-weight: 800; }
+      .brand svg { width: 26px; height: 26px; color: var(--signal); }
+      .bar ul { display: flex; gap: clamp(14px, 2.2vw, 34px); list-style: none; margin: 0; padding: 0; }
+      .bar nav a, .clock { font: 500 11px/1 var(--mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--mute); text-decoration: none; }
+      .bar nav a { padding: 8px 0; border-bottom: 1px solid transparent; transition: color 0.3s, border-color 0.3s; }
+      .bar nav a:hover, .bar nav a[aria-current='true'] { color: var(--chalk); border-color: var(--signal); }
+      .clock { margin: 0; display: flex; gap: 8px; }
+      .clock span { color: var(--signal); }
+      .clock time { color: var(--chalk); font-variant-numeric: tabular-nums; }
+
+      .rail { position: fixed; z-index: 5; right: var(--pad); top: 50%; transform: translateY(-50%); }
+      .rail ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+      .rail a { display: flex; align-items: center; justify-content: flex-end; gap: 10px; padding: 6px 0; color: var(--mute); text-decoration: none; font: 500 11px/1 var(--mono); letter-spacing: 0.12em; text-transform: uppercase; }
+      .rail a em { font-style: normal; opacity: 0; transform: translateX(6px); transition: 0.35s ease; }
+      .rail a span { display: inline-flex; width: 30px; justify-content: flex-end; border-right: 2px solid var(--line); padding-right: 8px; transition: 0.35s ease; }
+      .rail a:hover em, .rail a:focus-visible em, .rail a[aria-current='true'] em { opacity: 1; transform: none; }
+      .rail a[aria-current='true'] { color: var(--chalk); }
+      .rail a[aria-current='true'] span { border-color: var(--signal); color: var(--signal); }
+
+      .telemetry { position: fixed; z-index: 5; right: var(--pad); bottom: 22px; display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 8px 18px; max-width: calc(100vw - 2 * var(--pad)); font: 400 11px/1 var(--mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--mute); }
+      .telemetry b { color: var(--chalk); font-weight: 500; font-variant-numeric: tabular-nums; }
+      .telemetry > span:first-child { color: var(--signal); }
+      .telemetry > i { display: block; width: 120px; height: 2px; background: var(--line); }
+      .telemetry > i > i { display: block; height: 100%; width: 0; background: var(--signal); }
+
+      main { position: relative; z-index: 2; }
+      .ch { position: relative; height: 190vh; }
+      .ch--hero { height: 150vh; }
+      .ch--last { height: 160vh; }
+      .stage { position: sticky; top: 0; height: 100vh; height: 100svh; display: flex; align-items: center; padding: 0 var(--pad); box-sizing: border-box; }
+      .ch--right .stage { justify-content: flex-end; padding-right: calc(var(--pad) + 120px); }
+      .copy { width: min(500px, 100%); pointer-events: auto; }
+      .ch--hero .copy { width: min(640px, 100%); }
+
+      .eyebrow { display: flex; align-items: center; gap: 10px; margin: 0 0 22px; font: 500 11px/1.4 var(--mono); letter-spacing: 0.16em; text-transform: uppercase; color: var(--mute); }
+      .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--signal); box-shadow: 0 0 12px var(--signal); flex: none; }
+      .eyebrow--lime .dot { background: var(--lime); box-shadow: 0 0 12px var(--lime); }
+      h1, h2 { margin: 0; font-weight: 800; text-transform: uppercase; font-variation-settings: 'wdth' 125; letter-spacing: -0.01em; text-wrap: balance; }
+      h1 { font-size: clamp(38px, 5.2vw, 80px); line-height: 0.94; }
+      h2 { font-size: clamp(30px, 3.4vw, 52px); line-height: 0.98; }
+      .lede, .body { margin: 24px 0 0; max-width: 46ch; font-size: clamp(15px, 1.15vw, 17px); line-height: 1.55; color: #cfccc3; }
+      .actions { display: flex; flex-wrap: wrap; gap: 12px; margin: 30px 0 0; }
+      .btn { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 20px; border: 1px solid rgb(236 233 225 / 0.35); color: var(--chalk); background: rgb(7 8 10 / 0.35); backdrop-filter: blur(6px); text-decoration: none; font: 500 12px/1 var(--mono); letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer; transition: background 0.25s, border-color 0.25s, color 0.25s; }
+      .btn:hover { border-color: var(--chalk); }
+      .btn--solid { background: var(--signal); border-color: var(--signal); color: #160700; }
+      .btn--solid:hover { background: #ff7a4c; border-color: #ff7a4c; }
+      :focus-visible { outline: 2px solid var(--lime); outline-offset: 3px; }
+
+      .hotspots, .bands { display: flex; flex-wrap: wrap; gap: 8px; margin: 26px 0 0; padding: 0; list-style: none; }
+      .hotspots button, .bands button { min-height: 40px; padding: 0 14px; border: 1px solid var(--line); background: rgb(7 8 10 / 0.45); color: var(--mute); font: 500 11px/1 var(--mono); letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer; transition: 0.25s ease; }
+      .hotspots button:hover, .hotspots button[data-state='hover'], .bands button:hover { color: var(--chalk); border-color: rgb(236 233 225 / 0.5); }
+      .hotspots button[aria-pressed='true'], .bands button[aria-pressed='true'] { color: #160700; background: var(--signal); border-color: var(--signal); }
+      .detail { margin: 16px 0 0; max-width: 46ch; min-height: 3.2em; padding-left: 14px; border-left: 2px solid var(--signal); font-size: 14px; line-height: 1.5; color: var(--chalk); }
+      .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; margin: 28px 0 0; max-width: 460px; border-top: 1px solid var(--line); }
+      .stats div { padding: 14px 12px 0 0; }
+      .stats dt { font: 400 10px/1.3 var(--mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--mute); }
+      .stats dd { margin: 8px 0 0; font-weight: 700; font-size: clamp(20px, 1.9vw, 28px); font-variation-settings: 'wdth' 112; }
+      .eyebrow--lime ~ .stats { border-color: rgb(198 242 94 / 0.3); }
+
+      .task { margin-top: 28px; }
+      .task label { display: block; font: 500 11px/1 var(--mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--mute); margin-bottom: 10px; }
+      .field { display: flex; gap: 8px; flex-wrap: wrap; }
+      .field input { flex: 1 1 240px; min-width: 0; min-height: 44px; padding: 0 14px; border: 1px solid rgb(236 233 225 / 0.3); background: rgb(7 8 10 / 0.55); color: var(--chalk); font: 400 15px/1 var(--sans); }
+      .field input::placeholder { color: #7d7a72; }
+      .colophon { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 12px; line-height: 1.55; color: var(--mute); max-width: 46ch; }
+      .colophon p { margin: 0 0 6px; }
+      .colophon b { color: var(--chalk); }
+
+      /* ownership reveal: exact chapter owns the copy; headings enter word by word */
+      [data-rv] { opacity: 0; transform: translateY(14px); transition: opacity 0.7s ease, transform 0.9s cubic-bezier(0.2, 0.7, 0.1, 1); }
+      [data-split] .w { display: inline-block; opacity: 0; transform: translateY(0.45em); filter: blur(6px); transition: opacity 0.6s ease, transform 0.8s cubic-bezier(0.2, 0.7, 0.1, 1), filter 0.6s ease; transition-delay: calc(var(--i) * 70ms); }
+      .ch.is-on [data-rv], .ch.is-on [data-split] .w { opacity: 1; transform: none; filter: none; }
+      .ch.is-on .eyebrow { transition-delay: 0s; }
+      .ch.is-on .lede, .ch.is-on .body { transition-delay: 0.35s; }
+      .ch.is-on .actions, .ch.is-on .hotspots, .ch.is-on .bands, .ch.is-on .stats, .ch.is-on .task { transition-delay: 0.5s; }
+      .ch.is-on .detail, .ch.is-on .colophon { transition-delay: 0.62s; }
+      .ch:not(.is-on) .copy { pointer-events: none; }
+
+      .fallback-note { position: fixed; z-index: 6; left: 50%; top: 76px; transform: translateX(-50%); margin: 0; padding: 10px 16px; background: rgb(7 8 10 / 0.8); border: 1px solid var(--line); font: 400 12px/1.4 var(--mono); color: var(--chalk); max-width: calc(100vw - 40px); }
+
+      @media (max-width: 900px) {
+        .bar nav, .rail em { display: none; }
+        .rail { top: auto; bottom: 64px; transform: none; }
+        .rail ol { gap: 0; }
+        .rail a { padding: 5px 0; }
+      }
+      @media (max-aspect-ratio: 4/5) {
+        .stage, .ch--right .stage { align-items: flex-end; justify-content: flex-start; padding: 0 var(--pad) 84px; }
+        .scrim, #tern[data-ch='3'] .scrim { background: linear-gradient(0deg, rgb(7 8 10 / 0.9) 0%, rgb(7 8 10 / 0.72) 38%, transparent 62%); }
+      }
+      @media (max-width: 720px) {
+        .rail { display: none; }
+        .bar { padding: 16px var(--pad); }
+        .stage, .ch--right .stage { align-items: flex-end; justify-content: flex-start; padding: 0 var(--pad) 74px; }
+        .scrim, #tern[data-ch='3'] .scrim { background: linear-gradient(0deg, rgb(7 8 10 / 0.9) 0%, rgb(7 8 10 / 0.72) 38%, transparent 62%); }
+        .telemetry { left: var(--pad); right: var(--pad); bottom: 18px; justify-content: space-between; gap: 6px 12px; font-size: 10px; }
+        .telemetry > i, .hide-sm { display: none; }
+        .eyebrow { margin-bottom: 14px; }
+        .lede, .body { margin-top: 14px; font-size: 14.5px; line-height: 1.5; }
+        .actions { margin-top: 18px; }
+        .hotspots, .bands { margin-top: 16px; gap: 6px; }
+        .hotspots button, .bands button { min-height: 44px; padding: 0 11px; font-size: 10px; }
+        .detail { font-size: 13px; margin-top: 12px; min-height: 0; }
+        .stats { margin-top: 16px; }
+        .stats div { padding-top: 10px; }
+        .colophon { margin-top: 20px; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .grain { animation: none; }
+        [data-rv], [data-split] .w { transform: none !important; filter: none !important; transition: opacity 0.2s linear !important; transition-delay: 0s !important; }
+      }
+    </style>
+
+    <script>
+      import { mount } from '../../components/skills/build-threejs-scroll-worlds/world.js';
+
+      const root = document.getElementById('tern')!;
+      const canvas = document.getElementById('tern-canvas') as HTMLCanvasElement;
+      const sections = [...document.querySelectorAll<HTMLElement>('[data-cam]')];
+      const navLinks = [...document.querySelectorAll<HTMLAnchorElement>('[data-nav]')];
+
+      // split display headings into words; the full phrase stays the accessible name
+      document.querySelectorAll<HTMLElement>('[data-split]').forEach((h) => {
+        const text = h.textContent!.trim();
+        h.setAttribute('aria-label', text);
+        h.innerHTML = `<span aria-hidden="true">${text
+          .split(/\s+/)
+          .map((w, i) => `<span class="w" style="--i:${i}">${w}</span>`)
+          .join(' ')}</span>`;
+      });
+
+      const hotText = new Map(
+        [...(document.getElementById('hot-text') as HTMLTemplateElement).content.querySelectorAll('p')].map((p) => [p.dataset.for, p.textContent]),
+      );
+      const bandText = [...(document.getElementById('band-text') as HTMLTemplateElement).content.querySelectorAll('p')].map((p) => p.textContent);
+      const hotDetail = document.getElementById('hot-detail')!;
+      const hotButtons = [...document.querySelectorAll<HTMLButtonElement>('[data-hot]')];
+      const lat = document.getElementById('t-lat')!;
+      const tplus = document.getElementById('t-t')!;
+      const bar = document.getElementById('t-bar')!;
+      const note = document.querySelector<HTMLElement>('.fallback-note')!;
+      let lastLat = '';
+
+      const ui = {
+        ready: () => requestAnimationFrame(() => root.classList.add('is-ready')),
+        fallback: (msg: string) => {
+          root.classList.add('is-fallback');
+          canvas.style.display = 'none';
+          note.textContent = msg;
+          note.hidden = false;
+          sections.forEach((s) => s.classList.add('is-on'));
+        },
+        chapter: (i: number) => {
+          root.dataset.ch = String(i);
+          sections.forEach((s, k) => s.classList.toggle('is-on', k === i));
+          navLinks.forEach((a) => a.setAttribute('aria-current', String(Number(a.dataset.nav) === i)));
+        },
+        hotspot: (id: string, state: string) => {
+          const b = hotButtons.find((x) => x.dataset.hot === id);
+          if (!b) return;
+          b.dataset.state = state;
+          b.setAttribute('aria-pressed', String(state === 'active'));
+          if (state === 'active') hotDetail.textContent = hotText.get(id) ?? '';
+          else if (!hotButtons.some((x) => x.dataset.state === 'active')) hotDetail.textContent = 'Hover the rings on the satellite, or choose a part above.';
+        },
+        telemetry: (theta: number, prog: number) => {
+          const deg = ((0.82 - theta) * 180) / Math.PI;
+          const label = `${Math.abs(deg).toFixed(1)}°${deg >= 0 ? 'N' : 'S'}`;
+          if (label !== lastLat) {
+            lastLat = label;
+            lat.textContent = label;
+            const secs = Math.round((theta / (Math.PI * 2)) * 94.6 * 60);
+            tplus.textContent = `${String(Math.floor(secs / 60)).padStart(2, '0')}:${String(secs % 60).padStart(2, '0')}`;
+          }
+          bar.style.width = `${(prog / (sections.length - 1)) * 100}%`;
+        },
+      };
+
+      const world = mount({ canvas, sections, ui });
+
+      document.querySelectorAll<HTMLAnchorElement>('[data-go]').forEach((a) =>
+        a.addEventListener('click', (e) => {
+          if (!world) return;
+          e.preventDefault();
+          world.goTo(Number(a.dataset.go));
+          history.replaceState(null, '', a.getAttribute('href'));
+        }),
+      );
+      hotButtons.forEach((b) => {
+        b.addEventListener('click', () => world?.activate(b.dataset.hot));
+        b.addEventListener('pointerenter', () => world?.hover(b.dataset.hot));
+        b.addEventListener('pointerleave', () => world?.hover(null));
+        b.addEventListener('focus', () => world?.hover(b.dataset.hot));
+        b.addEventListener('blur', () => world?.hover(null));
+      });
+      const bandButtons = [...document.querySelectorAll<HTMLButtonElement>('[data-band]')];
+      bandButtons.forEach((b) =>
+        b.addEventListener('click', () => {
+          const i = Number(b.dataset.band);
+          bandButtons.forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+          document.getElementById('band-note')!.textContent = bandText[i];
+          world?.setBand(i);
+        }),
+      );
+      document.getElementById('task-form')!.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const place = (document.getElementById('place') as HTMLInputElement).value.trim();
+        document.getElementById('task-out')!.textContent = place
+          ? `Booked. Tern-4 crosses ${place} tomorrow at 10:30 local solar time; the first frames reach your bucket by 11:15.`
+          : 'Tell us where to look first.';
+      });
+
+      const utc = document.getElementById('utc')!;
+      const tick = () => {
+        utc.textContent = new Date().toISOString().slice(11, 19);
+      };
+      tick();
+      setInterval(tick, 1000);
+    </script>
+  </body>
+</html>

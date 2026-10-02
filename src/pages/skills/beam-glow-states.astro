@@ -1,0 +1,281 @@
+---
+import '../../styles/global.css';
+import BackPill from '../../components/BackPill.astro';
+import { DomeTonight, SkyQuery, TelescopeConsole } from '../../components/skills/beam-glow-states/KettleHill';
+
+const GRAMMAR = [
+  { state: 'Loading', where: 'Telescope slewing, sky query running', size: 'pulse-inner · line', color: 'ocean', values: '0.65–0.72 · 2.4–2.6 s', aria: 'aria-busy' },
+  { state: 'Selected', where: 'Target just chosen, show added', size: 'md · ~1 s then static', color: 'mono', values: '0.42–0.50 · 4.2–4.4 s', aria: 'aria-selected · aria-pressed' },
+  { state: 'Focus', where: 'Cursor in the ask bar', size: 'line', color: 'mono', values: '0.45 · 3.1 s', aria: ':focus-visible kept' },
+  { state: 'Live', where: 'The one show in the dome right now', size: 'pulse-outside · one per view', color: 'sunset', values: '0.55 · 3 s', aria: 'visible label' },
+];
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Kettle Hill Observatory — book the telescope by the minute</title>
+    <meta name="description" content="Kettle Hill Observatory & Planetarium opens its 0.6 m research telescope to the public on every clear night, and shows you exactly what the dome is doing." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  </head>
+  <body class="kh">
+    <header class="kh-nav kh-wrap">
+      <a class="kh-logo" href="#top" aria-label="Kettle Hill home">
+        <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M3 15a8 8 0 0 1 16 0" fill="none" stroke="currentColor" stroke-width="1.4" /><path d="M2 15h18M11 7l5-4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /><circle cx="11" cy="18.5" r="1.2" fill="#ff5a47" /></svg>
+        Kettle Hill
+      </a>
+      <nav aria-label="Primary">
+        <a href="#ask">Ask the sky</a>
+        <a href="#dome">Planetarium</a>
+        <a href="#grammar">How the console talks</a>
+      </nav>
+      <span class="kh-nav-sky kh-mono"><span aria-hidden="true" class="kh-dot kh-dot-ok"></span>Clear · seeing 1.4″</span>
+    </header>
+
+    <main id="top">
+      <section class="kh-hero kh-wrap">
+        <div class="kh-hero-copy">
+          <p class="kh-eyebrow kh-mono">Observatory &amp; Planetarium · open every clear night since 1931</p>
+          <h1>Eight minutes with a research telescope. <span>You’ll always know what it’s doing.</span></h1>
+          <p class="kh-lede">Pick an object from tonight’s list. The console glows while the mount slews and the shutter follows, then settles the moment your target is locked — so nobody on the gallery stairs wonders whether it’s working.</p>
+          <div class="kh-hero-actions">
+            <a class="kh-btn" href="#ask">Book a slot · £6</a>
+            <a class="kh-btn kh-btn-ghost" href="#dome">Planetarium tonight</a>
+          </div>
+          <dl class="kh-facts">
+            <div><dt class="kh-mono kh-dim">Tonight</dt><dd>11 visitors queued</dd></div>
+            <div><dt class="kh-mono kh-dim">Sunset</dt><dd>18:31</dd></div>
+            <div><dt class="kh-mono kh-dim">Moon</dt><dd>4% · sets 19:02</dd></div>
+          </dl>
+        </div>
+        <div class="kh-hero-console">
+          <TelescopeConsole client:load />
+          <p class="kh-caption kh-mono kh-dim">Live console · choose another target to slew again</p>
+        </div>
+      </section>
+
+      <section id="ask" class="kh-section kh-wrap kh-split">
+        <div>
+          <p class="kh-eyebrow kh-mono">01 · Ask the sky</p>
+          <h2>One bar for every question about tonight.</h2>
+          <p class="kh-dim">The edge of the bar lights quietly while your cursor is in it, and runs blue along the bottom while we check the ephemeris against the trees on the western ridge. The words underneath always say what is happening; the light only points at it.</p>
+        </div>
+        <SkyQuery client:visible />
+      </section>
+
+      <section id="dome" class="kh-section kh-wrap">
+        <div class="kh-section-head">
+          <p class="kh-eyebrow kh-mono">02 · The dome tonight</p>
+          <h2>Only one thing glows red: the show you can still walk into.</h2>
+          <p class="kh-dim">Shows you save get a single slow lap of light and then keep a plain outline. The planetarium is dark; the interface shouldn’t compete with it.</p>
+        </div>
+        <DomeTonight client:visible />
+      </section>
+
+      <section id="grammar" class="kh-section kh-wrap">
+        <div class="kh-section-head">
+          <p class="kh-eyebrow kh-mono">03 · How the console talks</p>
+          <h2>Four states, one priority order.</h2>
+          <p class="kh-dim">Loading outranks selection, selection outranks focus, focus outranks hover. With reduced motion on, every beam stops and the outlines, labels and ARIA attributes carry the state alone.</p>
+        </div>
+        <div class="kh-table" role="table" aria-label="Beam state grammar">
+          <div class="kh-row kh-row-head" role="row">
+            <span role="columnheader">State</span><span role="columnheader">Where at Kettle Hill</span><span role="columnheader">Preset</span><span role="columnheader">Palette</span><span role="columnheader">Strength · cycle</span><span role="columnheader">Meaning carried by</span>
+          </div>
+          {GRAMMAR.map((g, i) => (
+            <div class="kh-row" role="row">
+              <span role="cell" class="kh-row-state"><span class="kh-mono kh-dim">{String(i + 1).padStart(2, '0')}</span> {g.state}</span>
+              <span role="cell" class="kh-dim">{g.where}</span>
+              <span role="cell" class="kh-mono">{g.size}</span>
+              <span role="cell" class="kh-mono"><i class={`kh-swatch kh-swatch-${g.color}`} aria-hidden="true"></i>{g.color}</span>
+              <span role="cell" class="kh-mono">{g.values}</span>
+              <span role="cell" class="kh-mono kh-dim">{g.aria}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+    </main>
+
+    <footer class="kh-footer kh-wrap">
+      <p>Kettle Hill Observatory &amp; Planetarium · Ridge Road, Hollins Moor</p>
+      <p class="kh-mono kh-dim">Red lamps only past the gate · dark-sky site no. 214</p>
+    </footer>
+    <BackPill />
+  </body>
+</html>
+
+<style is:global>
+  .kh {
+    --bg: #0a0a0c;
+    --surface: #131316;
+    --surface-2: #18181c;
+    --line: rgb(255 255 255 / 0.08);
+    --line-2: rgb(255 255 255 / 0.14);
+    --text: #ececef;
+    --dim: #8c8c96;
+    --ice: #a9bbff;
+    --red: #ff5a47;
+    margin: 0;
+    background:
+      radial-gradient(1px 1px at 12% 18%, rgb(255 255 255 / 0.5), transparent),
+      radial-gradient(1px 1px at 72% 9%, rgb(255 255 255 / 0.4), transparent),
+      radial-gradient(1px 1px at 88% 34%, rgb(255 255 255 / 0.3), transparent),
+      radial-gradient(1px 1px at 34% 6%, rgb(255 255 255 / 0.35), transparent),
+      radial-gradient(60rem 30rem at 78% -10%, rgb(110 130 255 / 0.09), transparent 70%),
+      var(--bg);
+    background-repeat: no-repeat;
+    color: var(--text);
+    font-family: 'Geist', ui-sans-serif, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: clip;
+  }
+  .kh * { box-sizing: border-box; }
+  :where(.kh) :where(h1, h2, h3, p, dl, dd, ul) { margin: 0; padding: 0; }
+  :where(.kh) ul { list-style: none; }
+  .kh-mono { font-family: 'Geist Mono', ui-monospace, monospace; font-size: 12px; letter-spacing: 0.02em; }
+  .kh-dim { color: var(--dim); }
+  .kh-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .kh-wrap { width: 100%; max-width: 1240px; margin: 0 auto; padding-inline: clamp(16px, 4vw, 40px); }
+  .kh :focus-visible { outline: 2px solid var(--ice); outline-offset: 3px; }
+
+  .kh-nav { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding-block: 22px; }
+  .kh-logo { display: inline-flex; align-items: center; gap: 10px; color: var(--text); text-decoration: none; font-weight: 600; letter-spacing: -0.01em; }
+  .kh-nav nav { display: flex; gap: 28px; }
+  .kh-nav nav a { color: var(--dim); text-decoration: none; font-size: 14px; }
+  .kh-nav nav a:hover { color: var(--text); }
+  .kh-nav-sky { display: inline-flex; align-items: center; gap: 8px; color: var(--dim); }
+
+  .kh-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; display: inline-block; flex: none; }
+  .kh-dot-ok { background: #7fd6a4; }
+
+  .kh-hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 560px); gap: clamp(32px, 5vw, 72px); align-items: center; padding-block: clamp(24px, 4vw, 48px) 96px; }
+  .kh-eyebrow { color: var(--dim); text-transform: uppercase; letter-spacing: 0.12em; font-size: 11px; margin-bottom: 20px; }
+  .kh h1 { font-size: clamp(40px, 5.2vw, 70px); line-height: 1.02; letter-spacing: -0.045em; font-weight: 500; }
+  .kh h1 span { color: var(--dim); }
+  .kh-lede { margin-top: 24px; max-width: 34rem; font-size: 17px; line-height: 1.6; color: #b4b4bd; }
+  .kh-hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 32px; }
+  .kh-facts { display: flex; flex-wrap: wrap; gap: 36px; margin-top: 44px; padding-top: 22px; border-top: 1px solid var(--line); }
+  .kh-facts dd { margin-top: 6px; font-size: 15px; }
+
+  .kh-btn { display: inline-flex; align-items: center; justify-content: center; height: 42px; padding: 0 18px; border-radius: 999px; border: 1px solid transparent; background: var(--text); color: #0b0b0d; font: 500 14px/1 'Geist', sans-serif; text-decoration: none; cursor: pointer; transition: transform 0.12s, background 0.2s; }
+  .kh-btn:active { transform: scale(0.97); }
+  .kh-btn-ghost { background: transparent; color: var(--text); border-color: var(--line-2); }
+  .kh-btn-ghost:hover { border-color: rgb(255 255 255 / 0.3); }
+
+  .kh-beam-card { display: block; width: 100%; }
+
+  /* Console */
+  .kh-console { width: 100%; border-radius: 22px; background: var(--surface); border: 1px solid var(--line-2); padding: 22px; display: grid; gap: 18px; transition: border-color 0.5s; }
+  .kh-console[data-state='loading'] { border-color: rgb(140 160 255 / 0.32); }
+  .kh-console-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+  .kh-console-title { margin-top: 4px; font-size: 17px; font-weight: 500; letter-spacing: -0.01em; }
+  .kh-pill { display: inline-flex; align-items: center; gap: 8px; height: 28px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--line-2); font-size: 13px; white-space: nowrap; }
+  .kh-pill[data-live='busy'] { color: var(--ice); border-color: rgb(169 187 255 / 0.35); }
+  .kh-pill[data-live='ready'] { color: #9fe0bb; }
+  .kh-pill[data-live='live'] { color: var(--red); border-color: rgb(255 90 71 / 0.35); }
+
+  .kh-scope { display: grid; grid-template-columns: 172px minmax(0, 1fr); gap: 22px; align-items: center; }
+  .kh-finder { aspect-ratio: 1; border-radius: 50%; overflow: hidden; background: radial-gradient(circle, #10121c, #07070a 70%); box-shadow: inset 0 0 0 1px var(--line-2); }
+  .kh-finder svg { width: 100%; height: 100%; display: block; }
+  .kh-finder-stars { transition: filter 0.6s, opacity 0.6s; }
+  .kh-finder[data-slewing='true'] .kh-finder-stars { filter: blur(1.6px); opacity: 0.55; }
+  .kh-readout { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 18px; }
+  .kh-readout dd { margin-top: 4px; font-size: 13px; }
+  .kh-readout-name { grid-column: 1 / -1; }
+  .kh-readout-name dd { font-size: 22px; letter-spacing: -0.02em; font-weight: 500; }
+  .kh-readout-name dd span { font-size: 15px; }
+
+  .kh-progress-row { display: flex; justify-content: space-between; gap: 16px; align-items: baseline; }
+  .kh-status { font-size: 14px; color: #c9c9d1; }
+  .kh-bar { height: 2px; background: var(--line); border-radius: 2px; overflow: hidden; margin-top: -8px; }
+  .kh-bar span { display: block; height: 100%; background: linear-gradient(90deg, #6f86ff, var(--ice)); transform-origin: left; }
+
+  .kh-targets { display: grid; gap: 6px; }
+  .kh-target { display: grid; grid-template-columns: 64px minmax(0, 1fr) auto; grid-template-areas: 'cat name alt' 'cat kind alt'; column-gap: 12px; align-items: center; padding: 10px 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface-2); cursor: pointer; transition: border-color 0.2s, background 0.2s; }
+  .kh-target:hover { border-color: var(--line-2); }
+  .kh-target[aria-selected='true'] { border-color: rgb(255 255 255 / 0.4); background: #1e1e23; box-shadow: 0 0 0 3px rgb(255 255 255 / 0.04); }
+  .kh-target-cat { grid-area: cat; color: var(--dim); }
+  .kh-target-name { grid-area: name; font-size: 14px; font-weight: 500; }
+  .kh-target-kind { grid-area: kind; font-size: 12.5px; }
+  .kh-target-alt { grid-area: alt; }
+  .kh-caption { margin-top: 14px; text-align: center; font-size: 11px; }
+
+  /* Sections */
+  .kh-section { padding-block: 96px; border-top: 1px solid var(--line); }
+  .kh h2 { font-size: clamp(30px, 3.4vw, 46px); line-height: 1.06; letter-spacing: -0.035em; font-weight: 500; margin-bottom: 18px; max-width: 18em; }
+  .kh-section p.kh-dim { line-height: 1.65; max-width: 36rem; }
+  .kh-split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: clamp(32px, 6vw, 96px); align-items: start; }
+  .kh-section-head { margin-bottom: 48px; }
+
+  /* Ask */
+  .kh-ask-bar { display: flex; align-items: center; gap: 12px; height: 60px; padding: 0 8px 0 18px; border-radius: 16px; background: var(--surface); border: 1px solid var(--line-2); transition: border-color 0.2s; }
+  .kh-ask-bar[data-state='focus'] { border-color: rgb(255 255 255 / 0.3); }
+  .kh-ask-bar[data-state='loading'] { border-color: rgb(140 160 255 / 0.4); }
+  .kh-ask-bar input { flex: 1; min-width: 0; background: none; border: 0; color: var(--text); font: 15px 'Geist', sans-serif; outline: none; }
+  .kh-ask-bar input:disabled { color: var(--dim); }
+  .kh-ask-bar .kh-btn { height: 44px; border-radius: 11px; }
+  .kh-ask-icon { color: var(--dim); flex: none; }
+  .kh-ask-status { margin: 14px 2px 18px; color: var(--dim); }
+  .kh-answers { display: grid; border-top: 1px solid var(--line); transition: opacity 0.3s; }
+  .kh-answers[data-pending='true'] { opacity: 0.4; }
+  .kh-answers li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 16px; padding: 16px 2px; border-bottom: 1px solid var(--line); }
+  .kh-answer-name { font-weight: 500; }
+  .kh-answer-note { grid-column: 1 / -1; font-size: 14px; }
+
+  /* Dome */
+  .kh-dome { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); gap: clamp(32px, 5vw, 64px); align-items: start; }
+  .kh-live-wrap { padding: 28px; }
+  .kh-live { border-radius: 22px; background: #141214; border: 1px solid rgb(255 120 90 / 0.22); padding: 30px; display: grid; gap: 16px; justify-items: start; }
+  .kh-live h3 { font-size: 26px; letter-spacing: -0.025em; font-weight: 500; line-height: 1.15; }
+  .kh-live p.kh-dim { line-height: 1.6; }
+  .kh-shows { display: grid; gap: 12px; }
+  .kh-show { display: grid; grid-template-columns: 64px minmax(0, 1fr) auto; grid-template-areas: 'time title btn' 'time note btn'; column-gap: 16px; align-items: center; padding: 18px 18px 18px 20px; border-radius: 18px; background: var(--surface); border: 1px solid var(--line); transition: border-color 0.25s; }
+  .kh-show[data-state='selected'] { border-color: rgb(255 255 255 / 0.36); box-shadow: 0 0 0 3px rgb(255 255 255 / 0.035); }
+  .kh-show-time { grid-area: time; font-size: 15px; }
+  .kh-show-title { grid-area: title; font-weight: 500; }
+  .kh-show-note { grid-area: note; font-size: 13px; margin-top: 2px; }
+  .kh-toggle { grid-area: btn; height: 36px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--line-2); background: transparent; color: var(--text); font: 500 13px 'Geist', sans-serif; cursor: pointer; transition: background 0.2s, transform 0.12s; }
+  .kh-toggle:active { transform: scale(0.96); }
+  .kh-toggle[aria-pressed='true'] { background: var(--text); color: #0b0b0d; border-color: var(--text); }
+
+  /* Grammar table */
+  .kh-table { border-top: 1px solid var(--line-2); }
+  .kh-row { display: grid; grid-template-columns: 1fr 1.7fr 1.4fr 0.8fr 1.2fr 1.3fr; gap: 16px; padding: 18px 2px; border-bottom: 1px solid var(--line); align-items: baseline; font-size: 14px; }
+  .kh-row-head { color: var(--dim); font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; font-family: 'Geist Mono', monospace; }
+  .kh-row-state { font-weight: 500; }
+  .kh-swatch { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 8px; }
+  .kh-swatch-ocean { background: linear-gradient(135deg, #5b7bff, #a77bff); }
+  .kh-swatch-mono { background: #d9d9de; }
+  .kh-swatch-sunset { background: linear-gradient(135deg, #ff7a3d, #ff3d6e); }
+
+  .kh-footer { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; padding-block: 40px 80px; border-top: 1px solid var(--line); font-size: 14px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .kh-console[data-state='loading'], .kh-ask-bar[data-state='loading'] { border-color: rgb(100 150 255 / 0.68); }
+    .kh-finder-stars, .kh-btn, .kh-toggle { transition: none; }
+  }
+
+  @media (max-width: 1080px) {
+    .kh-hero, .kh-split, .kh-dome { grid-template-columns: minmax(0, 1fr); }
+    .kh-hero-console { max-width: 600px; }
+    .kh-nav nav { display: none; }
+    .kh-row { grid-template-columns: 1fr 1fr; }
+    .kh-row-head { display: none; }
+  }
+  @media (max-width: 560px) {
+    .kh-scope { grid-template-columns: 96px minmax(0, 1fr); gap: 14px; }
+    .kh-readout dd { white-space: nowrap; font-size: 12px; }
+    .kh-readout { gap: 12px 12px; }
+    .kh-console { padding: 16px; }
+    .kh-readout-name dd { font-size: 18px; }
+    .kh-target { grid-template-columns: 52px minmax(0, 1fr) auto; padding: 10px 12px; }
+    .kh-show { grid-template-columns: 52px minmax(0, 1fr); grid-template-areas: 'time title' 'time note' 'time btn'; }
+    .kh-toggle { justify-self: start; margin-top: 10px; }
+    .kh-live-wrap { padding: 18px 8px; }
+    .kh-live { padding: 22px; }
+    .kh-facts { gap: 22px; }
+    .kh-section { padding-block: 72px; }
+  }
+</style>

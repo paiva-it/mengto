@@ -1,0 +1,7 @@
+{
+  "title": "Falling Leaves",
+  "kind": "section",
+  "category": "Effects & details",
+  "concept": "Ossiet Archive reopens “Chute”, a fictional 1974 couture collection of forty-one double-faced coats: a bone-paper hero where a procedural maple fall in oxblood, vermilion and dry amber tumbles edge-on behind and in front of a condensed Archivo headline, with live Leaves / Wind / Tumble / Gust controls and an accession-card catalogue below.",
+  "notes": "Canvas 2D, no images or libraries: the maple sprite is drawn procedurally at boot and baked twice per ramp colour (face, plus a duller paler back picked by the sign of cos(spin)); far and near layers bake pre-blurred sprites. Tumble is scale(cos(spin), 1) on top of an in-plane roll, lateral slip is sin(spin)·slip (no independent sine). Three layers on two canvases — the 2–6 near leaves cross in front of the type. Count scales by sqrt(viewport area / 1440×900), clamped 0.5–1.3, and the readout reports what was built. ResizeObserver on the section with a zero-size guard, IntersectionObserver + visibilitychange pausing, dt clamped to 1/30 s, DPR capped at 2. Reduced motion draws one still frame and redraws it when a control changes."
+}

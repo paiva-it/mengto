@@ -1,0 +1,7 @@
+{
+  "title": "Masked Reveal",
+  "kind": "section",
+  "category": "Motion & scroll",
+  "concept": "Highline, a three-day kite festival on Fenwick Sands: a dawn-sky hero of hand-drawn SVG kites where every headline rises word by word through an invisible mask, carried through the programme, makers and getting-there sections.",
+  "notes": "GSAP + ScrollTrigger with the skill's own split helper (no SplitText): yPercent 110→0, start top 82%, once; hero 0.9 s expo.out / 0.045 stagger, section heads 0.8 s power3.out / 0.035. Split after document.fonts.ready, original text kept on aria-label. The glass card's 'In the air now' ticker reuses the same word mask on a 2.4 s cycle (paused when the tab is hidden). Reduced motion: static text, no kite/cloud drift, no ticker."
+}

@@ -1,0 +1,7 @@
+{
+  "title": "Animation On Scroll",
+  "kind": "section",
+  "category": "Motion & scroll",
+  "concept": "Platen Type Co., a fictional indie type foundry launching Sorrel Grotesk: a paper-and-cobalt specimen page whose hero plays a four-part reveal timeline (eyebrow, headline, specimen, details) with a Replay control, then sequences weight rows, glyph tiles, a pull quote and licence cards as they enter the viewport.",
+  "notes": "Uses the skill's exact animationIn keyframes, head-injected IntersectionObserver (threshold 0.2, rootMargin -10%) and Tailwind class [animation:animationIn_0.8s_ease-out_var(--d)_both], with per-element delay via --d. 'Repeat on re-entry' flips the skill's once knob at runtime. Reduced motion shows everything static. Utilities come from a page-scoped Tailwind root (src/components/skills/animation-on-scroll/tw.css) because the shared dev server's global Tailwind scan did not pick up the new page."
+}

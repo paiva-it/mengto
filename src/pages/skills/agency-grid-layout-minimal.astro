@@ -1,0 +1,442 @@
+---
+import '../../styles/global.css';
+import BackPill from '../../components/BackPill.astro';
+
+const img = (f: string) => `/skills/agency-grid-layout-minimal/${f}`;
+
+const stats = [
+  ['41', 'Host roofs', 'Manhattan · Brooklyn · Queens'],
+  ['186', 'Colonies wintering', 'Checked every 9 days, Apr–Oct'],
+  ['2.9 t', 'Honey, 2025 season', 'Extracted cold, never blended'],
+  ['312', 'Member households', 'Each one a share of the harvest'],
+];
+
+const practice = [
+  ['01', 'Roof hosting', 'We survey the parapet, the wind and the load path, then install two to six hives with a fall-arrest line and a water source the bees can find.', 'From 140 m²'],
+  ['02', 'Colony stewardship', 'A named keeper visits every nine days in season — queen checks, mite counts, swarm control — and logs it where the building can read it.', 'Apr – Oct'],
+  ['03', 'Extraction & bottling', 'Frames come down the freight lift to our Gowanus honey house. Each roof is spun, settled and jarred on its own, labelled by postcode.', '2 runs / yr'],
+  ['04', 'Forage planting', 'Linden, sumac and late asters on the blocks around each roof, so the colonies are not flying two miles for a meal in August.', 'With 9 BIDs'],
+  ['05', 'Open hives', 'Saturday mornings on the roof for members, schools and the people who live under the bees. Veils provided. Sting kit on the hook.', 'Sat 09:00'],
+];
+
+const ledger = [
+  ['10001', 'Chelsea — W 29th St', 'Linden, ailanthus', 'Pale straw', '412'],
+  ['11215', 'Park Slope — 7th Ave', 'Clover, Japanese knotweed', 'Light amber', '368'],
+  ['11101', 'Long Island City — Vernon Blvd', 'Sumac, white sweet clover', 'Amber', '297'],
+  ['10027', 'Harlem — Frederick Douglass Blvd', 'Honey locust, linden', 'Water white', '254'],
+  ['11211', 'Williamsburg — Kent Ave', 'Knotweed, goldenrod', 'Dark amber', '231'],
+  ['10013', 'Tribeca — Hudson St', 'Callery pear, aster', 'Extra light amber', '186'],
+];
+
+const steps = [
+  ['Offer a roof', 'Building owners send a plan and a photo of the access hatch. We answer within the week with a load note and a yes or a no.'],
+  ['Take a share', 'Members pay $180 a season. It buys six jars from a roof of your choosing and a Saturday on it when the frames come up.'],
+  ['Learn to keep', 'Twelve evenings over one winter, then a season shadowing a keeper. Graduates take a hive of their own in the spring.'],
+];
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Parapet — Urban Apiary Cooperative</title>
+    <meta name="description" content="Parapet keeps 186 honeybee colonies on 41 New York roofs, and bottles each roof's honey on its own." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <div class="shell">
+      <!-- ───────── Header ───────── -->
+      <header class="grid head">
+        <a href="#top" class="logo" aria-label="Parapet, home">Parapet<sup>®</sup></a>
+        <p class="label head-meta">Urban apiary co-op<br />New York, est. 2017</p>
+        <p class="label head-meta head-clock"><span class="dot" aria-hidden="true"></span>NYC <span id="clock">08:00</span><br />Season 09 — flight active</p>
+        <nav class="nav" aria-label="Primary">
+          <a href="#practice">Practice</a>
+          <a href="#ledger">Honey</a>
+          <a href="#join">Join</a>
+          <a href="#join" class="cta"><span>Offer a roof</span></a>
+        </nav>
+      </header>
+
+      <!-- ───────── Hero ───────── -->
+      <main id="top">
+        <section class="grid hero" aria-labelledby="hero-title">
+          <svg class="lattice" viewBox="0 0 400 360" aria-hidden="true">
+            <g fill="none" stroke="currentColor" stroke-width="0.75">
+              <path d="M100 20 l52 30 v60 l-52 30 l-52 -30 v-60 z" />
+              <path d="M204 20 l52 30 v60 l-52 30 l-52 -30 v-60 z" />
+              <path d="M152 110 l52 30 v60 l-52 30 l-52 -30 v-60 z" />
+              <path d="M256 110 l52 30 v60 l-52 30 l-52 -30 v-60 z" />
+              <path d="M204 200 l52 30 v60 l-52 30 l-52 -30 v-60 z" />
+              <path d="M308 200 l52 30 v60 l-52 30 l-52 -30 v-60 z" />
+              <path d="M100 20 L204 320 M48 50 L360 230" stroke-dasharray="2 5" />
+            </g>
+          </svg>
+          <h1 id="hero-title" class="display">
+            <span class="mask"><span>Honey from</span></span>
+            <span class="mask"><span>the roofline.</span></span>
+          </h1>
+          <div class="hero-side">
+            <p class="label">(Fig. 00) — Manifesto</p>
+            <p class="lede">
+              A cooperative of keepers, building owners and neighbours. We put bees on the flat roofs of
+              New York and bottle every roof's honey on its own, so a jar tastes of four blocks.
+            </p>
+          </div>
+          <div class="hero-meta">
+            <span class="label">40.7484° N, 73.9967° W</span>
+            <span class="label">186 colonies / 41 roofs</span>
+            <span class="label hide-sm">Scroll — the season so far</span>
+          </div>
+        </section>
+
+        <figure class="pano">
+          <div class="pano-frame">
+            <img src={img('rooftops.jpg')} alt="Water towers and fire escapes on a misty Manhattan roofline, the Empire State Building behind" class="settle" style="object-position: 50% 34%" />
+          </div>
+          <figcaption class="pano-caps">
+            <span class="label">Fig. 01 — Hive row 07, W 29th St, 14th floor</span>
+            <span class="label">Forage 14 °C · wind SW 9 km/h</span>
+          </figcaption>
+        </figure>
+
+        <!-- ───────── Stats index ───────── -->
+        <section class="grid stats" aria-label="The co-op in numbers">
+          {stats.map(([n, t, d]) => (
+            <div class="stat reveal">
+              <p class="stat-n">{n}</p>
+              <p class="stat-t">{t}</p>
+              <p class="label">{d}</p>
+            </div>
+          ))}
+        </section>
+
+        <!-- ───────── Practice ───────── -->
+        <section id="practice" class="grid section" aria-labelledby="practice-title">
+          <p class="label sec-mark">(01) — Practice</p>
+          <h2 id="practice-title" class="title reveal">We keep bees where the city keeps its water towers.</h2>
+          <p class="sec-copy reveal">
+            Roofs are warm, dry and out of reach of mowers and pesticide drift. A Manhattan colony forages on
+            street trees and vacant lots inside a mile. Our job is everything between the hatch and the jar.
+          </p>
+          <ol class="rows">
+            {practice.map(([n, t, d, m]) => (
+              <li>
+                <a href="#join" class="row reveal">
+                  <span class="label row-n">{n}</span>
+                  <span class="row-t">{t}</span>
+                  <span class="row-d">{d}</span>
+                  <span class="label row-m">{m}</span>
+                  <span class="row-a" aria-hidden="true">→</span>
+                </a>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        <!-- ───────── Images ───────── -->
+        <section class="grid gallery" aria-label="On the roofs">
+          <figure class="g-big reveal">
+            <div class="frame"><img src={img('crew.jpg')} alt="Four keepers in veils inspecting honeycomb frames" loading="lazy" style="object-position: 50% 40%" /></div>
+            <figcaption class="label">Fig. 02 — Open hive, Park Slope, May</figcaption>
+          </figure>
+          <figure class="g-small reveal">
+            <div class="frame tall"><img src={img('frame.jpg')} alt="A gloved hand lifting a frame drawn with comb and bees" loading="lazy" style="object-position: 30% 50%" /></div>
+            <figcaption class="label">Fig. 03 — Brood frame, colony 07-C</figcaption>
+          </figure>
+          <p class="g-note reveal">
+            Every colony has a keeper's name on the lid. When a keeper moves away, the hive is handed over
+            in person, on the roof, with the logbook.
+          </p>
+        </section>
+      </main>
+
+      <!-- ───────── Overlay sheet ───────── -->
+      <section id="ledger" class="sheet" aria-labelledby="ledger-title">
+        <div class="grid">
+          <p class="label sec-mark">(02) — Honey by postcode</p>
+          <h2 id="ledger-title" class="title reveal">Six roofs, six honeys. Nothing blended.</h2>
+          <figure class="comb reveal">
+            <div class="frame"><img src={img('comb.jpg')} alt="Capped and open honeycomb cells with worker bees" loading="lazy" /></div>
+          </figure>
+          <p class="sec-copy reveal">
+            Linden in Chelsea runs pale and minty; Long Island City's sumac comes off the extractor almost red.
+            The 2025 run, by roof, with the jars still on the shelf.
+          </p>
+
+          <div class="ledger" role="table" aria-label="2025 harvest by roof">
+            <div class="l-row l-head" role="row">
+              <span role="columnheader">Postcode</span>
+              <span role="columnheader">Roof</span>
+              <span role="columnheader">Dominant forage</span>
+              <span role="columnheader">Colour</span>
+              <span role="columnheader" class="r">Jars</span>
+            </div>
+            {ledger.map(([p, r, f, c, j]) => (
+              <div class="l-row reveal" role="row">
+                <span role="cell" class="mono">{p}</span>
+                <span role="cell" class="l-roof">{r}</span>
+                <span role="cell">{f}</span>
+                <span role="cell">{c}</span>
+                <span role="cell" class="r mono">{j}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div id="join" class="grid join">
+          <p class="label sec-mark">(03) — Join</p>
+          <h2 class="title reveal">Three ways onto the roof.</h2>
+          {steps.map(([t, d], i) => (
+            <div class="step reveal">
+              <p class="step-n">0{i + 1}</p>
+              <p class="step-t">{t}</p>
+              <p class="step-d">{d}</p>
+            </div>
+          ))}
+          <div class="join-cta reveal">
+            <a href="mailto:roofs@parapet.coop" class="cta solid"><span>Offer a roof</span></a>
+            <a href="mailto:members@parapet.coop" class="cta"><span>Take a share — $180</span></a>
+          </div>
+        </div>
+
+        <footer class="foot">
+          <div class="grid foot-meta">
+            <p class="label">Parapet Apiary Cooperative<br />Honey house: 2nd Ave, Gowanus</p>
+            <p class="label">roofs@parapet.coop<br />members@parapet.coop</p>
+            <p class="label hide-sm">Keepers on call Apr–Oct<br />Swarm line 07:00–21:00</p>
+            <p class="label foot-r">© 2026 — a fictional co-op<br />Photography: Unsplash</p>
+          </div>
+          <p class="wordmark" aria-hidden="true">Parapet</p>
+        </footer>
+      </section>
+    </div>
+    <BackPill />
+  </body>
+</html>
+
+<script>
+  // Header clock in New York time — the one live "utility" detail.
+  const clock = document.getElementById('clock');
+  const fmt = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit', hour12: false });
+  const tick = () => clock && (clock.textContent = fmt.format(new Date()));
+  tick();
+  setInterval(tick, 15000);
+
+  // Quiet reveal for everything below the fold.
+  const els = document.querySelectorAll<HTMLElement>('.reveal');
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window)) {
+    els.forEach((el) => el.classList.add('in'));
+  } else {
+    const io = new IntersectionObserver(
+      (entries) => entries.forEach((e) => e.isIntersecting && (e.target.classList.add('in'), io.unobserve(e.target))),
+      { rootMargin: '0px 0px -8% 0px' },
+    );
+    els.forEach((el) => io.observe(el));
+  }
+</script>
+
+<style is:global>
+  :root {
+    --bg: #eeece6;
+    --paper: #fbfaf7;
+    --ink: #151514;
+    --ink-2: #45443f;
+    --mute: #8b8880;
+    --line: rgb(21 21 20 / 0.12);
+    --pollen: #d9b43a;
+    --pad: clamp(16px, 2.8vw, 40px);
+    --gap: clamp(12px, 1.4vw, 20px);
+    --sans: 'Inter Tight', ui-sans-serif, system-ui, sans-serif;
+    --mono: 'Geist Mono', ui-monospace, monospace;
+    --ease: cubic-bezier(0.2, 0.7, 0.1, 1);
+  }
+  html { background: var(--bg); scroll-behavior: smooth; overflow-x: clip; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); -webkit-font-smoothing: antialiased; overflow-x: clip; }
+  ::selection { background: var(--ink); color: var(--paper); }
+  a { color: inherit; text-decoration: none; }
+  a:focus-visible { outline: 1px solid var(--ink); outline-offset: 4px; }
+  figure, p, h1, h2, ol { margin: 0; padding: 0; }
+  ol { list-style: none; }
+  img { display: block; width: 100%; height: 100%; object-fit: cover; }
+
+  .shell { max-width: 1680px; margin: 0 auto; }
+  .grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gap); padding-inline: var(--pad); }
+
+  .label { font: 500 11px/1.45 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--mute); }
+  .dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--pollen); margin-right: 8px; vertical-align: 1px; animation: pulse 2.4s ease-in-out infinite; }
+  @keyframes pulse { 50% { opacity: 0.35; } }
+
+  /* Header */
+  .head { align-items: start; padding-block: 26px 0; }
+  .logo { grid-column: 1 / 4; font: 600 20px/1 var(--sans); letter-spacing: -0.04em; }
+  .logo sup { font-size: 9px; vertical-align: 9px; margin-left: 1px; }
+  .head-meta { grid-column: 4 / 6; }
+  .head-clock { grid-column: 6 / 8; }
+  .nav { grid-column: 8 / 13; display: flex; justify-content: flex-end; align-items: center; gap: clamp(14px, 2vw, 32px); font: 500 11px/1 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; }
+  .nav > a:not(.cta) { position: relative; padding-block: 6px; }
+  .nav > a:not(.cta)::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: currentColor; transform: scaleX(0); transform-origin: right; transition: transform 0.4s var(--ease); }
+  .nav > a:not(.cta):hover::after { transform: scaleX(1); transform-origin: left; }
+
+  /* 1px gradient-shell CTA */
+  .cta { display: inline-block; padding: 1px; border-radius: 999px; background: linear-gradient(135deg, rgb(21 21 20 / 0.55), rgb(21 21 20 / 0.06) 55%, rgb(21 21 20 / 0.35)); transition: background 0.4s var(--ease); }
+  .cta span { display: block; padding: 11px 18px; border-radius: inherit; background: var(--paper); font: 500 11px/1 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink); transition: background 0.4s var(--ease), color 0.4s var(--ease); }
+  .cta:hover span { background: var(--ink); color: var(--paper); }
+  .cta.solid span { background: var(--ink); color: var(--paper); }
+  .cta.solid:hover span { background: var(--paper); color: var(--ink); }
+
+  /* Hero */
+  .hero { position: relative; overflow-x: clip; padding-top: clamp(56px, 8.5vh, 96px); row-gap: 28px; }
+  .lattice { position: absolute; right: calc(var(--pad) - 20px); top: 4px; width: clamp(180px, 22vw, 330px); color: var(--ink); opacity: 0.11; pointer-events: none; animation: drift 90s linear infinite; }
+  @keyframes drift { to { transform: rotate(360deg); } }
+  .display { grid-column: 1 / 10; font-weight: 600; font-size: clamp(52px, 13.4vw, 236px); line-height: 0.86; letter-spacing: -0.058em; }
+  .mask { display: block; overflow: hidden; padding-bottom: 0.06em; margin-bottom: -0.06em; }
+  .mask > span { display: block; animation: rise 1.15s var(--ease) both; }
+  .mask:nth-child(2) > span { animation-delay: 0.12s; }
+  @keyframes rise { from { transform: translateY(105%); } }
+  .hero-side { grid-column: 10 / 13; align-self: end; display: grid; gap: 14px; padding-bottom: 6px; animation: fade 1s 0.5s var(--ease) both; }
+  .lede { font-size: 15px; line-height: 1.5; color: var(--ink-2); max-width: 34ch; }
+  .hero-meta { grid-column: 1 / 13; display: flex; justify-content: space-between; gap: 16px; padding-top: 14px; border-top: 1px solid var(--line); animation: fade 1s 0.6s var(--ease) both; }
+  @keyframes fade { from { opacity: 0; transform: translateY(8px); } }
+
+  .pano { padding: 18px var(--pad) 0; }
+  .pano-frame { height: clamp(320px, 62vh, 700px); overflow: hidden; border-radius: 4px; background: #d8d5cd; }
+  .pano img, .frame img { filter: grayscale(1) contrast(1.04) brightness(1.02); }
+  .settle { animation: settle 2.2s var(--ease) both; }
+  @keyframes settle { from { transform: scale(1.08); opacity: 0; } 30% { opacity: 1; } }
+  .pano-caps { display: flex; justify-content: space-between; gap: 16px; padding-top: 12px; }
+
+  /* Stats */
+  .stats { padding-top: clamp(64px, 10vw, 140px); row-gap: 40px; }
+  .stat { grid-column: span 3; border-top: 1px solid var(--ink); padding-top: 16px; display: grid; gap: 6px; }
+  .stat-n { font-size: clamp(44px, 5.4vw, 88px); font-weight: 500; letter-spacing: -0.055em; line-height: 0.95; }
+  .stat-t { font-size: 15px; font-weight: 500; letter-spacing: -0.01em; margin-top: 8px; }
+
+  /* Sections */
+  .section { padding-top: clamp(96px, 14vw, 200px); row-gap: 28px; }
+  .sec-mark { grid-column: 1 / 4; padding-top: 0.9em; }
+  .title { grid-column: 4 / 12; font-weight: 500; font-size: clamp(36px, 5.2vw, 88px); line-height: 0.95; letter-spacing: -0.05em; }
+  .sec-copy { grid-column: 4 / 8; font-size: 15px; line-height: 1.55; color: var(--ink-2); max-width: 46ch; }
+
+  .rows { grid-column: 1 / 13; margin-top: clamp(40px, 6vw, 88px); border-top: 1px solid var(--line); }
+  .row { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gap); align-items: baseline; padding-block: clamp(22px, 2.6vw, 36px); border-bottom: 1px solid var(--line); transition: color 0.4s var(--ease); }
+  .row-n { grid-column: 1 / 4; }
+  .row-t { grid-column: 4 / 8; font-size: clamp(26px, 3vw, 48px); font-weight: 500; letter-spacing: -0.045em; line-height: 1; transition: transform 0.5s var(--ease); }
+  .row-d { grid-column: 8 / 11; font-size: 14px; line-height: 1.5; color: var(--ink-2); max-width: 40ch; }
+  .row-m { grid-column: 11 / 12; white-space: nowrap; }
+  .row-a { grid-column: 12 / 13; justify-self: end; font-size: 20px; opacity: 0.25; transition: transform 0.5s var(--ease), opacity 0.4s; }
+  .row:hover .row-t, .row:focus-visible .row-t { transform: translateX(14px); }
+  .row:hover .row-a, .row:focus-visible .row-a { transform: translateX(6px); opacity: 1; }
+  .row:hover .row-n { color: var(--ink); }
+
+  /* Gallery */
+  .gallery { padding-top: clamp(96px, 12vw, 180px); padding-bottom: clamp(120px, 14vw, 220px); row-gap: 24px; align-items: end; }
+  .frame { overflow: hidden; border-radius: 4px; background: #d8d5cd; }
+  .frame img { transition: transform 1.4s var(--ease); }
+  figure:hover .frame img { transform: scale(1.025); }
+  .g-big { grid-column: 1 / 9; grid-row: 1 / 3; display: grid; gap: 12px; }
+  .g-big .frame { aspect-ratio: 16 / 10; }
+  .g-small { grid-column: 10 / 13; grid-row: 2; display: grid; gap: 12px; }
+  .frame.tall { aspect-ratio: 3 / 4; }
+  .g-note { grid-column: 10 / 13; grid-row: 1; align-self: start; font-size: 15px; line-height: 1.55; color: var(--ink-2); }
+
+  /* Overlay sheet */
+  .sheet { position: relative; background: var(--paper); border-radius: 28px 28px 0 0; margin-top: -48px; padding-top: clamp(72px, 9vw, 140px); box-shadow: 0 -1px 0 var(--line), 0 -30px 60px -40px rgb(21 21 20 / 0.18); overflow: hidden; }
+  .sheet > .grid { row-gap: 28px; }
+  .comb { grid-column: 12 / 13; grid-row: 1 / 3; align-self: start; }
+  .comb .frame { aspect-ratio: 1; }
+  .comb img { filter: saturate(0.55) contrast(1.02); }
+  .ledger { grid-column: 1 / 13; margin-top: clamp(40px, 5vw, 72px); }
+  .l-row { display: grid; grid-template-columns: 1.1fr 3fr 3fr 2fr 1fr; gap: var(--gap); padding-block: 18px; border-bottom: 1px solid var(--line); font-size: 15px; align-items: baseline; transition: padding 0.4s var(--ease), background 0.4s; }
+  .l-row:not(.l-head):hover { background: var(--bg); padding-inline: 12px; }
+  .l-head { font: 500 11px/1 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--mute); border-bottom-color: var(--ink); }
+  .l-roof { font-weight: 500; letter-spacing: -0.02em; }
+  .mono { font-family: var(--mono); font-size: 13px; }
+  .r { text-align: right; }
+
+  .join { padding-top: clamp(110px, 13vw, 200px); row-gap: 28px; }
+  .step { grid-column: span 4; border-top: 1px solid var(--line); padding-top: 18px; margin-top: clamp(20px, 3vw, 48px); display: grid; gap: 10px; align-content: start; }
+  .step:nth-of-type(1) { grid-column: 4 / 7; }
+  .step:nth-of-type(2) { grid-column: 7 / 10; }
+  .step:nth-of-type(3) { grid-column: 10 / 13; }
+  .step-n { font: 500 11px/1 var(--mono); color: var(--mute); }
+  .step-t { font-size: clamp(22px, 2vw, 30px); font-weight: 500; letter-spacing: -0.04em; }
+  .step-d { font-size: 14px; line-height: 1.55; color: var(--ink-2); max-width: 36ch; }
+  .join-cta { grid-column: 4 / 13; display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
+
+  .foot { padding-top: clamp(120px, 14vw, 220px); }
+  .foot-meta { row-gap: 24px; }
+  .foot-meta > p { grid-column: span 3; }
+  .foot-r { text-align: right; }
+  .wordmark { font-weight: 600; font-size: 31vw; line-height: 0.74; letter-spacing: -0.075em; margin: clamp(32px, 4vw, 64px) 0 0 calc(var(--pad) - 0.04em); white-space: nowrap; color: var(--ink); }
+  @media (min-width: 1680px) { .wordmark { font-size: 520px; } }
+
+  /* Reveal */
+  .reveal { opacity: 0; transform: translateY(18px); transition: opacity 0.9s var(--ease), transform 0.9s var(--ease); }
+  .reveal.in { opacity: 1; transform: none; }
+
+  /* Tablet */
+  @media (max-width: 1024px) {
+    .head-clock { display: none; }
+    .head-meta { grid-column: 4 / 7; }
+    .nav { grid-column: 7 / 13; }
+    .display { grid-column: 1 / 13; }
+    .hero-side { grid-column: 7 / 13; }
+    .stat { grid-column: span 6; }
+    .title { grid-column: 1 / 13; }
+    .sec-mark { grid-column: 1 / 13; }
+    .sec-copy { grid-column: 1 / 9; }
+    .row-n { grid-column: 1 / 2; }
+    .row-t { grid-column: 2 / 7; }
+    .row-d { grid-column: 7 / 12; }
+    .row-m { display: none; }
+    .comb { display: none; }
+    .step:nth-of-type(n) { grid-column: span 4; }
+    .join-cta { grid-column: 1 / 13; }
+    .foot-meta > p { grid-column: span 6; }
+    .foot-r { text-align: left; }
+  }
+
+  /* Phone */
+  @media (max-width: 640px) {
+    .head { row-gap: 18px; }
+    .logo { grid-column: 1 / 7; }
+    .head-meta { grid-column: 7 / 13; text-align: right; }
+    .nav { grid-column: 1 / 13; justify-content: space-between; }
+    .nav .cta { display: none; }
+    .hero { padding-top: 48px; }
+    .lattice { top: -20px; right: -30px; }
+    .display { font-size: 17.6vw; }
+    .hero-side { grid-column: 1 / 13; }
+    .hide-sm { display: none; }
+    .pano-frame { height: 46vh; }
+    .pano-caps { flex-direction: column; gap: 4px; }
+    .stat { grid-column: span 12; }
+    .sec-copy { grid-column: 1 / 13; }
+    .row { row-gap: 10px; }
+    .row-n { grid-column: 1 / 3; }
+    .row-t { grid-column: 3 / 12; }
+    .row-a { grid-column: 12 / 13; grid-row: 1; }
+    .row-d { grid-column: 3 / 13; }
+    .g-big, .g-small, .g-note { grid-column: 1 / 13; grid-row: auto; }
+    .g-small { grid-column: 4 / 13; }
+    .sheet { border-radius: 20px 20px 0 0; }
+    .l-head { display: none; }
+    .l-row { grid-template-columns: 1fr auto; row-gap: 4px; }
+    .l-row > :nth-child(1) { grid-column: 1; color: var(--mute); }
+    .l-row > :nth-child(2) { grid-column: 1 / 3; grid-row: 2; font-size: 18px; }
+    .l-row > :nth-child(3) { grid-column: 1; grid-row: 3; color: var(--ink-2); font-size: 14px; }
+    .l-row > :nth-child(4) { grid-column: 2; grid-row: 3; text-align: right; color: var(--ink-2); font-size: 14px; }
+    .l-row > :nth-child(5) { grid-column: 2; grid-row: 1; }
+    .l-row > :nth-child(5)::after { content: ' jars'; }
+    .step:nth-of-type(n) { grid-column: 1 / 13; }
+    .foot-meta > p { grid-column: 1 / 13; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    .reveal { opacity: 1; transform: none; }
+    html { scroll-behavior: auto; }
+  }
+</style>

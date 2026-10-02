@@ -1,0 +1,779 @@
+---
+import '../../styles/global.css';
+import BackPill from '../../components/BackPill.astro';
+
+const notes = [
+  {
+    no: '01',
+    title: 'Laid per metre, not per minute',
+    body: 'The boat banks the water it covers and spends it in fixed steps. A crawl past the breakwater and a full-ahead run lay the same spacing, so the ribbon never breaks into dots or piles up at the berth.',
+  },
+  {
+    no: '02',
+    title: 'Each mote where it is owed',
+    body: 'A fast frame can owe several motes. Each one lands at its own distance along that frame’s segment instead of all at the bow, so a flick reads as a line rather than a blob with a gap behind it.',
+  },
+  {
+    no: '03',
+    title: 'The bow leads, the wake lags',
+    body: 'The emitter is damped toward the hand rather than pinned to it. That slack is what lets the wake swing wide on a turn instead of looking welded to the cursor.',
+  },
+  {
+    no: '04',
+    title: 'A breath at the berth',
+    body: 'A boat that is not moving lays nothing, so a resting emitter lets one mote go every 0.42\u00a0s. Any more often and it grows a column of foam in the middle of the chart.',
+  },
+];
+
+const crossings = [
+  { route: 'Port Ardell → Skerra', time: '06:40', len: '7.2 nm', boat: 'MV Fulmar' },
+  { route: 'Skerra → Holm Quay', time: '08:15', len: '3.9 nm', boat: 'MV Kittiwake' },
+  { route: 'Holm Quay → Port Ardell', time: '09:30', len: '9.6 nm', boat: 'MV Fulmar' },
+  { route: 'Port Ardell → Holm Quay', time: '17:55', len: '9.6 nm', boat: 'MV Shag Rock' },
+];
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Kittiwake Sound Ferries — Pointer Trail Emitter</title>
+    <meta name="description" content="A ferry wake laid by distance travelled: Canvas 2D pointer trail with constant spacing at any speed." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Martian+Mono:wght@400;500&family=Schibsted+Grotesk:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <section class="hero" id="hero" aria-labelledby="hero-title">
+      <canvas id="wake" aria-hidden="true"></canvas>
+
+      <header class="bar">
+        <a class="brand" href="#hero" aria-label="Kittiwake Sound Ferries">
+          <span class="mark" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="M4 14 L10 4 L16 14 L10 11 Z" /></svg></span>
+          <span class="brand-name">Kittiwake</span>
+          <span class="brand-sub">Sound Ferries</span>
+        </a>
+        <p class="bar-meta">
+          <span>Ardell ⇄ Skerra ⇄ Holm</span>
+          <span class="hide-sm">Chart 41 · 56°18′N 6°02′W</span>
+        </p>
+      </header>
+
+      <div class="intro">
+        <p class="eyebrow"><span class="rule" aria-hidden="true"></span>Vanilla JavaScript · Canvas 2D</p>
+        <h1 id="hero-title">Same wake<br />at any speed.</h1>
+        <p class="lede">
+          Every Kittiwake crossing lays its wake one mote per stretch of water covered — never per tick of the clock.
+          A slow harbour approach and a full-ahead run leave the same ribbon. <span class="hide-sm">CSS styles the
+          interface only; the wake is Canvas 2D, with no shaders, WebGL, Three.js or runtime dependencies.</span>
+        </p>
+        <dl class="log" aria-live="off">
+          <div><dt>Outbound · slow</dt><dd id="log-slow">—</dd></div>
+          <div><dt>Return · fast</dt><dd id="log-fast">—</dd></div>
+          <div><dt>Spread</dt><dd id="log-spread">—</dd></div>
+        </dl>
+      </div>
+
+      <div
+        class="lane"
+        id="lane"
+        tabindex="0"
+        role="application"
+        aria-roledescription="chart"
+        aria-label="Open water. Arrow keys steer the ferry, hold Shift for full ahead, Enter replays the crossing."
+      >
+        <span class="lane-hint" aria-hidden="true">Move here — or focus and steer with ← ↑ → ↓</span>
+      </div>
+
+      <span class="pin" id="pin-a" aria-hidden="true">Port Ardell</span>
+      <span class="pin pin-r" id="pin-b" aria-hidden="true">Skerra</span>
+
+      <form class="panel" id="panel" aria-labelledby="panel-title" onsubmit="return false">
+        <div class="panel-head">
+          <div>
+            <h2 id="panel-title">Wake controls</h2>
+            <p>Switch to timer emission to see the wake break apart on the fast leg.</p>
+          </div>
+          <span class="live"><span class="dot" aria-hidden="true"></span>Live</span>
+        </div>
+
+        <fieldset class="seg">
+          <legend>Emission</legend>
+          <div class="seg-row">
+            <label><input type="radio" name="mode" value="distance" checked /><span>By distance</span></label>
+            <label><input type="radio" name="mode" value="timer" /><span>By timer</span></label>
+          </div>
+        </fieldset>
+
+        <div class="ctl">
+          <div class="ctl-top"><label for="spacing">Spacing</label><output id="spacing-out" for="spacing">14 px</output></div>
+          <input id="spacing" type="range" min="4" max="46" step="1" value="14" />
+          <div class="ends" aria-hidden="true"><span>Tight · 4</span><span>Open · 46</span></div>
+        </div>
+        <div class="ctl">
+          <div class="ctl-top"><label for="scatter">Scatter</label><output id="scatter-out" for="scatter">13%</output></div>
+          <input id="scatter" type="range" min="0" max="40" step="1" value="13" />
+          <div class="ends" aria-hidden="true"><span>Line · 0</span><span>Spray · 40</span></div>
+        </div>
+        <div class="ctl">
+          <div class="ctl-top"><label for="coast">Coast damping</label><output id="coast-out" for="coast">0.50</output></div>
+          <input id="coast" type="range" min="0.1" max="2.2" step="0.05" value="0.5" />
+          <div class="ends" aria-hidden="true"><span>Long · 0.10</span><span>Short · 2.20</span></div>
+        </div>
+
+        <div class="panel-foot">
+          <p id="status" role="status" aria-live="polite">Autopilot: slow outbound, fast return.</p>
+          <button type="button" id="replay">Replay crossing</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="how" aria-labelledby="how-title">
+      <div class="how-head">
+        <p class="eyebrow"><span class="rule" aria-hidden="true"></span>How the wake holds</p>
+        <h2 id="how-title">The chart remembers distance, not time.</h2>
+      </div>
+      <ol class="notes">
+        {notes.map((n) => (
+          <li>
+            <span class="no">{n.no}</span>
+            <h3>{n.title}</h3>
+            <p>{n.body}</p>
+          </li>
+        ))}
+      </ol>
+
+      <div class="crossings" role="table" aria-label="Today’s crossings">
+        <div class="tr th" role="row">
+          <span role="columnheader">Departs</span><span role="columnheader">Crossing</span><span role="columnheader">Distance</span><span role="columnheader">Vessel</span>
+        </div>
+        {crossings.map((c) => (
+          <div class="tr" role="row">
+            <span role="cell" class="mono">{c.time}</span>
+            <span role="cell" class="route">{c.route}</span>
+            <span role="cell" class="mono">{c.len}</span>
+            <span role="cell" class="mono muted">{c.boat}</span>
+          </div>
+        ))}
+      </div>
+      <footer class="foot">
+        <span>Kittiwake Sound Ferries — a fictional operator.</span>
+        <span class="mono">Wake: ring buffer · distance-stepped · Canvas 2D</span>
+      </footer>
+    </section>
+
+    <BackPill />
+  </body>
+</html>
+
+<style>
+  :global(:root) {
+    --sea: #dbe5e0;
+    --sea-2: #cfdcd6;
+    --ink: #0f302b;
+    --ink-2: #3c5a54;
+    --ink-3: #6f8a84;
+    --line: rgb(15 48 43 / 0.16);
+    --signal: #f2bf1d;
+    --card: rgb(236 242 239 / 0.94);
+    --sans: 'Schibsted Grotesk', ui-sans-serif, system-ui, sans-serif;
+    --mono: 'Martian Mono', ui-monospace, monospace;
+  }
+  :global(html) { background: var(--sea); }
+  :global(body) {
+    margin: 0;
+    background: var(--sea);
+    color: var(--ink);
+    font-family: var(--sans);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  .hero {
+    position: relative;
+    min-height: 100svh;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  #wake {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    display: block;
+  }
+  .bar, .intro, .panel { position: relative; z-index: 2; }
+  .lane { z-index: 1; }
+  .intro { pointer-events: none; }
+  .intro > * { pointer-events: auto; }
+
+  .bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 22px clamp(16px, 3vw, 44px);
+    border-bottom: 1px solid var(--line);
+  }
+  .brand { display: flex; align-items: baseline; gap: 10px; color: var(--ink); text-decoration: none; }
+  .mark {
+    align-self: center;
+    width: 26px; height: 26px; border-radius: 50%;
+    background: var(--signal);
+    display: grid; place-items: center;
+    box-shadow: inset 0 0 0 1.5px var(--ink);
+  }
+  .mark svg { width: 14px; height: 14px; fill: var(--ink); transform: rotate(90deg); }
+  .brand-name { font-weight: 800; font-size: 19px; letter-spacing: -0.02em; }
+  .brand-sub { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-2); }
+  .bar-meta {
+    margin: 0; display: flex; gap: 22px;
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-2);
+  }
+
+  .intro {
+    padding: clamp(28px, 5vh, 56px) clamp(16px, 3vw, 44px) 0;
+    max-width: 640px;
+  }
+  .eyebrow {
+    margin: 0 0 18px;
+    display: flex; align-items: center; gap: 12px;
+    font-family: var(--mono); font-size: 11px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-2);
+  }
+  .rule { width: 28px; height: 2px; background: var(--ink); }
+  h1 {
+    margin: 0;
+    font-weight: 800;
+    font-size: clamp(44px, 5.4vw, 80px);
+    line-height: 0.92;
+    letter-spacing: -0.045em;
+  }
+  .lede {
+    margin: 22px 0 0;
+    max-width: 47ch;
+    font-size: 16px;
+    line-height: 1.55;
+    color: var(--ink-2);
+  }
+  .log {
+    margin: 22px 0 0;
+    display: inline-grid;
+    grid-template-columns: repeat(3, auto);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--card);
+  }
+  .log div { padding: 10px 16px; }
+  .log div + div { border-left: 1px solid var(--line); }
+  .log dt { font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-3); }
+  .log dd { margin: 4px 0 0; font-family: var(--mono); font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums; }
+
+  .lane {
+    position: absolute;
+    inset: 75px 0 0 0;
+    border-radius: 0;
+    touch-action: none;
+    outline: none;
+  }
+  .lane:focus-visible { box-shadow: inset 0 0 0 2px var(--ink); }
+  .pin {
+    position: absolute; z-index: 1; left: 0; top: 0; transform: translate(-6px, 14px);
+    font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-3);
+    display: flex; align-items: center; gap: 8px;
+    pointer-events: none;
+  }
+  .pin::before { content: ''; width: 7px; height: 7px; border: 1.5px solid var(--ink-3); border-radius: 50%; }
+  .pin-r { flex-direction: row-reverse; transform: translate(calc(-100% + 6px), -28px); }
+  .lane-hint {
+    position: absolute; left: clamp(16px, 3vw, 44px); bottom: 26px;
+    font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3);
+    pointer-events: none;
+  }
+
+  .panel {
+    position: absolute;
+    right: clamp(16px, 3vw, 44px);
+    bottom: clamp(16px, 4vh, 40px);
+    width: 400px;
+    box-sizing: border-box;
+    padding: 20px 20px 18px;
+    border-radius: 18px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    box-shadow: 0 1px 0 rgb(255 255 255 / 0.6) inset, 0 24px 48px -28px rgb(15 48 43 / 0.45);
+  }
+  .panel-head { display: flex; justify-content: space-between; gap: 12px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
+  .panel h2 { margin: 0; font-size: 17px; font-weight: 700; letter-spacing: -0.01em; }
+  .panel-head p { margin: 4px 0 0; font-size: 13px; line-height: 1.45; color: var(--ink-2); max-width: 30ch; }
+  .live { display: flex; align-items: center; gap: 7px; height: fit-content; font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--signal); box-shadow: 0 0 0 1.5px var(--ink); }
+
+  .seg { border: 0; margin: 14px 0 0; padding: 0; min-width: 0; }
+  .seg legend, .ctl label {
+    padding: 0;
+    font-family: var(--mono); font-size: 10.5px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase;
+  }
+  .seg-row {
+    margin-top: 9px;
+    display: grid; grid-template-columns: 1fr 1fr;
+    padding: 4px; border-radius: 11px; background: var(--sea-2); border: 1px solid var(--line);
+  }
+  .seg-row label { position: relative; cursor: pointer; }
+  .seg-row input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+  .seg-row span {
+    display: block; text-align: center; padding: 9px 8px; border-radius: 8px;
+    font-size: 13.5px; font-weight: 600; color: var(--ink-2);
+    transition: background-color 0.2s, color 0.2s;
+  }
+  .seg-row input:checked + span { background: var(--ink); color: #eef4f1; }
+  .seg-row input:focus-visible + span { outline: 2px solid var(--signal); outline-offset: 2px; }
+
+  .ctl { margin-top: 14px; }
+  .ctl-top { display: flex; justify-content: space-between; align-items: center; }
+  output {
+    font-family: var(--mono); font-size: 12px; font-variant-numeric: tabular-nums;
+    padding: 4px 9px; border-radius: 7px; border: 1px solid var(--line); background: rgb(255 255 255 / 0.45);
+    min-width: 46px; text-align: right;
+  }
+  input[type='range'] {
+    --p: 50%;
+    appearance: none; -webkit-appearance: none;
+    width: 100%; height: 26px; margin: 6px 0 0; background: transparent; cursor: pointer;
+  }
+  input[type='range']::-webkit-slider-runnable-track {
+    height: 4px; border-radius: 4px;
+    background: linear-gradient(90deg, var(--ink) var(--p), rgb(15 48 43 / 0.16) var(--p));
+  }
+  input[type='range']::-moz-range-track { height: 4px; border-radius: 4px; background: rgb(15 48 43 / 0.16); }
+  input[type='range']::-moz-range-progress { height: 4px; border-radius: 4px; background: var(--ink); }
+  input[type='range']::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 20px; height: 20px; margin-top: -8px; border-radius: 50%;
+    background: var(--signal); border: 2px solid var(--ink);
+  }
+  input[type='range']::-moz-range-thumb { width: 16px; height: 16px; border-radius: 50%; background: var(--signal); border: 2px solid var(--ink); }
+  input[type='range']:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; border-radius: 6px; }
+  .ends { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); }
+
+  .panel-foot { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .panel-foot p { margin: 0; font-size: 12px; line-height: 1.4; color: var(--ink-2); }
+  #replay {
+    flex: none;
+    font: 600 12px/1 var(--mono); letter-spacing: 0.06em; text-transform: uppercase;
+    padding: 11px 14px; border-radius: 10px; cursor: pointer;
+    color: var(--ink); background: var(--signal); border: 1.5px solid var(--ink);
+  }
+  #replay:hover { background: #ffd23f; }
+  #replay:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+
+  .how {
+    padding: clamp(64px, 10vw, 120px) clamp(16px, 3vw, 44px) 40px;
+    border-top: 1px solid var(--line);
+    background: #e6ede9;
+  }
+  .how-head { max-width: 760px; }
+  .how h2 { margin: 0; font-size: clamp(32px, 4.4vw, 60px); line-height: 0.98; letter-spacing: -0.04em; font-weight: 800; }
+  .notes { list-style: none; padding: 0; margin: clamp(40px, 6vw, 72px) 0 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--ink); }
+  .notes li { padding: 22px 24px 8px 0; }
+  .notes li + li { padding-left: 24px; border-left: 1px solid var(--line); }
+  .no { font-family: var(--mono); font-size: 11px; color: var(--ink-3); }
+  .notes h3 { margin: 14px 0 10px; font-size: 19px; line-height: 1.15; letter-spacing: -0.02em; font-weight: 700; }
+  .notes p { margin: 0; font-size: 14.5px; line-height: 1.55; color: var(--ink-2); }
+
+  .crossings { margin-top: clamp(48px, 7vw, 88px); border-top: 1px solid var(--ink); }
+  .tr { display: grid; grid-template-columns: 110px minmax(0, 1fr) 120px 160px; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--line); align-items: baseline; }
+  .th span { font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-3); }
+  .route { font-size: 20px; font-weight: 600; letter-spacing: -0.02em; }
+  .mono { font-family: var(--mono); font-size: 13px; }
+  .muted { color: var(--ink-2); }
+  .foot { margin-top: 56px; padding-bottom: 48px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; font-size: 13px; color: var(--ink-2); }
+  .foot .mono { font-size: 11px; }
+
+  @media (max-width: 1100px) {
+    .notes { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .notes li:nth-child(3) { padding-left: 0; border-left: 0; }
+  }
+  @media (max-width: 900px) {
+    .hero { display: flex; flex-direction: column; }
+    .lane { position: relative; inset: auto; margin: 18px 16px 0; height: 300px; flex: none; border-radius: 14px; }
+    .lane-hint { left: 0; bottom: 0; }
+    .panel { position: relative; inset: auto; width: auto; margin: 12px 16px 24px; }
+    .hide-sm { display: none; }
+    .lede { font-size: 15px; margin-top: 16px; }
+    .log { margin-top: 16px; }
+  }
+  @media (max-width: 640px) {
+    .brand-sub { display: none; }
+    .notes { grid-template-columns: minmax(0, 1fr); }
+    .notes li + li { padding-left: 0; border-left: 0; border-top: 1px solid var(--line); }
+    .tr { grid-template-columns: 64px minmax(0, 1fr); gap: 4px 12px; }
+    .tr > :nth-child(3), .tr > :nth-child(4) { grid-column: 2; font-size: 11px; }
+    .th > :nth-child(3), .th > :nth-child(4) { display: none; }
+    .route { font-size: 16px; }
+    .log div { padding: 8px 10px; }
+    .log dd { font-size: 12px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .seg-row span { transition: none; }
+  }
+</style>
+
+<script>
+  // ponytail: one canvas, one ring buffer, plain Canvas 2D — the effect is the whole page.
+  const hero = document.getElementById('hero') as HTMLElement;
+  const lane = document.getElementById('lane') as HTMLElement;
+  const canvas = document.getElementById('wake') as HTMLCanvasElement;
+  const ctx = canvas.getContext('2d')!;
+  const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
+  const status = $('status');
+
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const touchOnly = matchMedia('(hover: none)').matches;
+  const N = innerWidth < 700 ? 700 : 1400; // ring-buffer size; cost is fill, not update
+
+  const P = { step: 14, scatter: 0.13, coast: 0.5, mode: 'distance' as 'distance' | 'timer' };
+  const TIMER_RATE = 60; // motes per second under the timer, whatever the hand does
+  const IDLE_EVERY = 0.42;
+  const SPAWN_CAP = 14;
+
+  // Pool (struct of arrays). No angle: round motes have no orientation.
+  const px = new Float32Array(N), py = new Float32Array(N), vx = new Float32Array(N), vy = new Float32Array(N);
+  const age = new Float32Array(N), life = new Float32Array(N).fill(0), size = new Float32Array(N), ph = new Float32Array(N), tone = new Float32Array(N);
+
+  // Cached mote sprite: small dense core inside a faint halo, drawn once.
+  const SPR = 64;
+  const sprite = document.createElement('canvas');
+  sprite.width = sprite.height = SPR;
+  {
+    const s = sprite.getContext('2d')!;
+    const g = s.createRadialGradient(SPR / 2, SPR / 2, 0, SPR / 2, SPR / 2, SPR / 2);
+    g.addColorStop(0, 'rgba(15,48,43,1)');
+    g.addColorStop(0.16, 'rgba(15,48,43,0.92)');
+    g.addColorStop(0.24, 'rgba(15,48,43,0.16)');
+    g.addColorStop(1, 'rgba(15,48,43,0)');
+    s.fillStyle = g;
+    s.fillRect(0, 0, SPR, SPR);
+  }
+
+  let W = 0, H = 0, dpr = 1, ext = 1;
+  const E = { x: 0, y: 0, lx: 0, ly: 0, tx: 0, ty: 0, acc: 0, timer: 0, idle: 0, i: 0, hx: 1, hy: 0, active: false };
+  let time = 0;
+
+  const rand = (a: number, b: number) => a + Math.random() * (b - a);
+  const damp = (a: number, b: number, l: number, dt: number) => a + (b - a) * (1 - Math.exp(-l * dt));
+  const smooth = (e0: number, e1: number, x: number) => {
+    const t = Math.min(1, Math.max(0, (x - e0) / (e1 - e0)));
+    return t * t * (3 - 2 * t);
+  };
+
+  let legCount = 0;
+  const spawn = (x: number, y: number, dirx: number, diry: number, idle: boolean) => {
+    const i = E.i; E.i = (i + 1) % N; // take the slot, then advance
+    const s = P.scatter * ext; // scatter is a fraction of the field, never absolute px
+    const nx = -diry, ny = dirx;
+    const j = (Math.random() + Math.random() - 1) * s * 0.35;
+    px[i] = x + nx * j + rand(-1, 1) * s * 0.06;
+    py[i] = y + ny * j + rand(-1, 1) * s * 0.06;
+    const along = -0.041 * ext, lat = rand(-1, 1) * 0.086 * ext * (P.scatter / 0.13);
+    vx[i] = dirx * along * (idle ? 0.2 : 1) + nx * lat;
+    vy[i] = diry * along * (idle ? 0.2 : 1) + ny * lat;
+    age[i] = 0;
+    life[i] = idle ? rand(2.1, 3.4) : rand(1.45, 2.75);
+    size[i] = rand(4, 10) * Math.min(1.25, Math.max(0.95, ext / 800));
+    ph[i] = Math.random() * Math.PI * 2;
+    tone[i] = rand(0.55, 1);
+    if (!idle) legCount++;
+  };
+
+  // Emitter step: distance mode spends travelled distance in fixed steps; timer mode spends the clock.
+  const emit = (dt: number) => {
+    E.lx = E.x; E.ly = E.y;
+    E.x = damp(E.x, E.tx, 16, dt);
+    E.y = damp(E.y, E.ty, 16, dt);
+    const dx = E.x - E.lx, dy = E.y - E.ly;
+    const moved = Math.hypot(dx, dy);
+    if (moved > 1e-3) { E.hx = damp(E.hx, dx / moved, 12, dt); E.hy = damp(E.hy, dy / moved, 12, dt); }
+    const hl = Math.hypot(E.hx, E.hy) || 1, dirx = E.hx / hl, diry = E.hy / hl;
+    if (!E.active) { E.acc = 0; E.timer = 0; E.idle = 0; return; }
+
+    if (P.mode === 'timer') {
+      E.timer += dt;
+      let guard = 0;
+      while (E.timer >= 1 / TIMER_RATE && guard++ < SPAWN_CAP) { E.timer -= 1 / TIMER_RATE; spawn(E.x, E.y, dirx, diry, false); }
+      if (guard >= SPAWN_CAP) E.timer = 0;
+      return;
+    }
+
+    const prev = E.acc;
+    E.acc += moved;
+    let guard = 0;
+    while (E.acc >= P.step && guard < SPAWN_CAP) {
+      guard++;
+      E.acc -= P.step;
+      const t = moved > 1e-6 ? Math.min(1, Math.max(0, (guard * P.step - prev) / moved)) : 0; // where this mote is owed
+      spawn(E.lx + dx * t, E.ly + dy * t, dirx, diry, false);
+    }
+    if (guard >= SPAWN_CAP) E.acc = Math.min(E.acc, P.step); // teleport guard: drop the backlog
+    if (moved < 0.15) {
+      E.idle += dt;
+      if (E.idle >= IDLE_EVERY) { E.idle = 0; spawn(E.x, E.y, dirx, diry, true); }
+    } else E.idle = 0;
+  };
+
+  const step = (dt: number) => {
+    const k = Math.max(0, 1 - P.coast * dt);
+    const curl = ext / 2.2;
+    for (let i = 0; i < N; i++) {
+      if (age[i] >= life[i]) continue;
+      age[i] += dt;
+      const t = time + ph[i];
+      vx[i] = vx[i] * k + Math.sin(t * 1.3 + ph[i]) * 0.17 * curl * dt * 0.35;
+      vy[i] = vy[i] * k + Math.cos(t * 1.1 + 1.7 * ph[i]) * 0.14 * curl * dt * 0.35 - 0.022 * curl * dt;
+      px[i] += vx[i] * dt;
+      py[i] += vy[i] * dt;
+    }
+  };
+
+  const draw = () => {
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, W, H);
+    for (let i = 0; i < N; i++) {
+      if (age[i] >= life[i]) continue;
+      const u = age[i] / life[i];
+      const a = smooth(0, 0.12, u) * (1 - smooth(0.22, 1, u)) * 0.9 * tone[i];
+      if (a < 0.01) continue;
+      const d = size[i] * (1 + 0.55 * u) * 2.4; // sprite incl. halo; core ≈ size
+      ctx.globalAlpha = a;
+      ctx.drawImage(sprite, px[i] - d / 2, py[i] - d / 2, d, d);
+    }
+    ctx.globalAlpha = 1;
+    if (E.active) {
+      // the ferry: a signal-yellow bow marker at the emitter, pointing along its heading
+      const a = Math.atan2(E.hy, E.hx);
+      ctx.save();
+      ctx.translate(E.x, E.y);
+      ctx.rotate(a);
+      ctx.beginPath();
+      ctx.moveTo(11, 0); ctx.lineTo(-7, -7); ctx.lineTo(-3, 0); ctx.lineTo(-7, 7); ctx.closePath();
+      ctx.fillStyle = '#f2bf1d'; ctx.fill();
+      ctx.lineWidth = 1.5; ctx.strokeStyle = '#0f302b'; ctx.stroke();
+      ctx.restore();
+    }
+  };
+
+  // ---------- Autopilot: a slow outbound leg and a fast return over the same shape ----------
+  const LEGS = [
+    { dur: 1.9, from: 0, to: 1, off: 0, key: 'slow' },
+    { dur: 0.6, from: 1, to: 0, off: 1, key: 'fast' },
+    { dur: 1.6, from: 0, to: 0, off: 1, key: 'rest' },
+  ] as const;
+  const AP = { on: true, t: 0, leg: -1, counts: { slow: 0, fast: 0 } as Record<string, number> };
+  let laneBox = { x: 0, y: 0, w: 1, h: 1 };
+
+  // Course as a cubic Bézier in a box: the whole hero on wide screens, the open-water lane on narrow ones.
+  let wide = true;
+  const COURSE = {
+    wide: { pts: [0.05, 0.84, 0.5, 1.02, 0.42, 0.14, 0.9, 0.2], off: [0.012, 0.075] },
+    narrow: { pts: [0.06, 0.3, 0.3, 1.05, 0.7, -0.15, 0.94, 0.62], off: [0, 0.22] },
+  };
+  const pathAt = (s: number, off: number) => {
+    const c = wide ? COURSE.wide : COURSE.narrow, q = c.pts, m = 1 - s;
+    const b0 = m * m * m, b1 = 3 * m * m * s, b2 = 3 * m * s * s, b3 = s * s * s;
+    return {
+      x: laneBox.x + laneBox.w * (b0 * q[0] + b1 * q[2] + b2 * q[4] + b3 * q[6] + off * c.off[0]),
+      y: laneBox.y + laneBox.h * (b0 * q[1] + b1 * q[3] + b2 * q[5] + b3 * q[7] + off * c.off[1]),
+    };
+  };
+
+  const fmt = (n: number) => String(n);
+  const updateLog = () => {
+    const { slow, fast } = AP.counts;
+    $('log-slow').textContent = slow ? `${fmt(slow)} motes` : '—';
+    $('log-fast').textContent = fast ? `${fmt(fast)} motes` : '—';
+    $('log-spread').textContent = slow && fast ? `${(Math.max(slow, fast) / Math.min(slow, fast)).toFixed(2)}×` : '—';
+  };
+
+  const teleport = (x: number, y: number) => { E.x = E.lx = E.tx = x; E.y = E.ly = E.ty = y; E.acc = 0; E.timer = 0; };
+
+  const autopilot = (dt: number) => {
+    AP.t += dt;
+    const total = LEGS.reduce((s, l) => s + l.dur, 0);
+    if (AP.leg === -1 || AP.t >= total) {
+      AP.t = AP.leg === -1 ? 0 : AP.t - total;
+      const p = pathAt(0, 0);
+      teleport(p.x, p.y);
+      E.hx = 1; E.hy = 0;
+    }
+    let t = AP.t, li = 0;
+    while (li < LEGS.length - 1 && t >= LEGS[li].dur) { t -= LEGS[li].dur; li++; }
+    if (li !== AP.leg) {
+      const prev = LEGS[AP.leg];
+      if (prev && prev.key !== 'rest') AP.counts[prev.key] = legCount;
+      if (prev?.key === 'fast') updateLog();
+      AP.leg = li;
+      legCount = 0;
+      if (LEGS[li].key === 'fast') { const p = pathAt(1, LEGS[li].off); teleport(p.x, p.y); E.hx = -1; E.hy = 0; }
+    }
+    const L = LEGS[li];
+    const u = 0.5 - 0.5 * Math.cos(Math.PI * Math.min(1, t / L.dur));
+    const p = pathAt(L.from + (L.to - L.from) * u, L.off);
+    E.tx = p.x; E.ty = p.y;
+    E.active = true;
+  };
+
+  // ---------- Input: pointer, touch drag, keyboard ----------
+  let lastInput = -1e9;
+  const RESUME_AFTER = 7;
+  const local = (e: PointerEvent) => {
+    const r = hero.getBoundingClientRect();
+    return { x: e.clientX - r.left, y: e.clientY - r.top };
+  };
+  const takeOver = () => {
+    if (AP.on) { AP.on = false; status.textContent = 'You have the helm.'; }
+    lastInput = time;
+  };
+  let dragging = false;
+  hero.addEventListener('pointermove', (e) => {
+    if (e.pointerType !== 'mouse' && !dragging) return; // touch: drive only during a drag
+    if (touchOnly && e.pointerType === 'mouse') return;
+    if ((e.target as Element).closest('.panel')) { if (!AP.on) E.active = false; return; } // the helm is off while adjusting
+    const p = local(e);
+    if (!E.active || AP.on) teleport(p.x, p.y);
+    takeOver();
+    E.tx = p.x; E.ty = p.y; E.active = true;
+    if (reduced) still();
+  });
+  hero.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse' && !AP.on) E.active = false; });
+  lane.addEventListener('pointerdown', (e) => {
+    if (e.pointerType === 'mouse') return;
+    dragging = true;
+    lane.setPointerCapture(e.pointerId);
+    const p = local(e);
+    teleport(p.x, p.y);
+    takeOver();
+    E.active = true;
+  });
+  const endDrag = () => { if (dragging) { dragging = false; E.active = false; } }; // park: no plume under a lifted finger
+  lane.addEventListener('pointerup', endDrag);
+  lane.addEventListener('pointercancel', endDrag);
+
+  const keys = new Set<string>();
+  lane.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); replay(); return; }
+    if (!e.key.startsWith('Arrow')) return;
+    e.preventDefault();
+    if (AP.on || !E.active) { const p = { x: E.active ? E.x : laneBox.x + laneBox.w / 2, y: E.active ? E.y : laneBox.y + laneBox.h / 2 }; teleport(p.x, p.y); }
+    takeOver();
+    E.active = true;
+    keys.add(e.key);
+    if (reduced) still();
+  });
+  lane.addEventListener('keyup', (e) => keys.delete(e.key));
+  lane.addEventListener('blur', () => keys.clear());
+  let shift = false;
+  addEventListener('keydown', (e) => { shift = e.shiftKey; });
+  addEventListener('keyup', (e) => { shift = e.shiftKey; });
+
+  const steer = (dt: number) => {
+    if (!keys.size) return;
+    const sp = (shift ? 1700 : 320) * dt;
+    if (keys.has('ArrowLeft')) E.tx -= sp;
+    if (keys.has('ArrowRight')) E.tx += sp;
+    if (keys.has('ArrowUp')) E.ty -= sp;
+    if (keys.has('ArrowDown')) E.ty += sp;
+    E.tx = Math.min(W - 8, Math.max(8, E.tx));
+    E.ty = Math.min(H - 8, Math.max(8, E.ty));
+    lastInput = time;
+  };
+
+  const replay = () => {
+    AP.on = true; AP.leg = -1; AP.t = 0; legCount = 0; AP.counts = { slow: 0, fast: 0 };
+    life.fill(0);
+    updateLog();
+    status.textContent = 'Autopilot: slow outbound, fast return.';
+    if (reduced) still();
+  };
+  $('replay').addEventListener('click', replay);
+
+  // ---------- Controls ----------
+  const bind = (id: string, fmtOut: (v: number) => string, apply: (v: number) => void, say: string) => {
+    const el = $<HTMLInputElement>(id);
+    const out = $(`${id}-out`);
+    const sync = () => {
+      const v = Number(el.value);
+      apply(v);
+      out.textContent = fmtOut(v);
+      el.style.setProperty('--p', `${((v - Number(el.min)) / (Number(el.max) - Number(el.min))) * 100}%`);
+    };
+    el.addEventListener('input', () => { sync(); status.textContent = `${say} ${out.textContent}.`; if (reduced) still(); });
+    sync();
+  };
+  bind('spacing', (v) => `${v} px`, (v) => { P.step = v; }, 'Spacing');
+  bind('scatter', (v) => `${v}%`, (v) => { P.scatter = v / 100; }, 'Scatter');
+  bind('coast', (v) => v.toFixed(2), (v) => { P.coast = v; }, 'Coast damping');
+  document.querySelectorAll<HTMLInputElement>('input[name="mode"]').forEach((r) =>
+    r.addEventListener('change', () => {
+      P.mode = r.value as typeof P.mode;
+      status.textContent = P.mode === 'timer' ? 'Emission by timer: watch the fast leg scatter.' : 'Emission by distance: spacing holds.';
+      replay();
+    }),
+  );
+
+  // ---------- Sizing ----------
+  const resize = () => {
+    const r = hero.getBoundingClientRect();
+    if (r.width < 1 || r.height < 1) return; // zero-viewport guard
+    dpr = Math.min(2, devicePixelRatio || 1);
+    W = r.width; H = r.height;
+    canvas.width = Math.round(W * dpr);
+    canvas.height = Math.round(H * dpr);
+    ext = Math.max(240, Math.min(W, H, 1000));
+    const lr = lane.getBoundingClientRect();
+    wide = W > 900;
+    laneBox = wide ? { x: 0, y: 0, w: W, h: H } : { x: lr.left - r.left, y: lr.top - r.top, w: Math.max(1, lr.width), h: Math.max(1, lr.height) };
+    const a = pathAt(0, 0), b = pathAt(1, 0);
+    $('pin-a').style.translate = `${a.x}px ${a.y}px`;
+    $('pin-b').style.translate = `${b.x}px ${b.y}px`;
+    if (reduced) still(); else draw();
+  };
+  new ResizeObserver(resize).observe(hero);
+
+  // ---------- Reduced motion: a composed still with both legs laid across the chart ----------
+  function still() {
+    if (!W) return;
+    const keepOn = AP.on, ex = { ...E };
+    if (keepOn) {
+      life.fill(0); AP.leg = -1; AP.t = 0; legCount = 0;
+      const dt = 1 / 60;
+      for (let f = 0; f < 205; f++) { time += dt; autopilot(dt); emit(dt); step(dt); for (let i = 0; i < N; i++) if (age[i] < life[i]) age[i] -= dt * 0.62; } // age slowly so the slow leg survives
+      updateLog();
+    } else {
+      for (let f = 0; f < 4; f++) { emit(1 / 60); step(1 / 60); }
+      Object.assign(E, { ...ex, x: E.x, y: E.y });
+    }
+    draw();
+  }
+
+  // ---------- Loop ----------
+  let raf = 0, last = 0, visible = true;
+  const frame = (now: number) => {
+    raf = requestAnimationFrame(frame);
+    const dt = Math.min(1 / 30, last ? (now - last) / 1000 : 1 / 60);
+    last = now;
+    time += dt;
+    if (!AP.on && time - lastInput > RESUME_AFTER && !keys.size && !dragging) replay();
+    if (AP.on) autopilot(dt); else steer(dt);
+    emit(dt);
+    step(dt);
+    draw();
+  };
+  const run = () => { if (!raf && visible && !document.hidden && !reduced) { last = 0; raf = requestAnimationFrame(frame); } };
+  const stop = () => { cancelAnimationFrame(raf); raf = 0; };
+  document.addEventListener('visibilitychange', () => (document.hidden ? stop() : run()));
+  new IntersectionObserver(([e]) => { visible = e.isIntersecting; visible ? run() : stop(); }).observe(hero);
+  resize();
+  run();
+</script>

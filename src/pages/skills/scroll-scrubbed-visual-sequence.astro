@@ -1,0 +1,470 @@
+---
+import '../../styles/global.css';
+import BackPill from '../../components/BackPill.astro';
+import { SEQUENCE } from '../../components/skills/scroll-scrubbed-visual-sequence/vessel';
+
+const states = [
+  { n: '01', name: 'Wedged', text: '1.24 kg of Douro stoneware, wedged forty turns and slapped onto the wheel head.' },
+  { n: '02', name: 'Centred', text: 'Coned up and pressed down three times, until the clay runs true under still hands.' },
+  { n: '03', name: 'Opened', text: 'Thumbs find the middle. An eleven-millimetre floor is pressed flat and compressed.' },
+  { n: '04', name: 'Pulled', text: 'Three pulls lift the wall to 21 cm. The belly swells, the neck is collared in.' },
+  { n: '05', name: 'Fired', text: 'Trimmed leather-hard, dried nine days, bisqued, then fired to cone 10 at 1,280 °C.' },
+  { n: '06', name: 'Listed', text: 'Dipped in moss celadon, signed on the foot, and listed with all six frames.' },
+];
+
+const pots = [
+  { id: 'bowl', name: 'Tenmoku rice bowl', maker: 'Kenji Arai', place: 'Mashiko', price: '€64', clay: 'Iron stoneware · 640 g' },
+  { id: 'bottle', name: 'Shino bud bottle', maker: 'Marta Lis', place: 'Kraków', price: '€92', clay: 'Porcelain-stoneware · 410 g' },
+  { id: 'cup', name: 'Ash-glazed yunomi', maker: 'Aoife Byrne', place: 'Cork', price: '€38', clay: 'Wood-fired · 290 g' },
+  { id: 'jar', name: 'Cobalt storage jar', maker: 'Inês Varela', place: 'Porto', price: '€176', clay: 'Douro stoneware · 1.3 kg' },
+];
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Throwline — every pot arrives with its making</title>
+    <meta name="description" content="Throwline is a marketplace for studio pottery where every listing carries the six frames of how the pot was made." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,700;12..96,800&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <a class="skip" href="#market">Skip the sequence</a>
+
+    <header class="topbar">
+      <span class="brand">Throwline<sup>®</sup></span>
+      <span>Scroll throws the pot</span>
+    </header>
+
+    <main>
+      <section class="sequence" id="sequence" aria-label="Making of listing 0418" style={`--scroll-vh:${SEQUENCE.scrollVh}vh`}>
+        <div class="stage">
+          <div class="copy">
+            <div class="eyebrow"><span>Listing 0418 · Lidless jar</span><span>Porto — 2026</span></div>
+            <h1>Every pot arrives with <span>its making.</span></h1>
+            <div class="state-copy" aria-live="polite">
+              {
+                states.map((s, i) => (
+                  <div class:list={['state', { active: i === 0 }]} data-state={i}>
+                    <b>{s.n} / {s.name}</b>
+                    <p>{s.text}</p>
+                  </div>
+                ))
+              }
+            </div>
+            <div class="readout" aria-hidden="true">
+              <div class="track"><i></i></div>
+              <span class="pct" data-pct>00</span>
+            </div>
+            <div class="cta-row">
+              <a class="cta" href="#market">Reserve this jar · €148</a>
+              <span class="maker">Inês Varela, Porto</span>
+            </div>
+          </div>
+
+          <div class="visual">
+            <canvas class="pot" aria-hidden="true"></canvas>
+            <span class="cross c1" aria-hidden="true"></span>
+            <span class="cross c2" aria-hidden="true"></span>
+            <div class="tag tl" aria-hidden="true">
+              <span data-stage-label>Stage 01 / Wedged</span>
+              <span class="dim">Wheel B · Atelier Varela</span>
+            </div>
+            <dl class="gauges" aria-hidden="true">
+              <div><dt>Mass</dt><dd data-g="kg">1.24 kg</dd></div>
+              <div><dt>Wheel</dt><dd data-g="rpm">120 rpm</dd></div>
+              <div><dt>Wall</dt><dd data-g="wall">—</dd></div>
+              <div><dt>Kiln</dt><dd data-g="temp">20 °C</dd></div>
+            </dl>
+            <div class="tag br" aria-hidden="true">
+              <span class="dim">Normalized state</span>
+              <span data-p>0.000</span>
+            </div>
+            <span class="vert" aria-hidden="true">Scroll to throw ↓</span>
+            <nav class="strip" aria-label="Jump to a stage">
+              {
+                states.map((s, i) => (
+                  <button type="button" data-jump={i} aria-label={`Stage ${s.n}, ${s.name}`} class:list={{ on: i === 0 }}>
+                    <canvas aria-hidden="true"></canvas>
+                    <span>{s.n}</span>
+                  </button>
+                ))
+              }
+            </nav>
+          </div>
+        </div>
+      </section>
+
+      <section class="frames" aria-labelledby="frames-h">
+        <div class="wrap">
+          <p class="kicker">How listing works</p>
+          <h2 id="frames-h">Six frames, filmed by the potter, attached to every pot we sell.</h2>
+          <ol class="frame-list">
+            {
+              states.map((s) => (
+                <li>
+                  <span class="num">{s.n}</span>
+                  <b>{s.name}</b>
+                  <p>{s.text}</p>
+                </li>
+              ))
+            }
+          </ol>
+        </div>
+      </section>
+
+      <section class="market" id="market" aria-labelledby="market-h">
+        <div class="wrap">
+          <div class="market-head">
+            <h2 id="market-h">Out of the kiln this week</h2>
+            <p>214 potters in 31 countries. Each pot is one of one, shipped double-boxed from the studio that threw it.</p>
+          </div>
+          <ul class="grid">
+            {
+              pots.map((p) => (
+                <li class="card">
+                  <canvas data-pot={p.id} aria-hidden="true"></canvas>
+                  <div class="card-body">
+                    <div class="card-top">
+                      <h3>{p.name}</h3>
+                      <span class="price">{p.price}</span>
+                    </div>
+                    <p>{p.maker}, {p.place}</p>
+                    <p class="mono">{p.clay}</p>
+                  </div>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      </section>
+    </main>
+
+    <footer class="foot">
+      <div class="wrap foot-row">
+        <span class="brand">Throwline<sup>®</sup></span>
+        <span>A fictional marketplace for studio pottery. Pots drawn live in canvas, not filmed.</span>
+      </div>
+    </footer>
+
+    <BackPill />
+
+    <style is:global>
+      :root {
+        --paper: #ebe8df;
+        --paper-2: #dfdbcf;
+        --ink: #141714;
+        --muted: #62665d;
+        --line: rgba(20, 23, 20, 0.16);
+        --acid: #d7ff3f;
+        --orange: #ff5a2f;
+        --night: #10150f;
+        --p: 0;
+        --display: 'Bricolage Grotesque', ui-sans-serif, system-ui, sans-serif;
+        --mono: 'JetBrains Mono', ui-monospace, monospace;
+      }
+      html { background: var(--paper); }
+      body { margin: 0; color: var(--ink); background: var(--paper); font-family: var(--display); overflow-x: clip; }
+      a { color: inherit; }
+      :focus-visible { outline: 2px solid var(--orange); outline-offset: 3px; }
+      .skip { position: fixed; z-index: 30; left: 16px; top: -60px; padding: 10px 14px; background: var(--acid); color: var(--ink); font: 500 12px var(--mono); }
+      .skip:focus { top: 16px; }
+
+      .topbar {
+        position: fixed; z-index: 20; inset: 0 0 auto; height: 58px; display: flex; align-items: center; justify-content: space-between; gap: 16px;
+        padding: 0 clamp(16px, 3vw, 44px); color: var(--paper); mix-blend-mode: difference; pointer-events: none;
+        font: 500 10px var(--mono); letter-spacing: 0.16em; text-transform: uppercase; border-bottom: 1px solid rgba(235, 232, 223, 0.22);
+      }
+      .brand { font: 800 15px var(--display); letter-spacing: -0.02em; text-transform: none; }
+      .brand sup { font-size: 0.5em; }
+
+      .sequence { position: relative; height: var(--scroll-vh, 520vh); }
+      .stage {
+        position: sticky; top: 0; height: 100vh; height: 100svh; min-height: 600px; overflow: hidden;
+        display: grid; grid-template-columns: minmax(340px, 0.8fr) minmax(0, 1.2fr);
+      }
+      .copy { position: relative; z-index: 2; display: flex; flex-direction: column; padding: 92px clamp(24px, 4.4vw, 72px) 40px; border-right: 1px solid var(--line); }
+      .eyebrow { display: flex; justify-content: space-between; gap: 16px; color: var(--muted); font: 400 10px var(--mono); letter-spacing: 0.14em; text-transform: uppercase; }
+      h1 { margin: auto 0 28px; font-weight: 800; font-size: clamp(54px, 6.4vw, 104px); line-height: 0.86; letter-spacing: -0.055em; max-width: 9ch; }
+      h1 span { display: block; color: var(--orange); font-weight: 500; letter-spacing: -0.06em; }
+      .state-copy { position: relative; min-height: 104px; border-top: 1px solid var(--line); padding-top: 16px; }
+      .state { position: absolute; inset: 16px 0 auto; opacity: 0; transform: translateY(10px); transition: opacity 0.22s linear, transform 0.22s ease; }
+      .state.active { opacity: 1; transform: none; }
+      .state b { display: block; margin-bottom: 8px; font: 500 11px var(--mono); letter-spacing: 0.14em; text-transform: uppercase; }
+      .state p { margin: 0; color: var(--muted); font-size: clamp(15px, 1.3vw, 18px); line-height: 1.45; max-width: 42ch; }
+      .readout { display: grid; grid-template-columns: 1fr auto; gap: 18px; align-items: center; margin-top: 18px; }
+      .track { height: 2px; background: var(--line); overflow: hidden; }
+      .track i { display: block; height: 100%; background: var(--ink); transform: scaleX(var(--p)); transform-origin: left; }
+      .pct { font: 700 34px/1 var(--display); letter-spacing: -0.04em; font-variant-numeric: tabular-nums; min-width: 2ch; text-align: right; }
+      .cta-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 22px; flex-wrap: wrap; }
+      .cta { display: inline-flex; padding: 13px 18px; border-radius: 999px; background: var(--ink); color: var(--paper); text-decoration: none; font-weight: 500; font-size: 15px; transition: background 0.2s; }
+      .cta:hover { background: var(--orange); }
+      .maker { font: 400 11px var(--mono); color: var(--muted); letter-spacing: 0.06em; }
+
+      .visual {
+        position: relative; overflow: hidden; color: var(--paper); background-color: var(--night);
+        background-image: linear-gradient(rgba(235, 232, 223, 0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(235, 232, 223, 0.045) 1px, transparent 1px);
+        background-size: 48px 48px; background-position: center;
+      }
+      .visual::after { content: ''; position: absolute; left: 50%; top: 0; bottom: 0; border-left: 1px dashed rgba(215, 255, 63, 0.16); pointer-events: none; }
+      .pot { position: absolute; inset: 0; width: 100%; height: 100%; }
+      .cross { position: absolute; width: 16px; height: 16px; opacity: 0.45; }
+      .cross::before, .cross::after { content: ''; position: absolute; background: var(--paper); }
+      .cross::before { left: 7.5px; top: 0; width: 1px; height: 16px; }
+      .cross::after { top: 7.5px; left: 0; height: 1px; width: 16px; }
+      .c1 { right: 64px; top: 92px; }
+      .c2 { left: 56px; bottom: 150px; }
+      .tag { position: absolute; display: grid; gap: 4px; font: 500 10px var(--mono); letter-spacing: 0.14em; text-transform: uppercase; }
+      .tag .dim { color: rgba(235, 232, 223, 0.5); }
+      .tl { left: clamp(20px, 4vw, 56px); top: 88px; }
+      .br { right: 56px; bottom: 150px; text-align: right; }
+      .br [data-p] { font-size: 13px; color: var(--acid); font-variant-numeric: tabular-nums; }
+      .gauges { position: absolute; right: clamp(20px, 4vw, 56px); top: 124px; margin: 0; display: grid; gap: 8px; font: 500 10px var(--mono); letter-spacing: 0.12em; text-transform: uppercase; }
+      .gauges div { display: grid; grid-template-columns: 52px 78px; gap: 10px; border-bottom: 1px solid rgba(235, 232, 223, 0.12); padding-bottom: 6px; }
+      .gauges dt { color: rgba(235, 232, 223, 0.5); }
+      .gauges dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
+      .gauges dd.hot { color: var(--orange); }
+      .vert { position: absolute; right: 22px; bottom: 150px; writing-mode: vertical-rl; font: 500 10px var(--mono); letter-spacing: 0.16em; text-transform: uppercase; color: rgba(235, 232, 223, 0.6); }
+      .strip { position: absolute; left: 0; right: 0; bottom: 0; display: grid; grid-template-columns: repeat(6, 1fr); border-top: 1px solid rgba(235, 232, 223, 0.14); background: rgba(16, 21, 15, 0.7); backdrop-filter: blur(6px); }
+      .strip button {
+        position: relative; height: 112px; padding: 0; border: 0; border-right: 1px solid rgba(235, 232, 223, 0.1); background: transparent; color: rgba(235, 232, 223, 0.5); cursor: pointer;
+        font: 500 10px var(--mono); letter-spacing: 0.14em; transition: background 0.2s, color 0.2s;
+      }
+      .strip button:last-child { border-right: 0; }
+      .strip button canvas { position: absolute; inset: 6px 0 18px; width: 100%; height: calc(100% - 24px); opacity: 0.55; transition: opacity 0.2s; }
+      .strip button span { position: absolute; left: 10px; bottom: 8px; }
+      .strip button::after { content: ''; position: absolute; left: 0; right: 0; top: -1px; height: 2px; background: var(--acid); transform: scaleX(0); transform-origin: left; transition: transform 0.25s; }
+      .strip button:hover canvas, .strip button.on canvas { opacity: 1; }
+      .strip button.on { color: var(--acid); background: rgba(215, 255, 63, 0.05); }
+      .strip button.on::after { transform: none; }
+
+      .wrap { width: min(1240px, calc(100% - 32px)); margin: 0 auto; }
+      .frames { padding: clamp(80px, 12vw, 160px) 0 clamp(60px, 8vw, 110px); }
+      .kicker { font: 500 11px var(--mono); letter-spacing: 0.16em; text-transform: uppercase; color: var(--orange); margin: 0 0 18px; }
+      h2 { margin: 0; font-weight: 700; font-size: clamp(34px, 4.6vw, 68px); line-height: 0.95; letter-spacing: -0.045em; max-width: 18ch; }
+      .frame-list { list-style: none; margin: clamp(40px, 6vw, 72px) 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--line); }
+      .frame-list li { padding: 24px 24px 32px 0; border-bottom: 1px solid var(--line); display: grid; gap: 8px; align-content: start; }
+      .frame-list li + li { padding-left: 24px; border-left: 1px solid var(--line); }
+      .frame-list li:nth-child(3n + 1) { padding-left: 0; border-left: 0; }
+      .frame-list .num { font: 500 11px var(--mono); color: var(--muted); letter-spacing: 0.12em; }
+      .frame-list b { font-size: 26px; font-weight: 700; letter-spacing: -0.03em; }
+      .frame-list p { margin: 0; color: var(--muted); line-height: 1.5; max-width: 36ch; }
+
+      .market { padding: 0 0 clamp(80px, 10vw, 140px); }
+      .market-head { display: flex; justify-content: space-between; align-items: end; gap: 32px; flex-wrap: wrap; margin-bottom: 36px; }
+      .market-head p { margin: 0; max-width: 40ch; color: var(--muted); line-height: 1.5; }
+      .grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+      .card { background: var(--paper-2); border-radius: 4px; overflow: hidden; }
+      .card canvas { display: block; width: 100%; aspect-ratio: 4 / 5; background: radial-gradient(120% 80% at 50% 30%, #f3f0e8, var(--paper-2)); }
+      .card-body { padding: 16px 16px 18px; border-top: 1px solid var(--line); }
+      .card-top { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+      .card h3 { margin: 0 0 6px; font-size: 18px; font-weight: 700; letter-spacing: -0.02em; }
+      .price { font-weight: 500; }
+      .card p { margin: 0; color: var(--muted); font-size: 14px; }
+      .card .mono { margin-top: 8px; font: 400 10px var(--mono); letter-spacing: 0.1em; text-transform: uppercase; }
+
+      .foot { background: var(--night); color: rgba(235, 232, 223, 0.7); padding: 36px 0 72px; font-size: 13px; }
+      .foot-row { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; align-items: center; }
+      .foot .brand { color: var(--paper); }
+
+      @media (max-width: 1080px) {
+        .grid { grid-template-columns: repeat(2, 1fr); }
+      }
+      @media (max-width: 860px) {
+        .stage { grid-template-columns: 1fr; grid-template-rows: minmax(0, 1fr) auto; }
+        .visual { order: -1; }
+        .copy { padding: 14px 16px 18px; border-right: 0; border-top: 1px solid var(--line); background: var(--paper); }
+        .eyebrow { display: none; }
+        h1 { font-size: clamp(30px, 8.6vw, 44px); margin: 0 0 12px; max-width: none; }
+        h1 span { display: inline; }
+        .state-copy { min-height: 86px; padding-top: 10px; }
+        .state { inset: 10px 0 auto; }
+        .state p { font-size: 14px; }
+        .readout { margin-top: 6px; }
+        .pct { font-size: 22px; }
+        .cta-row { margin-top: 10px; }
+        .cta { padding: 10px 14px; font-size: 14px; }
+        .tl { top: 70px; left: 16px; }
+        .gauges { top: 70px; right: 16px; gap: 5px; }
+        .gauges div { grid-template-columns: 40px 64px; padding-bottom: 4px; }
+        .tl .dim, .c1, .c2, .vert, .br { display: none; }
+        .strip button { height: 68px; }
+        .strip button span { left: 6px; bottom: 4px; }
+        .strip button canvas { inset: 4px 0 14px; height: calc(100% - 18px); }
+        .frame-list { grid-template-columns: 1fr; }
+        .frame-list li, .frame-list li + li { padding: 20px 0 24px; border-left: 0; }
+      }
+      @media (max-width: 520px) {
+        .grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+        .card-top { flex-direction: column; gap: 0; }
+        .card h3 { font-size: 15px; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .sequence { height: auto; }
+        .stage { position: relative; height: auto; min-height: 0; }
+        .visual { min-height: 78vh; }
+        .state, .strip button canvas, .track i, .cta { transition: none; }
+      }
+    </style>
+
+    <script>
+      import { KEYS, SEQUENCE, clamp, drawVessel, progressFor, sceneAt } from '../../components/skills/scroll-scrubbed-visual-sequence/vessel';
+      import type { Material, Scene } from '../../components/skills/scroll-scrubbed-visual-sequence/vessel';
+
+      const NAMES = ['Wedged', 'Centred', 'Opened', 'Pulled', 'Fired', 'Listed'];
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+      const section = document.getElementById('sequence')!;
+      const canvas = section.querySelector<HTMLCanvasElement>('canvas.pot')!;
+      const ctx = canvas.getContext('2d')!;
+      const states = [...section.querySelectorAll<HTMLElement>('[data-state]')];
+      const jumps = [...section.querySelectorAll<HTMLButtonElement>('[data-jump]')];
+      const pctEl = section.querySelector<HTMLElement>('[data-pct]')!;
+      const pEl = section.querySelector<HTMLElement>('[data-p]')!;
+      const stageLabel = section.querySelector<HTMLElement>('[data-stage-label]')!;
+      const g = (k: string) => section.querySelector<HTMLElement>(`[data-g="${k}"]`)!;
+      const gauges = { kg: g('kg'), rpm: g('rpm'), wall: g('wall'), temp: g('temp') };
+
+      const dpr = () => Math.min(2, devicePixelRatio || 1);
+      const fit = (c: HTMLCanvasElement) => {
+        const r = c.getBoundingClientRect();
+        const d = dpr();
+        const w = Math.max(1, Math.round(r.width * d));
+        const h = Math.max(1, Math.round(r.height * d));
+        if (c.width !== w || c.height !== h) {
+          c.width = w;
+          c.height = h;
+        }
+        const x = c.getContext('2d')!;
+        x.setTransform(d, 0, 0, d, 0, 0);
+        return { x, w: r.width, h: r.height };
+      };
+
+      let manual: number | null = null; // reduced-motion: stage chosen from the strip
+      let lastP = -1;
+      let lastStage = -1;
+      let visible = true;
+      let frame = 0;
+
+      const measure = () => {
+        if (reduce.matches) return manual ?? SEQUENCE.reducedMotionProgress;
+        const rect = section.getBoundingClientRect();
+        const distance = rect.height - innerHeight;
+        return distance > 0 ? clamp(-rect.top / distance) : 0;
+      };
+
+      const render = (force = false) => {
+        frame = 0;
+        const p = measure();
+        if (!force && p === lastP) return;
+        lastP = p;
+        const sc = sceneAt(p);
+        const { w, h } = fit(canvas);
+        // Narrow stages leave room for the strip and gauges.
+        const narrow = w < 560;
+        ctx.save();
+        if (narrow) {
+          ctx.translate(0, 18);
+        }
+        drawVessel(ctx, w, h - (narrow ? 84 : 112), sc, { guides: true });
+        ctx.restore();
+
+        section.style.setProperty('--p', p.toFixed(4));
+        pctEl.textContent = String(Math.round(p * 100)).padStart(2, '0');
+        pEl.textContent = p.toFixed(3);
+        gauges.kg.textContent = `${sc.kg.toFixed(2)} kg`;
+        gauges.rpm.textContent = sc.rpm < 1 ? 'stopped' : `${Math.round(sc.rpm)} rpm`;
+        gauges.wall.textContent = sc.wall < 1 ? '—' : `${sc.wall.toFixed(1)} mm`;
+        const temp = 20 + 1260 * sc.heat;
+        gauges.temp.textContent = `${Math.round(temp).toLocaleString('en-GB')} °C`;
+        gauges.temp.classList.toggle('hot', sc.heat > 0.05);
+
+        // Copy flips at the morph midpoint, so the words always name the shape on screen.
+        const stop = sc.stage;
+        if (stop !== lastStage) {
+          lastStage = stop;
+          states.forEach((el, i) => el.classList.toggle('active', i === stop));
+          jumps.forEach((b, i) => {
+            b.classList.toggle('on', i === stop);
+            b.setAttribute('aria-current', i === stop ? 'step' : 'false');
+          });
+          stageLabel.textContent = `Stage ${String(stop + 1).padStart(2, '0')} / ${NAMES[stop]}`;
+        }
+      };
+
+      const schedule = () => {
+        if (!visible || frame) return;
+        frame = requestAnimationFrame(() => render());
+      };
+
+      // Filmstrip thumbnails: the same renderer frozen at each stop.
+      const paintStrip = () => {
+        jumps.forEach((b, i) => {
+          const c = b.querySelector('canvas')!;
+          const { x, w, h } = fit(c);
+          const sc: Scene = { ...sceneAt(progressFor(i)), heat: i === 4 ? 0.55 : 0 };
+          drawVessel(x, w, h, sc, { tilt: 0.18 });
+        });
+      };
+
+      jumps.forEach((b, i) =>
+        b.addEventListener('click', () => {
+          if (reduce.matches) {
+            manual = progressFor(i);
+            render(true);
+            return;
+          }
+          const top = section.getBoundingClientRect().top + scrollY;
+          scrollTo({ top: top + progressFor(i) * (section.offsetHeight - innerHeight), behavior: 'smooth' });
+        }),
+      );
+
+      // Market cards: finished pots with their own profiles and glazes.
+      const glazes: Record<string, Material> = {
+        bowl: { dark: [22, 14, 10], mid: [78, 42, 24], light: [168, 104, 62] },
+        bottle: { dark: [176, 92, 56], mid: [232, 196, 168], light: [250, 238, 226] },
+        cup: { dark: [58, 66, 38], mid: [136, 146, 90], light: [204, 208, 156] },
+        jar: { dark: [16, 30, 74], mid: [44, 78, 152], light: [138, 168, 222] },
+      };
+      const final = KEYS[5];
+      const shapes: Record<string, Partial<Scene>> = {
+        bowl: { h: 0.5, r: [0.26, 0.4, 0.5, 0.57, 0.62, 0.66, 0.69, 0.71, 0.72], open: 0.66 },
+        bottle: { h: 1.3, r: [0.3, 0.4, 0.44, 0.4, 0.28, 0.14, 0.09, 0.085, 0.1], open: 0.06 },
+        cup: { h: 0.86, r: [0.28, 0.33, 0.35, 0.36, 0.36, 0.37, 0.38, 0.385, 0.39], open: 0.35 },
+        jar: { h: 1.0, r: [0.3, 0.42, 0.5, 0.53, 0.52, 0.46, 0.36, 0.32, 0.34], open: 0.28 },
+      };
+      const paintCards = () => {
+        document.querySelectorAll<HTMLCanvasElement>('canvas[data-pot]').forEach((c) => {
+          const id = c.dataset.pot!;
+          const { x, w, h } = fit(c);
+          const sc: Scene = { ...sceneAt(1), ...final, ...shapes[id], glaze: 0.92, wheel: 0, heat: 0, spin: id.length };
+          drawVessel(x, w, h * 0.92, sc, { glaze: glazes[id], tilt: 0.22, scale: id === 'bottle' ? 1.2 : 1.5 });
+        });
+      };
+
+      const paintAll = () => {
+        render(true);
+        paintStrip();
+        paintCards();
+      };
+
+      new IntersectionObserver(([e]) => {
+        visible = e.isIntersecting;
+        if (visible) render(true);
+      }).observe(section);
+      addEventListener('scroll', schedule, { passive: true });
+      new ResizeObserver(() => paintAll()).observe(document.body);
+      reduce.addEventListener('change', () => {
+        manual = null;
+        paintAll();
+      });
+      document.fonts?.ready.then(paintAll);
+      paintAll();
+
+    </script>
+  </body>
+</html>

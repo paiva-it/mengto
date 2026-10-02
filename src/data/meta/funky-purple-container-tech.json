@@ -1,0 +1,7 @@
+{
+  "title": "Funky Purple Container Tech",
+  "kind": "website",
+  "category": "Design systems",
+  "concept": "Ushimitsu, a fourteen-seat late-night ramen counter under the U1 in Kreuzberg, housed in a railed and corner-marked dark shell with a glowing fuchsia egg-orb, a rotating text ring, a gradient-edged seat bar and floating pot card.",
+  "notes": "Pure CSS + one small script, no WebGL. Picking a broth in the seat bar shifts the whole purple mood (violet / fuchsia / magenta) through @property-registered colour tokens and updates the floating pot card. Reduced motion stops the float, ring spin, glow pulse and headline mask reveal."
+}

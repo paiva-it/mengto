@@ -1,0 +1,7 @@
+{
+  "title": "Paper Cinder Transition",
+  "kind": "section",
+  "category": "Effects & details",
+  "concept": "Last Credit, a fictional arcade bar on Pier 4: its ticket wall, cabinet row and blacklit cosmic-carpet back room burn into each other along a ragged ember line, the next room live behind it and the one you leave frozen and scorching ahead of it.",
+  "notes": "Raw WebGL 2 and GLSL, no libraries: the skill's own EDGE/NOISE GLSL, burn pass, noise bake (1024² RGBA16F + 2048² R16F), bloom, 0.75-scale scissored live scene with rest cross-fade, queued presses and reduced-motion cross-fade, ported from its demo; the three rooms, words and type are new. The burn auto-plays until the first touch or key. With ?shot the first burn is parked at 37 % (still flickering) so the 3.5 s capture shows the line mid-frame regardless of SwiftShader frame rate; ?hold=f&from=a&to=b parks any burn. Headless Chromium (SwiftShader WebGL 2) runs it at a few fps, so the dt clamp slows the clock there; on a GPU it runs at display rate."
+}

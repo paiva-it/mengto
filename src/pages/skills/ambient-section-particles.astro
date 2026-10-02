@@ -1,0 +1,358 @@
+---
+import '../../styles/global.css';
+import BackPill from '../../components/BackPill.astro';
+
+const readouts = [
+  ['Depth', '3,912 m'],
+  ['Water', '1.9 °C'],
+  ['Current', '0.4 kn'],
+  ['Light', '0 lux'],
+];
+
+const ticks = [0, 1000, 2000, 3000, 4000, 5000, 6000];
+
+const instruments = [
+  {
+    n: '01',
+    name: 'Sediment traps',
+    body: 'Three cones moored at 500, 1,500 and 3,500 m catch what falls for 28 days, then seal themselves and wait for the acoustic release.',
+    stat: '3 × 0.5 m²',
+  },
+  {
+    n: '02',
+    name: 'Holocam',
+    body: 'A laser holographic camera images every particle in a 40 ml volume, eleven times a second, without touching a single flake.',
+    stat: '11 fps',
+  },
+  {
+    n: '03',
+    name: 'ROV Sablefish',
+    body: 'Our 6,000 m work-class vehicle, rated for nine hours on the bottom and a gentle enough thruster wash not to lift the floor.',
+    stat: '6,000 m',
+  },
+];
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>R/V Calder — Marine Snow Transect</title>
+    <meta name="description" content="Expedition 14 aboard the research vessel Calder: following marine snow from the surface to the abyssal plain." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <BackPill />
+
+    <!-- 1 · Hero: recycle-mode marine snow -->
+    <section class="hero snow-section" data-snow="recycle" aria-labelledby="hero-title">
+      <div class="shafts" aria-hidden="true"></div>
+      <canvas class="snow" aria-hidden="true"></canvas>
+
+      <header class="bar">
+        <a href="#top" class="brand" id="top">
+          <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true">
+            <circle cx="11" cy="11" r="10" fill="none" stroke="currentColor" stroke-width="1.2" />
+            <path d="M3 13c3-2 5 2 8 0s5-2 8 0" fill="none" stroke="currentColor" stroke-width="1.2" />
+            <circle cx="11" cy="7" r="1.6" fill="var(--phos)" />
+          </svg>
+          <span>R/V Calder</span>
+        </a>
+        <nav aria-label="Primary">
+          <a href="#vessel">The vessel</a>
+          <a href="#floor">Seafloor</a>
+          <a href="#log">Transect log</a>
+        </nav>
+        <dl class="live">
+          {readouts.slice(0, 3).map(([k, v]) => (
+            <div><dt>{k}</dt><dd>{v}</dd></div>
+          ))}
+        </dl>
+      </header>
+
+      <div class="hero-grid">
+        <div class="copy" data-quiet>
+          <p class="eyebrow"><span class="dot"></span>Expedition 14 · Clarion–Clipperton Zone</p>
+          <h1 id="hero-title">It snows forever at four thousand metres.</h1>
+          <p class="lede">
+            Below the light, the ocean is lit by things falling — flakes of plankton, mucus and dust that take six weeks to
+            reach the floor. For 31 days the <em>Calder</em> holds station over one patch of abyss and counts every flake on the way down.
+          </p>
+          <div class="actions">
+            <a class="btn primary" href="#log">Read the transect log</a>
+            <button class="btn ghost" type="button" id="pulse">
+              <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h9M8 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.4" /><path d="M14 3v10" stroke="currentColor" stroke-width="1.4" /></svg>
+              Pulse the thrusters
+            </button>
+          </div>
+          <p class="status" id="status" role="status" aria-live="polite">Station-keeping · current 0.4 kn from the east</p>
+        </div>
+
+        <aside class="gauge" aria-label="Current dive profile">
+          <div class="gauge-head">
+            <span>Dive 14-07</span>
+            <span class="rec"><span class="dot"></span>Holocam recording</span>
+          </div>
+          <div class="column">
+            <ol class="ticks" aria-hidden="true">
+              {ticks.map((d) => <li style={`--p:${d / 6000}`}>{d.toLocaleString('en-US')}</li>)}
+            </ol>
+            <div class="rail"><span class="fill"></span><span class="sub" style="--p:0.652"><b>3,912 m</b></span></div>
+            <dl class="figures">
+              <div><dt>Particles / litre</dt><dd>18,204</dd></div>
+              <div><dt>Sinking speed</dt><dd>96 m/day</dd></div>
+              <div><dt>Carbon flux</dt><dd>41 mg C m⁻² d⁻¹</dd></div>
+              <div><dt>Largest aggregate</dt><dd>4.7 mm</dd></div>
+            </dl>
+          </div>
+        </aside>
+      </div>
+
+      <dl class="strip">
+        {readouts.map(([k, v]) => (
+          <div><dt>{k}</dt><dd>{v}</dd></div>
+        ))}
+      </dl>
+    </section>
+
+    <!-- 2 · The vessel: no particles — the effect stays bounded to its sections -->
+    <section class="vessel" id="vessel" aria-labelledby="vessel-title">
+      <div class="wrap">
+        <div class="vessel-head">
+          <p class="eyebrow">The vessel</p>
+          <h2 id="vessel-title">A 74-metre ship built to sit very still above something very slow.</h2>
+          <p>
+            Dynamic positioning keeps the <em>Calder</em> inside a five-metre circle for a month at a time. Everything aboard is there to
+            measure a snowfall nobody has ever seen with their own eyes.
+          </p>
+        </div>
+        <ol class="instruments">
+          {instruments.map((i) => (
+            <li>
+              <span class="num">{i.n}</span>
+              <h3>{i.name}</h3>
+              <p>{i.body}</p>
+              <span class="stat">{i.stat}</span>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+
+    <!-- 3 · Seafloor: settle-mode, the pile has a strict height cap -->
+    <section class="floor snow-section" id="floor" data-snow="settle" aria-labelledby="floor-title">
+      <canvas class="snow" aria-hidden="true"></canvas>
+      <div class="wrap floor-inner">
+        <div class="floor-copy" data-quiet>
+          <p class="eyebrow">Abyssal plain · 4,180 m</p>
+          <h2 id="floor-title">Everything ends up here, a millimetre every thousand years.</h2>
+          <p>
+            What survives the fall becomes the softest ground on Earth — and a slow vault for the carbon that once floated at the surface.
+            Our cores read it like tree rings.
+          </p>
+        </div>
+        <div class="tally" id="log">
+          <span class="tally-n" id="settled">0</span>
+          <span class="tally-l">flakes settled since you arrived</span>
+        </div>
+      </div>
+      <footer class="foot">
+        <span>R/V Calder · Expedition 14</span>
+        <span>A fictional research vessel. The snow is real.</span>
+      </footer>
+    </section>
+
+    <script>
+      import { createSnowLayer } from '../../components/skills/ambient-section-particles/marine-snow';
+
+      const layers = [...document.querySelectorAll<HTMLElement>('.snow-section')].map((section) => {
+        const canvas = section.querySelector<HTMLCanvasElement>('canvas.snow')!;
+        return section.dataset.snow === 'settle'
+          ? createSnowLayer(section, canvas, { mode: 'settle', areaPerParticle: 8000, max: 160, maxMobile: 60, gravity: 12, speed: [18, 34], glowChance: 0.02, settleCap: 52 })
+          : createSnowLayer(section, canvas);
+      });
+      const [hero, floor] = layers;
+
+      const status = document.getElementById('status')!;
+      const pulse = document.getElementById('pulse') as HTMLButtonElement;
+      let calm = 0;
+      pulse.addEventListener('click', () => {
+        hero.gust();
+        status.textContent = hero.reduced()
+          ? 'Thruster pulse logged · motion reduced, field held still'
+          : 'Thruster pulse · lateral wash 1.2 kn, the snow drifts west';
+        clearTimeout(calm);
+        calm = window.setTimeout(() => (status.textContent = 'Station-keeping · current 0.4 kn from the east'), 3600);
+      });
+
+      const settledEl = document.getElementById('settled')!;
+      floor.onSettle((n) => (settledEl.textContent = n.toLocaleString('en-US')));
+
+      addEventListener('pagehide', () => layers.forEach((l) => l.destroy()), { once: true });
+    </script>
+
+    <style>
+      :root {
+        --abyss: #061416;
+        --abyss-2: #0b2427;
+        --abyss-3: #103136;
+        --snow: #e2eee8;
+        --muted: rgb(226 238 232 / 0.62);
+        --faint: rgb(226 238 232 / 0.38);
+        --line: rgb(226 238 232 / 0.12);
+        --phos: #8ff5d0;
+        --sediment: #c9b48a;
+        --sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
+        --mono: 'IBM Plex Mono', ui-monospace, monospace;
+      }
+      html { background: var(--abyss); scroll-behavior: smooth; }
+      body { margin: 0; background: var(--abyss); color: var(--snow); font-family: var(--sans); -webkit-font-smoothing: antialiased; overflow-x: clip; }
+      a { color: inherit; }
+      em { font-style: normal; color: var(--snow); }
+      :focus-visible { outline: 2px solid var(--phos); outline-offset: 3px; border-radius: 4px; }
+
+      .snow-section { position: relative; overflow: clip; isolation: isolate; }
+      .snow { position: absolute; inset: 0; z-index: 0; pointer-events: none; display: block; }
+      .snow-section > :not(.snow):not(.shafts) { position: relative; z-index: 1; }
+
+      .eyebrow { text-wrap: balance;
+        display: inline-flex; align-items: center; gap: 10px; margin: 0 0 22px;
+        font: 500 12px/1.2 var(--mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--phos);
+      }
+      .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--phos); box-shadow: 0 0 10px var(--phos); flex: none; }
+
+      /* Hero */
+      .hero {
+        min-height: 100svh; display: flex; flex-direction: column;
+        background:
+          radial-gradient(120% 60% at 70% -10%, rgb(56 120 118 / 0.32), transparent 60%),
+          linear-gradient(180deg, #0d2c30 0%, #08191c 45%, #040d0f 100%);
+      }
+      .shafts {
+        position: absolute; inset: 0; z-index: 0; pointer-events: none; opacity: 0.5;
+        background: repeating-linear-gradient(100deg, transparent 0 90px, rgb(140 210 200 / 0.035) 90px 150px, transparent 150px 260px);
+        mask-image: linear-gradient(180deg, #000 0%, transparent 70%);
+      }
+      .bar {
+        display: flex; align-items: center; gap: 40px; padding: 22px clamp(16px, 4vw, 56px);
+        border-bottom: 1px solid var(--line);
+      }
+      .brand { display: inline-flex; align-items: center; gap: 12px; text-decoration: none; font-weight: 600; font-size: 15px; letter-spacing: 0.02em; }
+      .bar nav { display: flex; gap: 28px; font-size: 14px; color: var(--muted); }
+      .bar nav a { text-decoration: none; transition: color 0.2s; }
+      .bar nav a:hover { color: var(--snow); }
+      .live { margin: 0 0 0 auto; display: flex; gap: 24px; font: 400 12px/1 var(--mono); }
+      .live div { display: flex; gap: 8px; }
+      .live dt { color: var(--faint); text-transform: uppercase; letter-spacing: 0.1em; }
+      .live dd { margin: 0; color: var(--snow); }
+
+      .hero-grid {
+        flex: 1; display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: clamp(32px, 6vw, 96px);
+        align-items: end; padding: clamp(48px, 9vh, 110px) clamp(16px, 4vw, 56px) 48px;
+      }
+      .copy { max-width: 820px; }
+      .hero h1 {
+        margin: 0; font-weight: 500; font-size: clamp(46px, 7.4vw, 112px); line-height: 0.95; letter-spacing: -0.045em;
+        text-wrap: balance;
+      }
+      .lede { margin: 30px 0 0; max-width: 560px; font-size: clamp(16px, 1.25vw, 18px); line-height: 1.6; color: var(--muted); text-wrap: pretty; }
+      .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 34px; }
+      .btn {
+        display: inline-flex; align-items: center; gap: 10px; height: 48px; padding: 0 22px; border-radius: 999px;
+        font: 500 15px/1 var(--sans); text-decoration: none; cursor: pointer; transition: background 0.2s, border-color 0.2s, transform 0.2s;
+      }
+      .btn.primary { background: var(--phos); color: #04201a; border: 0; }
+      .btn.primary:hover { background: #b4fbe2; }
+      .btn.ghost { background: rgb(226 238 232 / 0.04); color: var(--snow); border: 1px solid rgb(226 238 232 / 0.22); backdrop-filter: blur(6px); }
+      .btn.ghost:hover { border-color: var(--phos); }
+      .btn:active { transform: translateY(1px); }
+      .status { margin: 18px 0 0; font: 400 12px/1.4 var(--mono); color: var(--faint); letter-spacing: 0.04em; }
+
+      .gauge {
+        border: 1px solid var(--line); border-radius: 18px; padding: 20px 22px 22px;
+        background: linear-gradient(180deg, rgb(16 49 54 / 0.55), rgb(6 20 22 / 0.55)); backdrop-filter: blur(10px);
+      }
+      .gauge-head { display: flex; justify-content: space-between; gap: 12px; font: 400 11px/1 var(--mono); text-transform: uppercase; letter-spacing: 0.1em; color: var(--faint); padding-bottom: 16px; border-bottom: 1px solid var(--line); }
+      .rec { display: inline-flex; align-items: center; gap: 8px; color: var(--phos); }
+      .column { display: grid; grid-template-columns: 44px 10px 1fr; gap: 14px; padding-top: 18px; height: 300px; }
+      .ticks { position: relative; list-style: none; margin: 0; padding: 0; font: 400 10px/1 var(--mono); color: var(--faint); }
+      .ticks li { position: absolute; right: 0; top: calc(var(--p) * 100%); transform: translateY(-50%); }
+      .rail { position: relative; border-radius: 99px; background: linear-gradient(180deg, rgb(120 200 190 / 0.35), rgb(226 238 232 / 0.06)); }
+      .fill { position: absolute; inset: 0 0 34.8% 0; border-radius: 99px; background: linear-gradient(180deg, rgb(143 245 208 / 0.2), var(--phos)); }
+      .sub { position: absolute; left: 50%; top: calc(var(--p) * 100%); width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%; background: var(--abyss); border: 2px solid var(--phos); box-shadow: 0 0 0 6px rgb(143 245 208 / 0.12); }
+      .sub b { position: absolute; left: 22px; top: 50%; transform: translateY(-50%); white-space: nowrap; font: 500 11px/1 var(--mono); color: var(--phos); }
+      .figures { margin: 0; display: flex; flex-direction: column; justify-content: space-between; padding-left: 64px; }
+      .figures dt { font: 400 10px/1.3 var(--mono); text-transform: uppercase; letter-spacing: 0.1em; color: var(--faint); }
+      .figures dd { margin: 4px 0 0; font-size: 17px; font-weight: 500; letter-spacing: -0.01em; }
+
+      .strip {
+        display: grid; grid-template-columns: repeat(4, 1fr); margin: 0; border-top: 1px solid var(--line);
+        background: rgb(4 13 15 / 0.4);
+      }
+      .strip div { padding: 18px clamp(16px, 4vw, 56px); border-left: 1px solid var(--line); display: flex; justify-content: space-between; gap: 12px; font: 400 12px/1 var(--mono); }
+      .strip div:first-child { border-left: 0; }
+      .strip dt { color: var(--faint); text-transform: uppercase; letter-spacing: 0.12em; }
+      .strip dd { margin: 0; }
+
+      /* Vessel */
+      .wrap { max-width: 1328px; margin: 0 auto; padding: 0 clamp(16px, 4vw, 56px); }
+      .vessel { background: #f2efe8; color: #0b2427; padding: clamp(80px, 12vw, 150px) 0; }
+      .vessel .eyebrow { color: #1f6b5e; }
+      .vessel-head { display: grid; grid-template-columns: 1fr 1fr; gap: 24px 80px; align-items: end; }
+      .vessel-head .eyebrow { grid-column: 1 / -1; margin: 0; }
+      .vessel h2, .floor h2 { margin: 0; font-weight: 500; font-size: clamp(32px, 3.8vw, 56px); line-height: 1.02; letter-spacing: -0.035em; text-wrap: balance; }
+      .vessel-head > p:last-child { margin: 0; font-size: 17px; line-height: 1.6; color: rgb(11 36 39 / 0.7); max-width: 480px; }
+      .vessel em { color: #0b2427; }
+      .instruments { list-style: none; margin: clamp(56px, 7vw, 96px) 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid rgb(11 36 39 / 0.15); }
+      .instruments li { padding: 28px 32px 8px 0; display: flex; flex-direction: column; gap: 14px; }
+      .instruments li + li { padding-left: 32px; border-left: 1px solid rgb(11 36 39 / 0.15); }
+      .instruments .num { font: 500 12px/1 var(--mono); color: #1f6b5e; }
+      .instruments h3 { margin: 0; font-size: 24px; font-weight: 500; letter-spacing: -0.02em; }
+      .instruments p { margin: 0; font-size: 15px; line-height: 1.6; color: rgb(11 36 39 / 0.68); }
+      .instruments .stat { margin-top: auto; padding-top: 20px; font: 500 30px/1 var(--sans); letter-spacing: -0.03em; }
+
+      /* Floor */
+      .floor {
+        min-height: 92svh; display: flex; flex-direction: column;
+        background: linear-gradient(180deg, #050f11 0%, #08191c 70%, #0d2226 100%);
+      }
+      .floor-inner { flex: 1; width: 100%; box-sizing: border-box; display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 48px; align-items: center; padding-top: clamp(80px, 12vw, 140px); padding-bottom: 120px; }
+      .floor-copy p:last-child { margin: 24px 0 0; max-width: 520px; font-size: 17px; line-height: 1.6; color: var(--muted); }
+      .floor .eyebrow { color: var(--sediment); }
+      .tally { justify-self: end; text-align: right; display: flex; flex-direction: column; gap: 10px; }
+      .tally-n { font: 500 clamp(56px, 8vw, 120px)/0.9 var(--sans); letter-spacing: -0.05em; font-variant-numeric: tabular-nums; color: var(--sediment); }
+      .tally-l { font: 400 12px/1.3 var(--mono); text-transform: uppercase; letter-spacing: 0.12em; color: var(--faint); }
+      .foot { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding: 20px clamp(16px, 4vw, 56px) 84px; font: 400 12px/1.4 var(--mono); color: rgb(226 238 232 / 0.5); }
+
+      @media (max-width: 1100px) {
+        .bar nav { display: none; }
+        .hero-grid { grid-template-columns: minmax(0, 1fr); align-items: start; }
+        .gauge { max-width: 520px; }
+      }
+      @media (max-width: 720px) {
+        .bar { gap: 16px; }
+        .live div:nth-child(n + 2) { display: none; }
+        .hero-grid { padding-top: 56px; gap: 40px; }
+        .column { height: 240px; grid-template-columns: 40px 10px 1fr; }
+        .figures { padding-left: 52px; }
+        .figures dd { font-size: 15px; }
+        .strip { grid-template-columns: repeat(2, 1fr); }
+        .strip div:nth-child(3) { border-left: 0; }
+        .strip div:nth-child(n + 3) { border-top: 1px solid var(--line); }
+        .vessel-head, .instruments, .floor-inner { grid-template-columns: minmax(0, 1fr); }
+        .instruments li, .instruments li + li { padding: 28px 0; border-left: 0; }
+        .instruments li + li { border-top: 1px solid rgb(11 36 39 / 0.15); }
+        .tally { justify-self: start; text-align: left; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        html { scroll-behavior: auto; }
+        .btn { transition: none; }
+      }
+    </style>
+  </body>
+</html>

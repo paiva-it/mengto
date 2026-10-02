@@ -1,0 +1,7 @@
+{
+  "title": "Gooey Blob System",
+  "kind": "section",
+  "category": "Effects & details",
+  "concept": "Coalesce, a fictional open-source local-first sync engine: six device replicas orbit one shared document as a single SVG-goo mass — drifting off (and queueing ops) when offline, fusing back when they meet — with the pointer joining as a seventh peer, plus mini goo demos for merge, sync and fork and a gooey CTA.",
+  "notes": "Pure SVG filters (feGaussianBlur → feColorMatrix alpha threshold → hairline blur) over rAF-driven circles, plus a blurred <use> halo; no WebGL. Pauses offscreen/hidden, has a Pause drift toggle, and reduced motion renders one composed still frame with CSS mini-demos frozen mid-merge."
+}

@@ -1,0 +1,39 @@
+---
+// The structural grid laid over every image stage: five vertical rails on the shared
+// container (0 / 25 / 50 / 75 / 100 %), a top and bottom hairline, and 7 px square
+// markers where they cross. Purely decorative, so it is hidden from assistive tech.
+interface Props { top?: string; bottom?: string }
+const { top = '0px', bottom = '0px' } = Astro.props;
+const cols = [0, 25, 50, 75, 100];
+---
+<div class="rails" aria-hidden="true" style={`--rt:${top};--rb:${bottom}`}>
+  <div class="rails__box">
+    {cols.map((c) => (
+      <span class:list={['rail', { 'rail--minor': c === 25 || c === 75 }]} style={`left:${c}%`}>
+        <i class="mk mk--t" /><i class="mk mk--b" />
+      </span>
+    ))}
+  </div>
+  <span class="hair hair--t" /><span class="hair hair--b" />
+</div>
+<style>
+  .rails { position: absolute; inset: 0; pointer-events: none; z-index: 2; }
+  .rails__box { position: absolute; inset: 0 auto; left: 50%; width: min(100% - 2 * var(--gut), var(--max)); transform: translateX(-50%); }
+  .rail {
+    position: absolute; top: 0; bottom: 0; width: 1px; margin-left: -0.5px;
+    background: linear-gradient(to bottom, transparent, var(--line) 6%, var(--line) 94%, transparent);
+    transform-origin: top; animation: rail-in 1.6s cubic-bezier(.2,.7,.1,1) both;
+  }
+  .rail--minor { opacity: .55; }
+  .rail:nth-child(2) { animation-delay: .08s } .rail:nth-child(3) { animation-delay: .16s }
+  .rail:nth-child(4) { animation-delay: .24s } .rail:nth-child(5) { animation-delay: .32s }
+  .mk { position: absolute; left: -3px; width: 7px; height: 7px; border: 1px solid var(--marker); background: rgb(4 10 16 / .5); }
+  .mk--t { top: calc(var(--rt) - 3.5px); }
+  .mk--b { bottom: calc(var(--rb) - 3.5px); }
+  .hair { position: absolute; left: 0; right: 0; height: 1px; background: var(--line-soft); }
+  .hair--t { top: var(--rt); }
+  .hair--b { bottom: var(--rb); }
+  @media (max-width: 720px) { .rail--minor { display: none; } }
+  @keyframes rail-in { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+  @media (prefers-reduced-motion: reduce) { .rail { animation: none; } }
+</style>

@@ -1,0 +1,6 @@
+/* ponytail: the shared dev server's Tailwind root never picked up this new page, so it gets its own
+   compile root scoped to this file. Same layers as global.css, so ordering is unchanged. */
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities) source(none);
+@source "../../../pages/skills/animation-on-scroll.astro";

@@ -1,0 +1,7 @@
+{
+  "title": "Scroll World Storytelling",
+  "kind": "website",
+  "category": "Motion & scroll",
+  "concept": "Vael Chocolate Works, Batch 14: sixty-one days in the life of a bar told as a thermal ledger, where native scroll walks seven beats (open, ferment, roast, conche, temper, rest, release) and draws one cobalt temperature line through nine stages beside a live °C counter.",
+  "notes": "Mode 3 of the skill (HTML / data / type): semantic DOM plus one inline SVG chart, no canvas, WebGL, video or CDN script. One rAF-coalesced scroll conductor maps the beat under a reference line to a continuous chart position (dwell at both ends of each beat), driving stroke-dashoffset, a clipped area fill, a probe, the counter, rail links and a kinetic stage word; reverse scroll restores every state. Values sit in an accessible table; without JS the chart is fully drawn and all copy readable. Reduced motion jumps beat to beat without interpolation. Below 900px the chart stacks as a fixed panel above the copy. Brand, batch and temperatures are fictional process notes."
+}

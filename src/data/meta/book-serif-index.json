@@ -1,0 +1,7 @@
+{
+  "title": "Book Serif Index",
+  "kind": "website",
+  "category": "Design systems",
+  "concept": "The Corvina Ledger, the bound session archive of a fictional 1950s Baltimore jazz label: a dark catalog shell with a mono index rail around an aged-paper folio spread (drop caps, marginal notes, a sleeve-and-disc plate, dotted-leader track lists), followed by a catalogue of issues, a personnel register set like a book index, an essay on the masters and a colophon.",
+  "notes": "Pure CSS paper material (SVG feTurbulence noise, crease and edge gradients) and inline sleeve artwork, so no images are loaded. The rail and the folio arrows (or ←/→ keys) turn between three session spreads; reduced motion removes the line reveals, disc spin and ambient drift."
+}

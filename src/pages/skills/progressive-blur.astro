@@ -1,0 +1,379 @@
+---
+import '../../styles/global.css';
+import BackPill from '../../components/BackPill.astro';
+
+// Brightwell Fusion — power offtake programmes. Each tab swaps the card set that scrolls under the blur.
+type Plan = { code: string; name: string; line: string; mw: string; price: string; unit: string; hue: [string, string]; tag?: string };
+const tabs: { id: string; label: string; plans: Plan[] }[] = [
+  {
+    id: 'grid', label: 'Grid',
+    plans: [
+      { code: 'BW-G1', name: 'Baseload Block', line: '24/7 firm power, delivered on the hour, every hour.', mw: '50', price: '€61', unit: '/MWh', hue: ['#ff4fa3', '#7b5cff'], tag: 'Most signed' },
+      { code: 'BW-G2', name: 'Shaped Peak', line: 'Ramps from 20 to 80 % in ninety seconds for evening demand.', mw: '25', price: '€74', unit: '/MWh', hue: ['#ff7a45', '#ff3d7f'] },
+      { code: 'BW-G3', name: 'Island Pack', line: 'One sealed module for grids with no interconnector.', mw: '12', price: '€88', unit: '/MWh', hue: ['#38d6ff', '#6a5cff'] },
+      { code: 'BW-G4', name: 'Retired-Coal Swap', line: 'We reuse your turbine hall, switchyard and grid connection.', mw: '400', price: '€58', unit: '/MWh', hue: ['#c86bff', '#ff4fa3'] },
+    ],
+  },
+  {
+    id: 'heat', label: 'Heat',
+    plans: [
+      { code: 'BW-H1', name: 'Steam 550', line: 'Superheated steam for paper, food and chemicals.', mw: '80', price: '€29', unit: '/MWh-th', hue: ['#ffb347', '#ff4f6d'] },
+      { code: 'BW-H2', name: 'Kiln Line', line: 'Blanket heat at 900 °C for cement and lime.', mw: '120', price: '€34', unit: '/MWh-th', hue: ['#ff6a3d', '#c33cff'] },
+      { code: 'BW-H3', name: 'District Loop', line: 'Hot water for 40,000 homes from one basement unit.', mw: '35', price: '€22', unit: '/MWh-th', hue: ['#ff4fa3', '#ffb347'] },
+      { code: 'BW-H4', name: 'Hydrogen Cell', line: 'High-temperature electrolysis without a single solar panel.', mw: '60', price: '€2.10', unit: '/kg H₂', hue: ['#4fe3c1', '#6a5cff'] },
+    ],
+  },
+  {
+    id: 'isotopes', label: 'Isotopes',
+    plans: [
+      { code: 'BW-I1', name: 'Mo-99 Stream', line: 'Medical isotopes bred in the blanket, shipped weekly.', mw: '—', price: '€410', unit: '/6-day Ci', hue: ['#7b5cff', '#38d6ff'] },
+      { code: 'BW-I2', name: 'Tritium Return', line: 'We close our own fuel cycle and sell the surplus.', mw: '—', price: 'Quote', unit: '', hue: ['#ff4fa3', '#38d6ff'] },
+      { code: 'BW-I3', name: 'Helium-3 Futures', line: 'Reserve output from the 2031 lunar-free route.', mw: '—', price: 'Waitlist', unit: '', hue: ['#c86bff', '#4fe3c1'] },
+      { code: 'BW-I4', name: 'Neutron Hours', line: 'Rent the beam line for materials testing at 14 MeV.', mw: '—', price: '€9k', unit: '/hour', hue: ['#ff7a45', '#7b5cff'] },
+    ],
+  },
+  {
+    id: 'pilot', label: 'Pilot',
+    plans: [
+      { code: 'BW-P1', name: 'Letter of Intent', line: 'Hold a place in the first 2029 offtake tranche.', mw: '5', price: '€0', unit: 'today', hue: ['#ff4fa3', '#7b5cff'] },
+      { code: 'BW-P2', name: 'Site Survey', line: 'Our engineers walk your grid connection in a week.', mw: '—', price: '€18k', unit: 'once', hue: ['#38d6ff', '#ff4fa3'] },
+      { code: 'BW-P3', name: 'Co-Owner Seat', line: 'Equity in the module that will power your site.', mw: '10', price: 'From €4M', unit: '', hue: ['#ffb347', '#c86bff'] },
+      { code: 'BW-P4', name: 'Shot Ticket', line: 'Watch a live plasma shot from the Kelso control room.', mw: '—', price: '€0', unit: 'invite', hue: ['#4fe3c1', '#ff4fa3'] },
+    ],
+  },
+];
+
+const milestones = [
+  { n: '11.4', u: 's', k: 'Longest burn', d: 'Sustained deuterium–tritium plasma, shot #4,208, March 2026.' },
+  { n: '1.62', u: 'Q', k: 'Energy gain', d: 'Fusion power out over heating power in, measured at the wall.' },
+  { n: '148', u: 'M°C', k: 'Core temperature', d: 'Ten times the centre of the Sun, held in a 3.1\u00a0m magnetic bottle.' },
+  { n: '2029', u: '', k: 'First electrons', d: 'Kelso-2 synchronises to the Scottish grid. Contracts open now.' },
+];
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Brightwell Fusion — Power offtake programmes</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  </head>
+  <body class="pb" data-blur="both">
+    <!-- Skill: keep the .gradient-blur elements near the top of the DOM. -->
+    <div class="gradient-blur gb-top" aria-hidden="true"><div></div><div></div><div></div><div></div><div></div><div></div></div>
+    <div class="gradient-blur gb-bottom" aria-hidden="true"><div></div><div></div><div></div><div></div><div></div><div></div></div>
+
+    <header class="nav">
+      <nav class="nav-left" aria-label="Primary">
+        <a href="#plans">Programmes</a><a href="#science">Science</a><a href="#kelso">Kelso-2</a>
+      </nav>
+      <a href="#top" class="logo" aria-label="Brightwell Fusion home"><span class="logo-dot"></span>BRIGHTWELL</a>
+      <div class="nav-right">
+        <span class="live"><span class="live-dot"></span>Shot #4,231 · 06:42 UTC</span>
+        <a href="#contact" class="nav-cta">Talk to offtake</a>
+      </div>
+    </header>
+
+    <main id="top">
+      <div class="bar"><span>Q = 1.62 measured at the wall</span><span>2029 grid sync</span><span>Kelso, Scottish Borders</span></div>
+
+      <section class="hero">
+        <p class="eyebrow">Fusion power offtake · Tranche 01</p>
+        <h1>Buy power from<br />a star in a box</h1>
+        <p class="sub">Brightwell builds compact spherical tokamaks the size of a shipping container. Reserve their first megawatts today.</p>
+
+        <div class="tabs" role="tablist" aria-label="Programme type">
+          {tabs.map((t, i) => (
+            <button role="tab" id={`tab-${t.id}`} aria-controls={`panel-${t.id}`} aria-selected={i === 0 ? 'true' : 'false'} tabindex={i === 0 ? 0 : -1}>{t.label}</button>
+          ))}
+        </div>
+      </section>
+
+      <section id="plans" class="plans" aria-label="Programmes">
+        {tabs.map((t, i) => (
+          <div class="grid" role="tabpanel" id={`panel-${t.id}`} aria-labelledby={`tab-${t.id}`} hidden={i !== 0}>
+            {t.plans.map((p) => (
+              <article class="card" style={`--a:${p.hue[0]};--b:${p.hue[1]}`}>
+                <div class="visual" aria-hidden="true">
+                  <div class="plasma"></div>
+                  <svg viewBox="0 0 200 120" class="cage">
+                    <ellipse cx="100" cy="60" rx="86" ry="30" />
+                    <ellipse cx="100" cy="60" rx="62" ry="20" />
+                    <ellipse cx="100" cy="60" rx="38" ry="11" />
+                    <line x1="100" y1="8" x2="100" y2="112" />
+                  </svg>
+                  <span class="code">{p.code}</span>
+                  {p.tag && <span class="tag">{p.tag}</span>}
+                </div>
+                <div class="card-body">
+                  <h2>{p.name}</h2>
+                  <p>{p.line}</p>
+                  <div class="row">
+                    <div><span class="price">{p.price}</span><span class="unit">{p.unit}</span></div>
+                    <span class="mw">{p.mw === '—' ? 'Off-grid' : `${p.mw} MWe`}</span>
+                  </div>
+                  <a class="reserve" href="#contact">Reserve allocation</a>
+                </div>
+              </article>
+            ))}
+          </div>
+        ))}
+      </section>
+
+      <section id="science" class="science">
+        <div class="science-head">
+          <p class="eyebrow">Kelso-1 · measured, not modelled</p>
+          <h2 class="display">Numbers from<br />the control room</h2>
+        </div>
+        <ol class="stats">
+          {milestones.map((m, i) => (
+            <li>
+              <span class="idx">0{i + 1}</span>
+              <span class="big">{m.n}<small>{m.u}</small></span>
+              <span class="k">{m.k}</span>
+              <span class="d">{m.d}</span>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section id="kelso" class="kelso">
+        <div class="kelso-visual" aria-hidden="true"><div class="plasma big-plasma"></div></div>
+        <div class="kelso-copy">
+          <p class="eyebrow">Kelso-2 · under construction</p>
+          <h2 class="display">One module.<br />Forty thousand homes.</h2>
+          <p>A 3.1 m spherical tokamak with high-temperature superconducting magnets, a lithium blanket that breeds its own tritium and a turbine you would recognise from any power station built since 1950. No meltdown physics, no long-lived waste, no weather.</p>
+          <ul>
+            <li><span>Footprint</span><span>40 × 25 m</span></li>
+            <li><span>Net output</span><span>50 MWe</span></li>
+            <li><span>Fuel per year</span><span>2.4 kg D–T</span></li>
+            <li><span>Refuel interval</span><span>Never — bred on site</span></li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="contact" class="contact">
+        <h2 class="display">Tranche 01 closes<br />30 November 2026</h2>
+        <p>Twelve buyers. 600 MWe. Signed in the order letters arrive.</p>
+        <a class="cta" href="mailto:offtake@brightwell.example">offtake@brightwell.example</a>
+        <footer>Brightwell Fusion Ltd · Kelso Works, TD5 · A fictional company for a design study.</footer>
+      </section>
+    </main>
+
+    <div class="tuner" role="group" aria-label="Edge blur">
+      <span class="tuner-label">Edge blur</span>
+      {['both', 'bottom', 'top', 'off'].map((v) => (
+        <button type="button" data-set={v} aria-pressed={v === 'both' ? 'true' : 'false'}>{v}</button>
+      ))}
+    </div>
+
+    <BackPill />
+
+    <style is:global>
+      /* ---------- Progressive blur: exact skill values, two placements ---------- */
+      .gradient-blur { position: fixed; z-index: 5; pointer-events: none; }
+      /* Top: 12 % in the skill, pinned to the 84 px header band here so the ticker below stays sharp. */
+      .gb-top { inset: 0 0 auto 0; height: 84px; z-index: 9; background: linear-gradient(to bottom, #f6f5f0b3, #f6f5f000); }
+      /* Height tuned from 65 % → 34 % so the hero copy and tabs stay sharp; steps untouched. */
+      .gb-bottom { inset: auto 0 0 0; height: 34%; }
+      .gradient-blur > div, .gradient-blur::before, .gradient-blur::after { position: absolute; inset: 0; }
+      .gradient-blur::before { content: ""; z-index: 1; backdrop-filter: blur(0.5px); -webkit-backdrop-filter: blur(0.5px); }
+      .gradient-blur > div:nth-of-type(1) { z-index: 2; backdrop-filter: blur(1px); -webkit-backdrop-filter: blur(1px); }
+      .gradient-blur > div:nth-of-type(2) { z-index: 3; backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px); }
+      .gradient-blur > div:nth-of-type(3) { z-index: 4; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+      .gradient-blur > div:nth-of-type(4) { z-index: 5; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+      .gradient-blur > div:nth-of-type(5) { z-index: 6; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+      .gradient-blur > div:nth-of-type(6) { z-index: 7; backdrop-filter: blur(32px); -webkit-backdrop-filter: blur(32px); }
+      .gradient-blur::after { content: ""; z-index: 8; backdrop-filter: blur(64px); -webkit-backdrop-filter: blur(64px); }
+
+      .gb-top::before { --m: linear-gradient(to top, #0000 0%, #000 12.5%, #000 25%, #0000 37.5%); }
+      .gb-top > div:nth-of-type(1) { --m: linear-gradient(to top, #0000 12.5%, #000 25%, #000 37.5%, #0000 50%); }
+      .gb-top > div:nth-of-type(2) { --m: linear-gradient(to top, #0000 25%, #000 37.5%, #000 50%, #0000 62.5%); }
+      .gb-top > div:nth-of-type(3) { --m: linear-gradient(to top, #0000 37.5%, #000 50%, #000 62.5%, #0000 75%); }
+      .gb-top > div:nth-of-type(4) { --m: linear-gradient(to top, #0000 50%, #000 62.5%, #000 75%, #0000 87.5%); }
+      .gb-top > div:nth-of-type(5) { --m: linear-gradient(to top, #0000 62.5%, #000 75%, #000 87.5%, #0000 100%); }
+      .gb-top > div:nth-of-type(6) { --m: linear-gradient(to top, #0000 75%, #000 87.5%, #000 100%); }
+      .gb-top::after { --m: linear-gradient(to top, #0000 87.5%, #000 100%); }
+
+      .gb-bottom::before { --m: linear-gradient(to bottom, #0000 0%, #000 12.5%, #000 25%, #0000 37.5%); }
+      .gb-bottom > div:nth-of-type(1) { --m: linear-gradient(to bottom, #0000 12.5%, #000 25%, #000 37.5%, #0000 50%); }
+      .gb-bottom > div:nth-of-type(2) { --m: linear-gradient(to bottom, #0000 25%, #000 37.5%, #000 50%, #0000 62.5%); }
+      .gb-bottom > div:nth-of-type(3) { --m: linear-gradient(to bottom, #0000 37.5%, #000 50%, #000 62.5%, #0000 75%); }
+      .gb-bottom > div:nth-of-type(4) { --m: linear-gradient(to bottom, #0000 50%, #000 62.5%, #000 75%, #0000 87.5%); }
+      .gb-bottom > div:nth-of-type(5) { --m: linear-gradient(to bottom, #0000 62.5%, #000 75%, #000 87.5%, #0000 100%); }
+      .gb-bottom > div:nth-of-type(6) { --m: linear-gradient(to bottom, #0000 75%, #000 87.5%, #000 100%); }
+      .gb-bottom::after { --m: linear-gradient(to bottom, #0000 87.5%, #000 100%); }
+
+      .gradient-blur > div, .gradient-blur::before, .gradient-blur::after { mask: var(--m); -webkit-mask: var(--m); }
+
+      [data-blur="top"] .gb-bottom, [data-blur="bottom"] .gb-top, [data-blur="off"] .gradient-blur { display: none; }
+      /* Low-end / no-backdrop fallback: a plain paper fade so edges still recede. */
+      @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+        .gb-bottom { background: linear-gradient(to bottom, #f6f5f000, #f6f5f0); }
+        .gb-top { background: linear-gradient(to top, #f6f5f000, #f6f5f0); }
+      }
+
+      /* ---------- Page ---------- */
+      :root {
+        --paper: #f6f5f0; --ink: #0b0b0c; --mute: #8d8c86; --line: #e2e0d8; --card: #ecebe4;
+        --display: 'Bebas Neue', 'Oswald', Impact, sans-serif;
+        --sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+        --mono: 'JetBrains Mono', ui-monospace, monospace;
+      }
+      html { scroll-behavior: smooth; }
+      body.pb { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--sans); -webkit-font-smoothing: antialiased; overflow-x: clip; }
+      .pb a { color: inherit; text-decoration: none; }
+      .pb :focus-visible { outline: 2px solid #ff4fa3; outline-offset: 3px; border-radius: 6px; }
+
+      .eyebrow { font: 500 12px/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--mute); margin: 0 0 22px; }
+      .display { font-family: var(--display); font-weight: 400; line-height: .9; letter-spacing: .005em; margin: 0; font-size: clamp(48px, 7vw, 112px); }
+
+      .nav { position: fixed; z-index: 10; inset: 0 0 auto 0; height: 72px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 0 clamp(16px, 3vw, 40px); }
+      .nav-left { display: flex; gap: 30px; font: 600 12.5px/1 var(--sans); letter-spacing: .08em; text-transform: uppercase; }
+      .nav-left a:hover { opacity: .6; }
+      .logo { display: flex; align-items: center; gap: 10px; font: 400 34px/1 var(--display); letter-spacing: .04em; }
+      .logo-dot { width: 14px; height: 14px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #fff 0 12%, #ff4fa3 40%, #7b5cff 100%); box-shadow: 0 0 14px #ff4fa3aa; }
+      .nav-right { justify-self: end; display: flex; align-items: center; gap: 22px; }
+      .live { font: 500 11.5px/1 var(--mono); color: #55544f; display: flex; align-items: center; gap: 8px; }
+      .live-dot { width: 7px; height: 7px; border-radius: 50%; background: #ff4fa3; box-shadow: 0 0 0 0 #ff4fa3; animation: pulse 2.2s infinite; }
+      .nav-cta { font: 600 12.5px/1 var(--sans); letter-spacing: .06em; text-transform: uppercase; background: var(--ink); color: var(--paper) !important; padding: 12px 18px; border-radius: 999px; }
+
+      .bar { margin-top: 84px; border-block: 1px solid var(--line); display: flex; justify-content: center; gap: 0; font: 500 11.5px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: #55544f; }
+      .bar span { padding: 12px 18px; }
+      .bar span + span { border-left: 1px solid var(--line); }
+
+      .hero { text-align: center; padding: clamp(40px, 6vh, 64px) 16px 28px; }
+      .hero h1 { font-family: var(--display); font-weight: 400; font-size: clamp(58px, 10vw, 156px); line-height: .86; margin: 0; letter-spacing: .005em; }
+      .sub { max-width: 470px; margin: 22px auto 30px; font-size: 16.5px; line-height: 1.55; color: var(--mute); }
+
+      .tabs { display: inline-flex; gap: 4px; padding: 5px; border-radius: 999px; background: #e9e8e1; box-shadow: inset 0 1px 2px #0000000d; max-width: 100%; overflow-x: auto; scrollbar-width: none; }
+      .tabs button { flex: none; border: 0; background: transparent; padding: 13px 22px; border-radius: 999px; font: 600 12.5px/1 var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--ink); cursor: pointer; transition: background .25s, color .25s, box-shadow .25s; }
+      .tabs button[aria-selected="true"] { background: var(--ink); color: var(--paper); box-shadow: 0 6px 14px -4px #0006; }
+      .tabs button:not([aria-selected="true"]):hover { background: #dedcd4; }
+
+      .plans { padding: 18px clamp(16px, 3vw, 40px) 40px; }
+      .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; max-width: 1400px; margin: 0 auto; }
+      .grid:not([hidden]) .card { animation: rise .6s cubic-bezier(.2,.7,.2,1) both; }
+      .grid .card:nth-child(2) { animation-delay: .06s; } .grid .card:nth-child(3) { animation-delay: .12s; } .grid .card:nth-child(4) { animation-delay: .18s; }
+      .card { background: #fff; border-radius: 26px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 1px 0 #0000000a, 0 20px 40px -28px #0000003a; }
+      .visual { position: relative; aspect-ratio: 4 / 3.4; background: radial-gradient(120% 90% at 50% 100%, #1b1430 0%, #0b0b10 70%); overflow: hidden; }
+      .plasma { position: absolute; left: 50%; top: 54%; width: 78%; aspect-ratio: 2.6; translate: -50% -50%; border-radius: 50%;
+        background: radial-gradient(closest-side, transparent 38%, var(--a) 58%, var(--b) 74%, transparent 100%);
+        filter: blur(10px) saturate(1.25); opacity: .95; animation: breathe 5s ease-in-out infinite; }
+      .plasma::after { content: ""; position: absolute; inset: 22% 18%; border-radius: 50%; background: radial-gradient(closest-side, #ffffffcc, transparent 70%); filter: blur(14px); opacity: .55; }
+      .cage { position: absolute; inset: 14% 6% 8%; width: 88%; height: 78%; fill: none; stroke: #ffffff2e; stroke-width: .6; }
+      .code, .tag { position: absolute; top: 16px; font: 500 11px/1 var(--mono); letter-spacing: .12em; color: #ffffffb3; }
+      .code { left: 18px; }
+      .tag { right: 14px; top: 12px; padding: 7px 10px; border-radius: 999px; background: #ffffff1f; color: #fff; backdrop-filter: blur(6px); }
+      .card-body { padding: 20px 20px 20px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
+      .card h2 { font: 400 34px/0.95 var(--display); margin: 0; letter-spacing: .01em; }
+      .card p { margin: 0; font-size: 14px; line-height: 1.5; color: #6f6e68; min-height: 42px; }
+      .row { display: flex; justify-content: space-between; align-items: baseline; padding-top: 12px; margin-top: auto; border-top: 1px solid var(--line); }
+      .price { font: 400 30px/1 var(--display); letter-spacing: .02em; }
+      .unit { font: 500 11.5px/1 var(--mono); color: var(--mute); margin-left: 6px; }
+      .mw { font: 500 11.5px/1 var(--mono); letter-spacing: .06em; color: #55544f; }
+      .reserve { margin-top: 6px; text-align: center; padding: 14px; border-radius: 999px; background: var(--ink); color: var(--paper) !important; font: 600 12.5px/1 var(--sans); letter-spacing: .08em; text-transform: uppercase; transition: transform .2s; }
+      .reserve:hover { transform: translateY(-1px); }
+
+      .science { max-width: 1400px; margin: 0 auto; padding: 80px clamp(16px, 3vw, 40px) 120px; display: grid; grid-template-columns: 5fr 7fr; gap: 48px; align-items: start; }
+      .stats { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--ink); }
+      .stats li { padding: 24px 24px 36px 0; border-bottom: 1px solid var(--line); display: grid; gap: 8px; }
+      .stats li:nth-child(odd) { border-right: 1px solid var(--line); }
+      .stats li:nth-child(even) { padding-left: 24px; }
+      .idx { font: 500 11px/1 var(--mono); color: var(--mute); letter-spacing: .12em; }
+      .big { font: 400 clamp(72px, 8vw, 128px)/.85 var(--display); }
+      .big small { font-size: .32em; margin-left: 6px; color: #ff4fa3; }
+      .k { font: 600 13px/1 var(--sans); letter-spacing: .08em; text-transform: uppercase; }
+      .d { font-size: 14px; line-height: 1.5; color: #6f6e68; max-width: 34ch; }
+
+      .kelso { max-width: 1400px; margin: 0 auto; padding: 0 clamp(16px, 3vw, 40px) 120px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+      .kelso-visual { --a: #ff4fa3; --b: #7b5cff; position: relative; border-radius: 26px; overflow: hidden; min-height: 520px; background: radial-gradient(120% 90% at 50% 100%, #24183f 0%, #0b0b10 70%); }
+      .big-plasma { width: 92%; }
+      .kelso-copy { background: #fff; border-radius: 26px; padding: clamp(28px, 4vw, 56px); display: flex; flex-direction: column; justify-content: center; }
+      .kelso-copy > p:not(.eyebrow) { color: #6f6e68; line-height: 1.6; font-size: 15.5px; max-width: 52ch; margin: 24px 0 28px; }
+      .kelso-copy ul { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--ink); }
+      .kelso-copy li { display: flex; justify-content: space-between; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--line); font: 500 12.5px/1.3 var(--mono); letter-spacing: .04em; }
+      .kelso-copy li span:first-child { color: var(--mute); text-transform: uppercase; }
+
+      .contact { text-align: center; padding: 60px 16px 200px; }
+      .contact .display { font-size: clamp(56px, 9vw, 150px); }
+      .contact p { color: var(--mute); margin: 22px 0 34px; }
+      .cta { display: inline-block; padding: 18px 28px; border-radius: 999px; background: var(--ink); color: var(--paper) !important; font: 500 14px/1 var(--mono); }
+      .contact footer { margin-top: 80px; font: 500 11px/1.6 var(--mono); letter-spacing: .08em; color: var(--mute); }
+
+      .tuner { position: fixed; z-index: 20; right: 16px; bottom: 16px; display: flex; align-items: center; gap: 2px; padding: 4px 4px 4px 12px; border-radius: 999px; background: #0b0b0cdd; color: #f6f5f0; backdrop-filter: blur(8px); font: 500 11px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+      .tuner-label { margin-right: 6px; color: #ffffff99; }
+      .tuner button { border: 0; background: transparent; color: inherit; font: inherit; text-transform: inherit; letter-spacing: inherit; padding: 9px 11px; border-radius: 999px; cursor: pointer; }
+      .tuner button[aria-pressed="true"] { background: #f6f5f0; color: var(--ink); }
+
+      @keyframes breathe { 50% { scale: 1.05; opacity: .8; } }
+      @keyframes rise { from { opacity: 0; translate: 0 24px; } }
+      @keyframes pulse { 70% { box-shadow: 0 0 0 8px #ff4fa300; } 100% { box-shadow: 0 0 0 0 #ff4fa300; } }
+
+      @media (max-width: 1100px) {
+        .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .live { display: none; }
+        .science, .kelso { grid-template-columns: 1fr; }
+      }
+      @media (max-width: 720px) {
+        .nav { grid-template-columns: auto 1fr; height: 64px; }
+        .gb-top { height: 72px; }
+        .nav-left { display: none; }
+        .logo { font-size: 28px; }
+        .nav-cta { padding: 10px 14px; font-size: 11px; }
+        .bar { margin-top: 72px; }
+        .bar span { white-space: nowrap; padding: 11px 14px; }
+        .bar { justify-content: center; }
+        .bar span:not(:first-child) { display: none; }
+        .hero { padding-top: 48px; }
+        .grid { grid-template-columns: 1fr; }
+        .tabs button { padding: 12px 15px; font-size: 11.5px; }
+        .stats { grid-template-columns: 1fr; }
+        .stats li:nth-child(odd) { border-right: 0; }
+        .stats li:nth-child(even) { padding-left: 0; }
+        .kelso-visual { min-height: 300px; }
+        .tuner-label { display: none; }
+        .tuner { padding-left: 4px; }
+        .tuner button { padding: 9px 9px; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        html { scroll-behavior: auto; }
+        .plasma, .live-dot, .grid:not([hidden]) .card { animation: none; }
+      }
+    </style>
+
+    <script>
+      // Tabs: roving tabindex + arrow keys.
+      const tabs = [...document.querySelectorAll<HTMLButtonElement>('[role="tab"]')];
+      const select = (tab: HTMLButtonElement) => {
+        tabs.forEach((t) => {
+          const on = t === tab;
+          t.setAttribute('aria-selected', String(on));
+          t.tabIndex = on ? 0 : -1;
+          document.getElementById(t.getAttribute('aria-controls')!)!.hidden = !on;
+        });
+      };
+      tabs.forEach((t, i) => {
+        t.addEventListener('click', () => select(t));
+        t.addEventListener('keydown', (e) => {
+          const step = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+          if (!step) return;
+          e.preventDefault();
+          const next = tabs[(i + step + tabs.length) % tabs.length];
+          select(next);
+          next.focus();
+        });
+      });
+
+      // Placement tuner: both / bottom / top / off.
+      const toggles = [...document.querySelectorAll<HTMLButtonElement>('[data-set]')];
+      toggles.forEach((b) =>
+        b.addEventListener('click', () => {
+          document.body.dataset.blur = b.dataset.set;
+          toggles.forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+        }),
+      );
+    </script>
+  </body>
+</html>

@@ -1,0 +1,7 @@
+{
+  "title": "Editorial Tech",
+  "kind": "website",
+  "category": "Design systems",
+  "concept": "Skerry, a fictional drone post for the eight islands of the Varrø archipelago: a cool-paper editorial spread with an oversized grotesk headline, a panoramic coast band crossed by a live flight path, a telemetry rail overlapping it, an interactive corridor map, a scroll-tracked flight timeline and a mono spec sheet — one international-orange accent throughout.",
+  "notes": "Light controlled-neutral variant of the system (Schibsted Grotesk + IBM Plex Mono). Vanilla script only: SMIL flight dot (paused under reduced motion), ETA countdown, IntersectionObserver reveals and step tracking, corridor list ↔ map highlight. Photos from Unsplash, saved to public/skills/editorial-tech/."
+}

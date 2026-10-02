@@ -1,0 +1,7 @@
+{
+  "title": "Three.js Weather",
+  "kind": "section",
+  "category": "3D & WebGL",
+  "concept": "Tarn Ridge, a fictional roof-mounted weather sensor for the smart home: a live Three.js field around a black timber house with the sensor on its ridge, where one control switches clear, rain, storm and snow while Ridge's telemetry and the actions it sends the house (skylight, shutters, gutter heat) change with the sky.",
+  "notes": "three only, no assets. Rain streaks, snow flakes and splash rings are fixed pools anchored ahead of the camera (frustumCulled=false), thinned with setDrawRange; positions written through attr.array. Storm is the rain preset leaned on (100 % vs 60 % of the pool, ×1.42 fall, slant ∝ speed², sun 14 %, fog ×0.38). Lightning is a dedicated DirectionalLight repositioned per strike, multi-pulse exponential decay, sky multiplied by the flash, DOM flash under the type (≤0.18). Snow runs a 12/6/15/8 s calm-build-blow-ease envelope reset on entering/leaving snow; settled snow is a separate slow variable feeding a grass-shader uniform, ground and roof. Relight is gated on slow values. Optional WebAudio ambience (Sound button): seamless folded noise loops on a weather bus, wind layer swells over rain, thunder delayed and quieter with distance. Reduced motion freezes particles, disables auto strikes and dims manual flashes. Deep link with ?wx=clear|rain|storm|snow. WebGL only (no WebGPU needed); under headless SwiftShader the sim runs slowly because dt is clamped to 1/30 s per frame."
+}

@@ -1,0 +1,7 @@
+{
+  "title": "Bright Green Tech System WebGL",
+  "kind": "website",
+  "category": "Design systems",
+  "concept": "Kammlinie: a live bed ledger for fourteen alpine huts on a fictional crest, laid out as a hard-framed split console whose right half is a Three.js ridge drawn in eighteen glowing contour bands, swept by a signal beam and pinned with hut beacons the stage selector flies to.",
+  "notes": "Three.js only, no assets: terrain heights are baked on the CPU (ridged value noise) so huts and the dashed route sit exactly on the ground; contours, index lines, grid and the moving beam are one fragment shader using fwidth. Stage buttons (aria-pressed) refocus the camera and a projected HTML callout. DPR capped at 1.5, render loop pauses offscreen and when the tab is hidden, calm damped mouse parallax (mouse only). Reduced motion or ?reduced=1: static camera, beam parked on the selected hut, no reveals. If WebGL is unavailable the viewport shows a CSS contour fallback. Fonts: Geist + Geist Mono."
+}

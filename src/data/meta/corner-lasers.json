@@ -1,0 +1,7 @@
+{
+  "title": "Corner Lasers",
+  "kind": "section",
+  "category": "Backgrounds & atmosphere",
+  "concept": "Seamline, a business account for freelancers: three hairline lasers — invoices in, tax reserve, pay yourself — run along the seams of a room corner and meet at one white-hot emitter, with lime haze pooling from the junction behind the hero and a statement and pricing section carrying the same seam language.",
+  "notes": "Raw WebGL fragment shader, no libraries: line-distance falloff per ray (≈1 css px white core, accent halo + volume), traveling energy packets, fbm haze and wall/ceiling plane shading tinted from --accent, emitter bloom + horizontal streak, exp tone-map. Beam labels are DOM chips placed along the same ray geometry. Renders only while the hero is visible; reduced motion draws one still frame; no WebGL falls back to a CSS radial emitter."
+}

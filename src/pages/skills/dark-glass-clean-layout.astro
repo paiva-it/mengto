@@ -1,0 +1,548 @@
+---
+import '../../styles/global.css';
+import BackPill from '../../components/BackPill.astro';
+
+const nav = [
+  ['Bench overview', '', true],
+  ['Commissions', '12'],
+  ['Sewing frames', '4'],
+  ['Materials ledger', ''],
+  ['Archive', '1,906'],
+];
+
+const bench = [
+  ['Press 2', 'under load', '14 h'],
+  ['Bindery air', '19.4 °C', '52 % RH'],
+  ['Wheat paste', 'batch 118', 'day 2'],
+];
+
+const log = [
+  ['10:42', 'SEW', 'Signature 09 sewn, kettle locked'],
+  ['10:17', 'FOLD', 'Sigs 10–12 folded, bone-creased'],
+  ['09:55', 'PRESS', 'FB-0409 out of press 2'],
+  ['09:30', 'PASTE', 'Batch 118 strained, 1.2 L'],
+];
+
+const steps = [
+  ['01', 'Fold', 'Sheets are folded against the grain test, four leaves to a signature, creased once with a bone folder and never twice.', '32 pp / sig'],
+  ['02', 'Sew', 'Every signature is sewn all-along on unbleached linen tapes, with a kettle stitch locking it to the one beneath.', '18/3 linen'],
+  ['03', 'Round & back', 'The spine is glued up, rounded with a hammer and backed in the job press so the boards have a shoulder to hinge on.', '45° shoulders'],
+  ['04', 'Board', 'Grey board is laced on through the tapes, not glued to a hollow, so the hinge carries the book and not the cover.', '2.5 mm board'],
+  ['05', 'Cover', 'Pared goatskin or bookcloth goes on in one sitting, turned in at the heads, then pressed under weight for three days.', '72 h press'],
+];
+
+const materials = [
+  ['Goatskin, oasis', 'Niger, vegetable-tanned', '0.6 mm pared', 72],
+  ['Linen thread 18/3', 'Ulster, unbleached', '200 m spools', 88],
+  ['Arches text wove', 'Vosges, mould-made', '120 gsm, long grain', 41],
+  ['Wheat starch paste', 'Cooked in-house', 'strained daily', 64],
+  ['Grey board', 'Eindhoven, acid-free', '2.5 mm', 23],
+];
+
+const structures = [
+  ['case', 'Case binding', 3, 180],
+  ['coptic', 'Coptic', 4, 240],
+  ['long', 'Long-stitch', 4, 260],
+  ['leather', 'Full leather', 9, 820],
+];
+
+// 12 signatures in spine-end view; 9 are sewn.
+const sigs = Array.from({ length: 12 }, (_, i) => 40 + i * 19);
+const sewn = 9;
+const threadPath = sigs
+  .slice(0, sewn)
+  .map((y, i) => `${i ? 'L' : 'M'} ${i % 2 ? 104 : 96} ${y} L ${i % 2 ? 104 : 96} ${y + 13}`)
+  .join(' ');
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Fenwright Bindery — Bench</title>
+    <meta name="description" content="A hand bookbinding atelier in Leith, presented as a dark-glass bench console." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <canvas id="dust" aria-hidden="true"></canvas>
+    <div class="wash" aria-hidden="true"></div>
+
+    <div class="frame">
+      <span class="rail l" aria-hidden="true"></span><span class="rail r" aria-hidden="true"></span>
+
+      <header class="topbar">
+        <nav class="pill glass" aria-label="Primary">
+          <a class="brand" href="#top"><span class="mark" aria-hidden="true"></span>Fenwright</a>
+          <ul>
+            <li><a href="#protocol">Protocol</a></li>
+            <li><a href="#ledger">Materials</a></li>
+            <li><a href="#desk">Commission</a></li>
+          </ul>
+          <span class="live mono"><i></i>Bench open</span>
+        </nav>
+      </header>
+
+      <main id="top">
+        <section class="workspace">
+          <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
+
+          <!-- LEFT SHELL -->
+          <aside class="col left" aria-label="Bindery navigation">
+            <div class="glass shell">
+              <p class="mono label">Bindery No. 4 · Leith</p>
+              <p class="shell-title">Fenwright &amp; Daughters</p>
+              <p class="muted small">Hand bookbinding since 1987. Four benches, one press, no glue-bound spines.</p>
+              <ul class="navlist">
+                {nav.map(([t, n, a]) => (
+                  <li><a href="#" class:list={{ active: a }} aria-current={a ? 'page' : undefined}><span>{t}</span>{n && <span class="mono count">{n}</span>}</a></li>
+                ))}
+              </ul>
+            </div>
+            <div class="glass shell">
+              <div class="row-head"><p class="mono label">Bench status</p><span class="mono id">B4-ST</span></div>
+              <dl class="stat">
+                {bench.map(([k, v, s]) => (
+                  <div><dt>{k}</dt><dd><span>{v}</span><span class="mono">{s}</span></dd></div>
+                ))}
+              </dl>
+            </div>
+          </aside>
+
+          <!-- CENTER STAGE -->
+          <div class="col stage">
+            <p class="mono label reveal" style="--d:.05s">Commission FB-0412 · on the frame</p>
+            <h1>
+              <span class="line"><span style="--d:.15s">Books sewn to</span></span>
+              <span class="line"><span style="--d:.28s">outlast their readers.</span></span>
+            </h1>
+            <p class="lede reveal" style="--d:.45s">We fold, sew and cover by hand: field journals, restorations and editions of one. Every commission stays open on this bench until the boards are dry.</p>
+            <div class="ctas reveal" style="--d:.55s">
+              <a class="btn primary" href="#desk">Commission a binding</a>
+              <a class="btn ghost" href="#protocol">Read the protocol</a>
+            </div>
+
+            <figure class="diagram reveal" style="--d:.7s">
+              <svg viewBox="0 0 520 300" role="img" aria-label="Spine-end view of a text block: twelve folded signatures, nine sewn with linen thread.">
+                <defs>
+                  <linearGradient id="leaf" x1="0" x2="1">
+                    <stop offset="0" stop-color="#fff" stop-opacity=".55" />
+                    <stop offset="1" stop-color="#fff" stop-opacity=".04" />
+                  </linearGradient>
+                </defs>
+                <line x1="100" y1="22" x2="100" y2="282" stroke="#fff" stroke-opacity=".08" stroke-dasharray="2 4" />
+                {sigs.map((y, i) => (
+                  <path d={`M 470 ${y} L 112 ${y} C 92 ${y} 92 ${y + 13} 112 ${y + 13} L 470 ${y + 13}`} fill="none" stroke="url(#leaf)" stroke-width={i < sewn ? 1.2 : 0.8} stroke-opacity={i < sewn ? 1 : 0.45} />
+                ))}
+                <path class="thread" d={threadPath} fill="none" stroke="#e9e6df" stroke-width="1.4" stroke-linecap="round" />
+                {sigs.slice(0, sewn).map((y, i) => (
+                  <circle cx={i % 2 ? 104 : 96} cy={y + 13} r="1.8" fill="#fff" fill-opacity=".9" />
+                ))}
+                <g class="mono svg-t" fill="#fff" fill-opacity=".42" font-size="9">
+                  <text x="92" y="26">SPINE 28 MM · 5 TAPES</text>
+                  <text x="470" y="26" text-anchor="end">12 SIG × 32 PP</text>
+                  <text x="470" y="288" text-anchor="end">HEAD VIEW · 1:1</text>
+                </g>
+              </svg>
+
+              <div class="float glass f1" data-depth="10">
+                <p class="mono label">Signature</p>
+                <p class="big">09<span>/12</span></p>
+                <div class="bar"><i style="width:75%"></i></div>
+                <p class="mono foot">kettle stitch locked</p>
+              </div>
+              <div class="float glass f2" data-depth="-8">
+                <p class="mono label">Paste cure</p>
+                <p class="big">38<span> min</span></p>
+                <p class="mono foot">spine lining · batch 118</p>
+              </div>
+            </figure>
+          </div>
+
+          <!-- RIGHT SHELL -->
+          <aside class="col right" aria-label="Current commission and press log">
+            <div class="glass shell">
+              <div class="row-head"><p class="mono label">On the frame</p><span class="mono id">FB-0412</span></div>
+              <p class="shell-title">A field journal for a botanist</p>
+              <p class="muted small">384 pp Arches wove, quarter goatskin, sewn on five linen tapes. Due 24 Oct.</p>
+              <ol class="progress">
+                <li class="done">Fold</li><li class="now">Sew</li><li>Back</li><li>Board</li><li>Cover</li>
+              </ol>
+            </div>
+            <div class="glass shell io">
+              <div class="row-head"><p class="mono label">Press log</p><span class="mono id">TODAY</span></div>
+              <ul class="log">
+                {log.map(([t, k, m]) => (
+                  <li><span class="mono t">{t}</span><span class="mono k">{k}</span><span class="m">{m}</span></li>
+                ))}
+              </ul>
+            </div>
+            <div class="glass shell">
+              <div class="row-head"><p class="mono label">Next to leave</p><span class="mono id">FB-0409</span></div>
+              <p class="shell-title">1872 hymnal, resewn</p>
+              <p class="muted small">Original boards kept, new linen hinges, spine leather consolidated. Collection Friday.</p>
+            </div>
+          </aside>
+        </section>
+
+        <!-- PROTOCOL -->
+        <section id="protocol" class="band">
+          <div class="band-head">
+            <p class="mono label">02 · Protocol</p>
+            <h2>Five operations, in order, by one pair of hands.</h2>
+            <p class="muted">A Fenwright book is not assembled, it is built up. Each stage has to cure before the next can start, which is why a commission takes weeks and not days.</p>
+          </div>
+          <ol class="steps">
+            {steps.map(([n, t, d, s]) => (
+              <li class="glass step">
+                <div class="row-head"><span class="mono id">OP-{n}</span><span class="mono spec">{s}</span></div>
+                <h3>{t}</h3>
+                <p class="muted small">{d}</p>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        <!-- LEDGER -->
+        <section id="ledger" class="band">
+          <div class="band-head">
+            <p class="mono label">03 · Materials ledger</p>
+            <h2>Everything on the shelf, and how much is left.</h2>
+          </div>
+          <div class="glass ledger">
+            <div class="ledger-row head mono"><span>Material</span><span>Source</span><span>Spec</span><span>Stock</span></div>
+            {materials.map(([m, s, sp, st]) => (
+              <div class="ledger-row">
+                <span class="name">{m}</span>
+                <span class="muted">{s}</span>
+                <span class="mono muted">{sp}</span>
+                <span class="stock"><span class="bar"><i style={`width:${st}%`}></i></span><span class="mono">{st}%</span></span>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <!-- DESK -->
+        <section id="desk" class="band desk">
+          <div class="band-head">
+            <p class="mono label">04 · Commission desk</p>
+            <h2>Tell us the book. We will tell you the wait.</h2>
+            <p class="muted">Estimates are for plain text blocks. Restorations are quoted after we have the book on the bench.</p>
+          </div>
+          <form class="glass shell form" id="estimator">
+            <fieldset>
+              <legend class="mono label">Structure</legend>
+              <div class="seg">
+                {structures.map(([v, l, w, p], i) => (
+                  <label><input type="radio" name="structure" value={v} data-weeks={w} data-price={p} checked={i === 0} /><span>{l}</span></label>
+                ))}
+              </div>
+            </fieldset>
+            <label class="range">
+              <span class="row-head"><span class="mono label">Pages</span><output class="mono" id="pagesOut">192</output></span>
+              <input type="range" id="pages" min="64" max="640" step="32" value="192" />
+            </label>
+            <div class="estimate">
+              <div><p class="mono label">Lead time</p><p class="big"><b id="weeks">4</b><span> weeks</span></p></div>
+              <div><p class="mono label">From</p><p class="big" id="price">£220</p></div>
+            </div>
+            <a class="btn primary" href="mailto:bench@fenwright.example">Send the brief</a>
+          </form>
+        </section>
+      </main>
+
+      <footer class="foot-bar mono">
+        <span>Fenwright Bindery · 14 Coalhill, Leith EH6</span>
+        <span>Bench hours Tue–Sat · 08:30–16:00</span>
+      </footer>
+    </div>
+
+    <BackPill />
+
+    <style>
+      :root {
+        --bg: #07080a;
+        --ink: #f2f1ee;
+        --muted: #9a9ba1;
+        --faint: #5d5f66;
+        --line: rgb(255 255 255 / 0.08);
+        --live: #b9e6cf;
+        --mono: 'Geist Mono', ui-monospace, monospace;
+      }
+      html { background: var(--bg); scroll-behavior: smooth; }
+      body {
+        margin: 0; color: var(--ink); background: var(--bg);
+        font-family: 'Geist', ui-sans-serif, system-ui, sans-serif;
+        -webkit-font-smoothing: antialiased; overflow-x: hidden;
+      }
+      a { color: inherit; text-decoration: none; }
+      :focus-visible { outline: 1.5px solid #fff; outline-offset: 3px; border-radius: 10px; }
+      .mono { font-family: var(--mono); }
+      .muted { color: var(--muted); }
+      .small { font-size: 13px; line-height: 1.55; }
+      .label { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin: 0; }
+      .id { font-size: 10px; letter-spacing: 0.1em; color: var(--faint); }
+
+      #dust { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+      .wash {
+        position: fixed; inset: 0; z-index: 0; pointer-events: none;
+        background:
+          radial-gradient(42% 38% at 50% 26%, rgb(214 220 232 / 0.10), transparent 70%),
+          radial-gradient(30% 30% at 82% 92%, rgb(190 200 210 / 0.06), transparent 70%),
+          radial-gradient(28% 34% at 8% 70%, rgb(160 170 185 / 0.05), transparent 70%);
+      }
+
+      /* Frame: centered shell with rails and corner marks */
+      .frame { position: relative; z-index: 1; max-width: 1400px; margin: 0 auto; padding: 0 20px; }
+      .rail { position: absolute; top: 0; bottom: 0; width: 1px; background: linear-gradient(transparent, var(--line) 6%, var(--line) 94%, transparent); }
+      .rail.l { left: 20px; } .rail.r { right: 20px; }
+      .corner { position: absolute; width: 5px; height: 5px; background: rgb(255 255 255 / 0.45); }
+      .corner.tl { left: -3px; top: -3px; } .corner.tr { right: -3px; top: -3px; }
+      .corner.bl { left: -3px; bottom: -3px; } .corner.br { right: -3px; bottom: -3px; }
+
+      /* Glass: 1px gradient edge + smoky fill + blur */
+      .glass {
+        position: relative; border-radius: 20px;
+        background: linear-gradient(180deg, rgb(255 255 255 / 0.055), rgb(255 255 255 / 0.012) 55%), rgb(13 14 17 / 0.58);
+        backdrop-filter: blur(22px) saturate(115%); -webkit-backdrop-filter: blur(22px) saturate(115%);
+        box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.07), 0 30px 60px -28px rgb(0 0 0 / 0.85), 0 2px 6px rgb(0 0 0 / 0.3);
+      }
+      .glass::before {
+        content: ''; position: absolute; inset: 0; border-radius: inherit; padding: 1px; pointer-events: none;
+        background: linear-gradient(170deg, rgb(255 255 255 / 0.24), rgb(255 255 255 / 0.05) 38%, rgb(255 255 255 / 0.03) 70%, rgb(255 255 255 / 0.12));
+        -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+        -webkit-mask-composite: xor; mask-composite: exclude;
+      }
+
+      /* Top nav pill */
+      .topbar { position: sticky; top: 16px; z-index: 20; display: flex; justify-content: center; padding-top: 16px; }
+      .pill { display: flex; align-items: center; gap: 28px; padding: 8px 10px 8px 18px; border-radius: 999px; }
+      .brand { display: flex; align-items: center; gap: 10px; font-weight: 600; letter-spacing: -0.01em; font-size: 15px; }
+      .mark { width: 14px; height: 14px; border-radius: 3px; border: 1px solid rgb(255 255 255 / 0.7); box-shadow: inset 4px 0 0 rgb(255 255 255 / 0.7); }
+      .pill ul { display: flex; gap: 4px; list-style: none; margin: 0; padding: 0; }
+      .pill ul a { display: block; padding: 7px 12px; border-radius: 999px; font-size: 13.5px; color: var(--muted); transition: color .2s, background .2s; }
+      .pill ul a:hover { color: var(--ink); background: rgb(255 255 255 / 0.06); }
+      .live { display: flex; align-items: center; gap: 8px; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink); padding: 7px 12px; border-radius: 999px; background: rgb(255 255 255 / 0.05); border: 1px solid var(--line); }
+      .live i { width: 6px; height: 6px; border-radius: 50%; background: var(--live); box-shadow: 0 0 8px var(--live); }
+
+      /* Workspace: left / stage / right */
+      .workspace {
+        position: relative; margin: 28px 20px 0; padding: 28px;
+        display: grid; grid-template-columns: 264px minmax(0, 1fr) 292px; gap: 28px;
+        border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+        min-height: calc(100vh - 140px);
+      }
+      .col { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+      .shell { padding: 20px; }
+      .shell-title { font-size: 17px; font-weight: 500; letter-spacing: -0.015em; margin: 10px 0 6px; }
+      .shell .small { margin: 0; }
+      .row-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+
+      .navlist { list-style: none; margin: 18px -8px 0; padding: 14px 0 0; border-top: 1px solid var(--line); display: grid; gap: 2px; }
+      .navlist a { display: flex; justify-content: space-between; align-items: center; padding: 9px 10px; border-radius: 10px; font-size: 14px; color: var(--muted); transition: background .2s, color .2s; }
+      .navlist a:hover { color: var(--ink); background: rgb(255 255 255 / 0.04); }
+      .navlist a.active { color: var(--ink); background: rgb(255 255 255 / 0.07); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.08); }
+      .count { font-size: 11px; color: var(--faint); }
+
+      .stat { margin: 14px 0 0; display: grid; gap: 0; }
+      .stat div { display: flex; justify-content: space-between; align-items: baseline; padding: 10px 0; border-top: 1px solid var(--line); }
+      .stat div:first-child { border-top: 0; }
+      .stat dt { font-size: 13px; color: var(--muted); }
+      .stat dd { margin: 0; display: flex; gap: 10px; font-size: 13px; }
+      .stat dd .mono { color: var(--faint); font-size: 11.5px; }
+
+      /* Stage */
+      .stage { align-items: center; text-align: center; padding-top: 16px; }
+      h1 { font-size: clamp(40px, 4.4vw, 62px); line-height: 1.02; letter-spacing: -0.045em; font-weight: 500; margin: 18px 0 0; }
+      h1 .line { display: block; overflow: hidden; padding-bottom: 0.06em; }
+      h1 .line > span { display: inline-block; animation: rise 1.1s cubic-bezier(.2,.7,.1,1) var(--d) both; }
+      h1 .line:last-child > span { color: rgb(242 241 238 / 0.62); }
+      .lede { max-width: 460px; margin: 16px auto 0; font-size: 15.5px; line-height: 1.6; color: var(--muted); }
+      .reveal { animation: fadeUp 1s cubic-bezier(.2,.7,.1,1) var(--d) both; }
+      .ctas { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 22px; }
+      .btn { display: inline-flex; align-items: center; height: 44px; padding: 0 20px; border-radius: 999px; font-size: 14px; font-weight: 500; transition: background .2s, border-color .2s, transform .2s; }
+      .btn.primary { background: var(--ink); color: #0a0b0d; }
+      .btn.primary:hover { background: #fff; transform: translateY(-1px); }
+      .btn.ghost { border: 1px solid rgb(255 255 255 / 0.14); color: var(--ink); background: rgb(255 255 255 / 0.03); }
+      .btn.ghost:hover { border-color: rgb(255 255 255 / 0.3); background: rgb(255 255 255 / 0.06); }
+
+      .diagram { position: relative; width: 100%; max-width: 470px; margin: 22px auto 0; }
+      .diagram svg { display: block; width: 100%; height: auto; }
+      .svg-t { letter-spacing: 0.12em; }
+      .thread { stroke-dasharray: 600; stroke-dashoffset: 600; animation: sew 2.2s cubic-bezier(.45,.05,.3,1) .9s forwards; }
+      .float { position: absolute; width: 184px; padding: 14px 16px; text-align: left; border-radius: 16px; animation: drift 9s ease-in-out infinite; }
+      .float.f1 { left: -100px; bottom: 18px; }
+      .float.f2 { right: -100px; top: 48px; animation-delay: -4s; }
+      .big { font-size: 28px; font-weight: 500; letter-spacing: -0.03em; margin: 6px 0 0; }
+      .big b { font-weight: inherit; }
+      .big span { color: var(--faint); font-size: 0.6em; letter-spacing: 0; }
+      .foot { font-size: 10px; letter-spacing: 0.08em; color: var(--faint); margin: 10px 0 0; text-transform: uppercase; }
+      .bar { display: block; height: 3px; border-radius: 3px; background: rgb(255 255 255 / 0.08); overflow: hidden; margin-top: 10px; }
+      .bar i { display: block; height: 100%; background: linear-gradient(90deg, rgb(255 255 255 / 0.4), #fff); border-radius: inherit; }
+
+      /* Right */
+      .progress { list-style: none; display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; margin: 18px 0 0; padding: 0; }
+      .progress li { font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--faint); padding-top: 9px; border-top: 2px solid rgb(255 255 255 / 0.09); }
+      .progress li.done { color: var(--muted); border-color: rgb(255 255 255 / 0.5); }
+      .progress li.now { color: var(--ink); border-color: var(--live); }
+      .log { list-style: none; margin: 14px 0 0; padding: 0; display: grid; }
+      .log li { display: grid; grid-template-columns: 40px 46px 1fr; gap: 8px; padding: 10px 0; border-top: 1px solid var(--line); font-size: 12.5px; align-items: baseline; }
+      .log .t { color: var(--faint); font-size: 11px; }
+      .log .k { font-size: 9.5px; letter-spacing: 0.1em; color: var(--muted); }
+      .log .m { color: #d4d4d6; line-height: 1.45; }
+      .log li:first-child .k { color: var(--live); }
+
+      /* Bands */
+      .band { padding: 120px 40px 0; display: grid; grid-template-columns: 340px minmax(0, 1fr); gap: 48px; align-items: start; }
+      .band-head { position: sticky; top: 110px; }
+      h2 { font-size: clamp(28px, 3vw, 38px); line-height: 1.08; letter-spacing: -0.035em; font-weight: 500; margin: 14px 0 14px; }
+      .band-head .muted { font-size: 15px; line-height: 1.6; margin: 0; }
+      .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 16px; }
+      .steps li { grid-column: span 2; }
+      .steps li:nth-child(n+4) { grid-column: span 3; }
+      .step { padding: 20px; min-height: 200px; display: flex; flex-direction: column; transition: transform .3s; }
+      .step:hover { transform: translateY(-3px); }
+      .step h3 { font-size: 22px; font-weight: 500; letter-spacing: -0.03em; margin: 44px 0 8px; }
+      .step p { margin: 0; }
+      .spec { font-size: 10.5px; color: var(--muted); padding: 3px 8px; border: 1px solid var(--line); border-radius: 999px; }
+
+      .ledger { padding: 8px 24px; }
+      .ledger-row { display: grid; grid-template-columns: 1.3fr 1.3fr 1fr 1fr; gap: 16px; padding: 16px 0; border-top: 1px solid var(--line); font-size: 14px; align-items: center; }
+      .ledger-row.head { border-top: 0; font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--faint); padding-bottom: 10px; }
+      .ledger-row .name { font-weight: 500; }
+      .stock { display: flex; align-items: center; gap: 12px; font-size: 12px; color: var(--muted); }
+      .stock .bar { flex: 1; margin: 0; }
+
+      .form { display: grid; gap: 26px; padding: 26px; }
+      fieldset { border: 0; margin: 0; padding: 0; }
+      .seg { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-top: 12px; padding: 4px; border-radius: 14px; background: rgb(0 0 0 / 0.35); border: 1px solid var(--line); }
+      .seg label { position: relative; }
+      .seg input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+      .seg span { display: block; text-align: center; padding: 10px 6px; border-radius: 10px; font-size: 13.5px; color: var(--muted); transition: background .2s, color .2s; }
+      .seg input:checked + span { color: var(--ink); background: rgb(255 255 255 / 0.09); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.12); }
+      .seg input:focus-visible + span { outline: 1.5px solid #fff; outline-offset: 1px; }
+      .seg label:hover span { color: var(--ink); }
+      .range { display: grid; gap: 12px; }
+      .range output { font-size: 13px; }
+      input[type='range'] { width: 100%; accent-color: #e9e6df; }
+      .estimate { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding-top: 22px; border-top: 1px solid var(--line); }
+      .estimate .big { font-size: 40px; }
+      .form .btn { justify-self: start; }
+
+      .foot-bar { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin: 120px 20px 0; padding: 22px 20px 80px; border-top: 1px solid var(--line); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--faint); }
+
+      @keyframes rise { from { transform: translateY(105%); } to { transform: none; } }
+      @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); filter: blur(6px); } to { opacity: 1; transform: none; filter: none; } }
+      @keyframes sew { to { stroke-dashoffset: 0; } }
+      @keyframes drift { 0%, 100% { translate: 0 0; } 50% { translate: 0 -7px; } }
+
+      @media (max-width: 1180px) {
+        .workspace { grid-template-columns: 240px minmax(0, 1fr); }
+        .right { grid-column: 1 / -1; flex-direction: row; }
+        .right > * { flex: 1; }
+        .float.f1 { left: -10px; } .float.f2 { right: -10px; }
+      }
+      @media (max-width: 860px) {
+        .frame { padding: 0 12px; }
+        .rail.l { left: 12px; } .rail.r { right: 12px; }
+        .pill { gap: 12px; padding-left: 14px; }
+        .pill ul { display: none; }
+        .workspace { grid-template-columns: minmax(0, 1fr); margin: 20px 12px 0; padding: 20px 12px; min-height: 0; }
+        .stage { order: -1; padding-top: 6px; }
+        .right { flex-direction: column; }
+        .float { position: relative; inset: auto !important; width: auto; }
+        .diagram { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .diagram svg { grid-column: 1 / -1; }
+        .band { grid-template-columns: minmax(0, 1fr); padding: 80px 12px 0; gap: 28px; }
+        .band-head { position: static; }
+        .ledger { padding: 4px 16px; }
+        .ledger-row { grid-template-columns: 1fr 1fr; gap: 6px 14px; }
+        .ledger-row.head { display: none; }
+        .seg { grid-template-columns: 1fr 1fr; }
+        .steps { grid-template-columns: minmax(0, 1fr); }
+        .steps li, .steps li:nth-child(n+4) { grid-column: auto; }
+        .step { min-height: 0; }
+        .step h3 { margin-top: 26px; }
+        .foot-bar { margin: 80px 12px 0; padding: 20px 12px 80px; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after { animation-duration: 0.01ms !important; animation-delay: 0s !important; animation-iteration-count: 1 !important; transition: none !important; }
+        html { scroll-behavior: auto; }
+      }
+    </style>
+
+    <script>
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      // Atmosphere: slow paper-fibre dust drifting upward. Soft enough to stay behind the glass.
+      const canvas = document.getElementById('dust') as HTMLCanvasElement;
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        const dpr = Math.min(devicePixelRatio || 1, 1.5);
+        let w = 0, h = 0;
+        const motes = Array.from({ length: 90 }, () => ({
+          x: Math.random(), y: Math.random(), r: 0.4 + Math.random() * 1.5,
+          a: 0.06 + Math.random() * 0.32, v: 0.00004 + Math.random() * 0.00012, p: Math.random() * 6.28,
+        }));
+        const size = () => {
+          w = innerWidth; h = innerHeight;
+          canvas.width = w * dpr; canvas.height = h * dpr;
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        };
+        const draw = (t: number) => {
+          ctx.clearRect(0, 0, w, h);
+          for (const m of motes) {
+            if (!reduce) { m.y -= m.v * 16; if (m.y < -0.02) { m.y = 1.02; m.x = Math.random(); } }
+            const x = (m.x + Math.sin(t * 0.0002 + m.p) * 0.01) * w;
+            ctx.beginPath();
+            ctx.arc(x, m.y * h, m.r, 0, 6.283);
+            ctx.fillStyle = `rgba(235,236,240,${m.a})`;
+            ctx.fill();
+          }
+        };
+        let raf = 0;
+        const loop = (t: number) => { draw(t); raf = requestAnimationFrame(loop); };
+        size();
+        addEventListener('resize', () => { size(); if (reduce) draw(0); });
+        if (reduce) draw(0);
+        else {
+          raf = requestAnimationFrame(loop);
+          document.addEventListener('visibilitychange', () => {
+            cancelAnimationFrame(raf);
+            if (!document.hidden) raf = requestAnimationFrame(loop);
+          });
+        }
+      }
+
+      // Tiny parallax on the floating cards (fine pointers only).
+      if (!reduce && matchMedia('(pointer: fine)').matches) {
+        const cards = [...document.querySelectorAll<HTMLElement>('.float[data-depth]')];
+        addEventListener('pointermove', (e) => {
+          const nx = e.clientX / innerWidth - 0.5, ny = e.clientY / innerHeight - 0.5;
+          for (const c of cards) {
+            const d = Number(c.dataset.depth);
+            c.style.transform = `translate(${nx * d}px, ${ny * d}px)`;
+          }
+        });
+      }
+
+      // Commission estimator.
+      const form = document.getElementById('estimator') as HTMLFormElement;
+      const pages = document.getElementById('pages') as HTMLInputElement;
+      const gbp = new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP', maximumFractionDigits: 0 });
+      const update = () => {
+        const s = form.querySelector<HTMLInputElement>('input[name="structure"]:checked')!;
+        const n = Number(pages.value);
+        const extra = Math.max(0, (n - 192) / 32);
+        const weeks = Number(s.dataset.weeks) + Math.ceil(extra / 4);
+        const price = Number(s.dataset.price) + extra * 18 + 40;
+        document.getElementById('pagesOut')!.textContent = String(n);
+        document.getElementById('weeks')!.textContent = String(weeks);
+        document.getElementById('price')!.textContent = gbp.format(price);
+      };
+      form.addEventListener('input', update);
+      form.addEventListener('submit', (e) => e.preventDefault());
+      update();
+    </script>
+  </body>
+</html>

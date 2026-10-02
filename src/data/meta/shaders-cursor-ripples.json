@@ -1,0 +1,7 @@
+{
+  "title": "Shaders Cursor Ripples",
+  "kind": "section",
+  "category": "Effects & details",
+  "concept": "Calma Boatworks, a fictional South Tyrol yard building silent electric launches for alpine lakes: a full-bleed lake hero where the Shaders CursorRipples pass (ImageTexture → CursorRipples, decay 7.3, radius 0.6, ACES) turns the cursor into a boat's wake on the water, followed by stats, the three-hull fleet, the build process and 2027 build slots.",
+  "notes": "Uses the installed shaders 3.2 package (shaders/react, WebGPU only), lazy-loaded behind a navigator.gpu + prefers-reduced-motion gate, with the semantic <img> kept beneath as loading/fallback and the canvas faded in from onReady. Until the first real mouse/touch input, a 'phantom launch' dispatches synthetic window mousemove events across the water so the wake is visible on arrival; Shaders' own pointer tracking does the rest. Without WebGPU or with reduced motion, the static photo remains. Photos from Unsplash, stored locally."
+}

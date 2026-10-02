@@ -1,0 +1,7 @@
+{
+  "title": "Tech Green Dark Mode Modern",
+  "kind": "website",
+  "category": "Design systems",
+  "concept": "Saltmark Light Trust, a fictional charity that keeps fourteen automated lighthouses burning on an invented coast: a matte-black operations site whose hero is a bracketed coast-chart console where every light flashes its real nautical character (Fl(2) W 10s, Oc W 8s…), with an emerald range ring and a flash-pattern strip for the selected station, followed by a stats rail, Lamp / Fog signal / Power station modules, a hours-of-darkness chart beside the night log, and keeper membership tiers.",
+  "notes": "Vanilla Astro + one bundled script (requestAnimationFrame flash timing, click/arrow-key station selection, UTC clock, IntersectionObserver masked reveals). Inter Tight + JetBrains Mono from Google Fonts. No images, no libraries. Reduced motion holds every lamp steady-on and drops reveals."
+}

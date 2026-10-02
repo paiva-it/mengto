@@ -1,0 +1,505 @@
+---
+import '../../styles/global.css';
+import BackPill from '../../components/BackPill.astro';
+
+const img = (f: string) => `/skills/reveal-hover-effect/${f}`;
+
+const quiver = [
+  {
+    key: 'long',
+    no: '01',
+    name: 'Slow Water',
+    size: "9'4\" × 22½\" × 3\"",
+    ride: 'A single-fin noserider for the long, peeling rights at Ribeira d’Ilhas. Flat through the middle, a soft roll in the nose, hard edge in the last eighteen inches.',
+    glass: 'Sea-glass resin tint · 6+6 oz deck · cedar stringer',
+    price: '€1,480',
+    weeks: '7 weeks',
+  },
+  {
+    key: 'fish',
+    no: '02',
+    name: 'Tern',
+    size: "5'8\" × 21¼\" × 2⅝\"",
+    ride: 'A keel twin for summer mush that still wants to fly. Wide and forgiving under the chest, deep swallow so it pivots off the top without a fight.',
+    glass: 'Ochre pigment resin · coral pinline · glass-on keels',
+    price: '€1,120',
+    weeks: '5 weeks',
+  },
+  {
+    key: 'short',
+    no: '03',
+    name: 'Needle',
+    size: "6'2\" × 19¼\" × 2⅜\"",
+    ride: 'The winter board. Narrow, pulled-in nose and a squash with plenty of tail rocker for steep, hollow sections at Coxos when the swell turns north-west.',
+    glass: 'Clear 4+4 oz · coral pinline · FCS II thruster',
+    price: '€980',
+    weeks: '4 weeks',
+  },
+];
+
+const steps = [
+  ['01', 'Template', 'Every board starts as a full-size pencil drawing on kraft — outline, rocker, thickness flow — fitted to your weight, your break and the way you stand.'],
+  ['02', 'Plane', 'The blank is cut to the template line and taken down by hand under side lights, rails first, until the foam matches the numbers in the margin.'],
+  ['03', 'Glass', 'Tint, pinline and laminate go on in one quiet afternoon. Resin colour is mixed per board and logged, so a repair matches years later.'],
+  ['04', 'Sand', 'Hot coat, sand to 320, a gloss if you want it. You collect it at the bay and we walk down to the water together for the first paddle.'],
+];
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Saltgrain Shaping Bay — Reveal Hover Effect</title>
+    <meta name="description" content="Hand-shaped surfboards from Ericeira. Move across the bench to see a pencil template become a glassed board." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <BackPill />
+
+    <!-- HERO — the whole bench is one reveal component -->
+    <section class="hero" data-hero aria-labelledby="hero-title">
+      <figure class="reveal-hover hero__figure" data-reveal-radius="260" data-focal-x="0.72" data-focal-x-sm="1">
+        <img
+          class="reveal-hover__image reveal-hover__image--base"
+          src={img('hero-pencil.webp')}
+          alt="Three surfboard templates drawn in pencil on kraft paper — a 9'4 longboard, a 5'8 swallow-tail fish and a 6'2 shortboard — with stringer lines, fin positions and dimensions"
+          width="1600"
+          height="1000"
+          decoding="async"
+          fetchpriority="high"
+        />
+        <img
+          class="reveal-hover__image reveal-hover__image--overlay"
+          src={img('hero-glass.webp')}
+          alt=""
+          aria-hidden="true"
+          width="1600"
+          height="1000"
+          decoding="async"
+        />
+      </figure>
+      <div class="hero__grid" aria-hidden="true"><div data-grid></div></div>
+
+      <header class="bar">
+        <a class="brand" href="#top" aria-label="Saltgrain Shaping Bay">
+          <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M11 1.5C15 5 16.6 9.6 16.6 13.4c0 4-2.6 7.1-5.6 7.1s-5.6-3.1-5.6-7.1C5.4 9.6 7 5 11 1.5Z" fill="var(--teal)" /><path d="M11 2v18.4" stroke="var(--paper)" stroke-width="1.2" /></svg>
+          Saltgrain
+        </a>
+        <p class="bar__meta mono"><span>Shaping bay · Ericeira</span><span class="bar__sep" aria-hidden="true"></span><span>Template 41 · Autumn quiver</span></p>
+        <button class="toggle mono" type="button" data-toggle aria-pressed="false">
+          <span class="toggle__dot" aria-hidden="true"></span><span data-toggle-label>Show glassed boards</span>
+        </button>
+      </header>
+
+      <div class="hero__copy">
+        <p class="kicker mono"><span>Hand-shaped · No. 41</span><span>Pencil to resin</span></p>
+        <h1 id="hero-title" class="display">Every curve<br />starts in <em>pencil.</em></h1>
+        <p class="lede">
+          We draw each board at full scale before the planer touches foam. Move across the bench and the template becomes the
+          board — tinted, pinlined, waxed and ready for the water.
+        </p>
+        <a class="cta" href="#quiver">See the autumn quiver <span aria-hidden="true">↓</span></a>
+      </div>
+
+      <p class="hero__hint mono" aria-hidden="true">Move to glass</p>
+
+      <footer class="hero__foot mono">
+        <p><strong>Saltgrain</strong><span>Est. 2011 · 1,906 boards shaped</span></p>
+        <p class="hero__legend"><span>Base / pencil template on kraft</span><span>Reveal / glassed, pinlined, waxed</span></p>
+        <p class="hero__count">41 / 52</p>
+      </footer>
+    </section>
+
+    <!-- QUIVER — compact reveals, one per board -->
+    <section class="quiver" id="quiver" aria-labelledby="quiver-title">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="mono eyebrow">The autumn quiver</p>
+          <h2 id="quiver-title" class="h2">Three boards, drawn for one coast.</h2>
+          <p class="section-lede">
+            Each one is shaped to order from the template you see first. Hover a card to look through the pencil at the finished
+            glass; on a phone, tap “Show glass”.
+          </p>
+        </div>
+
+        <ol class="cards">
+          {
+            quiver.map((b) => (
+              <li class="card">
+                <figure class="reveal-hover card__figure" data-reveal-radius="170">
+                  <img
+                    class="reveal-hover__image reveal-hover__image--base"
+                    src={img(`${b.key}-pencil.webp`)}
+                    alt={`${b.name} drawn as a pencil template with dimensions`}
+                    width="600"
+                    height="1000"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                  <img
+                    class="reveal-hover__image reveal-hover__image--overlay"
+                    src={img(`${b.key}-glass.webp`)}
+                    alt=""
+                    aria-hidden="true"
+                    width="600"
+                    height="1000"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                  <span class="card__no mono" aria-hidden="true">{b.no}</span>
+                  <button class="chip mono" type="button" data-toggle aria-pressed="false">
+                    <span data-toggle-label>Show glass</span>
+                    <span class="sr-only"> — {b.name}</span>
+                  </button>
+                </figure>
+                <div class="card__body">
+                  <div class="card__title">
+                    <h3>{b.name}</h3>
+                    <p class="mono">{b.size}</p>
+                  </div>
+                  <p class="card__ride">{b.ride}</p>
+                  <dl class="card__spec mono">
+                    <div><dt>Glassing</dt><dd>{b.glass}</dd></div>
+                    <div><dt>From</dt><dd>{b.price}</dd></div>
+                    <div><dt>Lead time</dt><dd>{b.weeks}</dd></div>
+                  </dl>
+                </div>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+    </section>
+
+    <!-- PROCESS -->
+    <section class="process" aria-labelledby="process-title">
+      <div class="wrap process__inner">
+        <h2 id="process-title" class="h2">Four rooms,<br />one board at a time.</h2>
+        <ol class="steps">
+          {
+            steps.map(([n, t, d]) => (
+              <li>
+                <span class="mono step__no">{n}</span>
+                <h3>{t}</h3>
+                <p>{d}</p>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+    </section>
+
+    <footer class="end">
+      <div class="wrap end__inner">
+        <p class="display end__line">Bring your weight, your break<br />and the board you miss.</p>
+        <div class="end__meta mono">
+          <p>Rua do Porto 14, Ericeira</p>
+          <p>Fittings Tue–Sat · 9:00–13:00</p>
+          <a class="cta cta--dark" href="mailto:bench@saltgrain.example">bench@saltgrain.example</a>
+        </div>
+      </div>
+    </footer>
+
+    <style>
+      :root {
+        --paper: #f3efe6;
+        --paper-2: #e9e3d6;
+        --ink: #1b1a17;
+        --graphite: #5d5a52;
+        --rule: rgb(27 26 23 / 0.14);
+        --teal: #2d8a82;
+        --coral: #d8553a;
+        --ochre: #e2a845;
+        --display: 'Bricolage Grotesque', ui-sans-serif, system-ui, sans-serif;
+        --mono: 'IBM Plex Mono', ui-monospace, Menlo, monospace;
+      }
+      html { background: var(--paper); color: var(--ink); }
+      body { margin: 0; font-family: var(--display); -webkit-font-smoothing: antialiased; overflow-x: clip; }
+      .mono { font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.14em; font-size: 11px; font-weight: 500; }
+      .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+      .wrap { max-width: 1320px; margin: 0 auto; padding: 0 clamp(16px, 4vw, 56px); }
+
+      /* ---------- reveal-hover core (skill contract) ---------- */
+      .reveal-hover {
+        --reveal-x: 50%;
+        --reveal-y: 50%;
+        --reveal-radius: 0px;
+        --focal-x: 50%;
+        position: relative;
+        overflow: clip;
+        isolation: isolate;
+        margin: 0;
+        background: var(--paper);
+        contain: paint;
+      }
+      .reveal-hover__image {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: var(--focal-x) 50%;
+      }
+      .reveal-hover__image--base { position: relative; z-index: 0; }
+      .reveal-hover__image--overlay {
+        position: absolute;
+        z-index: 1;
+        inset: 0;
+        pointer-events: none;
+        -webkit-mask-image: radial-gradient(
+          circle var(--reveal-radius) at var(--reveal-x) var(--reveal-y),
+          rgb(0 0 0 / 1) 0%, rgb(0 0 0 / 1) 40%, rgb(0 0 0 / 0.75) 60%,
+          rgb(0 0 0 / 0.4) 75%, rgb(0 0 0 / 0.12) 88%, transparent 100%
+        );
+        mask-image: radial-gradient(
+          circle var(--reveal-radius) at var(--reveal-x) var(--reveal-y),
+          rgb(0 0 0 / 1) 0%, rgb(0 0 0 / 1) 40%, rgb(0 0 0 / 0.75) 60%,
+          rgb(0 0 0 / 0.4) 75%, rgb(0 0 0 / 0.12) 88%, transparent 100%
+        );
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        will-change: -webkit-mask-image, mask-image;
+        transition: opacity 0.45s ease;
+      }
+      @media (hover: none), (pointer: coarse) {
+        .reveal-hover__image--overlay { display: none; }
+      }
+      /* Explicit toggle for touch + keyboard: the whole alternate, no mask. */
+      .is-revealed .reveal-hover__image--overlay {
+        display: block;
+        -webkit-mask-image: none;
+        mask-image: none;
+        animation: glass-in 0.5s ease both;
+      }
+      @keyframes glass-in { from { opacity: 0; } }
+
+      /* ---------- hero ---------- */
+      .hero {
+        position: relative;
+        min-height: max(640px, 100svh);
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+        overflow: clip;
+      }
+      .hero__figure { position: absolute; inset: 0; z-index: 0; --focal-x: 72%; }
+      .hero__grid {
+        position: absolute; inset: 0; z-index: 1; pointer-events: none; overflow: hidden;
+        -webkit-mask-image: linear-gradient(90deg, #000 0%, #000 45%, transparent 85%);
+        mask-image: linear-gradient(90deg, #000 0%, #000 45%, transparent 85%);
+      }
+      .hero__grid > div {
+        position: absolute; inset: -32px;
+        background-image:
+          linear-gradient(to right, rgb(27 26 23 / 0.1) 1px, transparent 1px),
+          linear-gradient(to bottom, rgb(27 26 23 / 0.1) 1px, transparent 1px);
+        background-size: 48px 48px;
+        will-change: transform;
+      }
+
+      .bar {
+        position: relative; z-index: 3;
+        display: flex; align-items: center; justify-content: space-between; gap: 24px;
+        padding: 22px clamp(16px, 3vw, 44px);
+        border-bottom: 1px solid var(--rule);
+      }
+      .brand {
+        display: inline-flex; align-items: center; gap: 10px;
+        color: var(--ink); text-decoration: none;
+        font-weight: 700; font-size: 17px; letter-spacing: -0.01em;
+      }
+      .bar__meta { display: flex; align-items: center; gap: 18px; margin: 0; color: var(--ink); }
+      .bar__sep { width: 1px; height: 14px; background: var(--rule); }
+      .toggle {
+        display: inline-flex; align-items: center; gap: 10px;
+        padding: 12px 18px; border-radius: 999px; cursor: pointer;
+        color: var(--ink); background: rgb(243 239 230 / 0.72);
+        border: 1px solid rgb(27 26 23 / 0.18);
+        backdrop-filter: blur(10px);
+        transition: background 0.25s, color 0.25s, border-color 0.25s;
+      }
+      .toggle:hover { background: var(--paper); border-color: rgb(27 26 23 / 0.4); }
+      .toggle__dot { width: 7px; height: 7px; border-radius: 50%; background: var(--ink); transition: background 0.25s, box-shadow 0.25s; }
+      .toggle[aria-pressed='true'] { background: var(--ink); color: var(--paper); }
+      .toggle[aria-pressed='true'] .toggle__dot { background: var(--ochre); box-shadow: 0 0 0 3px rgb(226 168 69 / 0.3); }
+      :is(.toggle, .chip, .cta, .brand):focus-visible { outline: 2px solid var(--coral); outline-offset: 3px; }
+
+      .hero__copy {
+        position: relative; z-index: 3;
+        align-self: center;
+        padding: 40px clamp(16px, 3vw, 44px);
+        max-width: 640px;
+        pointer-events: none;
+      }
+      .hero__copy a { pointer-events: auto; }
+      .kicker { display: flex; gap: 26px; margin: 0 0 28px; color: var(--ink); }
+      .kicker span:last-child { color: var(--graphite); }
+      .display {
+        font-family: var(--display);
+        font-variation-settings: 'opsz' 96;
+        font-weight: 640;
+        letter-spacing: -0.045em;
+        line-height: 0.9;
+      }
+      h1.display { margin: 0; font-size: clamp(52px, 7.6vw, 118px); }
+      h1.display em {
+        font-style: normal; font-weight: 300; color: var(--graphite);
+        text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 0.12em;
+        text-decoration-color: var(--coral);
+      }
+      .lede { margin: 30px 0 0; max-width: 460px; font-size: 17px; line-height: 1.55; color: #33312b; font-weight: 400; }
+      .cta {
+        display: inline-flex; align-items: center; gap: 10px; margin-top: 30px;
+        padding: 14px 22px; border-radius: 999px;
+        background: var(--ink); color: var(--paper); text-decoration: none;
+        font-weight: 600; font-size: 15px; letter-spacing: -0.01em;
+        transition: transform 0.25s, background 0.25s;
+      }
+      .cta:hover { background: #000; transform: translateY(-1px); }
+
+      .hero__hint {
+        position: absolute; z-index: 3; right: clamp(16px, 2.4vw, 36px); top: 50%;
+        margin: 0; writing-mode: vertical-rl; transform: rotate(180deg) translateY(50%);
+        color: var(--graphite);
+      }
+      .hero__foot {
+        position: relative; z-index: 3;
+        display: grid; grid-template-columns: 1fr auto auto; align-items: end; gap: 48px;
+        padding: 18px clamp(16px, 3vw, 44px) 22px;
+        border-top: 1px solid var(--rule);
+        color: var(--graphite);
+      }
+      .hero__foot p { margin: 0; display: flex; flex-direction: column; gap: 6px; }
+      .hero__foot strong { color: var(--ink); font-weight: 500; }
+      .hero__legend { flex-direction: row !important; gap: 44px !important; }
+      .hero__legend span:last-child { color: var(--teal); }
+      .hero__count { color: var(--ink); }
+
+      /* ---------- quiver ---------- */
+      .quiver { padding: clamp(80px, 11vw, 150px) 0 clamp(70px, 9vw, 120px); border-top: 1px solid var(--rule); }
+      .section-head { display: grid; grid-template-columns: 1fr 1fr; gap: 20px 60px; align-items: end; margin-bottom: 56px; }
+      .eyebrow { grid-column: 1 / -1; margin: 0; color: var(--teal); }
+      .h2 { margin: 0; font-size: clamp(36px, 4.6vw, 64px); font-weight: 620; letter-spacing: -0.04em; line-height: 0.98; font-variation-settings: 'opsz' 96; }
+      .section-lede { margin: 0; max-width: 470px; color: #45423a; font-size: 16px; line-height: 1.6; }
+
+      .cards { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(16px, 2vw, 28px); }
+      .card { display: flex; flex-direction: column; border: 1px solid var(--rule); border-radius: 22px; background: #f8f5ee; overflow: clip; }
+      .card__figure { aspect-ratio: 3 / 4; border-bottom: 1px solid var(--rule); }
+      .card__no { position: absolute; z-index: 2; top: 16px; left: 18px; color: var(--graphite); }
+      .chip {
+        position: absolute; z-index: 2; right: 14px; bottom: 14px;
+        padding: 9px 13px; border-radius: 999px; cursor: pointer;
+        background: rgb(243 239 230 / 0.82); color: var(--ink);
+        border: 1px solid rgb(27 26 23 / 0.16); backdrop-filter: blur(8px);
+        font-size: 10px;
+      }
+      .chip[aria-pressed='true'] { background: var(--ink); color: var(--paper); }
+      .card__body { padding: 22px 22px 24px; display: flex; flex-direction: column; gap: 14px; flex: 1; }
+      .card__title { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+      .card__title h3 { margin: 0; font-size: 28px; font-weight: 640; letter-spacing: -0.03em; }
+      .card__title p { margin: 0; color: var(--graphite); letter-spacing: 0.06em; }
+      .card__ride { margin: 0; color: #3d3a33; font-size: 15px; line-height: 1.55; }
+      .card__spec { margin: auto 0 0; padding-top: 14px; border-top: 1px dashed rgb(27 26 23 / 0.2); display: grid; gap: 8px; }
+      .card__spec div { display: flex; justify-content: space-between; gap: 14px; }
+      .card__spec dt { color: var(--graphite); }
+      .card__spec dd { margin: 0; text-align: right; letter-spacing: 0.06em; }
+
+      /* ---------- process ---------- */
+      .process { background: var(--paper-2); padding: clamp(70px, 9vw, 120px) 0; border-top: 1px solid var(--rule); }
+      .process__inner { display: grid; grid-template-columns: 0.8fr 1.2fr; gap: 60px; }
+      .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0; border-top: 1px solid var(--rule); }
+      .steps li { padding: 26px 26px 30px 0; border-bottom: 1px solid var(--rule); }
+      .steps li:nth-child(odd) { border-right: 1px solid var(--rule); }
+      .steps li:nth-child(even) { padding-left: 26px; }
+      .step__no { color: var(--coral); }
+      .steps h3 { margin: 12px 0 8px; font-size: 24px; letter-spacing: -0.02em; font-weight: 620; }
+      .steps p { margin: 0; color: #45423a; font-size: 15px; line-height: 1.6; }
+
+      /* ---------- end ---------- */
+      .end { background: var(--ink); color: var(--paper); padding: clamp(70px, 9vw, 120px) 0 clamp(90px, 10vw, 130px); }
+      .end__inner { display: grid; grid-template-columns: 1.4fr 0.6fr; gap: 40px; align-items: end; }
+      .end__line { margin: 0; font-size: clamp(34px, 4.6vw, 66px); }
+      .end__meta { display: grid; gap: 10px; color: #bdb6a6; }
+      .end__meta p { margin: 0; }
+      .cta--dark { background: var(--paper); color: var(--ink); text-transform: none; letter-spacing: 0; font-family: var(--display); margin-top: 14px; justify-self: start; }
+      .cta--dark:hover { background: #fff; }
+
+      /* ---------- responsive ---------- */
+      @media (max-width: 1100px) {
+        .bar__meta { display: none; }
+        .hero__legend { display: none !important; }
+        .hero__foot { grid-template-columns: 1fr auto; }
+      }
+      @media (max-width: 860px) {
+        .hero { min-height: 0; grid-template-rows: auto auto auto auto; }
+        .hero__figure { position: relative; inset: auto; order: 3; aspect-ratio: 4 / 5; --focal-x: 100%; border-top: 1px solid var(--rule); }
+        .hero__grid { display: none; }
+        .bar { order: 1; padding: 16px; }
+        .hero__copy { order: 2; padding: 34px 16px 36px; }
+        .hero__hint { display: none; }
+        .hero__foot { order: 4; padding: 14px 16px 18px; }
+        .toggle { padding: 10px 14px; font-size: 10px; }
+        .kicker { gap: 16px; margin-bottom: 20px; font-size: 10px; }
+        .lede { font-size: 16px; margin-top: 22px; }
+        .section-head { grid-template-columns: 1fr; margin-bottom: 36px; }
+        .cards { grid-template-columns: 1fr; }
+        .card__figure { aspect-ratio: 4 / 5; }
+        .process__inner { grid-template-columns: 1fr; gap: 36px; }
+        .end__inner { grid-template-columns: 1fr; }
+      }
+      @media (max-width: 560px) {
+        .steps { grid-template-columns: 1fr; }
+        .steps li, .steps li:nth-child(even) { padding: 22px 0 24px; border-right: 0 !important; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .reveal-hover__image--overlay, .is-revealed .reveal-hover__image--overlay { transition: none; animation: none; }
+        .cta, .toggle { transition: none; }
+      }
+    </style>
+
+    <script>
+      import { initRevealHover } from '../../components/skills/reveal-hover-effect/reveal';
+      import type { RevealHandle } from '../../components/skills/reveal-hover-effect/reveal';
+
+      const hero = document.querySelector<HTMLElement>('[data-hero]')!;
+      const heroFigure = hero.querySelector<HTMLElement>('.hero__figure')!;
+      const handles: RevealHandle[] = [
+        initRevealHover(hero, { target: heroFigure, grid: hero.querySelector<HTMLElement>('[data-grid]') }),
+        ...Array.from(document.querySelectorAll<HTMLElement>('.card__figure')).map((el) => initRevealHover(el)),
+      ];
+
+      // Touch + keyboard fallback: an explicit toggle shows the complete alternate.
+      document.querySelectorAll<HTMLButtonElement>('[data-toggle]').forEach((btn) => {
+        const scope = btn.closest('.card__figure') ?? heroFigure;
+        const label = btn.querySelector('[data-toggle-label]')!;
+        const [off, on] = btn.closest('.card__figure') ? ['Show glass', 'Show pencil'] : ['Show glassed boards', 'Show pencil template'];
+        btn.addEventListener('click', () => {
+          const pressed = btn.getAttribute('aria-pressed') !== 'true';
+          btn.setAttribute('aria-pressed', String(pressed));
+          scope.classList.toggle('is-revealed', pressed);
+          label.textContent = pressed ? on : off;
+        });
+      });
+
+      // Capture mode (?shot): rest the spotlight on the fish as if a cursor were parked there.
+      if (new URLSearchParams(location.search).has('shot')) {
+        const place = () => {
+          const w = heroFigure.clientWidth;
+          const h = heroFigure.clientHeight;
+          const scale = Math.max(w / 1600, h / 1000);
+          const focal = parseFloat(getComputedStyle(heroFigure).getPropertyValue('--focal-x')) / 100;
+          const offX = (w - 1600 * scale) * focal;
+          const offY = (h - 1000 * scale) * 0.5;
+          handles[0].park(offX + 1150 * scale, offY + 560 * scale, w < 600 ? 170 : 260);
+        };
+        if (document.readyState === 'complete') place();
+        else addEventListener('load', place, { once: true });
+      }
+
+      addEventListener('pagehide', () => handles.forEach((h) => h.cleanup()), { once: true });
+    </script>
+  </body>
+</html>

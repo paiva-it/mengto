@@ -1,0 +1,56 @@
+.cursor-trail-region {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  /* Static fallback: the graph's own base gradient (#1e1e1f -> #070708, bottom-left -> top-right). */
+  background: linear-gradient(45deg, #1e1e1f, #070708);
+}
+
+.cursor-trail-layer {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  overflow: hidden;
+  /* Near-black standalone hero. The graph's base gradient equals the section background, so
+     lighten is visually normal blending — except it lets the static poster's dots show through
+     until the visitor's own cursor takes over (then the poster fades, see [data-trail-live]). */
+  mix-blend-mode: lighten;
+  opacity: 1;
+  /* Verified: the Shaders engine tracks window mousemove/touchmove, so the canvas can ignore hits. */
+  pointer-events: none;
+}
+
+.cursor-trail-mount {
+  display: contents;
+}
+
+.cursor-trail-shader {
+  position: absolute !important;
+  inset: 0;
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.cursor-trail-content {
+  position: relative;
+  z-index: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cursor-trail-layer {
+    display: none !important;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce), (hover: none), (pointer: coarse) {
+  .cursor-trail-layer {
+    display: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .cursor-trail-layer {
+    display: none;
+  }
+}

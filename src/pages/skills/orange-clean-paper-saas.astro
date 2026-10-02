@@ -1,0 +1,662 @@
+---
+import '../../styles/global.css';
+import BackPill from '../../components/BackPill.astro';
+
+// Topographic contours around two summits, drawn once at build time.
+const contour = (cx: number, cy: number, r: number, k: number, sx = 1, sy = 1) => {
+  const pts: string[] = [];
+  for (let i = 0; i <= 72; i++) {
+    const t = (i / 72) * Math.PI * 2;
+    const w = 1 + 0.13 * Math.sin(3 * t + k * 0.7) + 0.06 * Math.sin(5 * t - k) + 0.03 * Math.cos(7 * t + k * 1.3);
+    pts.push(`${(cx + Math.cos(t) * r * w * sx).toFixed(1)},${(cy + Math.sin(t) * r * w * sy).toFixed(1)}`);
+  }
+  return `M${pts.join('L')}Z`;
+};
+const topoA = Array.from({ length: 9 }, (_, i) => contour(220, 250, 26 + i * 30, i, 1.15, 0.9));
+const topoB = Array.from({ length: 6 }, (_, i) => contour(470, 150, 20 + i * 26, i + 4, 0.95, 1.1));
+
+const towers = [
+  { x: 175, y: 385, name: 'Pine Ridge · T4' },
+  { x: 495, y: 305, name: 'Cedar Gap · T7' },
+  { x: 430, y: 110, name: 'Hollow Peak · T2' },
+];
+const plume = { x: 330, y: 205 };
+
+const districts = ['Upper Kettle FPD', 'Sawtooth Volunteer Fire', 'Wren Valley Rangers', 'Three Forks County', 'Marrow Creek Watch', 'Alder Basin Fire Co.'];
+
+const timeline = [
+  { t: '14:02:10', title: 'Pixel change on T4', body: 'The Pine Ridge camera sees a grey column rise 3 % against the ridge haze. Confidence 0.41 — not enough to page anyone yet.' },
+  { t: '14:03:05', title: 'A lookout looks', body: 'Mara, on shift at Cedar Gap, gets a quiet nudge with the crop. She confirms smoke, not dust, and drops her bearing: 304°.' },
+  { t: '14:04:40', title: 'Bearings cross', body: 'Two bearings meet over the north slope of Hollow Peak. Firecrest draws a 900 m ellipse and pulls the parcel, fuel model and road access.' },
+  { t: '14:06:18', title: 'Dispatch has it', body: 'One packet to the county CAD: location, wind, nearest water, photos from two angles. Four minutes and eight seconds from first pixel.' },
+];
+
+const plans = [
+  { name: 'Lookout', price: 'Free', per: 'for volunteers', body: 'Join a district roster, confirm sightings from your phone, log hours toward certification.', items: ['Sighting app (iOS, Android, web)', 'Bearing compass with offline maps', 'Shift reminders'], cta: 'Join a roster', featured: false },
+  { name: 'District', price: '$420', per: 'per tower / month', body: 'Camera ingestion, smoke detection and a lookout network wired straight into your dispatch.', items: ['Up to 12 towers', 'Triangulation + CAD packet', 'Fire-weather overlays', 'Season-end report for the board'], cta: 'Start the season', featured: true },
+  { name: 'Region', price: 'Custom', per: 'multi-agency', body: 'Shared views across counties and land managers, with mutual-aid rules that route each plume.', items: ['Unlimited towers', 'Cross-agency routing', 'Dedicated fire-season desk'], cta: 'Talk to the desk', featured: false },
+];
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Firecrest — forest fire watch for every ridge</title>
+    <meta name="description" content="Firecrest connects tower cameras and volunteer lookouts so a plume is confirmed, located and dispatched in minutes." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Inter+Tight:wght@400;500;600&display=swap" rel="stylesheet" />
+  </head>
+  <body class="fc">
+    <div class="page">
+      <!-- ============ HERO: master container, split onboarding card ============ -->
+      <header class="shell" id="top">
+        <div class="hero">
+          <section class="form-side" aria-labelledby="hero-title">
+            <nav class="nav" aria-label="Primary">
+              <a href="#top" class="brand"><span class="brand-dot" aria-hidden="true"></span>Firecrest</a>
+              <div class="nav-links">
+                <a href="#how">Platform</a>
+                <a href="#timeline">Response</a>
+                <a href="#plans">Plans</a>
+              </div>
+            </nav>
+
+            <div class="steps" aria-label="Onboarding progress">
+              <span class="step on"><b>1</b>Your ridge</span>
+              <span class="step-line" aria-hidden="true"></span>
+              <span class="step"><b>2</b>Towers</span>
+              <span class="step-line" aria-hidden="true"></span>
+              <span class="step"><b>3</b>Lookouts</span>
+            </div>
+
+            <h1 id="hero-title" class="display">
+              <span class="mask"><span>Watch every ridge</span></span>
+              <span class="mask"><span>before the smoke</span></span>
+              <span class="mask"><span>reaches the road.</span></span>
+            </h1>
+            <p class="lede">
+              Firecrest pairs your tower cameras with the people who know the hills. A plume is seen, confirmed and
+              placed on the map in minutes — not when someone on the highway calls it in.
+            </p>
+
+            <form class="form" onsubmit="return false" novalidate>
+              <div class="row2">
+                <label class="field">
+                  <span>Watch area</span>
+                  <input type="text" name="area" value="Kettle Range north slope" autocomplete="off" />
+                </label>
+                <label class="field">
+                  <span>Fire season</span>
+                  <select name="season">
+                    <option>May – October</option>
+                    <option>June – September</option>
+                    <option>Year-round</option>
+                  </select>
+                </label>
+              </div>
+              <label class="field">
+                <span>Work e-mail</span>
+                <input type="email" name="email" placeholder="chief@upperkettle-fpd.org" autocomplete="email" />
+              </label>
+              <label class="check">
+                <input type="checkbox" checked />
+                <span class="box" aria-hidden="true"></span>
+                <span>Invite our volunteer lookouts too</span>
+              </label>
+              <div class="actions">
+                <button type="submit" class="btn-primary">Start watching <span aria-hidden="true">→</span></button>
+                <a href="#timeline" class="btn-quiet">See a live plume</a>
+              </div>
+            </form>
+          </section>
+
+          <!-- Product illustration: topo map, towers, crossing bearings -->
+          <section class="visual" aria-label="Firecrest live map of the Kettle Range">
+            <div class="map">
+              <svg viewBox="0 0 640 520" preserveAspectRatio="xMidYMid slice" aria-hidden="true" class="topo">
+                <defs>
+                  <radialGradient id="fc-plume" cx="50%" cy="50%" r="50%">
+                    <stop offset="0" stop-color="#E4612A" stop-opacity=".55" />
+                    <stop offset=".55" stop-color="#F0956A" stop-opacity=".18" />
+                    <stop offset="1" stop-color="#F0956A" stop-opacity="0" />
+                  </radialGradient>
+                  <linearGradient id="fc-bear" x1="0" x2="1">
+                    <stop offset="0" stop-color="#E4612A" stop-opacity=".1" />
+                    <stop offset="1" stop-color="#E4612A" stop-opacity=".9" />
+                  </linearGradient>
+                </defs>
+                <g class="drift" fill="none" stroke="#C9B9A6" stroke-width="1">
+                  {topoA.map((d, i) => <path d={d} opacity={0.35 + (8 - i) * 0.06} />)}
+                  {topoB.map((d, i) => <path d={d} opacity={0.3 + (5 - i) * 0.08} />)}
+                </g>
+                <path d="M-10 470 C 90 430 160 455 250 420 S 420 380 520 450 S 640 430 660 440" fill="none" stroke="#B9CBB5" stroke-width="10" stroke-linecap="round" opacity=".55" />
+                <path d="M40 520 C 120 470 170 330 300 300 S 520 230 650 260" fill="none" stroke="#fff" stroke-width="3" stroke-dasharray="2 7" stroke-linecap="round" opacity=".9" />
+                <circle cx={plume.x} cy={plume.y} r="70" fill="url(#fc-plume)" />
+                <line class="bearing" x1={towers[0].x} y1={towers[0].y} x2={plume.x} y2={plume.y} stroke="url(#fc-bear)" stroke-width="1.6" stroke-dasharray="5 5" />
+                <line class="bearing b2" x1={towers[1].x} y1={towers[1].y} x2={plume.x} y2={plume.y} stroke="url(#fc-bear)" stroke-width="1.6" stroke-dasharray="5 5" />
+                <ellipse cx={plume.x} cy={plume.y} rx="34" ry="22" fill="none" stroke="#E4612A" stroke-width="1.4" />
+                <circle cx={plume.x} cy={plume.y} r="5" fill="#E4612A" />
+                <circle class="ping" cx={plume.x} cy={plume.y} r="5" fill="none" stroke="#E4612A" stroke-width="1.5" />
+                {towers.map((t) => (
+                  <g>
+                    <circle cx={t.x} cy={t.y} r="13" fill="#FFFCF8" stroke="#E7DCCD" />
+                    <path d={`M${t.x - 5} ${t.y - 3} L${t.x} ${t.y - 7} L${t.x + 5} ${t.y - 3} Z M${t.x - 3.5} ${t.y - 3} V${t.y + 1} H${t.x + 3.5} V${t.y - 3} M${t.x - 2.5} ${t.y + 1} L${t.x - 4} ${t.y + 7} M${t.x + 2.5} ${t.y + 1} L${t.x + 4} ${t.y + 7}`} stroke="#3A332D" stroke-width="1.3" fill="none" stroke-linejoin="round" stroke-linecap="round" />
+                  </g>
+                ))}
+              </svg>
+              <div class="sweep" style={`left:${(towers[0].x / 640) * 100}%;top:${(towers[0].y / 520) * 100}%`} aria-hidden="true"></div>
+
+              <!-- floating product cards -->
+              <div class="float card-alert" style="--d:0s">
+                <div class="alert-head"><span class="live" aria-hidden="true"></span>Possible plume</div>
+                <p class="alert-place">Hollow Peak · north slope</p>
+                <div class="alert-meta">
+                  <span>2 bearings</span><span>±450 m</span><span class="hot">Confirmed</span>
+                </div>
+              </div>
+
+              <div class="float card-tower" style="--d:-2.4s">
+                <div class="cam">
+                  <svg viewBox="0 0 200 90" aria-hidden="true">
+                    <defs><linearGradient id="fc-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F7E3D1" /><stop offset="1" stop-color="#FBF4EC" /></linearGradient></defs>
+                    <rect width="200" height="90" fill="url(#fc-sky)" />
+                    <path d="M0 70 L30 52 L52 60 L84 38 L112 56 L140 44 L172 58 L200 50 V90 H0Z" fill="#D9CDBE" />
+                    <path d="M0 80 L40 66 L76 74 L120 62 L160 72 L200 64 V90 H0Z" fill="#C3B4A2" />
+                    <path class="smoke" d="M128 44 C 122 34 132 28 126 18 C 122 10 130 4 128 0" stroke="#A89A8C" stroke-width="5" fill="none" stroke-linecap="round" opacity=".55" />
+                    <rect x="110" y="0" width="40" height="50" fill="none" stroke="#E4612A" stroke-width="1.5" rx="3" />
+                  </svg>
+                  <span class="cam-tag">T4 · 304°</span>
+                </div>
+                <div class="tower-row">
+                  <div><b>Pine Ridge</b><span>360° sweep · every 90 s</span></div>
+                  <span class="pill">0.41</span>
+                </div>
+              </div>
+
+              <div class="float card-wx" style="--d:-1.2s">
+                <span class="k">Fire weather</span>
+                <div class="wx-big">High<small> · 64</small></div>
+                <div class="wx-bar" aria-hidden="true"><i style="width:64%"></i></div>
+                <div class="wx-meta"><span>NW 14 km/h</span><span>RH 22 %</span></div>
+              </div>
+
+              <div class="float card-chip" style="--d:-3.1s">
+                <span class="avatar" aria-hidden="true">M</span>
+                <span><b>Mara O.</b> confirmed from Cedar Gap</span>
+              </div>
+            </div>
+          </section>
+        </div>
+      </header>
+
+      <!-- ============ TRUST STRIP ============ -->
+      <section class="trust" aria-label="Districts on Firecrest">
+        <p>Watching 2.1 million acres with 140 fire districts</p>
+        <ul>{districts.map((d) => <li>{d}</li>)}</ul>
+      </section>
+
+      <!-- ============ BENTO ============ -->
+      <section id="how" class="block">
+        <div class="head reveal">
+          <span class="eyebrow">Platform</span>
+          <h2 class="h2">Cameras notice. People decide.<br /><span class="mute">Firecrest keeps them talking.</span></h2>
+        </div>
+
+        <div class="bento">
+          <article class="tile t-a reveal">
+            <div class="tile-top"><span class="k">Pillar</span><span class="num">01</span></div>
+            <h3>Towers that sweep, not stare.</h3>
+            <p>Any PTZ or fixed camera on the ridge. Firecrest sets the sweep, keeps a clean-sky baseline per heading and flags change, not motion.</p>
+            <div class="mini-sweep" aria-hidden="true"><i></i><b></b></div>
+          </article>
+
+          <article class="tile t-b reveal">
+            <div class="tile-top"><span class="k">Pillar</span><span class="num">02</span></div>
+            <h3>Lookouts on call.</h3>
+            <p>Volunteers and retired crews confirm crops from their phones. Shifts follow the fire-weather forecast, so nobody watches a wet Tuesday.</p>
+            <ul class="roster">
+              <li><span class="avatar">M</span>Mara O.<em>Cedar Gap</em><i class="on">On shift</i></li>
+              <li><span class="avatar alt">J</span>Jonah R.<em>Pine Ridge</em><i>18:00</i></li>
+              <li><span class="avatar alt2">E</span>Eli V.<em>Hollow Peak</em><i>Tomorrow</i></li>
+            </ul>
+          </article>
+
+          <article class="tile t-c stat reveal">
+            <span class="k">Median, 2025 season</span>
+            <div class="stat-num">4<small>m</small> 12<small>s</small></div>
+            <p>from the first pixel of smoke to a packet on the dispatcher's screen.</p>
+            <div class="spark" aria-hidden="true">
+              <svg viewBox="0 0 240 60" preserveAspectRatio="none"><path d="M0 12 L30 18 L60 15 L90 26 L120 30 L150 38 L180 42 L210 47 L240 50" fill="none" stroke="#E4612A" stroke-width="2" /><path d="M0 12 L30 18 L60 15 L90 26 L120 30 L150 38 L180 42 L210 47 L240 50 V60 H0Z" fill="#E4612A" opacity=".08" /></svg>
+            </div>
+          </article>
+
+          <article class="tile t-d reveal">
+            <div class="tile-top"><span class="k">Pillar</span><span class="num">03</span></div>
+            <h3>Two bearings, one place.</h3>
+            <p>Each confirmation carries a heading. Where they cross, Firecrest draws the ellipse and pulls parcel, fuel model and the nearest gate.</p>
+          </article>
+
+          <article class="tile t-e reveal">
+            <span class="k">Fire-weather index · today</span>
+            <div class="fwi" role="img" aria-label="Fire-weather index bands, today High at 64">
+              <span>Low</span><span>Moderate</span><span class="cur">High</span><span>Very high</span><span>Extreme</span>
+            </div>
+            <div class="fwi-foot"><span>Shifts scheduled: <b>6 lookouts</b></span><span>Sweep: <b>every 60 s</b></span></div>
+          </article>
+
+          <article class="tile t-f reveal">
+            <div class="tile-top"><span class="k">Integrations</span><span class="num">04</span></div>
+            <h3>Lands in the tools you already run.</h3>
+            <div class="chips">
+              <span>County CAD</span><span>ArcGIS</span><span>Radio patch</span><span>SMS paging</span><span>NWS red-flag</span>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- ============ TIMELINE ============ -->
+      <section id="timeline" class="block">
+        <div class="split">
+          <div class="head reveal sticky-head">
+            <span class="eyebrow">Response</span>
+            <h2 class="h2">A plume, minute by minute.</h2>
+            <p class="lede">From Hollow Peak, 14 August 2025. Real sequence, names changed. No 911 call had come in when the engine rolled.</p>
+            <div class="clock">
+              <span class="k">First pixel → dispatch</span>
+              <b>04:08</b>
+            </div>
+          </div>
+          <ol class="tl">
+            {timeline.map((s, i) => (
+              <li class="reveal" style={`--i:${i}`}>
+                <span class="tl-dot" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+                <div class="tl-card">
+                  <time>{s.t}</time>
+                  <h3>{s.title}</h3>
+                  <p>{s.body}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      <!-- ============ PLANS ============ -->
+      <section id="plans" class="block">
+        <div class="head center reveal">
+          <span class="eyebrow">Plans</span>
+          <h2 class="h2">Priced per tower, free for the people on the hill.</h2>
+        </div>
+        <div class="plans">
+          {plans.map((p) => (
+            <article class={`plan reveal ${p.featured ? 'featured' : ''}`}>
+              <div class="plan-top">
+                <h3>{p.name}</h3>
+                {p.featured && <span class="badge">Most districts</span>}
+              </div>
+              <div class="price">{p.price}<small>{p.per}</small></div>
+              <p>{p.body}</p>
+              <ul>{p.items.map((it) => <li>{it}</li>)}</ul>
+              <a href="#top" class={p.featured ? 'btn-primary full' : 'btn-soft full'}>{p.cta}</a>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <!-- ============ CTA ============ -->
+      <section class="cta reveal">
+        <div>
+          <span class="eyebrow">Season opens in 34 days</span>
+          <h2 class="h2">Put a second pair of eyes on the ridge.</h2>
+          <p class="lede">Most districts are watching within a week of their first call. We bring the mounts, you bring the lookouts.</p>
+        </div>
+        <form class="cta-form" onsubmit="return false" novalidate>
+          <label class="sr" for="cta-email">Work e-mail</label>
+          <input id="cta-email" type="email" placeholder="Work e-mail" />
+          <button type="submit" class="btn-primary">Book a ridge walk <span aria-hidden="true">→</span></button>
+        </form>
+      </section>
+
+      <footer class="foot">
+        <a href="#top" class="brand"><span class="brand-dot" aria-hidden="true"></span>Firecrest</a>
+        <span>Fire watch for districts, rangers and the volunteers who climb the towers.</span>
+        <span class="mute">© 2026 Firecrest Systems · a fictional company</span>
+      </footer>
+    </div>
+    <BackPill />
+
+    <script>
+      const els = document.querySelectorAll<HTMLElement>('.reveal');
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (reduce || !('IntersectionObserver' in window)) {
+        els.forEach((el) => el.classList.add('in'));
+      } else {
+        const io = new IntersectionObserver(
+          (entries) => entries.forEach((e) => e.isIntersecting && (e.target.classList.add('in'), io.unobserve(e.target))),
+          { rootMargin: '0px 0px -8% 0px' },
+        );
+        els.forEach((el) => io.observe(el));
+      }
+      // Pause ambient loops while the hero is off-screen.
+      const hero = document.querySelector('.visual');
+      if (hero && 'IntersectionObserver' in window) {
+        new IntersectionObserver(([e]) => hero.classList.toggle('paused', !e.isIntersecting)).observe(hero);
+      }
+    </script>
+  </body>
+</html>
+
+<style is:global>
+  .fc {
+    --paper: #f3efe8;
+    --shell: #faf7f2;
+    --card: #fdfbf7;
+    --stone: #ebe4d9;
+    --line: #e6ddd0;
+    --ink: #1d1916;
+    --ink2: #4a423b;
+    --mute: #8a8077;
+    --or: #e0612a;
+    --or-d: #c9501d;
+    --or-soft: #fbe2d1;
+    margin: 0;
+    color: var(--ink);
+    font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    font-weight: 400;
+    background:
+      radial-gradient(1200px 700px at 70% -10%, #fbf3ea 0%, transparent 60%),
+      radial-gradient(900px 600px at 0% 40%, #f6efe6 0%, transparent 55%),
+      var(--paper);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+</style>
+
+<style>
+  .page { max-width: 1320px; margin: 0 auto; padding: 24px 24px 40px; }
+  a { color: inherit; text-decoration: none; }
+  .mute { color: var(--mute); }
+  .k { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--mute); font-weight: 500; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+  /* ---- master container with gradient border ---- */
+  .shell {
+    position: relative; border-radius: 40px; padding: 14px;
+    background: linear-gradient(180deg, #fffdfa, var(--shell));
+    box-shadow: 0 1px 0 #fff inset, 0 30px 80px -40px rgb(140 80 30 / .28), 0 2px 6px rgb(60 40 20 / .04);
+  }
+  .shell::before {
+    content: ''; position: absolute; inset: 0; border-radius: inherit; padding: 1px; pointer-events: none;
+    background: linear-gradient(160deg, #fff, #eadfce 40%, #f3c7a6 75%, #fff);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude;
+  }
+  .hero { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 14px; min-height: 832px; }
+
+  .form-side {
+    border-radius: 28px; padding: 32px 40px 40px; display: flex; flex-direction: column;
+    background: linear-gradient(170deg, #fffdf9 0%, #f9f3eb 100%);
+    border: 1px solid #efe7dc;
+  }
+  .nav { display: flex; align-items: center; justify-content: space-between; }
+  .brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 600; font-size: 15px; letter-spacing: -.01em; }
+  .brand-dot { width: 16px; height: 16px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #f5a172, var(--or) 60%, var(--or-d)); box-shadow: 0 2px 8px rgb(224 97 42 / .4); }
+  .nav-links { display: flex; gap: 22px; font-size: 13.5px; color: var(--ink2); }
+  .nav-links a { transition: color .2s; }
+  .nav-links a:hover { color: var(--or); }
+
+  .steps { display: flex; align-items: center; gap: 10px; margin-top: 56px; font-size: 12.5px; color: var(--mute); }
+  .step { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
+  .step b { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; font-size: 11px; font-weight: 600; border: 1px solid var(--line); background: var(--card); color: var(--mute); }
+  .step.on { color: var(--ink); font-weight: 500; }
+  .step.on b { background: var(--or); border-color: var(--or); color: #fff; box-shadow: 0 0 0 4px var(--or-soft); }
+  .step-line { flex: 1; max-width: 40px; height: 1px; background: var(--line); }
+
+  .display { font-family: 'Inter Tight', 'Inter', sans-serif; font-weight: 500; font-size: clamp(36px, 3.8vw, 56px); line-height: 1.02; letter-spacing: -.035em; margin: 28px 0 0; }
+  .mask { display: block; overflow: hidden; padding-bottom: .06em; }
+  .mask > span { display: block; animation: rise 1s cubic-bezier(.2, .7, .1, 1) both; }
+  .mask:nth-child(2) > span { animation-delay: .1s; }
+  .mask:nth-child(3) > span { animation-delay: .2s; }
+  @keyframes rise { from { transform: translateY(105%); } }
+  .lede { font-size: 15.5px; line-height: 1.6; color: var(--ink2); font-weight: 300; max-width: 46ch; margin: 18px 0 0; }
+
+  .form { margin-top: auto; padding-top: 32px; display: grid; gap: 14px; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .field { display: grid; gap: 7px; font-size: 12px; color: var(--ink2); font-weight: 500; }
+  .field input, .field select, .cta-form input {
+    font: inherit; font-size: 14.5px; font-weight: 400; color: var(--ink); width: 100%; box-sizing: border-box;
+    height: 48px; padding: 0 16px; border-radius: 14px; border: 1px solid var(--line);
+    background: linear-gradient(180deg, #fbf7f1, #fffdfa); box-shadow: 0 1px 2px rgb(60 40 20 / .04) inset;
+    transition: border-color .25s, box-shadow .25s, background .25s; outline: none; appearance: none;
+  }
+  .field select { background-image: linear-gradient(45deg, transparent 50%, var(--mute) 50%), linear-gradient(135deg, var(--mute) 50%, transparent 50%), linear-gradient(180deg, #fbf7f1, #fffdfa); background-position: calc(100% - 20px) 21px, calc(100% - 15px) 21px, 0 0; background-size: 5px 5px, 5px 5px, 100% 100%; background-repeat: no-repeat; }
+  .field input::placeholder, .cta-form input::placeholder { color: #b3a89c; }
+  .field input:hover, .field select:hover, .cta-form input:hover { border-color: #ddcfbd; }
+  .field input:focus, .field select:focus, .cta-form input:focus { border-color: #eea47e; background: #fffdfa; box-shadow: 0 0 0 4px rgb(224 97 42 / .12); }
+
+  .check { display: flex; align-items: center; gap: 10px; font-size: 13.5px; color: var(--ink2); cursor: pointer; }
+  .check input { position: absolute; opacity: 0; }
+  .check .box { width: 18px; height: 18px; border-radius: 6px; border: 1px solid var(--line); background: var(--card); display: grid; place-items: center; transition: .2s; }
+  .check input:checked + .box { background: var(--or); border-color: var(--or); }
+  .check input:checked + .box::after { content: ''; width: 8px; height: 4px; border: 2px solid #fff; border-top: 0; border-right: 0; transform: rotate(-45deg) translate(1px, -1px); }
+  .check input:focus-visible + .box { box-shadow: 0 0 0 4px rgb(224 97 42 / .2); }
+
+  .actions { display: flex; align-items: center; gap: 18px; margin-top: 6px; flex-wrap: wrap; }
+  .btn-primary, .btn-soft {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 48px; padding: 0 22px; border-radius: 999px;
+    font: 500 14.5px 'Inter', sans-serif; cursor: pointer; border: 0; transition: transform .2s, box-shadow .25s, background .25s;
+  }
+  .btn-primary { color: #fff; background: linear-gradient(180deg, #ea7440, var(--or) 55%, var(--or-d)); box-shadow: 0 1px 0 rgb(255 255 255 / .35) inset, 0 8px 20px -8px rgb(224 97 42 / .7); }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 1px 0 rgb(255 255 255 / .35) inset, 0 12px 26px -8px rgb(224 97 42 / .75); }
+  .btn-soft { color: var(--ink); background: var(--stone); }
+  .btn-soft:hover { background: #e3dacc; }
+  .btn-quiet { font-size: 14px; color: var(--or); font-weight: 500; }
+  .btn-quiet:hover { text-decoration: underline; text-underline-offset: 4px; }
+  :is(.btn-primary, .btn-soft, .btn-quiet, a):focus-visible { outline: 2px solid var(--or); outline-offset: 3px; }
+  .full { width: 100%; box-sizing: border-box; }
+
+  /* ---- illustration zone ---- */
+  .visual { border-radius: 28px; overflow: hidden; position: relative; border: 1px solid #f0e2d2; }
+  .map {
+    position: absolute; inset: 0;
+    background: radial-gradient(70% 60% at 55% 40%, #fdf1e5 0%, #f7e7d6 55%, #f1dcc6 100%);
+  }
+  .topo { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .drift { animation: drift 24s ease-in-out infinite alternate; transform-origin: 50% 50%; }
+  @keyframes drift { to { transform: translate(6px, -4px) scale(1.012); } }
+  .bearing { animation: dash 2.6s linear infinite; }
+  .b2 { animation-duration: 3.1s; }
+  @keyframes dash { to { stroke-dashoffset: -40; } }
+  .ping { transform-box: fill-box; transform-origin: center; animation: ping 2.4s ease-out infinite; }
+  @keyframes ping { from { transform: scale(1); opacity: .9; } to { transform: scale(7); opacity: 0; } }
+  .sweep {
+    position: absolute; width: 360px; height: 360px; translate: -50% -50%; border-radius: 50%; pointer-events: none;
+    background: conic-gradient(from 0deg, rgb(224 97 42 / .22), rgb(224 97 42 / 0) 50deg, transparent 360deg);
+    -webkit-mask: radial-gradient(circle, #000 30%, transparent 70%); mask: radial-gradient(circle, #000 30%, transparent 70%);
+    animation: spin 9s linear infinite;
+  }
+  @keyframes spin { to { rotate: 360deg; } }
+
+  .float {
+    position: absolute; border-radius: 20px; background: rgb(255 253 249 / .82); backdrop-filter: blur(14px) saturate(1.2);
+    border: 1px solid rgb(255 255 255 / .9); box-shadow: 0 20px 40px -20px rgb(140 70 20 / .35), 0 2px 6px rgb(80 50 20 / .06);
+    animation: bob 7s ease-in-out infinite; animation-delay: var(--d);
+  }
+  @keyframes bob { 50% { translate: 0 -8px; } }
+  .card-alert { top: 7%; left: 7%; width: 248px; padding: 16px 18px; }
+  .alert-head { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; color: var(--or); letter-spacing: .02em; }
+  .live { width: 8px; height: 8px; border-radius: 50%; background: var(--or); box-shadow: 0 0 0 4px var(--or-soft); animation: blink 1.6s ease-in-out infinite; }
+  @keyframes blink { 50% { box-shadow: 0 0 0 7px rgb(224 97 42 / .08); } }
+  .alert-place { margin: 8px 0 12px; font-size: 16px; font-weight: 500; letter-spacing: -.01em; }
+  .alert-meta { display: flex; gap: 6px; flex-wrap: wrap; font-size: 11.5px; }
+  .alert-meta span { padding: 4px 9px; border-radius: 999px; background: var(--stone); color: var(--ink2); }
+  .alert-meta .hot { background: var(--or-soft); color: var(--or-d); font-weight: 500; }
+
+  .card-tower { right: 6%; bottom: 7%; width: 280px; padding: 10px; }
+  .cam { position: relative; border-radius: 13px; overflow: hidden; line-height: 0; }
+  .cam svg { width: 100%; height: auto; }
+  .smoke { animation: waft 4s ease-in-out infinite alternate; }
+  @keyframes waft { to { transform: translateX(3px); opacity: .8; } }
+  .cam-tag { position: absolute; left: 8px; top: 8px; line-height: 1; font-size: 10.5px; padding: 5px 8px; border-radius: 999px; background: rgb(255 255 255 / .85); color: var(--ink2); font-weight: 500; }
+  .tower-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 8px 6px; }
+  .tower-row b { display: block; font-weight: 500; font-size: 14px; }
+  .tower-row span { font-size: 12px; color: var(--mute); }
+  .pill { font-size: 11.5px !important; color: var(--or-d) !important; background: var(--or-soft); padding: 4px 9px; border-radius: 999px; font-weight: 500; }
+
+  .card-wx { right: 7%; top: 9%; width: 188px; padding: 16px 18px; }
+  .wx-big { font-family: 'Inter Tight', sans-serif; font-size: 30px; font-weight: 500; letter-spacing: -.03em; margin-top: 8px; }
+  .wx-big small { font-size: 15px; color: var(--mute); font-weight: 400; }
+  .wx-bar { height: 6px; border-radius: 6px; background: var(--stone); margin: 10px 0 10px; overflow: hidden; }
+  .wx-bar i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #f3c09f, var(--or)); }
+  .wx-meta { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--mute); }
+
+  .card-chip { left: 6%; bottom: 10%; display: flex; align-items: center; gap: 10px; padding: 8px 16px 8px 8px; border-radius: 999px; font-size: 13px; color: var(--ink2); }
+  .card-chip b { color: var(--ink); font-weight: 500; }
+  .avatar { display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; font-size: 12px; font-weight: 600; color: #fff; background: linear-gradient(135deg, #f2a06f, var(--or)); flex: none; }
+  .avatar.alt { background: linear-gradient(135deg, #cdbba5, #a6927b); }
+  .avatar.alt2 { background: linear-gradient(135deg, #b9c7b0, #8ea284); }
+
+  .visual.paused *, .visual.paused { animation-play-state: paused !important; }
+
+  /* ---- trust ---- */
+  .trust { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 34px 16px; flex-wrap: wrap; }
+  .trust p { margin: 0; font-size: 13px; color: var(--mute); }
+  .trust ul { display: flex; flex-wrap: wrap; gap: 10px 30px; list-style: none; margin: 0; padding: 0; }
+  .trust li { font-family: 'Inter Tight', sans-serif; font-weight: 500; font-size: 15px; color: #a3978a; letter-spacing: -.01em; }
+
+  /* ---- shared section ---- */
+  .block { padding: 72px 0 24px; }
+  .head { max-width: 640px; margin-bottom: 36px; }
+  .head.center { margin-inline: auto; text-align: center; }
+  .eyebrow { display: inline-flex; align-items: center; gap: 8px; font-size: 12.5px; font-weight: 500; color: var(--or); }
+  .eyebrow::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--or); }
+  .h2 { font-family: 'Inter Tight', sans-serif; font-weight: 500; font-size: clamp(30px, 3.4vw, 46px); line-height: 1.06; letter-spacing: -.03em; margin: 14px 0 0; }
+
+  .reveal { opacity: 0; translate: 0 18px; transition: opacity .8s ease, translate .8s cubic-bezier(.2, .7, .1, 1); transition-delay: calc(var(--i, 0) * 90ms); }
+  .reveal.in { opacity: 1; translate: 0 0; }
+
+  /* ---- bento ---- */
+  .bento { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 14px; }
+  .tile {
+    position: relative; border-radius: 26px; padding: 26px 28px; background: linear-gradient(180deg, #fffdfa, #fbf7f1);
+    border: 1px solid #efe7dc; box-shadow: 0 14px 34px -24px rgb(140 80 30 / .3); overflow: hidden;
+  }
+  .tile h3 { font-size: 21px; font-weight: 500; letter-spacing: -.02em; margin: 26px 0 10px; }
+  .tile p { font-size: 14.5px; line-height: 1.6; color: var(--ink2); font-weight: 300; margin: 0; }
+  .tile-top { display: flex; justify-content: space-between; align-items: center; }
+  .num { font-size: 13px; color: var(--or); font-weight: 500; }
+  .t-a { grid-column: span 5; min-height: 300px; background: linear-gradient(160deg, #fdf3e9, #f8e6d5); }
+  .t-b { grid-column: span 4; }
+  .t-c { grid-column: span 3; }
+  .t-d { grid-column: span 4; }
+  .t-e { grid-column: span 5; }
+  .t-f { grid-column: span 3; }
+
+  .mini-sweep { position: absolute; right: -60px; bottom: -60px; width: 220px; height: 220px; border-radius: 50%; border: 1px solid #efd3bc; }
+  .mini-sweep::before, .mini-sweep::after { content: ''; position: absolute; inset: 30px; border-radius: 50%; border: 1px solid #efd3bc; }
+  .mini-sweep::after { inset: 65px; }
+  .mini-sweep i { position: absolute; inset: 0; border-radius: 50%; background: conic-gradient(rgb(224 97 42 / .28), transparent 60deg); animation: spin 6s linear infinite; }
+  .mini-sweep b { position: absolute; left: 50%; top: 50%; width: 10px; height: 10px; margin: -5px; border-radius: 50%; background: var(--or); }
+
+  .roster { list-style: none; margin: 20px 0 0; padding: 0; display: grid; gap: 8px; }
+  .roster li { display: flex; align-items: center; gap: 10px; font-size: 13.5px; font-weight: 500; padding: 8px 10px; border-radius: 14px; background: var(--card); border: 1px solid #f0e8de; }
+  .roster em { font-style: normal; color: var(--mute); font-weight: 400; font-size: 12.5px; }
+  .roster i { margin-left: auto; font-style: normal; font-size: 11.5px; color: var(--mute); font-weight: 400; }
+  .roster i.on { color: var(--or-d); background: var(--or-soft); padding: 3px 8px; border-radius: 999px; font-weight: 500; }
+
+  .stat { display: flex; flex-direction: column; }
+  .stat-num { font-family: 'Inter Tight', sans-serif; font-size: 56px; font-weight: 500; letter-spacing: -.05em; margin: 20px 0 8px; line-height: 1; }
+  .stat-num small { font-size: 22px; color: var(--or); letter-spacing: 0; margin-left: 2px; }
+  .spark { margin-top: auto; padding-top: 18px; }
+  .spark svg { width: 100%; height: 56px; display: block; }
+
+  .fwi { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; margin-top: 20px; }
+  .fwi span { font-size: 11.5px; padding: 44px 8px 10px; border-radius: 12px; color: var(--ink2); background: #f1ebe2; }
+  .fwi span:nth-child(2) { background: #f5e3d2; }
+  .fwi span:nth-child(3) { background: #f6caa8; }
+  .fwi span:nth-child(4) { background: #eea37b; color: #fff; }
+  .fwi span:nth-child(5) { background: #d9562a; color: #fff; }
+  .fwi .cur { outline: 2px solid var(--or); outline-offset: 2px; font-weight: 600; color: var(--ink); }
+  .fwi-foot { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-top: 18px; font-size: 13px; color: var(--mute); }
+  .fwi-foot b { color: var(--ink); font-weight: 500; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chips span { font-size: 12.5px; padding: 6px 11px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); color: var(--ink2); }
+
+  /* ---- timeline ---- */
+  .split { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 56px; align-items: start; }
+  .sticky-head { position: sticky; top: 40px; }
+  .clock { margin-top: 30px; display: inline-flex; flex-direction: column; gap: 6px; padding: 18px 22px; border-radius: 20px; background: var(--card); border: 1px solid #efe7dc; box-shadow: 0 14px 30px -22px rgb(140 80 30 / .35); }
+  .clock b { font-family: 'Inter Tight', sans-serif; font-size: 40px; font-weight: 500; letter-spacing: -.03em; color: var(--or); font-variant-numeric: tabular-nums; }
+  .tl { list-style: none; margin: 0; padding: 0; position: relative; display: grid; gap: 14px; }
+  .tl::before { content: ''; position: absolute; left: 19px; top: 20px; bottom: 20px; width: 1px; background: linear-gradient(var(--or), var(--line)); }
+  .tl li { display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 18px; }
+  .tl-dot { position: relative; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: var(--card); border: 1px solid var(--line); font-size: 12px; font-weight: 600; color: var(--or); }
+  .tl li:last-child .tl-dot { background: var(--or); color: #fff; border-color: var(--or); box-shadow: 0 0 0 5px var(--or-soft); }
+  .tl-card { border-radius: 22px; padding: 20px 24px; background: linear-gradient(180deg, #fffdfa, #fbf7f1); border: 1px solid #efe7dc; }
+  .tl-card time { font-size: 12px; color: var(--mute); font-variant-numeric: tabular-nums; letter-spacing: .04em; }
+  .tl-card h3 { font-size: 18px; font-weight: 500; margin: 6px 0 6px; letter-spacing: -.015em; }
+  .tl-card p { margin: 0; font-size: 14.5px; line-height: 1.6; color: var(--ink2); font-weight: 300; }
+
+  /* ---- plans ---- */
+  .plans { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; align-items: stretch; }
+  .plan { position: relative; display: flex; flex-direction: column; border-radius: 28px; padding: 28px; background: linear-gradient(180deg, #fffdfa, #fbf7f1); border: 1px solid #efe7dc; }
+  .plan.featured { background: linear-gradient(170deg, #fff6ee, #fbe9da); border-color: #f3cfb3; box-shadow: 0 24px 50px -28px rgb(224 97 42 / .5); }
+  .plan-top { display: flex; align-items: center; justify-content: space-between; }
+  .plan h3 { margin: 0; font-size: 16px; font-weight: 500; }
+  .badge { font-size: 11.5px; color: #fff; background: var(--or); padding: 4px 10px; border-radius: 999px; font-weight: 500; }
+  .price { font-family: 'Inter Tight', sans-serif; font-size: 44px; font-weight: 500; letter-spacing: -.04em; margin: 22px 0 6px; display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .price small { font-family: 'Inter', sans-serif; font-size: 13px; color: var(--mute); letter-spacing: 0; font-weight: 400; }
+  .plan p { margin: 0; font-size: 14.5px; line-height: 1.6; color: var(--ink2); font-weight: 300; }
+  .plan ul { list-style: none; margin: 22px 0 26px; padding: 18px 0 0; border-top: 1px solid var(--line); display: grid; gap: 10px; font-size: 14px; color: var(--ink2); }
+  .plan li { display: flex; gap: 10px; align-items: center; }
+  .plan li::before { content: ''; width: 16px; height: 16px; flex: none; border-radius: 50%; background: var(--or-soft) radial-gradient(circle, var(--or) 0 3px, transparent 3.5px); }
+  .plan a { margin-top: auto; }
+
+  /* ---- cta + footer ---- */
+  .cta { margin-top: 72px; display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 40px; align-items: end; border-radius: 36px; padding: 48px; background: radial-gradient(80% 120% at 100% 100%, #f9d9c1 0%, #fbeee2 45%, #fdf8f2 100%); border: 1px solid #f1dcc9; }
+  .cta-form { display: flex; gap: 8px; padding: 6px; border-radius: 999px; background: #fffdfa; border: 1px solid var(--line); box-shadow: 0 10px 30px -18px rgb(140 70 20 / .4); }
+  .cta-form input { border: 0; background: transparent; box-shadow: none; height: 48px; flex: 1; min-width: 0; }
+  .cta-form input:focus { box-shadow: none; background: transparent; }
+  .cta-form:focus-within { box-shadow: 0 0 0 4px rgb(224 97 42 / .12), 0 10px 30px -18px rgb(140 70 20 / .4); border-color: #eea47e; }
+  .cta-form .btn-primary { flex: none; }
+  .foot { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; padding: 36px 8px 8px; font-size: 13px; color: var(--ink2); }
+  .foot .mute { margin-left: auto; }
+
+  /* ---- responsive ---- */
+  @media (max-width: 1100px) {
+    .hero { grid-template-columns: minmax(0, 1fr); min-height: 0; }
+    .visual { min-height: 620px; }
+    .form { margin-top: 0; }
+    .t-a, .t-b, .t-c, .t-d, .t-e, .t-f { grid-column: span 6; }
+    .split { grid-template-columns: minmax(0, 1fr); gap: 28px; }
+    .sticky-head { position: static; }
+  }
+  @media (max-width: 760px) {
+    .page { padding: 12px 12px 32px; }
+    .shell { border-radius: 30px; padding: 8px; }
+    .form-side { padding: 22px 20px 26px; border-radius: 22px; }
+    .visual { border-radius: 22px; min-height: 560px; }
+    .nav-links { gap: 14px; font-size: 13px; }
+    .steps { margin-top: 32px; }
+    .row2 { grid-template-columns: minmax(0, 1fr); }
+    .card-alert { width: 210px; left: 5%; top: 5%; }
+    .card-wx { display: none; }
+    .card-tower { width: 230px; right: 5%; bottom: 5%; }
+    .card-chip { display: none; }
+    .alert-place { font-size: 15px; margin: 6px 0 10px; }
+    .card-alert { padding: 12px 14px; }
+    .sweep { width: 240px; height: 240px; }
+    .t-a, .t-b, .t-c, .t-d, .t-e, .t-f { grid-column: span 12; }
+    .plans { grid-template-columns: minmax(0, 1fr); }
+    .cta { grid-template-columns: minmax(0, 1fr); padding: 28px 22px; border-radius: 26px; }
+    .cta-form { flex-direction: column; border-radius: 22px; }
+    .foot .mute { margin-left: 0; }
+    .trust { justify-content: flex-start; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    .reveal { opacity: 1; translate: none; }
+  }
+</style>

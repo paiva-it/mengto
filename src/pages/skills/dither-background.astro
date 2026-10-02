@@ -1,0 +1,623 @@
+---
+import '../../styles/global.css';
+import BackPill from '../../components/BackPill.astro';
+
+const board = [
+  {
+    time: '21:47',
+    state: 'Active',
+    tone: 'live',
+    title: 'Transceiver signal, Couloir Nord',
+    meta: '2,860 m · Team B + K9 Brisa · on foot from Col Rasa',
+    eta: 'ETA 18 min',
+  },
+  {
+    time: '19:12',
+    state: 'Standby',
+    tone: 'wait',
+    title: 'Overdue party of two, Sella traverse',
+    meta: 'Last phone ping 17:40 near Bivacco Lame',
+    eta: 'Hut called',
+  },
+  {
+    time: '14:05',
+    state: 'Closed',
+    tone: 'done',
+    title: 'Ankle fracture below Passo Lame',
+    meta: 'Splinted, winched, Ospedale Cerva 14:52',
+    eta: '47 min',
+  },
+];
+
+const readouts = [
+  ['Wind, summit', '54 km/h NW'],
+  ['Freezing level', '2,300 m'],
+  ['Avalanche danger', '3 / 5'],
+];
+
+const steps = [
+  ['00:00', 'The call', 'You dial 112 and say “mountain rescue”. The operator patches you to our duty controller, who stays on the line and pulls your position from the phone.'],
+  ['00:04', 'The page', 'Every member within reach gets one pager tone. The first six who acknowledge become the hasty team; the rest load the vehicles.'],
+  ['00:11', 'Moving', 'The hasty team leaves the station with medical kit, rope and a hound. If the ceiling allows, the helicopter lifts from Cerva at the same minute.'],
+  ['On scene', 'The carry-out', 'Most rescues end on a stretcher, not a winch. A carry-out from 2,400 m takes twelve people and four hours, whatever the weather does.'],
+];
+
+const stats = [
+  ['312', 'callouts last season'],
+  ['7 min', 'median, page to moving'],
+  ['41', 'volunteers, 2 search dogs'],
+  ['0', 'invoices sent, ever'],
+];
+
+const checklist = [
+  'Tell someone your route and the time you will be back.',
+  'Carry a charged phone and a headtorch, even for a lunch walk.',
+  'Read the 08:00 avalanche bulletin, not yesterday’s.',
+  'Turn around at the time you set, not at the summit.',
+];
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Orca Massif Rescue — Volunteer Mountain Rescue, Val d’Orca</title>
+    <meta
+      name="description"
+      content="A volunteer mountain rescue team covering 640 km² of the Orca massif. Forty-one members, two search dogs, on call around the clock."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=Geist+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <BackPill />
+
+    <!-- Ordered-dither field: decorative, fixed behind everything. -->
+    <canvas class="dither-background" data-dither-background aria-hidden="true"></canvas>
+
+    <div class="page-content">
+      <header class="bar wrap">
+        <a href="#top" class="brand" id="top">
+          <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true" shape-rendering="crispEdges">
+            <rect x="9" y="2" width="4" height="4" fill="currentColor"></rect>
+            <rect x="5" y="8" width="4" height="4" fill="currentColor" opacity=".7"></rect>
+            <rect x="13" y="8" width="4" height="4" fill="currentColor" opacity=".7"></rect>
+            <rect x="1" y="14" width="4" height="4" fill="currentColor" opacity=".4"></rect>
+            <rect x="9" y="14" width="4" height="4" fill="currentColor" opacity=".55"></rect>
+            <rect x="17" y="14" width="4" height="4" fill="currentColor" opacity=".4"></rect>
+          </svg>
+          <span>Orca Massif Rescue</span>
+        </a>
+        <nav aria-label="Primary">
+          <a href="#callout">How a callout runs</a>
+          <a href="#season">Season</a>
+          <a href="#before">Before you go</a>
+        </nav>
+        <a class="sos" href="tel:112"><span class="dot" aria-hidden="true"></span>Emergency 112</a>
+      </header>
+
+      <main>
+        <section class="hero wrap" aria-labelledby="hero-title">
+          <div class="hero-copy">
+            <p class="eyebrow">Station 03 · Val d’Orca · 1,412 m</p>
+            <h1 id="hero-title">We climb in when the mountain closes.</h1>
+            <p class="lede">
+              A volunteer rescue team covering 640 km² of the Orca massif. Forty-one members, two search dogs and a
+              winch helicopter on call, every hour of the year.
+            </p>
+            <div class="ctas">
+              <a class="btn primary" href="tel:112">Call 112, ask for mountain rescue</a>
+              <a class="btn" href="#callout">How a callout runs</a>
+            </div>
+
+            <fieldset class="conditions">
+              <legend>Conditions on the field</legend>
+              <div class="seg" role="radiogroup" aria-label="Weather on the background">
+                <button type="button" role="radio" aria-checked="false" data-mode="clear">Clear</button>
+                <button type="button" role="radio" aria-checked="true" data-mode="spindrift">Spindrift</button>
+                <button type="button" role="radio" aria-checked="false" data-mode="whiteout">Whiteout</button>
+              </div>
+              <p class="sr-only" aria-live="polite" data-mode-status></p>
+            </fieldset>
+          </div>
+
+          <aside class="board" aria-label="Live callout board">
+            <div class="board-head">
+              <span class="mono">Callout board</span>
+              <span class="mono live"><span class="dot" aria-hidden="true"></span>Live · Thu 2 Oct</span>
+            </div>
+            <ol class="alerts">
+              {
+                board.map((a) => (
+                  <li class={`alert ${a.tone}`}>
+                    <span class="mono t">{a.time}</span>
+                    <div class="alert-body">
+                      <p class="alert-title">{a.title}</p>
+                      <p class="alert-meta">{a.meta}</p>
+                    </div>
+                    <div class="alert-side">
+                      <span class="tag">{a.state}</span>
+                      <span class="mono eta">{a.eta}</span>
+                    </div>
+                  </li>
+                ))
+              }
+            </ol>
+            <dl class="readouts">
+              {
+                readouts.map(([k, v]) => (
+                  <div>
+                    <dt>{k}</dt>
+                    <dd class="mono">{v}</dd>
+                  </div>
+                ))
+              }
+            </dl>
+          </aside>
+
+          <p class="coords mono" aria-hidden="true">46°31′N 10°08′E · Punta Orca 3,204 m · grid 7 px · bayer 4×4</p>
+        </section>
+
+        <section id="callout" class="wrap block" aria-labelledby="callout-title">
+          <div class="block-head">
+            <p class="eyebrow">01 · The first eleven minutes</p>
+            <h2 id="callout-title">How a callout runs</h2>
+          </div>
+          <ol class="steps">
+            {
+              steps.map(([t, h, p]) => (
+                <li>
+                  <span class="mono step-t">{t}</span>
+                  <h3>{h}</h3>
+                  <p>{p}</p>
+                </li>
+              ))
+            }
+          </ol>
+        </section>
+
+        <section id="season" class="wrap block" aria-labelledby="season-title">
+          <div class="block-head">
+            <p class="eyebrow">02 · Winter 2025 to summer 2026</p>
+            <h2 id="season-title">One season, in four numbers</h2>
+          </div>
+          <dl class="stats">
+            {
+              stats.map(([n, l]) => (
+                <div>
+                  <dd>{n}</dd>
+                  <dt>{l}</dt>
+                </div>
+              ))
+            }
+          </dl>
+        </section>
+
+        <section id="before" class="wrap block split" aria-labelledby="before-title">
+          <div class="block-head">
+            <p class="eyebrow">03 · The calls we would rather not get</p>
+            <h2 id="before-title">Before you go up</h2>
+            <p class="lede small">
+              Half of last season’s callouts started with a walker who was fine at noon. None of this is advice
+              you have not heard. All of it would have kept us at the station.
+            </p>
+          </div>
+          <ul class="check">
+            {checklist.map((c, i) => (
+              <li>
+                <span class="mono">{String(i + 1).padStart(2, '0')}</span>
+                {c}
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section class="wrap block closing" aria-labelledby="join-title">
+          <h2 id="join-title">Volunteer intake opens 3 November.</h2>
+          <p class="lede small">
+            Two winters of training, a medical course, and every second weekend on the rota. No one is paid. Nobody
+            leaves early.
+          </p>
+          <a class="btn primary" href="#top">Ask about the next intake</a>
+        </section>
+      </main>
+
+      <footer class="wrap foot">
+        <span>Orca Massif Rescue · Stazione 03, Via del Soccorso 4, Val d’Orca</span>
+        <span class="mono">A fictional team, built for a dither study.</span>
+      </footer>
+    </div>
+
+    <style>
+      :root {
+        --ink: #ecece8;
+        --mute: #a8a9ab;
+        --dim: #6c6d70;
+        --line: rgb(236 236 232 / 0.12);
+        --line-2: rgb(236 236 232 / 0.22);
+        --base: #030303;
+        --panel: rgb(10 10 11 / 0.72);
+        --signal: #ff5b2e;
+        --sans: 'Geist', ui-sans-serif, system-ui, sans-serif;
+        --mono: 'Geist Mono', ui-monospace, monospace;
+      }
+      html { background: var(--base); }
+      body {
+        margin: 0;
+        color: var(--ink);
+        background: var(--base);
+        font-family: var(--sans);
+        -webkit-font-smoothing: antialiased;
+        overflow-x: hidden;
+      }
+      .dither-background {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        width: 100vw;
+        height: 100vh;
+        background: #030303;
+        pointer-events: none;
+        image-rendering: pixelated;
+      }
+      .page-content { position: relative; z-index: 1; }
+      .wrap { width: min(1320px, 100% - 32px); margin-inline: auto; }
+      .mono { font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; }
+      .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+      a { color: inherit; }
+      :focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+
+      .bar { display: flex; align-items: center; gap: 24px; padding: 22px 0; }
+      .brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 600; letter-spacing: -0.01em; font-size: 15px; }
+      .bar nav { display: flex; gap: 28px; margin-left: auto; font-size: 13px; color: var(--mute); }
+      .bar nav a { text-decoration: none; }
+      .bar nav a:hover { color: var(--ink); }
+      .sos {
+        display: inline-flex; align-items: center; gap: 8px; padding: 9px 14px;
+        border: 1px solid var(--line-2); font: 500 12px/1 var(--mono); letter-spacing: 0.06em; text-transform: uppercase;
+        text-decoration: none; background: rgb(3 3 3 / 0.6);
+      }
+      .dot { width: 7px; height: 7px; background: var(--signal); display: inline-block; animation: blink 1.6s steps(2, jump-none) infinite; }
+      @keyframes blink { 50% { opacity: 0.25; } }
+
+      .hero {
+        min-height: calc(100svh - 76px);
+        display: grid;
+        grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+        grid-template-rows: 1fr auto;
+        gap: 40px 64px;
+        align-items: center;
+        padding-bottom: 28px;
+      }
+      .eyebrow { font: 500 11px/1 var(--mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--mute); margin: 0 0 22px; }
+      h1 {
+        margin: 0;
+        font-weight: 500;
+        font-size: clamp(44px, 6.4vw, 96px);
+        line-height: 0.95;
+        letter-spacing: -0.045em;
+        max-width: 11ch;
+        text-wrap: balance;
+        text-shadow: 0 0 24px #030303, 0 0 2px #030303;
+      }
+      .lede { font-size: 17px; line-height: 1.55; color: var(--mute); max-width: 44ch; margin: 26px 0 0; text-shadow: 0 0 12px #030303; }
+      .lede.small { font-size: 15px; }
+      .ctas { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 32px; }
+      .btn {
+        display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px;
+        border: 1px solid var(--line-2); background: rgb(3 3 3 / 0.7);
+        font-size: 14px; font-weight: 500; text-decoration: none; transition: background 0.2s, color 0.2s;
+      }
+      .btn:hover { background: rgb(236 236 232 / 0.08); }
+      .btn.primary { background: var(--ink); color: #030303; border-color: var(--ink); }
+      .btn.primary:hover { background: #fff; }
+
+      .conditions { border: 0; padding: 0; margin: 40px 0 0; }
+      .conditions legend { font: 500 11px/1 var(--mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--dim); margin-bottom: 10px; padding: 0; }
+      .seg { display: inline-flex; border: 1px solid var(--line-2); background: rgb(3 3 3 / 0.7); }
+      .seg button {
+        all: unset; cursor: pointer; padding: 10px 16px; font: 500 12px/1 var(--mono); letter-spacing: 0.06em;
+        text-transform: uppercase; color: var(--mute);
+      }
+      .seg button + button { border-left: 1px solid var(--line); }
+      .seg button[aria-checked='true'] { background: var(--ink); color: #030303; }
+      .seg button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+      .board {
+        border: 1px solid var(--line-2);
+        background: var(--panel);
+        align-self: center;
+        justify-self: end;
+        width: min(100%, 540px);
+      }
+      .board-head { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; border-bottom: 1px solid var(--line); color: var(--mute); }
+      .board-head .live { display: inline-flex; gap: 8px; align-items: center; color: var(--ink); }
+      .alerts { list-style: none; margin: 0; padding: 0; }
+      .alert { display: grid; grid-template-columns: 52px minmax(0, 1fr) auto; gap: 14px; padding: 18px; border-bottom: 1px solid var(--line); }
+      .alert .t { color: var(--mute); padding-top: 3px; }
+      .alert-title { margin: 0; font-size: 15px; font-weight: 500; letter-spacing: -0.01em; }
+      .alert-meta { margin: 6px 0 0; font-size: 13px; color: var(--mute); line-height: 1.4; }
+      .alert-side { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+      .tag { font: 500 10px/1 var(--mono); letter-spacing: 0.1em; text-transform: uppercase; padding: 5px 7px; border: 1px solid var(--line-2); color: var(--mute); }
+      .alert.live .tag { background: var(--signal); border-color: var(--signal); color: #030303; }
+      .alert.live { background: rgb(236 236 232 / 0.035); }
+      .alert.done { opacity: 0.6; }
+      .eta { color: var(--dim); }
+      .alert.live .eta { color: var(--ink); }
+      .readouts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 0; }
+      .readouts div { padding: 14px 18px; }
+      .readouts div + div { border-left: 1px solid var(--line); }
+      .readouts dt { font-size: 12px; color: var(--dim); }
+      .readouts dd { margin: 6px 0 0; font-size: 13px; color: var(--ink); }
+      .coords { grid-column: 1 / -1; color: var(--dim); margin: 0; border-top: 1px solid var(--line); padding-top: 14px; }
+
+      .block { padding: 120px 0 0; }
+      .block-head h2, .closing h2 {
+        margin: 0; font-weight: 500; font-size: clamp(32px, 4vw, 56px); line-height: 1; letter-spacing: -0.035em;
+        text-shadow: 0 0 20px #030303;
+      }
+      .steps { list-style: none; margin: 48px 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border: 1px solid var(--line-2); background: var(--panel); }
+      .steps li { padding: 26px 24px 30px; }
+      .steps li + li { border-left: 1px solid var(--line); }
+      .step-t { color: var(--signal); }
+      .steps h3 { margin: 28px 0 10px; font-size: 20px; font-weight: 500; letter-spacing: -0.02em; }
+      .steps p { margin: 0; font-size: 14px; line-height: 1.55; color: var(--mute); }
+
+      .stats { margin: 48px 0 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--line-2); }
+      .stats div { padding: 28px 24px 0 0; }
+      .stats dd { margin: 0; font-size: clamp(44px, 5.5vw, 84px); font-weight: 400; letter-spacing: -0.05em; line-height: 1; text-shadow: 0 0 20px #030303; }
+      .stats dt { margin-top: 12px; font: 500 11px/1.4 var(--mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--mute); }
+
+      .split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 64px; align-items: start; }
+      .check { list-style: none; margin: 0; padding: 0; border: 1px solid var(--line-2); background: var(--panel); }
+      .check li { display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 12px; padding: 20px 22px; font-size: 16px; line-height: 1.45; }
+      .check li + li { border-top: 1px solid var(--line); }
+      .check .mono { color: var(--dim); padding-top: 3px; }
+
+      .closing { padding-bottom: 120px; text-align: center; display: flex; flex-direction: column; align-items: center; }
+      .closing h2 { max-width: 16ch; text-wrap: balance; }
+      .closing .lede { margin: 20px 0 32px; }
+      .foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; padding: 22px 0 80px; border-top: 1px solid var(--line); font-size: 12px; color: var(--dim); }
+
+      @media (max-width: 1000px) {
+        .bar nav { display: none; }
+        .sos { margin-left: auto; }
+        .hero { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; gap: 36px; padding-top: 24px; min-height: 0; }
+        .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .steps li:nth-child(3) { border-left: 0; }
+        .steps li:nth-child(n + 3) { border-top: 1px solid var(--line); }
+        .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .split { grid-template-columns: minmax(0, 1fr); gap: 36px; }
+      }
+      @media (max-width: 560px) {
+        .brand span { font-size: 14px; }
+        .hero { padding-top: 12vh; }
+        .lede { font-size: 16px; }
+        .alert { grid-template-columns: minmax(0, 1fr) auto; padding: 16px; }
+        .alert .t { grid-column: 1 / -1; padding: 0; }
+        .readouts { grid-template-columns: minmax(0, 1fr); }
+        .readouts div + div { border-left: 0; border-top: 1px solid var(--line); }
+        .readouts div { display: flex; justify-content: space-between; }
+        .readouts dd { margin: 0; }
+        .steps { grid-template-columns: minmax(0, 1fr); }
+        .steps li + li { border-left: 0; border-top: 1px solid var(--line); }
+        .block { padding-top: 88px; }
+        .seg button { padding: 10px 12px; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .dot { animation: none; }
+      }
+    </style>
+
+    <script>
+      // Dither background, after the skill's canvas recipe: 4x4 Bayer thresholds, 6-step monochrome
+      // palette, fbm cloud masses with wave drift and a vignette. Added: a dithered massif (crest per
+      // column, lit west face, gullies) the clouds drift across, and three "conditions" that ease the
+      // cloud density. ponytail: drawn into a cols×rows canvas and upscaled with image-rendering:
+      // pixelated instead of one fillRect per cell; same output, a fraction of the cost.
+      const BAYER_4X4 = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5].map((v) => (v + 0.5) / 16);
+      const PALETTE = [
+        [3, 3, 3],
+        [16, 16, 17],
+        [34, 35, 37],
+        [74, 75, 78],
+        [168, 169, 171],
+        [236, 236, 232],
+      ];
+      const PEAK_X = 0.04; // summit sits in the gutter between the copy and the board
+      const MODES = {
+        clear: { cloud: 0.55, fog: 0.15 },
+        spindrift: { cloud: 0.9, fog: 0.5 },
+        whiteout: { cloud: 1.25, fog: 1.0 },
+      } as const;
+      type Mode = keyof typeof MODES;
+
+      const smoothstep = (e0: number, e1: number, v: number) => {
+        const t = Math.max(0, Math.min(1, (v - e0) / (e1 - e0)));
+        return t * t * (3 - 2 * t);
+      };
+      const noise2 = (x: number, y: number) => {
+        const v = Math.sin(x * 127.1 + y * 311.7) * 43758.5453123;
+        return v - Math.floor(v);
+      };
+      const valueNoise = (x: number, y: number) => {
+        const ix = Math.floor(x);
+        const iy = Math.floor(y);
+        const fx = x - ix;
+        const fy = y - iy;
+        const ux = fx * fx * (3 - 2 * fx);
+        const uy = fy * fy * (3 - 2 * fy);
+        const a = noise2(ix, iy);
+        const b = noise2(ix + 1, iy);
+        const c = noise2(ix, iy + 1);
+        const d = noise2(ix + 1, iy + 1);
+        return a * (1 - ux) * (1 - uy) + b * ux * (1 - uy) + c * (1 - ux) * uy + d * ux * uy;
+      };
+      const fbm = (x: number, y: number) => {
+        let value = 0;
+        let amplitude = 0.5;
+        let frequency = 1;
+        for (let o = 0; o < 4; o++) {
+          value += valueNoise(x * frequency, y * frequency) * amplitude;
+          frequency *= 2.02;
+          amplitude *= 0.5;
+        }
+        return value;
+      };
+
+      const canvas = document.querySelector<HTMLCanvasElement>('[data-dither-background]');
+      const ctx = canvas?.getContext('2d', { alpha: false });
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      if (canvas && ctx) {
+        let cols = 1;
+        let rows = 1;
+        let cell = 7;
+        let img = ctx.createImageData(1, 1);
+        let crest = new Float32Array(1);
+        let portrait = false;
+        let raf = 0;
+        let last = 0;
+        let target = MODES.spindrift;
+        const cur = { ...MODES.spindrift };
+
+        const resize = () => {
+          const w = Math.max(1, window.innerWidth);
+          const h = Math.max(1, window.innerHeight);
+          cell = w < 640 ? 6 : 7;
+          portrait = h > w;
+          cols = Math.ceil(w / cell);
+          rows = Math.ceil(h / cell);
+          canvas.width = cols;
+          canvas.height = rows;
+          canvas.style.width = `${cols * cell}px`;
+          canvas.style.height = `${rows * cell}px`;
+          img = ctx.createImageData(cols, rows);
+          // Ridge line per column: peak right of centre (lower on portrait so copy sits in dark sky).
+          crest = new Float32Array(cols);
+          const peakX = portrait ? 0.42 : PEAK_X;
+          const peakY = portrait ? 0.12 : -0.46;
+          for (let x = 0; x < cols; x++) {
+            const nx = (x / cols - 0.5) * 2;
+            crest[x] = peakY + Math.abs(nx - peakX) * (portrait ? 0.75 : 1.25) + (fbm(nx * 2.6 + 4, 1.7) - 0.5) * 0.34;
+          }
+        };
+
+        const render = (time: number) => {
+          const t = time * 0.001;
+          const drift = reduceMotion ? 0 : t * 0.018 * 6;
+          const sink = Math.min(1, window.scrollY / window.innerHeight) * 0.55;
+          const peakX = portrait ? 0.42 : PEAK_X;
+          const data = img.data;
+          for (let y = 0; y < rows; y++) {
+            const ny = (y / rows - 0.5) * 2;
+            for (let x = 0; x < cols; x++) {
+              const nx = (x / cols - 0.5) * 2;
+              // Vignette centred on the massif, off-axis right.
+              const dist = Math.sqrt((nx - peakX - 0.12) ** 2 * 0.84 + (ny - 0.05) ** 2 * 1.28);
+              const vignette = 1 - smoothstep(0.18, 1.25, dist);
+
+              // Massif: lit west face, darker east face, snow near the crest, diagonal gullies.
+              const depth = ny - (crest[x] + sink);
+              // Landscape: the west foot fades out under the copy column so the lede stays quiet.
+              const leftFade = portrait ? 1 : smoothstep(-0.72, -0.08, nx);
+              let mountain = 0;
+              if (depth > 0) {
+                const west = nx < peakX ? 1 : 0.55;
+                const snow = smoothstep(0.75, 0.0, depth);
+                const gully = valueNoise((nx - peakX) * 9 + depth * 5, depth * 3.2);
+                mountain = (0.12 + snow * (0.45 + gully * 0.45)) * west * leftFade;
+              }
+
+              // Cloud masses, from the recipe, gated by conditions.
+              const wave =
+                Math.sin(nx * 2.8 + ny * 1.2 + drift) * 0.18 + Math.sin(nx * -1.4 + ny * 3.8 - drift * 0.8) * 0.14;
+              const cloud = fbm(nx * 1.35 + drift * 0.16, ny * 1.35 - drift * 0.08);
+              const ridge = smoothstep(0.48, 0.92, cloud + wave) * cur.cloud;
+              // Valley fog banked against the slope just below the crest.
+              const fogBand = depth > -0.25 ? smoothstep(-0.25, 0.25, depth) * smoothstep(0.9, 0.3, depth) : 0;
+              const fog = fogBand * cur.fog * fbm(nx * 2.2 - drift * 0.3, ny * 3 + 9) * 0.9;
+
+              const b = Math.max(0, Math.min(1, Math.max(mountain, ridge * 0.85 + fog) * vignette));
+              const threshold = BAYER_4X4[(y % 4) * 4 + (x % 4)];
+              const stepped = Math.floor(Math.max(0, Math.min(0.999, b + threshold * 0.18)) * PALETTE.length);
+              const c = PALETTE[Math.min(PALETTE.length - 1, stepped)];
+              const i = (y * cols + x) * 4;
+              data[i] = c[0];
+              data[i + 1] = c[1];
+              data[i + 2] = c[2];
+              data[i + 3] = 255;
+            }
+          }
+          ctx.putImageData(img, 0, 0);
+        };
+
+        const ease = () => {
+          const k = reduceMotion ? 1 : 0.06;
+          cur.cloud += (target.cloud - cur.cloud) * k;
+          cur.fog += (target.fog - cur.fog) * k;
+        };
+
+        const loop = (time: number) => {
+          raf = requestAnimationFrame(loop);
+          if (time - last < 33) return; // ~30 fps; the drift is slow enough
+          last = time;
+          ease();
+          render(time);
+        };
+
+        const redraw = () => {
+          ease();
+          render(performance.now());
+        };
+
+        const start = () => {
+          cancelAnimationFrame(raf);
+          if (reduceMotion) redraw();
+          else raf = requestAnimationFrame(loop);
+        };
+
+        resize();
+        render(0);
+        start();
+        window.addEventListener('resize', () => {
+          resize();
+          redraw();
+        });
+        if (reduceMotion) window.addEventListener('scroll', redraw, { passive: true });
+        document.addEventListener('visibilitychange', () => {
+          if (document.hidden) cancelAnimationFrame(raf);
+          else start();
+        });
+
+        const status = document.querySelector('[data-mode-status]');
+        const buttons = [...document.querySelectorAll<HTMLButtonElement>('[data-mode]')];
+        const select = (btn: HTMLButtonElement) => {
+          buttons.forEach((b) => {
+            b.setAttribute('aria-checked', String(b === btn));
+            b.tabIndex = b === btn ? 0 : -1;
+          });
+          target = MODES[btn.dataset.mode as Mode];
+          if (status) status.textContent = `Background set to ${btn.textContent}`;
+          if (reduceMotion) redraw();
+        };
+        buttons.forEach((btn, i) => {
+          btn.tabIndex = btn.getAttribute('aria-checked') === 'true' ? 0 : -1;
+          btn.addEventListener('click', () => select(btn));
+          btn.addEventListener('keydown', (e) => {
+            const d = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 0;
+            if (!d) return;
+            e.preventDefault();
+            const next = buttons[(i + d + buttons.length) % buttons.length];
+            next.focus();
+            select(next);
+          });
+        });
+      }
+    </script>
+  </body>
+</html>

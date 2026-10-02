@@ -1,0 +1,582 @@
+---
+import '../../styles/global.css';
+import BackPill from '../../components/BackPill.astro';
+
+const img = (f: string) => `/skills/documentary-brutalist-agency/${f}`;
+
+const files = [
+  {
+    no: '07',
+    id: 'kade-14',
+    title: ['Kade 14', 'Ledges'],
+    roles: ['Film — 22 min', 'Deck series 07', 'Archive copy'],
+    year: '2025',
+    status: 'Poured over — Mar 2025',
+    body: 'Granite ledges on a closed quay, skated for forty-one nights before the bollards went in. The deck graphic is the quay’s own survey drawing.',
+    src: 'ledge.jpg', w: 1600, h: 1067,
+    alt: 'A skateboard balanced on the worn edge of a concrete ledge at dusk',
+  },
+  {
+    no: '11',
+    id: 'graansilo',
+    title: ['Graansilo', 'Bank'],
+    roles: ['Film — 14 min', 'Photo zine', 'Spot fund'],
+    year: '2025',
+    status: 'Fenced — Aug 2025',
+    body: 'A forty-degree loading ramp at the foot of the grain silo. Half the city learned to carve on it; the other half drove trucks up it. Now neither does.',
+    src: 'ollie.jpg', w: 1600, h: 1067,
+    alt: 'A skater mid-ollie above a concrete slab, palm trees and floodlights behind',
+  },
+  {
+    no: '16',
+    id: 'noord',
+    title: ['Noord', 'Level −2'],
+    roles: ['Film — night sessions', 'Sound piece'],
+    year: '2026',
+    status: 'Still standing — for now',
+    body: 'The bottom floor of a car park scheduled for “repurposing”. Painted walls, perfect floor, one exit. We filmed it the only way it can be filmed: after midnight, with the lights we brought.',
+    src: 'tunnel.jpg', w: 1400, h: 933,
+    alt: 'A painted underground passage lit by a single drawn question mark of light',
+  },
+];
+
+// Narrative order: the DOM reads 01 → 07 even though the grid places them irregularly.
+const anatomy = [
+  { no: '01', t: 'The tip', c: 'A message from a local: the loading dock behind the print works has six weeks.', src: 'wall.jpg', w: 1200, h: 1800, alt: 'Legs in patterned trousers against a rough concrete wall', cls: 'a1', d: 0.03 },
+  { no: '02', t: 'Scouting', c: 'We measure the ledge, pace the run-up and write down who owns it and who guards it.', src: 'sneakers.jpg', w: 1200, h: 1800, alt: 'Worn sneakers hanging over the edge of a concrete ledge above the street', cls: 'a2', d: -0.02 },
+  { no: '03', t: 'The session', c: 'Nightly sessions, two cameras, one rule: skaters from the block go first.', src: 'camera.jpg', w: 1400, h: 788, alt: 'Two hands steadying a camera with a long lens', cls: 'a3', d: 0.015 },
+  { no: '04', t: 'The portrait', c: 'Everyone who skated it gets a portrait and a credit. No sponsor names on the frame.', src: 'portrait.jpg', w: 1200, h: 800, alt: 'A young skater in a cap and hoodie at a skatepark at night', cls: 'a4', d: -0.035 },
+  { no: '05', t: 'The notice', c: 'When the fence goes up we film the last day — and the first day of the new surface.', src: 'crosswalk.jpg', w: 1200, h: 960, alt: 'A red skateboard lying across the white stripes of a crossing', cls: 'a5', d: 0.025 },
+  { no: '06', t: 'The deck', c: 'The spot’s survey drawing becomes the graphic. Three hundred boards, numbered, pressed from offcuts.', src: 'decks.jpg', w: 1200, h: 1800, alt: 'Three skateboard decks with printed graphics laid on pale concrete', cls: 'a6', d: -0.02 },
+  { no: '07', t: 'The archive', c: 'One free screening as close to the fence as we can get. Then the file goes to the city archive — the only place the spot still exists.', src: 'archive.jpg', w: 1600, h: 2241, alt: 'A single framed black-and-white photograph on a bare white gallery wall', cls: 'a7', d: 0.03 },
+];
+
+const quotes = [
+  { tone: 'mint', q: 'They filmed the dock behind our print works for six weeks. When it was gone, the only proof it was ever skated was their file — and a board on my wall with its floor plan.', who: 'Ilse Vermeer', role: 'Owner, Drukkerij Vermeer' },
+  { tone: 'pink', q: 'They asked before they filmed, credited every skater by name and handed the footage to the archive. In twenty years of collecting, that has never happened.', who: 'Daan Okafor', role: 'Collections, city archive' },
+  { tone: 'paper', q: 'First deck I ever bought that told me where it came from.', who: 'Sami, 15', role: 'Kade 14 local' },
+];
+
+const updates = [
+  ['18.09.26', 'Film', 'Spot File 19, Rozenburg Pier, premieres on the pier itself — 2 October, 20:30.', 'Get directions'],
+  ['04.09.26', 'Boards', 'Series 07 restock: the Kade 14 survey deck in 8.25 and 8.5.', 'See the deck'],
+  ['21.08.26', 'Archive', 'All nineteen spot files are now held by the city archive, free to view.', 'Read the note'],
+  ['02.08.26', 'Spot fund', 'The fund passes €18,400 — enough concrete to keep the Pier 3 quarter-pipe.', 'See the ledger'],
+];
+
+const faq = [
+  ['Where does the wood come from?', 'Seven-ply maple offcuts from two furniture factories in Brabant. We press in batches of three hundred; the width of the offcuts decides how many shapes a run can have.'],
+  ['Can I send you a spot?', 'Yes. Send the location, who owns it if you know, and how long it has left. We answer every tip, including the ones we cannot film.'],
+  ['Do you film without permission?', 'We ask owners first. When the answer is no, we film from public ground and say so in the credits.'],
+  ['Where does the ten percent go?', 'To the spot fund: legal advice for crews keeping DIY spots alive, and concrete for the ones the city agrees to keep.'],
+];
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>OFFCUT® — Skate it before it goes</title>
+    <meta name="description" content="OFFCUT is a fictional Rotterdam skate brand and film unit that documents spots before the city pours over them." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;600&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <a class="skip" href="#work">Skip to the work</a>
+
+    <header class="bar" data-tone="dark">
+      <p class="bar__now"><span>Spot files · 24—26</span> <span class="bar__sep">/</span> <span id="now" aria-live="polite">Index</span></p>
+      <a class="bar__id" href="#top">OFFCUT®</a>
+      <button class="bar__menu" type="button" aria-expanded="false" aria-controls="menu" id="menu-open">Menu <span aria-hidden="true">+</span></button>
+    </header>
+
+    <dialog id="menu" class="menu" aria-label="Site menu">
+      <div class="menu__top">
+        <p>OFFCUT® — Index</p>
+        <button type="button" class="menu__close" id="menu-close">Close <span aria-hidden="true">×</span></button>
+      </div>
+      <nav aria-label="Primary">
+        <ol class="menu__list">
+          <li><a href="#work"><span>01</span>Spot files</a></li>
+          <li><a href="#position"><span>02</span>Position</a></li>
+          <li><a href="#anatomy"><span>03</span>Anatomy</a></li>
+          <li><a href="#proof"><span>04</span>Proof</a></li>
+          <li><a href="#faq"><span>05</span>Questions</a></li>
+          <li><a href="#contact"><span>06</span>Send a spot</a></li>
+        </ol>
+      </nav>
+      <p class="menu__foot">tips@offcut.example — Studio on the quay, Rotterdam</p>
+    </dialog>
+
+    <main id="top">
+      <!-- HERO -->
+      <section class="hero" data-tone="dark" data-label="Index">
+        <div class="hero__meta">
+          <p>Skate brand &amp; film unit — Rotterdam</p>
+          <p>Boards / Films / Spot files</p>
+        </div>
+
+        <h1 class="hero__h">
+          <span class="ln ln--1"><span>Skate it before</span></span>
+          <span class="ln ln--2"><span>it goes.</span></span>
+        </h1>
+
+        <figure class="hf hf--1"><img src={img('ledge.jpg')} width="1600" height="1067" alt="A board resting on the edge of a worn concrete ledge" fetchpriority="high" /></figure>
+        <figure class="hf hf--2"><img src={img('portrait.jpg')} width="1200" height="800" alt="Portrait of a skater in a cap at a skatepark at night" /></figure>
+        <figure class="hf hf--3"><img src={img('ollie.jpg')} width="1600" height="1067" alt="A skater mid-ollie over an open concrete slab" /></figure>
+
+        <div class="hero__foot">
+          <p>Decks pressed from furniture-factory offcuts. Films of the spots the city is about to pour over.</p>
+          <a class="round" href="#work" aria-label="Go to the spot files"><span aria-hidden="true">↓</span></a>
+        </div>
+      </section>
+
+      <!-- WORK -->
+      <section id="work" class="work" data-tone="dark" data-label="Spot files">
+        <div class="rowhead">
+          <p>Selected spot files</p>
+          <p>03 of 19</p>
+        </div>
+        {files.map((f) => (
+          <article class="file" id={`file-${f.id}`}>
+            <div class="file__meta">
+              <p class="file__no">File {f.no}</p>
+              <ul>{f.roles.map((r) => <li>{r}</li>)}</ul>
+              <p class="file__status"><span aria-hidden="true">■</span> {f.status}</p>
+            </div>
+            <h2 class="file__t rv"><span>{f.title[0]}</span><span>{f.title[1]}</span></h2>
+            <figure class="file__m doc">
+              <img src={img(f.src)} width={f.w} height={f.h} alt={f.alt} loading="lazy" />
+            </figure>
+            <div class="file__body">
+              <p>{f.body}</p>
+              <a class="arrow" href={`#file-${f.id}`}>Watch file {f.no} <span aria-hidden="true">→</span></a>
+            </div>
+            <p class="file__year" aria-hidden="true">{f.year}</p>
+          </article>
+        ))}
+      </section>
+
+      <!-- POSITION -->
+      <section id="position" class="position" data-tone="light" data-label="Position">
+        <p class="label">Our position — 01</p>
+        <p class="position__big rv">Cities build the best spots by accident and remove them on purpose. We work in the gap between the two.</p>
+        <p class="position__small">We don’t sell nostalgia. Every deck carries the coordinates of a spot that existed, and ten percent of every board keeps the next one open.</p>
+      </section>
+
+      <!-- ANATOMY / COLLAGE -->
+      <section id="anatomy" class="anatomy" data-tone="dark" data-label="Anatomy">
+        <div class="rowhead">
+          <p>Anatomy of a spot file — 02</p>
+          <p>Seven steps, six weeks</p>
+        </div>
+        <h2 class="anatomy__h rv"><span>Six weeks,</span><span>one ledge.</span></h2>
+        <ol class="collage">
+          {anatomy.map((a) => (
+            <li class={`cf ${a.cls}`}>
+              <figure tabindex="0" data-depth={a.d} aria-labelledby={`cap-${a.no}`}>
+                <div class="cf__box" style={`aspect-ratio:${a.w}/${a.h}`}>
+                  <img src={img(a.src)} width={a.w} height={a.h} alt={a.alt} loading="lazy" onerror="this.remove()" />
+                </div>
+                <figcaption id={`cap-${a.no}`}><b>{a.no} — {a.t}</b> <span>{a.c}</span></figcaption>
+              </figure>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <!-- PROOF -->
+      <section id="proof" class="proof" data-tone="light" data-label="Proof">
+        <div class="rowhead">
+          <p>Proof — 03</p>
+          <p>Said about the files</p>
+        </div>
+        <div class="quotes">
+          {quotes.map((q) => (
+            <blockquote class={`quote quote--${q.tone}`}>
+              <p>“{q.q}”</p>
+              <footer><b>{q.who}</b><span>{q.role}</span></footer>
+            </blockquote>
+          ))}
+        </div>
+
+        <div class="rowhead rowhead--sub">
+          <p>Updates</p>
+          <p>From the quay</p>
+        </div>
+        <ul class="updates">
+          {updates.map(([d, cat, t, a]) => (
+            <li>
+              <time>{d}</time>
+              <span class="updates__cat">{cat}</span>
+              <p>{t}</p>
+              <a class="arrow" href="#contact">{a} <span aria-hidden="true">→</span></a>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <!-- FAQ -->
+      <section id="faq" class="faq" data-tone="light" data-label="Questions">
+        <div class="faq__grid">
+          <h2 class="faq__h">Ques&shy;tions</h2>
+          <div class="faq__list">
+            {faq.map(([q, a]) => (
+              <details>
+                <summary>{q}<span class="pm" aria-hidden="true"></span></summary>
+                <p>{a}</p>
+              </details>
+            ))}
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer id="contact" class="foot" data-tone="dark" data-label="Send a spot">
+      <div class="foot__cols">
+        <div>
+          <p class="label">Send a spot</p>
+          <a class="foot__mail" href="mailto:tips@offcut.example">tips@offcut.example</a>
+        </div>
+        <div>
+          <p class="label">Studio</p>
+          <p>On the quay, Rotterdam<br />Open Saturdays 12—17</p>
+        </div>
+        <div>
+          <p class="label">Elsewhere</p>
+          <p>Instagram / Vimeo / Archive</p>
+        </div>
+      </div>
+      <p class="foot__mark" aria-hidden="true">OFFCUT<sup>®</sup></p>
+      <p class="foot__fine">OFFCUT is a fictional brand. People, places and quotes on this page are invented for a design demo.</p>
+    </footer>
+
+    <BackPill />
+  </body>
+</html>
+
+<style is:global>
+  :root {
+    --ink: #0c0c0b;
+    --ink-2: #1a1a18;
+    --paper: #efebe3;
+    --paper-2: #e4dfd4;
+    --mint: #cfe3d3;
+    --pink: #f0d3cd;
+    --rule-d: rgb(239 235 227 / 0.18);
+    --rule-l: rgb(12 12 11 / 0.2);
+    --display: 'Anton', 'Impact', 'Arial Narrow', sans-serif;
+    --sans: 'Archivo', ui-sans-serif, system-ui, sans-serif;
+    --g: clamp(16px, 1.6vw, 24px);
+    --fast: 180ms cubic-bezier(0.2, 0, 0, 1);
+    --slow: 680ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  html { scroll-behavior: smooth; }
+  section[id], footer[id], article[id] { scroll-margin-top: 52px; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  body { margin: 0; background: var(--ink); color: var(--paper); font: 400 15px/1.45 var(--sans); -webkit-font-smoothing: antialiased; overflow-x: clip; }
+  a { color: inherit; }
+  :focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+
+  .skip { position: absolute; left: var(--g); top: -100px; z-index: 60; background: var(--paper); color: var(--ink); padding: 10px 14px; font-weight: 600; }
+  .skip:focus { top: 8px; }
+
+  .label, .rowhead p, .bar, .hero__meta, .hero__foot p, .file__meta, .updates time, .updates__cat, .menu__top, .menu__foot, .foot__fine {
+    font: 500 11px/1.35 var(--sans); letter-spacing: 0.12em; text-transform: uppercase;
+  }
+
+  /* header */
+  .bar { position: sticky; top: 0; z-index: 40; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; height: 52px; padding: 0 var(--g); background: var(--ink); color: var(--paper); border-bottom: 1px solid var(--rule-d); transition: background var(--fast), color var(--fast), border-color var(--fast); }
+  .bar[data-tone='light'] { background: var(--paper); color: var(--ink); border-color: var(--rule-l); }
+  .bar__now { margin: 0; display: flex; gap: 8px; white-space: nowrap; }
+  .bar__sep { opacity: 0.4; }
+  .bar__id { font: 600 15px/1 var(--sans); letter-spacing: 0.04em; text-decoration: none; }
+  .bar__menu { justify-self: end; font: inherit; letter-spacing: inherit; text-transform: inherit; color: inherit; background: none; border: 0; padding: 6px 0; border-bottom: 1px solid currentColor; cursor: pointer; transition: opacity var(--fast); }
+  .bar__menu:hover { opacity: 0.6; }
+  .bar__menu:active { transform: translateY(1px); }
+
+  /* menu */
+  .menu { width: 100%; max-width: none; height: 100%; max-height: none; margin: 0; padding: 0 var(--g) var(--g); border: 0; background: var(--ink); color: var(--paper); display: none; flex-direction: column; }
+  .menu[open] { display: flex; }
+  .menu::backdrop { background: var(--ink); }
+  .menu__top { display: flex; justify-content: space-between; align-items: center; height: 52px; border-bottom: 1px solid var(--rule-d); }
+  .menu__top p { margin: 0; }
+  .menu__close { font: inherit; letter-spacing: inherit; text-transform: inherit; color: inherit; background: none; border: 0; border-bottom: 1px solid currentColor; padding: 6px 0; cursor: pointer; }
+  .menu__list { list-style: none; margin: auto 0; padding: 0; }
+  .menu__list li { border-bottom: 1px solid var(--rule-d); }
+  .menu__list a { display: flex; align-items: baseline; gap: 1rem; font: 400 clamp(48px, 9vw, 128px)/0.92 var(--display); text-transform: uppercase; text-decoration: none; padding: 6px 0; transition: padding var(--fast), color var(--fast); }
+  .menu__list a span { font: 500 12px/1 var(--sans); letter-spacing: 0.12em; min-width: 2.5em; }
+  .menu__list a:hover, .menu__list a:focus-visible { padding-left: 1.2rem; color: var(--mint); }
+  .menu__foot { margin: 0; padding-top: var(--g); }
+
+  /* hero */
+  .hero { position: relative; min-height: calc(100svh - 52px); min-height: max(620px, calc(100svh - 52px)); padding: 0 var(--g); overflow: hidden; isolation: isolate; }
+  .hero__meta { display: flex; justify-content: space-between; gap: 1rem; padding: 26px 0 0; }
+  .hero__meta p { margin: 0; }
+  .hero__h { position: relative; z-index: 3; margin: clamp(18px, 3.2vh, 40px) 0 0; font: 400 clamp(64px, 14.6vw, 260px)/0.8 var(--display); text-transform: uppercase; letter-spacing: -0.005em; color: var(--paper); }
+  .ln { display: block; overflow: hidden; padding-top: 0.04em; }
+  .ln > span { display: block; white-space: nowrap; }
+  .ln--2 { text-align: right; margin-right: -0.02em; }
+  .hf { position: absolute; margin: 0; border: 1px solid rgb(239 235 227 / 0.55); background: var(--ink-2); overflow: hidden; }
+  .hf img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(1) contrast(1.08) brightness(0.82); display: block; }
+  .hf--1 { z-index: 2; left: 38%; top: 92px; width: 24vw; aspect-ratio: 6/5; }
+  .hf--2 { z-index: 4; left: 27%; bottom: 34px; width: 15vw; aspect-ratio: 4/5; }
+  .hf--2 img { object-position: 40% 50%; }
+  .hf--3 { z-index: 2; right: 11%; bottom: 52px; width: 24vw; aspect-ratio: 4/3; }
+  .hero__foot { position: absolute; z-index: 5; left: var(--g); right: var(--g); bottom: 34px; display: flex; justify-content: space-between; align-items: flex-end; pointer-events: none; }
+  .hero__foot p { margin: 0; max-width: 30ch; }
+  .round { pointer-events: auto; display: grid; place-items: center; width: 58px; height: 58px; border: 1px solid currentColor; border-radius: 50%; text-decoration: none; font-size: 22px; background: var(--ink); transition: background var(--fast), color var(--fast); }
+  .round:hover, .round:focus-visible { background: var(--paper); color: var(--ink); }
+
+  /* hero entrance */
+  .js .ln > span { transform: translateY(105%); transition: transform 760ms cubic-bezier(0.16, 1, 0.3, 1); }
+  .js .ln--2 > span { transition-delay: 90ms; }
+  .js .hf { clip-path: inset(0 0 100% 0); transition: clip-path 720ms cubic-bezier(0.7, 0, 0.2, 1); }
+  .js .hf--3 { transition-delay: 120ms; }
+  .js .hf--2 { transition-delay: 240ms; }
+  .js.ready .ln > span { transform: none; }
+  .js.ready .hf { clip-path: inset(0); }
+
+  /* shared rows */
+  .rowhead { display: flex; justify-content: space-between; gap: 1rem; padding: 14px 0; border-bottom: 1px solid var(--rule-d); }
+  .rowhead p { margin: 0; }
+  .rv { transition: transform var(--slow), opacity var(--slow); }
+  .js .rv:not(.in) { opacity: 0; transform: translateY(28px); }
+  .arrow { display: inline-flex; gap: 0.5em; font-weight: 600; text-decoration: none; border-bottom: 1px solid currentColor; padding-bottom: 2px; transition: gap var(--fast), opacity var(--fast); }
+  .arrow:hover, .arrow:focus-visible { gap: 0.9em; }
+
+  /* work */
+  .work { padding: 0 var(--g) 80px; background: var(--ink); }
+  .file { display: grid; grid-template-columns: repeat(12, 1fr); column-gap: var(--g); row-gap: 28px; padding: 36px 0 56px; border-bottom: 1px solid var(--rule-d); position: relative; }
+  .file__meta { grid-column: 1 / 4; }
+  .file__meta p, .file__meta ul { margin: 0 0 14px; }
+  .file__meta ul { list-style: none; padding: 0; opacity: 0.7; }
+  .file__no { font-weight: 600; }
+  .file__status { color: var(--mint); }
+  .file__t { grid-column: 4 / 13; margin: 0; font: 400 clamp(64px, 11vw, 196px)/0.84 var(--display); text-transform: uppercase; }
+  .file__t span { display: block; }
+  .file__t span + span { padding-left: 1.4em; }
+  .file__m { grid-column: 4 / 11; margin: 0; aspect-ratio: 16/9; background: var(--ink-2); overflow: hidden; border: 1px solid var(--rule-d); }
+  .file__m img { width: 100%; height: 100%; object-fit: cover; display: block; filter: grayscale(1) contrast(1.1); transition: transform 700ms cubic-bezier(0.16, 1, 0.3, 1); }
+  .file:hover .file__m img { transform: scale(1.025); }
+  .file__body { grid-column: 11 / 13; align-self: end; }
+  .file__body p { margin: 0 0 18px; font-size: 14px; opacity: 0.85; }
+  .file__year { position: absolute; top: 36px; right: 0; margin: 0; font: 500 11px/1 var(--sans); letter-spacing: 0.12em; opacity: 0.5; }
+  .file:nth-child(odd of .file) .file__m { grid-column: 2 / 9; }
+  .file:nth-child(odd of .file) .file__body { grid-column: 9 / 12; }
+
+  /* position */
+  .position { background: var(--paper); color: var(--ink); padding: clamp(80px, 14vw, 200px) var(--g); display: grid; grid-template-columns: repeat(12, 1fr); column-gap: var(--g); row-gap: 48px; }
+  .position .label { grid-column: 1 / 4; margin: 0; }
+  .position__big { grid-column: 4 / 13; margin: 0; font: 500 clamp(30px, 4.4vw, 70px)/1.02 var(--sans); letter-spacing: -0.035em; max-width: 19ch; }
+  .position__small { grid-column: 9 / 13; margin: 0; font-size: 15px; max-width: 34ch; }
+
+  /* anatomy collage */
+  .anatomy { padding: 0 var(--g) 120px; background: var(--ink); }
+  .anatomy__h { margin: 56px 0 72px; font: 400 clamp(64px, 12vw, 210px)/0.84 var(--display); text-transform: uppercase; }
+  .anatomy__h span { display: block; }
+  .anatomy__h span + span { text-align: right; }
+  .collage { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(12, 1fr); column-gap: var(--g); row-gap: clamp(40px, 6vw, 96px); align-items: start; }
+  .cf figure { margin: 0; position: relative; outline-offset: 6px; will-change: transform; }
+  .cf__box { position: relative; background: var(--ink-2); overflow: hidden; border: 1px solid var(--rule-d); }
+  .cf__box img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; filter: grayscale(1) contrast(1.1) brightness(0.9); transition: filter var(--fast); }
+  .cf figure:hover img, .cf figure:focus-visible img { filter: grayscale(1) contrast(1.15) brightness(1); }
+  .cf figcaption { margin-top: 12px; font-size: 13px; line-height: 1.4; max-width: 34ch; opacity: 0.55; transition: opacity var(--fast); }
+  .cf figcaption b { display: block; font: 500 11px/1.3 var(--sans); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 4px; }
+  .cf figcaption { opacity: 1; }
+  .cf figcaption span { display: block; opacity: 0.6; }
+  @media (hover: hover) {
+    .cf figcaption span { opacity: 0; transform: translateY(-4px); transition: opacity var(--fast), transform var(--fast); }
+    .cf figure:hover figcaption span, .cf figure:focus-visible figcaption span { opacity: 0.75; transform: none; }
+    .cf figcaption b::after { content: '  +'; white-space: pre; opacity: 0.5; }
+  }
+  .a1 { grid-column: 1 / 4; }
+  .a2 { grid-column: 5 / 8; margin-top: 12vw; }
+  .a3 { grid-column: 9 / 13; margin-top: 6vw; }
+  .a4 { grid-column: 2 / 7; margin-top: -6vw; }
+  .a5 { grid-column: 8 / 12; margin-top: 4vw; }
+  .a6 { grid-column: 1 / 4; margin-top: -2vw; }
+  .a7 { grid-column: 5 / 13; margin-top: 6vw; }
+  .a6 .cf__box { aspect-ratio: 3/4 !important; }
+  .a7 .cf__box { aspect-ratio: 16/9 !important; }
+  .a1 .cf__box, .a2 .cf__box { aspect-ratio: 3/4 !important; }
+
+  /* proof */
+  .proof { background: var(--paper); color: var(--ink); padding: 0 var(--g) 100px; }
+  .proof .rowhead { border-color: var(--rule-l); }
+  .quotes { display: grid; grid-template-columns: 1.25fr 1fr 0.8fr; gap: var(--g); padding: 28px 0 100px; align-items: start; }
+  .quote { margin: 0; padding: 28px 26px 24px; display: flex; flex-direction: column; justify-content: space-between; gap: 48px; min-height: 340px; }
+  .quote p { margin: 0; font: 500 clamp(19px, 1.7vw, 26px)/1.18 var(--sans); letter-spacing: -0.02em; }
+  .quote footer { display: flex; flex-direction: column; gap: 2px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; border-top: 1px solid var(--rule-l); padding-top: 12px; }
+  .quote--mint { background: var(--mint); }
+  .quote--pink { background: var(--pink); margin-top: 72px; }
+  .quote--paper { background: var(--paper-2); margin-top: 24px; }
+  .quote--paper p { font: 400 clamp(32px, 3vw, 46px)/0.95 var(--display); text-transform: uppercase; letter-spacing: 0; }
+  .updates { list-style: none; margin: 0; padding: 0; }
+  .updates li { display: grid; grid-template-columns: 110px 140px 1fr auto; gap: var(--g); align-items: baseline; padding: 20px 0; border-bottom: 1px solid var(--rule-l); }
+  .updates p { margin: 0; font: 500 clamp(17px, 1.5vw, 22px)/1.25 var(--sans); letter-spacing: -0.015em; max-width: 46ch; }
+  .updates__cat { opacity: 0.6; }
+
+  /* faq */
+  .faq { background: var(--paper); color: var(--ink); padding: 40px var(--g) 140px; border-top: 1px solid var(--rule-l); }
+  .faq__grid { display: grid; grid-template-columns: repeat(12, 1fr); column-gap: var(--g); }
+  .faq__h { grid-column: 1 / 6; margin: 0; font: 400 clamp(64px, 9vw, 150px)/0.84 var(--display); text-transform: uppercase; hyphens: manual; }
+  .faq__list { grid-column: 7 / 13; border-top: 1px solid var(--ink); }
+  .faq details { border-bottom: 1px solid var(--ink); }
+  .faq summary { list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 20px 0; cursor: pointer; font: 500 clamp(18px, 1.6vw, 22px)/1.2 var(--sans); letter-spacing: -0.015em; transition: padding var(--fast); }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary:hover { padding-left: 8px; }
+  .pm { position: relative; flex: none; width: 14px; height: 14px; }
+  .pm::before, .pm::after { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 1.5px; background: currentColor; transition: transform var(--fast); }
+  .pm::after { transform: rotate(90deg); }
+  .faq details[open] .pm::after { transform: rotate(0deg); }
+  .faq details p { margin: 0 0 24px; max-width: 52ch; }
+
+  /* footer */
+  .foot { background: var(--ink); color: var(--paper); padding: 0 var(--g) 24px; overflow: hidden; }
+  .foot__cols { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: var(--g); padding: 40px 0; border-bottom: 1px solid var(--rule-d); }
+  .foot__cols p { margin: 0; }
+  .foot__cols .label { margin-bottom: 10px; opacity: 0.6; }
+  .foot__mail { font: 500 clamp(22px, 2.6vw, 40px)/1 var(--sans); letter-spacing: -0.03em; text-decoration: none; border-bottom: 1px solid currentColor; }
+  .foot__mark sup { font-size: 0.16em; vertical-align: top; position: relative; top: 0.35em; margin-left: 0.04em; }
+  .foot__mark { margin: 24px 0 0; font: 400 36vw/0.8 var(--display); letter-spacing: -0.01em; white-space: nowrap; text-align: center; }
+  .foot__fine { margin: 18px 0 0; opacity: 0.5; }
+
+  /* tablet */
+  @media (max-width: 1024px) {
+    .file__meta { grid-column: 1 / 13; display: flex; flex-wrap: wrap; gap: 6px 24px; }
+    .file__meta ul { display: flex; gap: 6px 18px; flex-wrap: wrap; }
+    .file__meta p, .file__meta ul { margin: 0; }
+    .file__t { grid-column: 1 / 13; }
+    .file__m, .file:nth-child(odd of .file) .file__m { grid-column: 1 / 13; }
+    .file__body, .file:nth-child(odd of .file) .file__body { grid-column: 1 / 13; max-width: 46ch; }
+    .file__year { display: none; }
+    .quotes { grid-template-columns: 1fr 1fr; }
+    .quote--paper { grid-column: 1 / 3; margin-top: 0; min-height: 0; }
+  }
+
+  /* phone */
+  @media (max-width: 700px) {
+    body { font-size: 14px; }
+    .bar__now span:not(#now) { display: none; }
+    .bar__now { overflow: hidden; }
+    .hero { min-height: max(640px, calc(100svh - 52px)); }
+    .hero__meta { flex-direction: column; gap: 4px; padding-top: 18px; }
+    .hero__h { font-size: 25.5vw; margin-top: 18px; }
+    .ln--1 > span { white-space: normal; }
+    .ln--2 { text-align: left; }
+    .hf--1 { left: auto; right: var(--g); top: 250px; width: 58vw; }
+    .hf--2 { left: var(--g); bottom: 130px; width: 36vw; }
+    .hf--3 { right: var(--g); bottom: 160px; width: 50vw; }
+    .hero__foot p { max-width: 26ch; }
+    .round { width: 48px; height: 48px; }
+    .file__t span + span { padding-left: 0.6em; }
+    .position { row-gap: 32px; }
+    .position .label, .position__big, .position__small { grid-column: 1 / 13; }
+    .collage { grid-template-columns: repeat(6, 1fr); }
+    .cf { margin-top: 0 !important; }
+    .a1, .a6 { grid-column: 1 / 5; }
+    .a2, .a5 { grid-column: 2 / 7; }
+    .a3, .a4, .a7 { grid-column: 1 / 7; }
+    .quotes { grid-template-columns: 1fr; padding-bottom: 64px; }
+    .quote--pink, .quote--paper { margin-top: 0; grid-column: auto; }
+    .quote { min-height: 0; }
+    .updates li { grid-template-columns: 1fr auto; gap: 8px 16px; }
+    .updates p { grid-column: 1 / 3; }
+    .updates .arrow { grid-column: 1 / 3; justify-self: start; }
+    .faq__h, .faq__list { grid-column: 1 / 13; }
+    .faq__h { margin-bottom: 32px; }
+    .foot__cols { grid-template-columns: 1fr; gap: 28px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition-duration: 1ms !important; transition-delay: 0ms !important; }
+    .cf figure { transform: none !important; }
+  }
+</style>
+
+<script>
+  const root = document.documentElement;
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  root.classList.add('js');
+  requestAnimationFrame(() => requestAnimationFrame(() => root.classList.add('ready')));
+
+  // Menu: native modal dialog (inert background, Escape) + aria-expanded + focus return.
+  const menu = document.getElementById('menu') as HTMLDialogElement;
+  const openBtn = document.getElementById('menu-open') as HTMLButtonElement;
+  openBtn.addEventListener('click', () => {
+    menu.showModal();
+    openBtn.setAttribute('aria-expanded', 'true');
+  });
+  document.getElementById('menu-close')!.addEventListener('click', () => menu.close());
+  menu.addEventListener('close', () => {
+    openBtn.setAttribute('aria-expanded', 'false');
+    openBtn.focus();
+  });
+  menu.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => menu.close()));
+
+  // Header follows the chapter under it: tone + current label.
+  const bar = document.querySelector('.bar') as HTMLElement;
+  const now = document.getElementById('now')!;
+  const chapters = document.querySelectorAll<HTMLElement>('[data-tone][data-label]');
+  const barIO = new IntersectionObserver(
+    (entries) => {
+      for (const e of entries) {
+        if (!e.isIntersecting) continue;
+        const el = e.target as HTMLElement;
+        bar.dataset.tone = el.dataset.tone;
+        now.textContent = el.dataset.label ?? '';
+      }
+    },
+    { rootMargin: '-53px 0px -99% 0px' },
+  );
+  chapters.forEach((c) => barIO.observe(c));
+
+  // Section entrances, once.
+  const rvIO = new IntersectionObserver(
+    (entries) => {
+      for (const e of entries) {
+        if (!e.isIntersecting) continue;
+        e.target.classList.add('in');
+        rvIO.unobserve(e.target);
+      }
+    },
+    { rootMargin: '0px 0px -10% 0px' },
+  );
+  document.querySelectorAll('.rv').forEach((el) => (reduce ? el.classList.add('in') : rvIO.observe(el)));
+
+  // Collage parallax: shallow, capped below 5 % of each frame's height, only while on screen.
+  if (!reduce) {
+    const frames = [...document.querySelectorAll<HTMLElement>('.cf figure')];
+    const live = new Set<HTMLElement>();
+    let ticking = false;
+    const update = () => {
+      ticking = false;
+      const vh = innerHeight;
+      for (const f of live) {
+        const r = f.getBoundingClientRect();
+        const p = Math.max(-1, Math.min(1, (r.top + r.height / 2 - vh / 2) / vh));
+        const depth = Math.max(-0.045, Math.min(0.045, Number(f.dataset.depth) || 0));
+        f.style.transform = `translate3d(0, ${(p * depth * r.height).toFixed(2)}px, 0)`;
+      }
+    };
+    const onScroll = () => {
+      if (!ticking && live.size) {
+        ticking = true;
+        requestAnimationFrame(update);
+      }
+    };
+    const pxIO = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        const f = e.target as HTMLElement;
+        if (e.isIntersecting) live.add(f);
+        else live.delete(f);
+      }
+      onScroll();
+    });
+    frames.forEach((f) => pxIO.observe(f));
+    addEventListener('scroll', onScroll, { passive: true });
+    addEventListener('resize', onScroll);
+  }
+</script>

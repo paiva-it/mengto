@@ -1,0 +1,7 @@
+{
+  "title": "WebGL Landing Steering",
+  "kind": "website",
+  "category": "3D & WebGL",
+  "concept": "Halden Nib Works' reservation page for the Meridian 18 fountain pen, steered into Lane A: eighteen slow ink bands and a travelling nib beam drawn by one fragment shader on warm paper, with a live ink switcher, and a steering section that shows the rejected lanes, visual spec, stack, fallback and quality gates read live from the page.",
+  "notes": "Raw WebGL 1, one full-screen-triangle fragment shader, no Three.js (low-risk tier by design). A build-time SVG poster of the same bands is the fallback; the canvas fades in only after its first frame. DPR capped at 1.5, paused when hidden or off-screen, context loss falls back to the poster and restores; reduced motion renders one still frame. Frame time readout comes from rAF deltas, so it reads slow under headless SwiftShader. Reservation form is local-only (no backend)."
+}

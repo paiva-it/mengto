@@ -1,0 +1,897 @@
+---
+import '../../styles/global.css';
+import BackPill from '../../components/BackPill.astro';
+
+const districts = [
+  { id: 'all', label: 'Whole core' },
+  { id: 'old', label: 'Old Town' },
+  { id: 'market', label: 'Market' },
+  { id: 'river', label: 'Riverside' },
+  { id: 'linden', label: 'Linden' },
+];
+
+const timeline = [
+  { t: '05:30', title: 'Delivery window opens', meta: 'Marktgasse · cargo bikes & vans', done: true },
+  { t: '10:00', title: 'Bollards down — Weavers’ Row', meta: 'Market day · stalls until 15:00', live: true },
+  { t: '14:10', title: 'School street — Lindenschule', meta: 'Pick-up · gate 4 closed 40 min' },
+  { t: '19:00', title: 'Evening terraces — River Quay', meta: 'Tables out until 23:00' },
+];
+
+const requests = [
+  { who: 'MK', street: 'Weavers’ Row 14', items: [{ text: 'Add a bench outside the bakery', done: true }, { text: 'Move bike rack out of fire lane', done: false }] },
+  { who: 'JS', street: 'Kornstraße', items: [{ text: 'Extend delivery window to 11:30', done: true }, { text: 'Plant two limes at the corner', done: false }] },
+];
+
+const steps = [
+  { n: '01', title: 'Filter', body: 'Six modal filters at the ring-road gates. Buses, bikes and blue lights pass; through-traffic turns back.', state: 'Done', p: 100 },
+  { n: '02', title: 'Trial', body: 'Paint, planters and loose seating for ninety days. Anything that fails is moved by Monday.', state: 'Done', p: 100 },
+  { n: '03', title: 'Count', body: '38 street sensors log footfall, NO₂ and noise every hour — published raw, here, before anyone spins it.', state: 'Running', p: 64 },
+  { n: '04', title: 'Rebuild', body: 'Kerbs come out, stone goes down, drains learn to take rain. Weavers’ Row first, spring 2027.', state: 'Next', p: 12 },
+];
+
+const modes = [
+  { m: 'Walking', v: 46 },
+  { m: 'Cycling', v: 29 },
+  { m: 'Tram & bus', v: 18 },
+  { m: 'Car', v: 7 },
+];
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Open Core — Vessmark car-free centre</title>
+    <meta name="description" content="Open Core is Vessmark's public console for its car-free old town: closures, air, noise and resident requests, live." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  </head>
+  <body class="hc-page">
+    <BackPill />
+    <main class="shell" id="top">
+      <canvas class="shell-dust" aria-hidden="true"></canvas>
+      <span class="rail rail-l" aria-hidden="true"></span>
+      <span class="rail rail-r" aria-hidden="true"></span>
+
+      <!-- Top bar -->
+      <header class="bar">
+        <a href="#top" class="brand" aria-label="Open Core home">
+          <span class="key key-sq" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3"/><path d="M12 3.5v5M12 15.5v5M3.5 12h5M15.5 12h5"/></svg>
+          </span>
+          <span class="brand-t">OPEN CORE<span class="brand-s">Vessmark</span></span>
+        </a>
+        <nav class="seg" aria-label="District">
+          <div class="seg-in" role="tablist">
+            {districts.map((d, i) => (
+              <button type="button" role="tab" class="seg-b" data-district={d.id} aria-selected={i === 0 ? 'true' : 'false'}>
+                {i === 0 && <span class="sig-dot" aria-hidden="true"></span>}{d.label}
+              </button>
+            ))}
+          </div>
+        </nav>
+        <div class="bar-r">
+          <span class="mono tiny dim hide-sm">Day 214</span>
+          <button type="button" class="key key-ic" aria-label="Notifications">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 16V11a6 6 0 1 1 12 0v5l1.5 2h-15z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>
+            <span class="badge-dot" aria-hidden="true"></span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Hero -->
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow mono"><span class="sig-dot pulse" aria-hidden="true"></span>LIVE · 1.8 KM² CAR-FREE · 38 SENSORS</p>
+          <h1 class="h1">A city centre <span class="h1-dim">that breathes again.</span></h1>
+          <p class="lede">Open Core is Vessmark’s public console for its car-free old town — every closed street, every bollard and every hour of air, reported as it happens and open to the people who live here.</p>
+          <div class="cta-row">
+            <a href="#streets" class="key key-light">Find your street
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </a>
+            <a href="#charter" class="key key-dark">Read the charter</a>
+          </div>
+          <dl class="vitals">
+            <div class="mold vital">
+              <dt class="mono tiny dim">NO₂ · annual mean</dt>
+              <dd><span class="num" data-v="no2">18</span><span class="unit">µg/m³</span></dd>
+              <dd class="delta mono"><span data-v="no2d">−41%</span> since closure</dd>
+            </div>
+            <div class="mold vital">
+              <dt class="mono tiny dim">Street noise · daytime</dt>
+              <dd><span class="num" data-v="db">52</span><span class="unit">dB(A)</span></dd>
+              <dd class="delta mono"><span data-v="dbd">−9 dB</span> at façade</dd>
+            </div>
+            <div class="mold vital hide-md">
+              <dt class="mono tiny dim">Streets returned</dt>
+              <dd><span class="num" data-v="streets">64</span><span class="unit">of 71</span></dd>
+              <dd class="delta mono">7 in trial</dd>
+            </div>
+          </dl>
+        </div>
+
+        <!-- Map instrument -->
+        <div class="mold map-card">
+          <div class="win-chrome">
+            <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+            <span class="mono tiny dim">inner-ring.live</span>
+            <span class="chip mono"><span class="sig-dot" aria-hidden="true"></span><span data-v="label">Whole core</span></span>
+          </div>
+          <div class="well map-well">
+            <svg class="map" viewBox="0 0 440 300" role="img" aria-label="Map of Vessmark's car-free core: six loops reachable only from the ring road, with six filtered gates and live cyclist movement.">
+              <defs>
+                <pattern id="hc-grid" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0H0V20" fill="none" stroke="rgba(255,255,255,.035)" stroke-width="1"/></pattern>
+                <radialGradient id="hc-glow" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#74f0a7" stop-opacity=".18"/><stop offset="1" stop-color="#74f0a7" stop-opacity="0"/></radialGradient>
+              </defs>
+              <rect width="440" height="300" fill="url(#hc-grid)"/>
+              <!-- river -->
+              <path d="M-10 262 C 90 236, 160 288, 250 260 S 400 236, 450 252" fill="none" stroke="#1f2a33" stroke-width="18" stroke-linecap="round"/>
+              <path d="M-10 262 C 90 236, 160 288, 250 260 S 400 236, 450 252" fill="none" stroke="#2c3b47" stroke-width="1" stroke-dasharray="2 6"/>
+              <!-- loops (cells) -->
+              <g class="cells">
+                <path data-cell="old" d="M96 70 L206 52 L214 136 L110 150 Z"/>
+                <path data-cell="market" d="M206 52 L330 66 L322 140 L214 136 Z"/>
+                <path data-cell="linden" d="M330 66 L372 120 L362 196 L322 140 Z"/>
+                <path data-cell="river" d="M110 150 L214 136 L222 220 L120 228 Z"/>
+                <path data-cell="river" d="M214 136 L322 140 L362 196 L300 226 L222 220 Z"/>
+                <path data-cell="old" d="M70 120 L96 70 L110 150 L120 228 L76 200 Z"/>
+              </g>
+              <!-- ring road (cars allowed) -->
+              <path class="ring" d="M60 112 C 60 60, 120 34, 220 34 S 392 56, 392 120 S 380 224, 300 240 S 110 252, 70 214 S 60 150, 60 112 Z"/>
+              <!-- car-free streets -->
+              <g class="streets">
+                <path d="M96 70 L206 52 L330 66 L372 120"/>
+                <path d="M110 150 L214 136 L322 140 L362 196"/>
+                <path d="M206 52 L214 136 L222 220"/>
+                <path d="M96 70 L110 150 L120 228"/>
+                <path d="M330 66 L322 140 L300 226"/>
+                <path d="M70 120 L110 150"/>
+              </g>
+              <!-- filters / gates -->
+              <g class="gates">
+                <rect x="66" y="108" width="8" height="8"/><rect x="200" y="30" width="8" height="8"/>
+                <rect x="368" y="84" width="8" height="8"/><rect x="372" y="186" width="8" height="8"/>
+                <rect x="216" y="232" width="8" height="8"/><rect x="104" y="216" width="8" height="8"/>
+              </g>
+              <circle cx="214" cy="136" r="70" fill="url(#hc-glow)"/>
+              <!-- movers -->
+              <g class="movers">
+                <circle r="3"><animateMotion dur="14s" repeatCount="indefinite" path="M96 70 L206 52 L330 66 L372 120"/></circle>
+                <circle r="3"><animateMotion dur="11s" repeatCount="indefinite" begin="-4s" path="M110 150 L214 136 L322 140 L362 196"/></circle>
+                <circle r="2.5"><animateMotion dur="9s" repeatCount="indefinite" begin="-2s" path="M222 220 L214 136 L206 52"/></circle>
+                <circle r="2.5"><animateMotion dur="12s" repeatCount="indefinite" begin="-7s" path="M120 228 L110 150 L96 70"/></circle>
+                <circle r="2.5"><animateMotion dur="10s" repeatCount="indefinite" begin="-3s" path="M300 226 L322 140 L330 66"/></circle>
+                <circle r="2"><animateMotion dur="16s" repeatCount="indefinite" begin="-9s" path="M372 120 L330 66 L206 52 L96 70"/></circle>
+              </g>
+              <g class="labels">
+                <text x="128" y="104">OLD TOWN</text><text x="240" y="100">MARKET</text>
+                <text x="334" y="134">LINDEN</text><text x="232" y="200">RIVERSIDE</text>
+                <text x="14" y="292">ring road · cars ok</text>
+              </g>
+            </svg>
+            <span class="corner c-tl" aria-hidden="true"></span><span class="corner c-tr" aria-hidden="true"></span>
+            <span class="corner c-bl" aria-hidden="true"></span><span class="corner c-br" aria-hidden="true"></span>
+          </div>
+          <div class="map-legend mono tiny">
+            <span><i class="lg lg-street"></i>Car-free street</span>
+            <span><i class="lg lg-ring"></i>Ring road</span>
+            <span><i class="lg lg-gate"></i>Filter gate</span>
+            <span><i class="lg lg-move"></i>Bikes · live</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Today -->
+      <section class="today" aria-labelledby="today-h">
+        <h2 id="today-h" class="sr">Today on the streets</h2>
+        <div class="col">
+          <div class="col-h">
+            <span class="col-t"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>Street timeline</span>
+            <span class="mono tiny dim">Thu 2 Oct</span>
+          </div>
+          <ol class="mold tl">
+            {timeline.map((e) => (
+              <li class:list={['tl-i', { 'is-done': e.done, 'is-live': e.live }]}>
+                <span class="tl-t mono">{e.t}</span>
+                <span class="tl-dot" aria-hidden="true"></span>
+                <div class:list={['tl-b', { 'mold raised': e.live }]}>
+                  <p class="tl-title">{e.title}</p>
+                  <p class="tl-meta">{e.meta}</p>
+                  {e.live && <span class="chip chip-sig mono">LIVE</span>}
+                </div>
+              </li>
+            ))}
+          </ol>
+        </div>
+
+        <div class="col">
+          <div class="col-h">
+            <span class="col-t"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M9 11l2 2 4-4"/></svg>Resident requests</span>
+            <span class="mono tiny dim"><span id="open-count">2</span> open</span>
+          </div>
+          <div class="mold req">
+            {requests.map((r) => (
+              <div class="req-g">
+                <p class="req-who"><span class="well av mono">{r.who}</span><span class="mono">{r.street}</span></p>
+                {r.items.map((it) => (
+                  <label class="check">
+                    <input type="checkbox" checked={it.done} />
+                    <span class="box" aria-hidden="true"><svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3.5 8.5l3 3 6-7"/></svg></span>
+                    <span class="check-t">{it.text}</span>
+                  </label>
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div class="col">
+          <div class="col-h">
+            <span class="col-t"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 12a8 8 0 0 1 16 0M7.5 12a4.5 4.5 0 0 1 9 0"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/></svg>Instruments</span>
+            <span class="mono tiny dim">hourly</span>
+          </div>
+          <div class="mold inst">
+            <div class="inst-top">
+              <span class="well inst-ic" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 9h11a3 3 0 1 0-3-3M3 14h15a3 3 0 1 1-3 3M3 19h7"/></svg></span>
+              <div>
+                <p class="mono tiny"><span class="sig-dot" aria-hidden="true"></span> Air · Weavers’ Row</p>
+                <p class="inst-title">NO₂ at <span id="air-hour">08:00</span></p>
+                <p class="dim small"><span id="air-val">22</span> µg/m³ · WHO line 10</p>
+              </div>
+            </div>
+            <div class="meter well" aria-hidden="true"><span class="meter-f" id="air-fill"></span><span class="meter-who"></span></div>
+            <label class="range-l">
+              <span class="sr">Hour of day</span>
+              <input id="air-range" class="range" type="range" min="0" max="23" value="8" />
+            </label>
+            <div class="range-ticks mono tiny dim"><span>00</span><span>06</span><span>12</span><span>18</span><span>23</span></div>
+          </div>
+          <div class="mold inst">
+            <div class="inst-top">
+              <span class="well inst-ic" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="6" y="3" width="12" height="14" rx="3"/><path d="M6 11h12M9 21l1.5-4M15 21l-1.5-4"/></svg></span>
+              <div>
+                <p class="mono tiny"><span class="sig-dot" aria-hidden="true"></span> Tram · Line 3</p>
+                <p class="inst-title">Every 6 minutes</p>
+                <p class="dim small">Quay → Linden · next in <span id="tram-n">4</span> min</p>
+              </div>
+            </div>
+            <div class="track well" aria-hidden="true"><span class="track-f" id="tram-fill"></span><span class="knob" id="tram-knob"></span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Charter / steps -->
+      <section class="block" id="charter" aria-labelledby="charter-h">
+        <div class="block-h">
+          <p class="eyebrow mono">THE CHARTER · FOUR MOVES</p>
+          <h2 id="charter-h" class="h2">From kerb to commons. <span class="h1-dim">Slowly, in public.</span></h2>
+        </div>
+        <div class="steps">
+          {steps.map((s) => (
+            <article class="mold step">
+              <div class="step-top">
+                <span class="well step-n mono">{s.n}</span>
+                <span class:list={['chip mono', { 'chip-sig': s.state === 'Running' }]}>{s.state}</span>
+              </div>
+              <h3 class="step-t">{s.title}</h3>
+              <p class="dim small">{s.body}</p>
+              <div class="sliver well" aria-label={`${s.p}% complete`} role="img"><span style={`width:${s.p}%`}></span></div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <!-- Instruments row -->
+      <section class="block" aria-labelledby="loops-h">
+        <div class="duo">
+          <div class="mold orbit-card">
+            <div class="orbit-copy">
+              <p class="eyebrow mono">CIRCULATION</p>
+              <h2 id="loops-h" class="h2 h2-sm">Six loops. No shortcuts.</h2>
+              <p class="dim small">Every address is still reachable by car from the ring road — you just can’t drive through the core to get somewhere else. Six loops, each with one way in and the same way out.</p>
+            </div>
+            <div class="well orbit-well">
+              <svg class="orbit" viewBox="0 0 260 260" aria-hidden="true">
+                <circle cx="130" cy="130" r="118" class="o-ring o-dash"/>
+                <circle cx="130" cy="130" r="80" class="o-ring"/>
+                <circle cx="130" cy="130" r="38" class="o-core"/>
+                <text x="130" y="134" class="o-lbl">CORE</text>
+                <g class="o-spin">
+                  <g class="o-node"><line x1="130" y1="50" x2="130" y2="12"/><circle cx="130" cy="50" r="7"/></g>
+                  <g class="o-node" transform="rotate(60 130 130)"><line x1="130" y1="50" x2="130" y2="12"/><circle cx="130" cy="50" r="7"/></g>
+                  <g class="o-node" transform="rotate(120 130 130)"><line x1="130" y1="50" x2="130" y2="12"/><circle cx="130" cy="50" r="7"/></g>
+                  <g class="o-node is-sig" transform="rotate(180 130 130)"><line x1="130" y1="50" x2="130" y2="12"/><circle cx="130" cy="50" r="7"/></g>
+                  <g class="o-node" transform="rotate(240 130 130)"><line x1="130" y1="50" x2="130" y2="12"/><circle cx="130" cy="50" r="7"/></g>
+                  <g class="o-node" transform="rotate(300 130 130)"><line x1="130" y1="50" x2="130" y2="12"/><circle cx="130" cy="50" r="7"/></g>
+                </g>
+              </svg>
+            </div>
+          </div>
+          <div class="mold modes">
+            <div class="col-h">
+              <span class="col-t">Trips into the core, by mode</span>
+              <span class="mono tiny dim">Sep 2026</span>
+            </div>
+            <ul class="mode-list">
+              {modes.map((m, i) => (
+                <li>
+                  <span class="mode-m">{m.m}</span>
+                  <span class="well bar-w"><span class:list={['bar-f', { 'bar-sig': i === 0 }]} style={`width:${m.v}%`}></span></span>
+                  <span class="mono mode-v">{m.v}%</span>
+                </li>
+              ))}
+            </ul>
+            <div class="mode-foot">
+              <div><p class="num num-sm">1,240</p><p class="mono tiny dim">cargo-bike drops / day</p></div>
+              <div><p class="num num-sm">+31%</p><p class="mono tiny dim">ground-floor footfall</p></div>
+              <div><p class="num num-sm">0</p><p class="mono tiny dim">shops closed for access</p></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Streets search -->
+      <section class="block" id="streets" aria-labelledby="streets-h">
+        <div class="duo duo-join">
+          <div class="block-h">
+            <p class="eyebrow mono">YOUR STREET</p>
+            <h2 id="streets-h" class="h2">What’s happening <span class="h1-dim">outside your door?</span></h2>
+            <p class="lede">Search any of the 71 streets inside the ring. Choose what we tell you about — nothing else, and never ads.</p>
+            <div class="switches">
+              <button type="button" class="sw" role="switch" aria-checked="true"><span class="sw-t well"><span class="sw-k"></span></span>Bollard &amp; closure changes</button>
+              <button type="button" class="sw" role="switch" aria-checked="false"><span class="sw-t well"><span class="sw-k"></span></span>Air above the WHO line</button>
+              <button type="button" class="sw" role="switch" aria-checked="true"><span class="sw-t well"><span class="sw-k"></span></span>Council votes on my loop</button>
+            </div>
+          </div>
+          <div class="mold search-card">
+            <label class="well search">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/></svg>
+              <span class="sr">Street name</span>
+              <input id="street-q" type="search" placeholder="Try “Weavers” or “Quay”" autocomplete="off" />
+              <kbd class="mono tiny">/</kbd>
+            </label>
+            <ul class="results" id="street-list" aria-live="polite"></ul>
+            <a href="#top" class="key key-light key-wide">Subscribe to this street</a>
+          </div>
+        </div>
+      </section>
+
+      <footer class="foot mono tiny dim">
+        <span><span class="sig-dot" aria-hidden="true"></span> Open Core · a public service of the City of Vessmark (fictional)</span>
+        <span>Data refreshed hourly · CC BY 4.0</span>
+      </footer>
+    </main>
+
+    <script>
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const $ = <T extends Element = HTMLElement>(s: string, r: ParentNode = document) => r.querySelector(s) as T;
+      const $$ = (s: string, r: ParentNode = document) => [...r.querySelectorAll<HTMLElement>(s)];
+
+      // District tabs → vitals + map cell highlight
+      const data: Record<string, { label: string; no2: number; no2d: string; db: number; dbd: string; streets: string }> = {
+        all: { label: 'Whole core', no2: 18, no2d: '−41%', db: 52, dbd: '−9 dB', streets: '64' },
+        old: { label: 'Old Town', no2: 16, no2d: '−46%', db: 49, dbd: '−11 dB', streets: '22' },
+        market: { label: 'Market', no2: 21, no2d: '−35%', db: 55, dbd: '−7 dB', streets: '14' },
+        river: { label: 'Riverside', no2: 17, no2d: '−44%', db: 51, dbd: '−10 dB', streets: '17' },
+        linden: { label: 'Linden', no2: 19, no2d: '−38%', db: 53, dbd: '−8 dB', streets: '11' },
+      };
+      const tabs = $$('.seg-b');
+      const select = (btn: HTMLElement) => {
+        const id = btn.dataset.district!;
+        tabs.forEach((t) => {
+          t.setAttribute('aria-selected', String(t === btn));
+          t.tabIndex = t === btn ? 0 : -1;
+        });
+        const d = data[id];
+        for (const k of ['no2', 'no2d', 'db', 'dbd', 'streets', 'label'] as const) {
+          $$(`[data-v="${k}"]`).forEach((el) => (el.textContent = String(d[k])));
+        }
+        $$('.cells path').forEach((p) => p.classList.toggle('on', id === 'all' || p.dataset.cell === id));
+      };
+      tabs.forEach((t, i) => {
+        t.addEventListener('click', () => select(t));
+        t.addEventListener('keydown', (e) => {
+          const step = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+          if (!step) return;
+          const n = tabs[(i + step + tabs.length) % tabs.length];
+          n.focus();
+          select(n);
+        });
+      });
+      select(tabs[0]);
+
+      // Resident requests counter
+      const boxes = $$('.req input') as unknown as HTMLInputElement[];
+      const count = () => ($('#open-count').textContent = String(boxes.filter((b) => !b.checked).length));
+      boxes.forEach((b) => b.addEventListener('change', count));
+      count();
+
+      // Air slider
+      const no2 = [11, 9, 8, 8, 9, 13, 19, 24, 22, 18, 16, 15, 16, 15, 16, 18, 21, 23, 20, 17, 15, 14, 13, 12];
+      const range = $<HTMLInputElement>('#air-range');
+      const air = () => {
+        const h = Number(range.value);
+        const v = no2[h];
+        $('#air-hour').textContent = `${String(h).padStart(2, '0')}:00`;
+        $('#air-val').textContent = String(v);
+        $('#air-fill').style.width = `${(v / 30) * 100}%`;
+        range.style.setProperty('--p', `${(h / 23) * 100}%`);
+        range.setAttribute('aria-valuetext', `${String(h).padStart(2, '0')}:00, ${v} micrograms per cubic metre`);
+      };
+      range.addEventListener('input', air);
+      air();
+
+      // Tram progress (6-minute cycle, compressed to 24 s)
+      const fill = $('#tram-fill');
+      const knob = $('#tram-knob');
+      const tramN = $('#tram-n');
+      const tram = (p: number) => {
+        fill.style.width = `${p * 100}%`;
+        knob.style.left = `${p * 100}%`;
+        tramN.textContent = String(Math.max(1, Math.ceil(6 * (1 - p))));
+      };
+      if (reduce) tram(0.34);
+      else {
+        const t0 = performance.now();
+        const loop = (t: number) => {
+          tram(((t - t0) / 24000 + 0.34) % 1);
+          requestAnimationFrame(loop);
+        };
+        requestAnimationFrame(loop);
+      }
+
+      // Switches
+      $$('.sw').forEach((s) => s.addEventListener('click', () => s.setAttribute('aria-checked', String(s.getAttribute('aria-checked') !== 'true'))));
+
+      // Street search
+      const streets: [string, string, boolean][] = [
+        ['Weavers’ Row', 'Car-free · market Thu & Sat', true],
+        ['Kornstraße', 'Car-free · deliveries 05:30–10:30', true],
+        ['River Quay', 'Car-free · terraces until 23:00', true],
+        ['Lindenallee', 'School street · 07:40–08:20, 14:10–14:50', false],
+        ['Glasmacher Gasse', 'Trial · planters until 12 Jan', false],
+        ['Salt Steps', 'Car-free · stepped, step-free route via Kornstraße', true],
+        ['Old Mint Yard', 'Access only · residents & blue lights', false],
+        ['Bridge Lane', 'Car-free · cycle priority', true],
+        ['Tannery Walk', 'Trial · loose seating', false],
+      ];
+      const list = $('#street-list');
+      const q = $<HTMLInputElement>('#street-q');
+      const render = () => {
+        const term = q.value.trim().toLowerCase();
+        const hits = streets.filter(([n]) => n.toLowerCase().includes(term)).slice(0, 4);
+        list.replaceChildren(
+          ...(hits.length
+            ? hits.map(([n, s, free]) => {
+                const li = document.createElement('li');
+                li.className = 'res';
+                li.innerHTML = `<span class="res-dot ${free ? 'is-sig' : ''}"></span><span><span class="res-n"></span><span class="res-s"></span></span><span class="mono tiny dim">${free ? 'FREE' : 'PART'}</span>`;
+                li.querySelector('.res-n')!.textContent = n;
+                li.querySelector('.res-s')!.textContent = s;
+                return li;
+              })
+            : [Object.assign(document.createElement('li'), { className: 'res res-empty', textContent: 'Not inside the ring — try another spelling.' })]),
+        );
+      };
+      q.addEventListener('input', render);
+      addEventListener('keydown', (e) => {
+        if (e.key === '/' && document.activeElement !== q && !(document.activeElement instanceof HTMLInputElement)) {
+          e.preventDefault();
+          q.focus();
+        }
+      });
+      render();
+
+      // Reduced motion: freeze SVG movers
+      if (reduce) $$('svg.map').forEach((s) => (s as unknown as SVGSVGElement).pauseAnimations());
+
+      // Faint dust inside the shell
+      const cv = $<HTMLCanvasElement>('.shell-dust');
+      const ctx = cv.getContext('2d')!;
+      let w = 0;
+      let h = 0;
+      const dpr = Math.min(devicePixelRatio || 1, 2);
+      const dots = Array.from({ length: 140 }, () => ({ x: Math.random(), y: Math.random(), s: Math.random() * 0.00006 + 0.00002, a: Math.random() * 0.35 + 0.08 }));
+      const size = () => {
+        w = cv.clientWidth;
+        h = cv.clientHeight;
+        cv.width = w * dpr;
+        cv.height = h * dpr;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      };
+      const draw = (dt: number) => {
+        ctx.clearRect(0, 0, w, h);
+        for (const d of dots) {
+          d.y -= d.s * dt;
+          if (d.y < 0) d.y = 1;
+          const x = Math.round((d.x * w) / 3) * 3;
+          const y = Math.round((d.y * h) / 3) * 3;
+          ctx.fillStyle = `rgba(255,255,255,${d.a * (1 - d.y * 0.6)})`;
+          ctx.fillRect(x, y, 1.5, 1.5);
+        }
+      };
+      size();
+      addEventListener('resize', size);
+      let visible = true;
+      new IntersectionObserver(([e]) => (visible = e.isIntersecting)).observe(cv);
+      if (reduce) draw(0);
+      else {
+        let last = performance.now();
+        const tick = (t: number) => {
+          const dt = Math.min(t - last, 50);
+          last = t;
+          if (visible && !document.hidden) draw(dt);
+          requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+      }
+    </script>
+
+    <style is:global>
+      :root {
+        --page: #e6e7e9;
+        --shell: #0c0d0f;
+        --s1: #1b1c20;
+        --s2: #121316;
+        --well: #08090a;
+        --ink: #f3f4f5;
+        --mute: #9a9ca3;
+        --faint: #5d6068;
+        --sig: #74f0a7;
+        --sig-d: #2e9e63;
+        --sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
+        --mono: 'JetBrains Mono', ui-monospace, monospace;
+      }
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+      body.hc-page {
+        margin: 0;
+        background: radial-gradient(120% 70% at 50% 0%, #f1f2f3 0%, var(--page) 60%, #dcdde0 100%);
+        color: var(--ink);
+        font-family: var(--sans);
+        -webkit-font-smoothing: antialiased;
+        overflow-x: hidden;
+      }
+      .mono { font-family: var(--mono); letter-spacing: 0.04em; }
+      .tiny { font-size: 11px; text-transform: uppercase; }
+      .small { font-size: 14px; line-height: 1.55; }
+      .dim { color: var(--mute); }
+      .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+      p, h1, h2, h3, ol, ul, dl, dd { margin: 0; padding: 0; }
+      ol, ul { list-style: none; }
+      a { color: inherit; text-decoration: none; }
+      :focus-visible { outline: 2px solid var(--sig); outline-offset: 3px; border-radius: 10px; }
+
+      /* Master shell */
+      .shell {
+        position: relative;
+        max-width: 1360px;
+        margin: 40px auto 56px;
+        padding: 28px 44px 28px;
+        border-radius: 40px;
+        background:
+          radial-gradient(90% 50% at 70% 0%, rgba(255, 255, 255, 0.05), transparent 60%),
+          linear-gradient(180deg, #141518 0%, var(--shell) 38%, #09090b 100%);
+        box-shadow:
+          0 0 0 1px #000,
+          inset 0 1px 0 rgba(255, 255, 255, 0.1),
+          inset 0 0 0 1px rgba(255, 255, 255, 0.04),
+          0 2px 3px rgba(0, 0, 0, 0.25),
+          0 30px 60px -20px rgba(0, 0, 0, 0.45),
+          0 80px 120px -40px rgba(0, 0, 0, 0.35);
+        overflow: hidden;
+        isolation: isolate;
+      }
+      .shell-dust { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; opacity: 0.55;
+        mask-image: linear-gradient(180deg, #000 0%, transparent 55%); -webkit-mask-image: linear-gradient(180deg, #000 0%, transparent 55%); }
+      .rail { position: absolute; top: 0; bottom: 0; width: 1px; background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.05) 12%, rgba(255, 255, 255, 0.05) 88%, transparent); z-index: -1; }
+      .rail-l { left: 22px; } .rail-r { right: 22px; }
+
+      /* Molded surfaces */
+      .mold {
+        position: relative;
+        border-radius: 22px;
+        background: linear-gradient(180deg, var(--s1) 0%, var(--s2) 100%);
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.07),
+          inset 0 -1px 0 rgba(0, 0, 0, 0.5),
+          0 1px 0 rgba(0, 0, 0, 0.8),
+          0 12px 28px -12px rgba(0, 0, 0, 0.75);
+      }
+      .mold::before {
+        content: ''; position: absolute; inset: 0; border-radius: inherit; padding: 1px; pointer-events: none;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.03) 45%, rgba(255, 255, 255, 0.07));
+        -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+        -webkit-mask-composite: xor; mask-composite: exclude;
+      }
+      .mold.raised { background: linear-gradient(180deg, #24252a, #18191c); }
+      .well {
+        background: var(--well);
+        box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.8), inset 0 0 0 1px rgba(255, 255, 255, 0.035), 0 1px 0 rgba(255, 255, 255, 0.06);
+      }
+
+      /* Keys (buttons) */
+      .key {
+        display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+        height: 46px; padding: 0 20px; border-radius: 14px; border: 0; cursor: pointer;
+        font: 500 15px var(--sans); color: var(--ink);
+        transition: filter 0.2s, transform 0.2s;
+      }
+      .key:hover { filter: brightness(1.12); }
+      .key:active { transform: translateY(1px); }
+      .key-dark, .key-sq, .key-ic {
+        background: linear-gradient(180deg, #26272c, #17181b);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), inset 0 0 0 1px rgba(255, 255, 255, 0.05), 0 1px 0 #000, 0 6px 14px -6px rgba(0, 0, 0, 0.9);
+      }
+      .key-light {
+        color: #0b0c0e;
+        background: linear-gradient(180deg, #ffffff, #d9dadd);
+        box-shadow: inset 0 1px 0 #fff, inset 0 -2px 0 rgba(0, 0, 0, 0.12), 0 1px 0 #000, 0 8px 20px -8px rgba(255, 255, 255, 0.25);
+      }
+      .key-sq { width: 44px; height: 44px; padding: 0; border-radius: 13px; }
+      .key-ic { width: 42px; height: 42px; padding: 0; border-radius: 50%; position: relative; color: #c9cbd0; }
+      .key-wide { width: 100%; }
+      .badge-dot { position: absolute; top: 10px; right: 11px; width: 6px; height: 6px; border-radius: 50%; background: var(--sig); box-shadow: 0 0 6px var(--sig); }
+
+      .sig-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--sig); box-shadow: 0 0 0 2px rgba(116, 240, 167, 0.15), 0 0 8px rgba(116, 240, 167, 0.6); vertical-align: middle; margin-right: 8px; }
+      .pulse { animation: pulse 2.4s ease-in-out infinite; }
+      @keyframes pulse { 50% { box-shadow: 0 0 0 5px rgba(116, 240, 167, 0), 0 0 12px rgba(116, 240, 167, 0.8); } }
+
+      .chip {
+        display: inline-flex; align-items: center; height: 24px; padding: 0 9px; border-radius: 7px; font-size: 11px; color: #c9cbd0;
+        background: #0a0b0c; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.09), inset 0 1px 2px rgba(0, 0, 0, 0.8);
+      }
+      .chip .sig-dot { margin-right: 6px; }
+      .chip-sig { color: var(--sig); box-shadow: inset 0 0 0 1px rgba(116, 240, 167, 0.35), inset 0 1px 2px rgba(0, 0, 0, 0.8); }
+
+      /* Bar */
+      .bar { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+      .brand { display: flex; align-items: center; gap: 14px; color: #e5e6e8; }
+      .brand-t { font: 500 14px var(--sans); letter-spacing: 0.08em; display: flex; flex-direction: column; line-height: 1.2; }
+      .brand-s { font: 400 12px var(--mono); letter-spacing: 0.04em; color: var(--faint); text-transform: uppercase; }
+      .seg { min-width: 0; }
+      .seg-in {
+        display: flex; gap: 4px; padding: 5px; border-radius: 999px; overflow-x: auto; scrollbar-width: none;
+        background: #08090a; box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.9), inset 0 0 0 1px rgba(255, 255, 255, 0.06), 0 1px 0 rgba(255, 255, 255, 0.06);
+      }
+      .seg-in::-webkit-scrollbar { display: none; }
+      .seg-b {
+        flex: none; display: inline-flex; align-items: center; height: 36px; padding: 0 18px; border: 0; border-radius: 999px; cursor: pointer;
+        background: transparent; color: var(--mute); font: 500 14px var(--sans); transition: color 0.2s, background 0.2s;
+      }
+      .seg-b:hover { color: var(--ink); }
+      .seg-b[aria-selected='true'] {
+        color: var(--ink);
+        background: linear-gradient(180deg, #2a2b30, #1b1c20);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 1px 0 #000, 0 4px 10px -4px rgba(0, 0, 0, 0.9);
+      }
+      .seg-b .sig-dot { width: 5px; height: 5px; }
+      .bar-r { display: flex; align-items: center; gap: 18px; }
+
+      /* Hero */
+      .hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.02fr); gap: 48px; align-items: center; padding: 64px 0 52px; }
+      .eyebrow { font-size: 12px; color: var(--sig); letter-spacing: 0.14em; margin-bottom: 22px; }
+      .h1 { font-weight: 400; font-size: clamp(42px, 5.2vw, 76px); line-height: 0.98; letter-spacing: -0.035em; color: #f6f7f8; text-wrap: balance; }
+      .h1-dim { color: #8d9097; }
+      .lede { margin-top: 22px; max-width: 34rem; font-size: 17px; line-height: 1.6; color: var(--mute); }
+      .cta-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
+      .vitals { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 36px; }
+      .vital { padding: 16px 16px 14px; border-radius: 18px; }
+      .vital dd:nth-of-type(1) { margin-top: 10px; display: flex; align-items: baseline; gap: 6px; }
+      .num { font-weight: 500; font-size: 32px; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+      .num-sm { font-size: 26px; }
+      .unit { font-size: 12px; color: var(--mute); }
+      .delta { margin-top: 6px; font-size: 11px; color: var(--mute); }
+      .delta span { color: var(--sig); }
+
+      .map-card { padding: 12px 12px 14px; border-radius: 28px; }
+      .win-chrome { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 4px 6px 12px; }
+      .lights { display: flex; gap: 6px; }
+      .lights i { width: 10px; height: 10px; border-radius: 50%; background: linear-gradient(180deg, #34363c, #1c1d21); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 1px 0 #000; }
+      .lights i:first-child { background: radial-gradient(circle at 40% 35%, #b7ffd5, var(--sig) 45%, var(--sig-d)); box-shadow: 0 0 8px rgba(116, 240, 167, 0.5); }
+      .map-well { position: relative; border-radius: 18px; padding: 10px; overflow: hidden; }
+      .map { display: block; width: 100%; height: auto; }
+      .cells path { fill: rgba(255, 255, 255, 0.015); stroke: rgba(255, 255, 255, 0.05); transition: fill 0.4s; }
+      .cells path.on { fill: rgba(116, 240, 167, 0.06); }
+      .ring { fill: none; stroke: #3a3c42; stroke-width: 7; }
+      .streets path { fill: none; stroke: #e6e7ea; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; opacity: 0.85; }
+      .gates rect { fill: var(--sig); filter: drop-shadow(0 0 4px rgba(116, 240, 167, 0.8)); }
+      .movers circle { fill: var(--sig); filter: drop-shadow(0 0 3px rgba(116, 240, 167, 0.9)); }
+      .labels text { font: 500 8.5px var(--mono); letter-spacing: 0.12em; fill: #6b6e76; }
+      .corner { position: absolute; width: 10px; height: 10px; border-color: rgba(255, 255, 255, 0.25); border-style: solid; border-width: 0; }
+      .c-tl { top: 8px; left: 8px; border-top-width: 1px; border-left-width: 1px; }
+      .c-tr { top: 8px; right: 8px; border-top-width: 1px; border-right-width: 1px; }
+      .c-bl { bottom: 8px; left: 8px; border-bottom-width: 1px; border-left-width: 1px; }
+      .c-br { bottom: 8px; right: 8px; border-bottom-width: 1px; border-right-width: 1px; }
+      .map-legend { display: flex; flex-wrap: wrap; gap: 8px 18px; padding: 14px 8px 2px; color: var(--mute); font-size: 10px; }
+      .map-legend span { display: inline-flex; align-items: center; gap: 7px; }
+      .lg { display: inline-block; }
+      .lg-street { width: 14px; height: 2px; background: #e6e7ea; }
+      .lg-ring { width: 14px; height: 5px; border-radius: 3px; background: #3a3c42; }
+      .lg-gate { width: 7px; height: 7px; background: var(--sig); }
+      .lg-move { width: 6px; height: 6px; border-radius: 50%; background: var(--sig); box-shadow: 0 0 6px var(--sig); }
+
+      /* Today */
+      .today { display: grid; grid-template-columns: 1.15fr 1fr 0.95fr; gap: 28px; align-items: start; padding-top: 8px; }
+      .col { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+      .col-h { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 4px; }
+      .col-t { display: inline-flex; align-items: center; gap: 10px; font: 500 13px var(--sans); text-transform: uppercase; letter-spacing: 0.06em; color: #d9dbde; }
+      .col-t svg { color: var(--mute); }
+
+      .tl { padding: 22px 20px 10px; }
+      .tl-i { position: relative; display: grid; grid-template-columns: 50px 14px minmax(0, 1fr); gap: 12px; padding-bottom: 22px; }
+      .tl-i::after { content: ''; position: absolute; left: 68px; top: 16px; bottom: -2px; width: 1px; background: rgba(255, 255, 255, 0.1); }
+      .tl-i:last-child::after { display: none; }
+      .tl-t { font-size: 13px; color: var(--mute); padding-top: 2px; }
+      .tl-dot { width: 9px; height: 9px; margin: 6px 0 0 2px; border-radius: 50%; background: #0a0b0c; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.25); position: relative; z-index: 1; }
+      .is-live .tl-t { color: var(--ink); }
+      .is-live .tl-dot { background: var(--sig); box-shadow: 0 0 0 3px rgba(116, 240, 167, 0.15), 0 0 10px var(--sig); }
+      .tl-b { position: relative; min-width: 0; }
+      .tl-b.mold { padding: 14px 16px; margin: -12px 0 0 -4px; border-radius: 16px; }
+      .tl-b .chip { position: absolute; top: 12px; right: 12px; }
+      .tl-title { font-size: 15px; color: #e8e9eb; }
+      .is-live .tl-title { padding-right: 52px; }
+      .tl-meta { margin-top: 4px; font-size: 13px; color: var(--faint); }
+      .is-done .tl-title { color: var(--faint); text-decoration: line-through; text-decoration-color: rgba(255, 255, 255, 0.25); }
+
+      .req { padding: 6px 20px; }
+      .req-g { padding: 16px 0; }
+      .req-g + .req-g { border-top: 1px solid rgba(255, 255, 255, 0.06); box-shadow: 0 -1px 0 rgba(0, 0, 0, 0.6); }
+      .req-who { display: flex; align-items: center; gap: 12px; font-size: 12px; color: #c4c6cb; margin-bottom: 12px; text-transform: uppercase; }
+      .av { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 8px; font-size: 10px; color: var(--mute); }
+      .check { display: flex; align-items: center; gap: 12px; padding: 7px 0; cursor: pointer; }
+      .check input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+      .box {
+        flex: none; display: grid; place-items: center; width: 20px; height: 20px; border-radius: 6px; color: transparent;
+        background: #08090a; box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.9), inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+        transition: background 0.2s, color 0.2s;
+      }
+      .check input:checked + .box {
+        color: #062414; background: linear-gradient(180deg, #a6f8c9, var(--sig) 50%, #48c985);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 0 0 1px #0f3a24, 0 0 10px rgba(116, 240, 167, 0.35);
+      }
+      .check input:focus-visible + .box { outline: 2px solid var(--sig); outline-offset: 3px; }
+      .check-t { font-size: 15px; color: #d6d8dc; }
+      .check input:checked ~ .check-t { color: var(--faint); }
+
+      .inst { padding: 18px; }
+      .inst + .inst { margin-top: 14px; }
+      .inst-top { display: flex; gap: 14px; align-items: center; }
+      .inst-ic { flex: none; display: grid; place-items: center; width: 52px; height: 52px; border-radius: 14px; color: #c9cbd0; }
+      .inst-top .tiny { color: var(--mute); font-size: 10px; }
+      .inst-top .sig-dot { width: 5px; height: 5px; margin-right: 4px; }
+      .inst-title { margin: 4px 0 2px; font-size: 16px; color: #eceef0; }
+      .meter { position: relative; height: 8px; margin-top: 18px; border-radius: 99px; overflow: hidden; }
+      .meter-f { position: absolute; inset: 0 auto 0 0; border-radius: 99px; background: linear-gradient(90deg, var(--sig-d), var(--sig)); box-shadow: 0 0 10px rgba(116, 240, 167, 0.5); transition: width 0.25s; }
+      .meter-who { position: absolute; top: -2px; bottom: -2px; left: 33.3%; width: 1px; background: rgba(255, 255, 255, 0.5); }
+      .range-l { display: block; margin-top: 14px; }
+      .range { --p: 35%; width: 100%; height: 22px; margin: 0; appearance: none; -webkit-appearance: none; background: transparent; cursor: pointer; }
+      .range::-webkit-slider-runnable-track { height: 4px; border-radius: 4px; background: linear-gradient(90deg, #5f6168 var(--p), #08090a var(--p)); box-shadow: inset 0 1px 2px #000; }
+      .range::-moz-range-track { height: 4px; border-radius: 4px; background: linear-gradient(90deg, #5f6168 var(--p), #08090a var(--p)); }
+      .range::-webkit-slider-thumb {
+        -webkit-appearance: none; width: 18px; height: 18px; margin-top: -7px; border-radius: 50%;
+        background: linear-gradient(180deg, #fff, #c9cacd); box-shadow: 0 1px 0 #000, 0 3px 6px rgba(0, 0, 0, 0.7), inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+      }
+      .range::-moz-range-thumb { width: 18px; height: 18px; border: 0; border-radius: 50%; background: linear-gradient(180deg, #fff, #c9cacd); box-shadow: 0 3px 6px rgba(0, 0, 0, 0.7); }
+      .range:focus-visible { outline-offset: 2px; }
+      .range-ticks { display: flex; justify-content: space-between; margin-top: 4px; font-size: 9px; }
+      .track { position: relative; height: 6px; margin-top: 18px; border-radius: 99px; }
+      .track-f { position: absolute; inset: 0 auto 0 0; border-radius: 99px; background: linear-gradient(90deg, rgba(116, 240, 167, 0.15), var(--sig)); }
+      .knob { position: absolute; top: 50%; width: 16px; height: 16px; margin: -8px 0 0 -8px; border-radius: 50%; background: linear-gradient(180deg, #fff, #c9cacd); box-shadow: 0 1px 0 #000, 0 3px 6px rgba(0, 0, 0, 0.7); }
+
+      /* Blocks */
+      .block { padding-top: 96px; }
+      .block-h { max-width: 46rem; }
+      .h2 { font-weight: 400; font-size: clamp(32px, 3.6vw, 52px); line-height: 1.04; letter-spacing: -0.03em; color: #f3f4f5; text-wrap: balance; }
+      .h2-sm { font-size: clamp(28px, 2.6vw, 38px); }
+      .steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin-top: 40px; }
+      .step { display: flex; flex-direction: column; gap: 12px; padding: 20px; transition: transform 0.35s cubic-bezier(0.2, 0.7, 0.2, 1); }
+      .step:hover { transform: translateY(-3px); }
+      .step-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+      .step-n { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; font-size: 13px; color: #d7d9dc; }
+      .step-t { font-weight: 500; font-size: 22px; letter-spacing: -0.02em; }
+      .step .small { flex: 1; }
+      .sliver { height: 4px; margin-top: 10px; border-radius: 9px; overflow: hidden; }
+      .sliver span { display: block; height: 100%; border-radius: 9px; background: linear-gradient(90deg, #6d7077, #d6d8dc); }
+      .step:nth-child(3) .sliver span { background: linear-gradient(90deg, var(--sig-d), var(--sig)); box-shadow: 0 0 8px rgba(116, 240, 167, 0.6); }
+
+      .duo { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 20px; align-items: stretch; }
+      .orbit-card { display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: 24px; align-items: center; padding: 28px; border-radius: 28px; }
+      .orbit-copy .small { margin-top: 14px; }
+      .orbit-well { border-radius: 50%; padding: 0; aspect-ratio: 1; }
+      .orbit { display: block; width: 100%; height: 100%; }
+      .o-ring { fill: none; stroke: rgba(255, 255, 255, 0.12); }
+      .o-dash { stroke-dasharray: 2 6; stroke: #4a4c53; stroke-width: 6; }
+      .o-core { fill: #17181b; stroke: rgba(255, 255, 255, 0.2); }
+      .o-lbl { font: 500 9px var(--mono); letter-spacing: 0.2em; fill: #b7b9be; text-anchor: middle; }
+      .o-spin { transform-origin: 130px 130px; animation: spin 80s linear infinite; }
+      .o-node line { stroke: rgba(255, 255, 255, 0.22); stroke-dasharray: 3 3; }
+      .o-node circle { fill: #222327; stroke: rgba(255, 255, 255, 0.35); }
+      .o-node.is-sig circle { fill: var(--sig); stroke: none; filter: drop-shadow(0 0 5px rgba(116, 240, 167, 0.9)); }
+      .o-node.is-sig line { stroke: var(--sig); }
+      @keyframes spin { to { transform: rotate(360deg); } }
+
+      .modes { padding: 24px; border-radius: 28px; display: flex; flex-direction: column; gap: 18px; }
+      .modes .col-h { padding: 0; }
+      .mode-list { display: flex; flex-direction: column; gap: 14px; }
+      .mode-list li { display: grid; grid-template-columns: 96px minmax(0, 1fr) 42px; gap: 14px; align-items: center; font-size: 14px; color: #d5d7da; }
+      .bar-w { height: 10px; border-radius: 99px; overflow: hidden; padding: 2px; }
+      .bar-f { display: block; height: 100%; border-radius: 99px; background: linear-gradient(180deg, #e6e7e9, #8e9097); }
+      .bar-sig { background: linear-gradient(180deg, #b6fbd3, var(--sig)); box-shadow: 0 0 8px rgba(116, 240, 167, 0.5); }
+      .mode-v { text-align: right; font-size: 13px; color: var(--mute); }
+      .mode-foot { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: auto; padding-top: 18px; border-top: 1px solid rgba(255, 255, 255, 0.06); }
+      .mode-foot .tiny { font-size: 9.5px; margin-top: 4px; }
+
+      .duo-join { align-items: center; gap: 48px; }
+      .switches { display: flex; flex-direction: column; gap: 12px; margin-top: 30px; }
+      .sw { display: inline-flex; align-items: center; gap: 14px; padding: 0; border: 0; background: none; color: #d6d8dc; font: 400 15px var(--sans); cursor: pointer; text-align: left; width: fit-content; }
+      .sw-t { position: relative; flex: none; width: 46px; height: 26px; border-radius: 99px; transition: background 0.25s; }
+      .sw-k { position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: linear-gradient(180deg, #4a4c52, #2a2b30); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 2px 4px rgba(0, 0, 0, 0.8); transition: transform 0.25s cubic-bezier(0.3, 0.7, 0.3, 1), background 0.25s; }
+      .sw[aria-checked='true'] .sw-t { background: #0b2a1a; box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.8), inset 0 0 0 1px rgba(116, 240, 167, 0.3); }
+      .sw[aria-checked='true'] .sw-k { transform: translateX(20px); background: linear-gradient(180deg, #fff, #cfd0d3); }
+
+      .search-card { padding: 16px; border-radius: 28px; display: flex; flex-direction: column; gap: 12px; }
+      .search { display: flex; align-items: center; gap: 12px; height: 56px; padding: 0 16px; border-radius: 16px; color: var(--mute); cursor: text; }
+      .search input { flex: 1; min-width: 0; height: 100%; border: 0; outline: 0; background: transparent; color: var(--ink); font: 400 16px var(--sans); }
+      .search input::placeholder { color: var(--faint); }
+      .search:focus-within { box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.8), inset 0 0 0 1px rgba(116, 240, 167, 0.45), 0 1px 0 rgba(255, 255, 255, 0.06); }
+      kbd { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 6px; color: var(--mute); background: linear-gradient(180deg, #24252a, #17181b); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 1px 0 #000; }
+      .results { display: flex; flex-direction: column; min-height: 252px; }
+      .res { display: grid; grid-template-columns: 10px minmax(0, 1fr) auto; gap: 14px; align-items: center; padding: 14px 8px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+      .res:last-child { border-bottom: 0; }
+      .res-dot { width: 7px; height: 7px; border-radius: 50%; background: #4a4c53; }
+      .res-dot.is-sig { background: var(--sig); box-shadow: 0 0 8px var(--sig); }
+      .res-n { display: block; font-size: 15px; color: #eceef0; }
+      .res-s { display: block; margin-top: 2px; font-size: 13px; color: var(--faint); }
+      .res-empty { display: block; color: var(--mute); font-size: 14px; }
+
+      .foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; margin-top: 96px; padding-top: 22px; border-top: 1px solid rgba(255, 255, 255, 0.07); font-size: 10.5px; }
+      .foot .sig-dot { width: 5px; height: 5px; }
+
+      /* Responsive */
+      @media (max-width: 1180px) {
+        .hide-md { display: none; }
+        .vitals { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .today { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .today .col:last-child { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 20px; }
+        .today .col:last-child .col-h { grid-column: 1 / -1; }
+        .today .col:last-child .inst + .inst { margin-top: 0; }
+        .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .duo { grid-template-columns: minmax(0, 1fr); }
+      }
+      @media (max-width: 900px) {
+        .shell { margin: 12px 10px 32px; padding: 18px 18px 22px; border-radius: 28px; }
+        .rail { display: none; }
+        .bar { flex-wrap: wrap; }
+        .seg { order: 3; flex: 1 0 100%; }
+        .hide-sm { display: none; }
+        .hero { grid-template-columns: minmax(0, 1fr); gap: 32px; padding: 40px 0 44px; }
+        .today { grid-template-columns: minmax(0, 1fr); }
+        .today .col:last-child { display: flex; }
+        .today .col:last-child .inst + .inst { margin-top: 0; }
+        .block { padding-top: 72px; }
+        .duo-join { gap: 28px; }
+      }
+      @media (max-width: 560px) {
+        .h1 { font-size: 42px; }
+        .lede { font-size: 16px; }
+        .vitals { gap: 10px; }
+        .num { font-size: 26px; }
+        .steps { grid-template-columns: minmax(0, 1fr); }
+        .orbit-card { grid-template-columns: minmax(0, 1fr); padding: 22px; }
+        .orbit-well { width: min(240px, 100%); margin: 0 auto; }
+        .mode-list li { grid-template-columns: 78px minmax(0, 1fr) 38px; gap: 10px; }
+        .mode-foot { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+        .tl { padding: 18px 14px 6px; }
+        .tl-i { grid-template-columns: 42px 12px minmax(0, 1fr); gap: 10px; }
+        .tl-i::after { left: 57px; }
+        .map-legend { gap: 8px 12px; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .pulse, .o-spin { animation: none; }
+        .step, .key, .sw-k, .meter-f { transition: none; }
+      }
+    </style>
+  </body>
+</html>

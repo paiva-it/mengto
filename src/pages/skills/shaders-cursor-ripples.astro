@@ -1,0 +1,384 @@
+---
+import '../../styles/global.css';
+import '../../components/skills/shaders-cursor-ripples/cursor-ripple-media.css';
+import BackPill from '../../components/BackPill.astro';
+import RippleMedia from '../../components/skills/shaders-cursor-ripples/RippleMedia';
+
+const stats = [
+  { value: '38', unit: 'dB', label: 'at 5 knots, measured a metre off the transom' },
+  { value: '46', unit: 'km', label: 'range at an unhurried 5 knots' },
+  { value: '0', unit: 'g', label: 'of oil, fuel or two-stroke film left on the lake' },
+  { value: '4', unit: 'h', label: 'from flat to full on a hotel jetty socket' },
+];
+
+const models = [
+  {
+    name: 'Calma 480',
+    kind: 'Barchetta',
+    seats: '2 + 1',
+    length: '4.80 m',
+    motor: '2 kW pod',
+    battery: '5 kWh LFP',
+    body: 'The shape of the wooden rowing boats every alpine lake already knows, with a motor you only notice when you look over the stern.',
+    hull: 'M8 40 Q30 52 120 52 Q196 52 212 30 L206 26 Q120 34 12 30 Z',
+  },
+  {
+    name: 'Calma 580',
+    kind: 'Tender',
+    seats: '6',
+    length: '5.80 m',
+    motor: '4 kW pod',
+    battery: '10 kWh LFP',
+    body: 'Our most-built hull. A larch deck, a canvas bimini, and enough battery for a full day of guests from the boathouse to the far shore and back.',
+    hull: 'M6 38 Q24 54 118 54 Q200 54 214 28 L208 22 Q150 30 70 28 L66 18 L46 18 L44 28 Q20 28 8 30 Z',
+  },
+  {
+    name: 'Calma 720',
+    kind: 'Lake ferry',
+    seats: '12',
+    length: '7.20 m',
+    motor: '2 × 4 kW pods',
+    battery: '20 kWh LFP',
+    body: 'Built for hotels and lake cooperatives that run a timetable. Twin pods, a sheltered cabin, and a step height that works for a guest of eighty.',
+    hull: 'M4 40 Q22 56 116 56 Q204 56 216 30 L210 24 Q170 28 150 28 L150 12 L60 12 L56 28 Q20 28 6 32 Z',
+  },
+];
+
+const steps = [
+  ['Larch over aluminium', 'Steam-bent Siberian larch planks, laid over a frame cut from recycled aluminium. The wood is what you touch; the frame is what lasts.'],
+  ['A pod, not an outboard', 'The motor sits sealed below the waterline, turning a slow, wide propeller. No exhaust, no transom bracket, nothing to hear above the water.'],
+  ['Battery in the keel', 'Iron-phosphate cells laid along the keel line lower the centre of gravity, so the boat sits stiller than its wooden ancestors ever did.'],
+  ['Charged from the shore', 'Every Calma ships with a jetty post that charges from a standard socket, or from the boathouse roof if you have the panels.'],
+];
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Calma Boatworks — electric launches for quiet lakes</title>
+    <meta name="description" content="Calma Boatworks builds silent electric launches in larch and recycled aluminium for alpine lakes where combustion engines are not allowed. Seven hulls a year, built in Toblach." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:ital,wght@0,400..900;1,400..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <link rel="preload" as="image" href="/skills/shaders-cursor-ripples/braies.jpg" />
+  </head>
+  <body>
+    <BackPill />
+
+    <header class="hero" data-ripple-region>
+      <RippleMedia
+        client:load
+        imageUrl="/skills/shaders-cursor-ripples/braies.jpg"
+        alt="A wooden launch crossing the turquoise water of an alpine lake beneath pale limestone peaks and spruce forest."
+        width={2400}
+        height={1600}
+      />
+
+      <nav class="nav" aria-label="Primary">
+        <a class="brand" href="#top" aria-label="Calma Boatworks home">
+          <svg viewBox="0 0 32 32" width="28" height="28" aria-hidden="true">
+            <circle cx="16" cy="16" r="15" fill="none" stroke="currentColor" stroke-width="1.5" />
+            <path d="M6 18 Q11 14 16 18 T26 18" fill="none" stroke="currentColor" stroke-width="1.5" />
+            <path d="M9 22.5 Q12.5 20 16 22.5 T23 22.5" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".6" />
+          </svg>
+          <span>Calma</span>
+        </a>
+        <ul>
+          <li><a href="#fleet">Fleet</a></li>
+          <li><a href="#build">How we build</a></li>
+          <li><a href="#slots">2027 slots</a></li>
+        </ul>
+        <a class="btn btn--glass" href="#slots">Reserve a hull</a>
+      </nav>
+
+      <div class="hero__copy" id="top">
+        <p class="eyebrow">Calma Boatworks · Toblach, South Tyrol</p>
+        <h1>Leave only<br />the ripple.</h1>
+        <p class="lede">Electric launches in larch and recycled aluminium, built for the alpine lakes where an engine is no longer welcome.</p>
+      </div>
+
+      <aside class="hero__card" aria-label="Featured model">
+        <div class="hero__card-top">
+          <span class="mono">Featured · Nº 041</span>
+          <span class="dot" aria-hidden="true"></span>
+        </div>
+        <p class="hero__card-name">Calma 580 Tender</p>
+        <dl>
+          <div><dt>Cruise</dt><dd>5 kn</dd></div>
+          <div><dt>Range</dt><dd>46 km</dd></div>
+          <div><dt>Noise</dt><dd>38 dB</dd></div>
+        </dl>
+        <a class="card-link" href="#fleet">See the fleet <span aria-hidden="true">→</span></a>
+      </aside>
+
+      <p class="hero__hint mono" aria-hidden="true">
+        <span class="hint-ring"></span>Draw a wake across the water
+      </p>
+    </header>
+
+    <main>
+      <section class="intro">
+        <div class="wrap intro__grid">
+          <p class="mono label">01 — Why electric</p>
+          <div>
+            <p class="statement">
+              Braies, Carezza, Misurina, Anterselva. On more alpine lakes every summer, a combustion engine is simply not allowed. <span class="soft">We build the boats that are, and we build them so you would choose them anyway.</span>
+            </p>
+            <ul class="stats">
+              {stats.map((s) => (
+                <li>
+                  <p class="stat"><span>{s.value}</span><small>{s.unit}</small></p>
+                  <p class="stat__label">{s.label}</p>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="fleet" id="fleet">
+        <div class="wrap">
+          <div class="section-head">
+            <p class="mono label">02 — The fleet</p>
+            <h2>Three hulls, one quiet idea.</h2>
+          </div>
+          <ul class="models">
+            {models.map((m) => (
+              <li class="model">
+                <svg class="model__hull" viewBox="0 0 220 64" aria-hidden="true">
+                  <path d="M0 50 Q28 44 55 50 T110 50 T165 50 T220 50" class="water" />
+                  <path d={m.hull} class="hull" />
+                </svg>
+                <p class="mono model__kind">{m.kind}</p>
+                <h3>{m.name}</h3>
+                <p class="model__body">{m.body}</p>
+                <dl class="model__spec">
+                  <div><dt>Length</dt><dd>{m.length}</dd></div>
+                  <div><dt>Seats</dt><dd>{m.seats}</dd></div>
+                  <div><dt>Motor</dt><dd>{m.motor}</dd></div>
+                  <div><dt>Battery</dt><dd>{m.battery}</dd></div>
+                </dl>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      <section class="build" id="build">
+        <div class="wrap build__grid">
+          <figure class="build__photo">
+            <img src="/skills/shaders-cursor-ripples/jetty.jpg" alt="A timber jetty reaching into a still, deep-blue lake at dawn, the forest mirrored in the water." width="1600" height="1201" loading="lazy" />
+            <figcaption class="mono">Test jetty, Lago di Dobbiaco · 06:40</figcaption>
+          </figure>
+          <div>
+            <p class="mono label">03 — How we build</p>
+            <h2>Built like a rowing boat. Driven like nothing you can hear.</h2>
+            <ol class="steps">
+              {steps.map(([title, body], i) => (
+                <li>
+                  <span class="mono step__n">{String(i + 1).padStart(2, '0')}</span>
+                  <div>
+                    <h3>{title}</h3>
+                    <p>{body}</p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </div>
+      </section>
+
+      <section class="slots" id="slots">
+        <div class="wrap slots__inner">
+          <div>
+            <p class="mono label label--light">04 — 2027 build slots</p>
+            <h2>Seven hulls a year.<br />Three left for 2027.</h2>
+            <p class="slots__body">Each Calma is built to order over fourteen weeks and delivered to your lake on our own trailer, with the jetty post installed the same afternoon.</p>
+          </div>
+          <form class="slots__form" onsubmit="event.preventDefault(); this.querySelector('[role=status]').textContent = 'Thank you. We will write within two working days.';">
+            <label for="lake" class="mono">Which lake?</label>
+            <input id="lake" name="lake" type="text" placeholder="Lago di Braies" autocomplete="off" />
+            <label for="email" class="mono">E-mail</label>
+            <input id="email" name="email" type="email" placeholder="you@boathouse.it" required autocomplete="email" />
+            <button class="btn btn--jade" type="submit">Ask for a slot</button>
+            <p role="status" class="slots__status"></p>
+          </form>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="wrap footer__inner">
+        <p><strong>Calma Boatworks</strong> · Via del Lago 12, Toblach</p>
+        <p class="mono">Silent by law. Quiet by choice.</p>
+      </div>
+    </footer>
+
+    <style is:global>
+      :root {
+        --limestone: #f3f1ea;
+        --paper: #fbfaf6;
+        --rock: #d9d3c4;
+        --spruce: #12322c;
+        --spruce-2: #2c4a43;
+        --jade: #17a99b;
+        --jade-deep: #0b7d72;
+        --sky: #e6f3f6;
+        --line: rgb(18 50 44 / 0.14);
+      }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        background: var(--limestone);
+        color: var(--spruce);
+        font-family: 'Schibsted Grotesk', ui-sans-serif, system-ui, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        overflow-x: clip;
+      }
+      .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; }
+      .wrap { width: min(1240px, 100% - 32px); margin-inline: auto; }
+      @media (min-width: 768px) { .wrap { width: min(1240px, 100% - 80px); } }
+      a { color: inherit; }
+
+      .btn {
+        display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 20px;
+        border-radius: 999px; font: 600 15px/1 'Schibsted Grotesk', sans-serif; text-decoration: none; border: 0; cursor: pointer;
+        transition: background 200ms ease, transform 200ms ease;
+      }
+      .btn:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid var(--jade); outline-offset: 3px; }
+      .btn--glass { color: #fff; background: rgb(255 255 255 / 0.16); border: 1px solid rgb(255 255 255 / 0.4); backdrop-filter: blur(12px); }
+      .btn--glass:hover { background: rgb(255 255 255 / 0.28); }
+      .btn--jade { color: #fff; background: var(--jade-deep); }
+      .btn--jade:hover { background: var(--spruce); }
+
+      /* ---------- Hero ---------- */
+      .hero {
+        position: relative; height: 100svh; min-height: 640px; max-height: 1100px; color: #fff;
+        display: grid; grid-template-rows: auto 1fr auto; overflow: hidden; isolation: isolate;
+      }
+      .hero .cursor-ripple-media { position: absolute; inset: 0; margin: 0; z-index: 0; }
+      .hero::after {
+        content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+        background:
+          radial-gradient(60% 34% at 50% 52%, rgb(6 34 44 / 0.34), rgb(6 34 44 / 0) 70%),
+          linear-gradient(180deg, rgb(10 40 60 / 0.4) 0%, rgb(10 40 60 / 0.08) 40%, rgb(4 30 30 / 0) 70%, rgb(4 30 30 / 0.28) 100%);
+      }
+      .nav, .hero__copy, .hero__card, .hero__hint { position: relative; z-index: 2; }
+      .nav {
+        display: flex; align-items: center; justify-content: space-between; gap: 16px;
+        padding: 20px clamp(16px, 4vw, 40px);
+      }
+      .brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 800; font-size: 22px; letter-spacing: -0.02em; }
+      .nav ul { display: none; gap: 32px; list-style: none; margin: 0; padding: 0; font-weight: 500; font-size: 15px; }
+      .nav ul a { text-decoration: none; opacity: 0.92; }
+      .nav ul a:hover { opacity: 1; text-decoration: underline; text-underline-offset: 4px; }
+      @media (min-width: 900px) { .nav ul { display: flex; } }
+
+      .hero__copy { text-align: center; padding: clamp(12px, 4vh, 48px) 16px 0; align-self: start; }
+      .eyebrow { margin: 0 0 18px; font: 500 12px/1 'JetBrains Mono', monospace; letter-spacing: 0.14em; text-transform: uppercase; opacity: 0.9; }
+      .hero h1 {
+        margin: 0; font-weight: 800; letter-spacing: -0.045em; line-height: 0.9;
+        font-size: clamp(56px, 10.5vw, 156px); text-shadow: 0 2px 40px rgb(10 50 70 / 0.25);
+      }
+      .lede { margin: 22px auto 0; max-width: 34ch; font-size: clamp(16px, 1.4vw, 19px); line-height: 1.45; opacity: 0.95; text-shadow: 0 1px 2px rgb(4 30 40 / 0.5), 0 1px 18px rgb(4 30 40 / 0.55); font-weight: 500; }
+
+      .hero__card {
+        justify-self: start; align-self: end; margin: 0 clamp(16px, 4vw, 40px) clamp(16px, 4vh, 40px);
+        width: min(300px, 100% - 32px); padding: 18px 20px; border-radius: 18px; color: var(--spruce);
+        background: rgb(251 250 246 / 0.82); backdrop-filter: blur(16px) saturate(1.2);
+        border: 1px solid rgb(255 255 255 / 0.7); box-shadow: 0 20px 50px -20px rgb(4 40 40 / 0.45);
+      }
+      .hero__card-top { display: flex; justify-content: space-between; align-items: center; color: var(--spruce-2); }
+      .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--jade); box-shadow: 0 0 0 4px rgb(23 169 155 / 0.2); }
+      .hero__card-name { margin: 10px 0 14px; font-size: 22px; font-weight: 700; letter-spacing: -0.02em; }
+      .hero__card dl, .model__spec { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 0; }
+      .hero__card dt, .model__spec dt { font: 500 10.5px/1 'JetBrains Mono', monospace; letter-spacing: 0.08em; text-transform: uppercase; color: var(--spruce-2); opacity: 0.8; }
+      .hero__card dd { margin: 6px 0 0; font-size: 18px; font-weight: 700; }
+      .card-link { display: inline-block; margin-top: 16px; font-weight: 600; font-size: 14px; text-decoration: none; color: var(--jade-deep); padding: 6px 0; }
+      .card-link:hover { text-decoration: underline; }
+
+      .hero__hint {
+        position: absolute; right: clamp(16px, 4vw, 40px); bottom: clamp(24px, 5vh, 52px);
+        display: none; align-items: center; gap: 12px; color: #fff; text-shadow: 0 1px 10px rgb(0 40 40 / 0.4);
+      }
+      [data-ripple-live] .hero__hint { display: inline-flex; }
+      .hint-ring { width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid #fff; position: relative; }
+      .hint-ring::after { content: ''; position: absolute; inset: -1.5px; border-radius: 50%; border: 1.5px solid #fff; animation: ring 2.4s ease-out infinite; }
+      @keyframes ring { from { transform: scale(1); opacity: 0.9; } to { transform: scale(2.4); opacity: 0; } }
+      @media (max-width: 767px) {
+        .hero__card { justify-self: stretch; width: auto; }
+        .hero__hint { display: none !important; }
+      }
+
+      /* ---------- Sections ---------- */
+      .label { color: var(--jade-deep); margin: 0; }
+      .label--light { color: #8fe3d8; }
+      h2 { font-weight: 800; letter-spacing: -0.035em; line-height: 0.98; font-size: clamp(36px, 5vw, 68px); margin: 14px 0 0; text-wrap: balance; }
+
+      .intro { padding: clamp(72px, 12vw, 150px) 0 clamp(56px, 8vw, 110px); }
+      .intro__grid { display: grid; gap: 24px; }
+      @media (min-width: 900px) { .intro__grid { grid-template-columns: 220px 1fr; gap: 40px; } }
+      .statement { margin: 0; font-size: clamp(26px, 3.4vw, 46px); line-height: 1.12; letter-spacing: -0.025em; font-weight: 600; text-wrap: pretty; }
+      .soft { color: #6f857f; }
+      .stats { list-style: none; margin: clamp(48px, 7vw, 88px) 0 0; padding: 0; display: grid; grid-template-columns: repeat(2, 1fr); border-top: 1px solid var(--line); }
+      @media (min-width: 900px) { .stats { grid-template-columns: repeat(4, 1fr); } }
+      .stats li { padding: 22px 16px 0 0; }
+      .stat { margin: 0; display: flex; align-items: baseline; gap: 4px; }
+      .stat span { font-size: clamp(48px, 5.4vw, 76px); font-weight: 800; letter-spacing: -0.05em; line-height: 1; }
+      .stat small { font: 500 15px 'JetBrains Mono', monospace; color: var(--jade-deep); }
+      .stat__label { margin: 10px 0 0; font-size: 14.5px; line-height: 1.45; color: var(--spruce-2); max-width: 26ch; }
+
+      .fleet { padding: clamp(56px, 8vw, 110px) 0; background: var(--paper); border-block: 1px solid var(--line); }
+      .section-head { display: grid; gap: 4px; margin-bottom: clamp(32px, 5vw, 56px); }
+      .models { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; }
+      @media (min-width: 900px) { .models { grid-template-columns: repeat(3, 1fr); gap: 20px; } }
+      .model { padding: 24px; border-radius: 20px; background: var(--limestone); border: 1px solid var(--line); display: flex; flex-direction: column; }
+      .model__hull { width: 100%; height: auto; margin-bottom: 18px; background: var(--sky); border-radius: 12px; padding: 18px 12px 6px; box-sizing: border-box; }
+      .model__hull .water { fill: none; stroke: var(--jade); stroke-width: 1.4; opacity: 0.7; }
+      .model__hull .hull { fill: var(--spruce); }
+      .model__kind { margin: 0; color: var(--jade-deep); }
+      .model h3 { margin: 6px 0 0; font-size: 28px; letter-spacing: -0.03em; font-weight: 800; }
+      .model__body { margin: 12px 0 22px; line-height: 1.5; color: var(--spruce-2); font-size: 15.5px; flex: 1; }
+      .model__spec { grid-template-columns: repeat(2, 1fr); gap: 14px 12px; padding-top: 16px; border-top: 1px solid var(--line); }
+      .model__spec dd { margin: 5px 0 0; font-weight: 700; font-size: 16px; }
+
+      .build { padding: clamp(72px, 10vw, 140px) 0; }
+      .build__grid { display: grid; gap: 40px; align-items: start; }
+      @media (min-width: 960px) { .build__grid { grid-template-columns: 1fr 1fr; gap: 72px; } }
+      .build__photo { margin: 0; position: relative; }
+      @media (min-width: 960px) { .build__photo { position: sticky; top: 32px; } }
+      .build__photo img { display: block; width: 100%; height: auto; aspect-ratio: 4 / 5; object-fit: cover; border-radius: 22px; }
+      .build__photo figcaption { margin-top: 12px; color: var(--spruce-2); }
+      .steps { list-style: none; margin: 40px 0 0; padding: 0; }
+      .steps li { display: grid; grid-template-columns: 48px 1fr; gap: 8px; padding: 24px 0; border-top: 1px solid var(--line); }
+      .step__n { color: var(--jade-deep); padding-top: 5px; }
+      .steps h3 { margin: 0; font-size: 21px; letter-spacing: -0.02em; font-weight: 700; }
+      .steps p { margin: 8px 0 0; line-height: 1.55; color: var(--spruce-2); font-size: 15.5px; }
+
+      .slots { background: var(--spruce); color: #eef6f3; padding: clamp(72px, 10vw, 130px) 0; }
+      .slots__inner { display: grid; gap: 40px; align-items: end; }
+      @media (min-width: 960px) { .slots__inner { grid-template-columns: 1.3fr 1fr; gap: 72px; } }
+      .slots__body { margin: 22px 0 0; max-width: 46ch; line-height: 1.55; color: #b9cfc8; font-size: 16.5px; }
+      .slots__form { display: grid; gap: 10px; padding: 24px; border-radius: 20px; background: rgb(255 255 255 / 0.05); border: 1px solid rgb(255 255 255 / 0.12); }
+      .slots__form label { color: #8fe3d8; margin-top: 6px; }
+      .slots__form input {
+        min-height: 48px; padding: 0 14px; border-radius: 12px; border: 1px solid rgb(255 255 255 / 0.18);
+        background: rgb(0 0 0 / 0.18); color: #fff; font: 400 16px 'Schibsted Grotesk', sans-serif; min-width: 0;
+      }
+      .slots__form input::placeholder { color: #7f9a93; }
+      .slots__form .btn { margin-top: 10px; justify-content: center; background: var(--jade); }
+      .slots__form .btn:hover { background: #22c4b4; }
+      .slots__status { margin: 0; min-height: 1.4em; font-size: 14px; color: #8fe3d8; }
+
+      .footer { background: var(--spruce); color: #9fb8b1; border-top: 1px solid rgb(255 255 255 / 0.1); padding: 28px 0 80px; font-size: 14px; }
+      .footer__inner { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; }
+      .footer p { margin: 0; }
+      .footer strong { color: #eef6f3; }
+
+      @media (prefers-reduced-motion: reduce) {
+        html { scroll-behavior: auto; }
+        .hint-ring::after { animation: none; }
+      }
+    </style>
+  </body>
+</html>

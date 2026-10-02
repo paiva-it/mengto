@@ -1,0 +1,7 @@
+{
+  "title": "Blue Cloudy Clean Modern",
+  "kind": "website",
+  "category": "Design systems",
+  "concept": "Alda Motors, a Porto electric-motorcycle startup: a full launch site for the S1 floating on a drifting cobalt-to-pale-azure cloud sky, with thin white rails and corner squares, a masked-word hero with an italic serif accent beside a white line drawing of the bike, glass capability cards, a ride-mode switcher, a rider quote and reservation editions.",
+  "notes": "Sky is a half-resolution 2D canvas (vertical gradient, upper-right glow, ~26 screen-blended radial cloud masses drifting sideways), paused when the tab is hidden and drawn once under reduced motion; a CSS gradient sits behind it as fallback. No dependencies beyond Google Fonts (Inter + Instrument Serif) and Unsplash avatars. Ride-mode tabs support arrow keys."
+}

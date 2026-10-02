@@ -1,0 +1,7 @@
+{
+  "title": "Pricing Page",
+  "kind": "website",
+  "category": "Page types",
+  "concept": "Lowmoss Mushroom Farm: a weekly harvest-share pricing page grown in a railway tunnel, with a monthly/yearly toggle, three plans (Spore, Flush recommended on a lilac tint, Cellar) priced by one value metric — fresh kilos a week — then member proof, a grouped comparison, a plain Q/A FAQ with FAQPage schema and a wholesale last mile.",
+  "notes": "No dependencies. Billing control is a native radio pair (keyboard and screen-reader ready); yearly = 10 months for 12 and the per-kilo price updates with it. Plans stack with the recommended plan first under 860px; the comparison matrix restacks per row on phones instead of scrolling sideways. Reduced motion drops the price swap animation and smooth scroll."
+}

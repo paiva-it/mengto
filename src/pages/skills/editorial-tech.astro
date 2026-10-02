@@ -1,0 +1,746 @@
+---
+import '../../styles/global.css';
+import BackPill from '../../components/BackPill.astro';
+
+const img = (f: string) => `/skills/editorial-tech/${f}`;
+
+// Archipelago map: one hub, six corridors. Coordinates live in the map's 600×520 viewBox.
+const hub = { x: 255, y: 300 };
+const islands = [
+  { name: 'Streymø', d: 'M150 120 L205 105 L250 150 L262 215 L300 270 L292 330 L250 345 L222 300 L190 262 L160 205 L138 160 Z', lx: 168, ly: 190 },
+  { name: 'Eysa', d: 'M300 80 L360 60 L420 90 L430 150 L395 190 L350 175 L318 130 Z', lx: 352, ly: 128 },
+  { name: 'Nólsey', d: 'M330 290 L352 280 L362 300 L340 314 Z', lx: 368, ly: 318 },
+  { name: 'Kalsø', d: 'M240 40 L258 30 L270 70 L262 95 L248 80 Z', lx: 276, ly: 44 },
+  { name: 'Fugla', d: 'M470 70 L500 62 L512 90 L488 104 L468 92 Z', lx: 474, ly: 124 },
+  { name: 'Skarvø', d: 'M70 230 L105 215 L122 250 L100 285 L72 270 Z', lx: 62, ly: 304 },
+  { name: 'Sandø', d: 'M210 410 L262 395 L290 430 L270 470 L225 468 L205 440 Z', lx: 298, ly: 448 },
+  { name: 'Lítla Dímun', d: 'M380 455 L392 448 L400 462 L386 470 Z', lx: 408, ly: 474 },
+];
+const corridors = [
+  { id: 'C1', to: 'Nólsey', x: 345, y: 297, km: '7.2', min: 6, note: 'Clinic + post office' },
+  { id: 'C2', to: 'Skarvø', x: 95, y: 252, km: '13.4', min: 11, note: 'Salmon station spares' },
+  { id: 'C3', to: 'Kalsø', x: 256, y: 62, km: '19.0', min: 16, note: 'Surgery, cold chain' },
+  { id: 'C4', to: 'Fugla', x: 490, y: 84, km: '25.6', min: 21, note: 'Lighthouse keepers, 14 homes' },
+  { id: 'C5', to: 'Sandø', x: 248, y: 435, km: '10.8', min: 9, note: 'School + harbour' },
+  { id: 'C6', to: 'Lítla Dímun', x: 389, y: 459, km: '16.6', min: 14, note: 'Sheep farm, wind-limited' },
+];
+
+const stats = [
+  { n: '41,280', l: 'Parcels flown in 2026', s: 'to 30 Sep' },
+  { n: '11', u: 'min', l: 'Median door to door', s: 'all corridors' },
+  { n: '1,184', l: 'Cold-chain medical runs', s: '4 °C, logged' },
+  { n: '0', l: 'Parcels lost at sea', s: 'since launch' },
+];
+
+const steps = [
+  { t: 'T+00:00', h: 'Packed at the hub', p: 'A courier seals the box at Toftavík, weighs it and scans it into a slot. Over 2.4 kg, or anything that sloshes, goes by boat.' },
+  { t: 'T+00:03', h: 'Weather gate', p: 'The corridor is cleared against live wind, gust and visibility readings from six mast stations. Above 32 kt the flight waits; it never guesses.' },
+  { t: 'T+00:04', h: 'Climb to 120 m', p: 'The Tern lifts vertically, then joins its corridor: a fixed lane over water, away from houses, logged with the aviation authority.' },
+  { t: 'T+00:16', h: 'Hover and lower', p: 'Over the drop point the aircraft holds at 25 m and winches the box down on a tether. Nobody hears more than a fridge-door hum.' },
+  { t: 'T+00:17', h: 'Signed for, flown home', p: 'The recipient taps their code on the box lid. The aircraft climbs back into the corridor and is charging before the kettle has boiled.' },
+];
+
+const specs = [
+  ['Airframe', 'Tern Mk II, quad-rotor'],
+  ['Span, rotor tip', '0.92 m'],
+  ['Cruise', '72 km/h'],
+  ['Range, loaded', '38 km'],
+  ['Payload', '2.4 kg'],
+  ['Wind ceiling', '32 kt gusting'],
+  ['Noise at 120 m', '44 dB'],
+  ['Delivery', 'Winch, 25 m tether'],
+];
+
+// Wind at mast M3, last 60 min in 5-min buckets (kt). Ceiling is 32 kt.
+const wind = [9, 11, 10, 13, 12, 15, 14, 18, 16, 13, 12, 11];
+
+const tiers = [
+  { k: 'Islander', price: 'kr 48', per: 'per parcel up to 1 kg', items: ['Same-day on all six corridors', 'Code-locked drop box at your door', 'Flight tracked to the minute'], cta: 'Send a parcel' },
+  { k: 'Clinic', price: 'Contract', per: 'per surgery, per year', items: ['Priority slot on every departure', '4 °C cold box with temperature log', 'Night flights on lit pads, 24/7'], cta: 'Talk to dispatch', featured: true },
+  { k: 'Fishery', price: 'kr 210', per: 'per flight, deck or quay', items: ['Spare parts to vessels at anchor', 'Lowered to a marked deck square', 'Booked up to 40 minutes ahead'], cta: 'Book a deck drop' },
+];
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Skerry — Island drone post, Varrø archipelago</title>
+    <meta name="description" content="Skerry flies parcels, prescriptions and spare parts between the eight islands of the Varrø archipelago." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Schibsted+Grotesk:wght@400;500;600&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <BackPill />
+
+    <!-- ============ HERO ============ -->
+    <header class="hero">
+      <nav class="nav wrap" aria-label="Primary">
+        <a class="brand" href="#top" aria-label="Skerry home">
+          <span class="mark" aria-hidden="true"><i></i></span>
+          <span class="word">Skerry</span>
+          <span class="mono dim brand-sub">Varrø Post</span>
+        </a>
+        <ul class="nav-links mono">
+          <li><a href="#network">Network</a></li>
+          <li><a href="#flight">Flight</a></li>
+          <li><a href="#fleet">Fleet</a></li>
+          <li><a href="#send">Send</a></li>
+        </ul>
+        <span class="live mono"><b class="pulse" aria-hidden="true"></b>37 aloft</span>
+      </nav>
+
+      <div class="wrap hero-body" id="top">
+        <div class="meta-row mono dim">
+          <span>62°01′N · 6°46′W</span>
+          <span class="hide-sm">Corridors C1–C6</span>
+          <span>Autumn schedule · Issue 07</span>
+        </div>
+
+        <h1 class="display headline">
+          <span class="line"><span>Post that</span></span>
+          <span class="line"><span>crosses</span></span>
+          <span class="line"><span>the <em>sound.</em></span></span>
+        </h1>
+
+        <div class="hero-copy">
+          <p>
+            Skerry flies parcels, prescriptions and spare parts between the eight islands of the
+            Varrø archipelago — over water the ferry crosses twice a week, in the time it takes to boil a kettle.
+          </p>
+          <div class="cta-row">
+            <a class="btn btn-ink" href="#send">Send a parcel</a>
+            <a class="btn-line mono" href="#flight">Track a flight <span aria-hidden="true">→</span></a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cinematic band: crosses the whole composition under the telemetry rail -->
+      <figure class="band" aria-label="Corridor C3 over the western coast at low tide">
+        <div class="band-img" data-drift style={`background-image:url(${img('coast.jpg')})`}></div>
+        <div class="band-shade"></div>
+        <div class="ruler" aria-hidden="true"></div>
+        <svg class="route" viewBox="0 0 1440 300" preserveAspectRatio="xMinYMid slice" aria-hidden="true">
+          <path id="c3path" d="M40 230 C 260 210, 360 120, 560 132 S 860 214, 1040 150 S 1300 80, 1420 96" fill="none" stroke="rgba(255,255,255,.7)" stroke-width="1.2" stroke-dasharray="3 6" />
+          <g class="wp" transform="translate(40 230)"><circle r="4" /><text x="10" y="-10">WP-00 TOFTAVÍK HUB</text></g>
+          <g class="wp" transform="translate(560 132)"><circle r="3" /><text x="10" y="-10">WP-02 · 120 M</text></g>
+          <g class="wp" transform="translate(1040 150)"><circle r="3" /><text x="10" y="-10">WP-05 · GUST 18 KT</text></g>
+          <g class="craft">
+            <circle r="14" class="halo" />
+            <circle r="5" class="dot" />
+            <animateMotion dur="22s" repeatCount="indefinite" rotate="0" keyPoints="0.18;1" keyTimes="0;1" calcMode="linear">
+              <mpath href="#c3path" />
+            </animateMotion>
+          </g>
+        </svg>
+        <figcaption class="band-cap mono">
+          <span>Fig. 01</span><span>Corridor C3, westbound, low tide</span>
+        </figcaption>
+      </figure>
+
+      <!-- Telemetry rail -->
+      <aside class="rail" aria-label="Live flight telemetry">
+        <div class="rail-head mono">
+          <span>Live // Corridor C3</span>
+          <span class="bars" aria-hidden="true"><i></i><i></i><i class="on"></i></span>
+        </div>
+
+        <div class="card">
+          <div class="card-top">
+            <span class="mono flight-id">SK-214</span>
+            <span class="pill mono">In flight</span>
+          </div>
+          <p class="route-name">Toftavík hub <span aria-hidden="true">→</span> Kalsø surgery</p>
+          <p class="mono dim small">Insulin ×12 · 4 °C cold box · 1.3 kg</p>
+          <div class="eta">
+            <span class="mono dim small">ETA</span>
+            <span class="eta-num mono" id="eta" aria-live="off">07:42</span>
+          </div>
+          <div class="bar" role="progressbar" aria-label="Flight progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="52"><i id="bar"></i></div>
+          <dl class="tele mono">
+            <div><dt>Alt</dt><dd>118 m</dd></div>
+            <div><dt>GS</dt><dd>72 km/h</dd></div>
+            <div><dt>Wind</dt><dd>SW 11 kt</dd></div>
+          </dl>
+        </div>
+
+        <div class="deps">
+          <p class="mono dim label">Next departures</p>
+          <ol>
+            <li><span class="mono">09:14</span><span>C1 · Nólsey</span><span class="mono dim">Parcels ×3</span></li>
+            <li><span class="mono">09:20</span><span>C5 · Sandø</span><span class="mono dim">Prescription</span></li>
+            <li><span class="mono">09:31</span><span>C4 · Fugla</span><span class="mono acc">Wind check</span></li>
+          </ol>
+        </div>
+
+        <figure class="wind">
+          <figcaption class="mono dim"><span>Wind · mast M3 · 60 min</span><span class="acc">Ceiling 32 kt</span></figcaption>
+          <svg viewBox="0 0 240 64" preserveAspectRatio="none" aria-hidden="true">
+            <line x1="0" x2="240" y1="4" y2="4" class="ceil" />
+            {wind.map((w, i) => <rect x={i * 20 + 3} width="14" y={64 - w * 1.875} height={w * 1.875} class:list={{ hi: i === 7 }} />)}
+          </svg>
+        </figure>
+
+        <div class="rail-foot mono dim">
+          <span>Uptime 99.94%</span><span>Masts 6/6</span>
+        </div>
+      </aside>
+    </header>
+
+    <main>
+      <!-- ============ 01 NETWORK ============ -->
+      <section class="sec wrap" id="network">
+        <div class="chapter mono"><span class="acc">01</span><span>Network</span></div>
+        <h2 class="display h2 reveal">Eight islands. One ferry a week. <span class="dim2">A drone every eleven minutes.</span></h2>
+
+        <div class="net-grid">
+          <figure class="map-frame reveal" aria-label="Map of the Varrø archipelago with six drone corridors">
+            <div class="frame-head mono dim"><span>Fig. 02 — Corridor plan</span><span>1 : 250 000</span></div>
+            <svg class="map" viewBox="0 0 600 520" role="img" aria-label="Six corridors radiate from the Toftavík hub on Streymø">
+              <defs>
+                <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                  <path d="M40 0H0V40" fill="none" stroke="currentColor" stroke-opacity=".08" />
+                </pattern>
+              </defs>
+              <rect width="600" height="520" fill="url(#grid)" />
+              {islands.map((i) => (
+                <g class="isle">
+                  <path d={i.d} />
+                  <text x={i.lx} y={i.ly}>{i.name.toUpperCase()}</text>
+                </g>
+              ))}
+              {corridors.map((c) => (
+                <g class="cor" data-cor={c.id}>
+                  <line x1={hub.x} y1={hub.y} x2={c.x} y2={c.y} />
+                  <circle cx={c.x} cy={c.y} r="4" />
+                  <text x={(hub.x + c.x) / 2 + 6} y={(hub.y + c.y) / 2 - 6}>{c.id}</text>
+                </g>
+              ))}
+              <g class="hub">
+                <circle cx={hub.x} cy={hub.y} r="12" class="hub-ring" />
+                <circle cx={hub.x} cy={hub.y} r="5" />
+                <text x={hub.x - 92} y={hub.y + 26}>TOFTAVÍK HUB</text>
+              </g>
+              <g class="compass" transform="translate(548 470)">
+                <line y1="-22" y2="10" /><line x1="-10" x2="10" />
+                <text y="-28" text-anchor="middle">N</text>
+              </g>
+            </svg>
+          </figure>
+
+          <div class="net-side">
+            <dl class="stats">
+              {stats.map((s) => (
+                <div class="stat reveal">
+                  <dt class="mono dim">{s.l}</dt>
+                  <dd><span class="num">{s.n}</span>{s.u && <span class="unit mono">{s.u}</span>}</dd>
+                  <dd class="mono dim small">{s.s}</dd>
+                </div>
+              ))}
+            </dl>
+
+            <p class="lede reveal">
+              Every corridor starts at one hub and ends at a door. They are fixed lanes over open water, flown at
+              120 metres and filed with the aviation authority — so the people underneath always know where the
+              aircraft will be.
+            </p>
+
+            <ul class="cor-list" aria-label="Corridors">
+              {corridors.map((c) => (
+                <li>
+                  <button class="cor-row" type="button" data-cor={c.id}>
+                    <span class="mono acc-h">{c.id}</span>
+                    <span class="cor-to">{c.to}</span>
+                    <span class="mono dim hide-sm">{c.note}</span>
+                    <span class="mono">{c.km} km</span>
+                    <span class="mono dim">{c.min} min</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 02 FLIGHT ============ -->
+      <section class="sec wrap" id="flight">
+        <div class="chapter mono"><span class="acc">02</span><span>Flight</span></div>
+        <div class="flight-grid">
+          <figure class="inset">
+            <div class="inset-img" style={`background-image:url(${img('mist.jpg')})`}></div>
+            <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
+            <figcaption class="mono">
+              <span>Fig. 03</span>
+              <span>Seventeen minutes, hub to door, Corridor C3</span>
+            </figcaption>
+          </figure>
+
+          <div class="steps-col">
+            <h2 class="display h2 reveal">How a box crosses <span class="dim2">nineteen kilometres of sea.</span></h2>
+            <ol class="steps">
+              {steps.map((s, i) => (
+                <li class="step" data-step={i}>
+                  <span class="tick" aria-hidden="true"></span>
+                  <div class="step-meta mono"><span class="step-n">{String(i + 1).padStart(2, '0')}</span><span class="dim">{s.t}</span></div>
+                  <h3>{s.h}</h3>
+                  <p>{s.p}</p>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ BAND 2 ============ -->
+      <figure class="band2" aria-label="A Skerry aircraft over open water">
+        <div class="band2-img" data-drift style={`background-image:url(${img('sea.jpg')})`}></div>
+        <blockquote class="quote">
+          <p class="display">“The ferry comes on Thursdays. Insulin doesn’t wait for Thursdays.”</p>
+          <footer class="mono"><span class="acc">—</span> Dr Hanna Joensen, GP, Kalsø surgery</footer>
+        </blockquote>
+        <figcaption class="band2-cap mono"><span>Fig. 04</span><span>Holding pattern, 2 km off Eysa</span></figcaption>
+      </figure>
+
+      <!-- ============ 03 FLEET ============ -->
+      <section class="sec wrap" id="fleet">
+        <div class="chapter mono"><span class="acc">03</span><span>Fleet</span></div>
+        <div class="fleet-grid">
+          <figure class="spec-img reveal">
+            <img src={img('aircraft.jpg')} alt="A white quad-rotor drone hovering against a blurred blue coastline" loading="lazy" width="1400" height="1000" />
+            <span class="callout c1 mono"><i></i>Winch bay, 25 m tether</span>
+            <span class="callout c2 mono"><i></i>Rotor guard, salt-sealed</span>
+            <span class="callout c3 mono"><i></i>Downward camera + lidar</span>
+          </figure>
+
+          <div class="spec-side">
+            <h2 class="display h2 reveal">Twenty-two Terns. <span class="dim2">Each one built to be rained on.</span></h2>
+            <p class="lede reveal">
+              Our aircraft are assembled and repaired on Streymø, by people who also fish, farm and get their post
+              this way. Every airframe is rinsed of salt after each shift and retired at 1,800 flight hours.
+            </p>
+            <table class="spec mono">
+              <caption class="mono dim">Spec sheet · Tern Mk II</caption>
+              <tbody>
+                {specs.map(([k, v]) => (
+                  <tr><th scope="row">{k}</th><td>{v}</td></tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 04 SEND ============ -->
+      <section class="sec wrap" id="send">
+        <div class="chapter mono"><span class="acc">04</span><span>Send</span></div>
+        <div class="send-head">
+          <h2 class="display h2 reveal">Three ways <span class="dim2">to put something in the air.</span></h2>
+          <p class="lede reveal">Prices in Varrø krónur, VAT included. Households pay per parcel; clinics and fisheries book capacity.</p>
+        </div>
+        <div class="tiers">
+          {tiers.map((t) => (
+            <article class:list={['tier reveal', { featured: t.featured }]}>
+              <div class="tier-top mono">
+                <span>{t.k}</span>
+                {t.featured && <span class="pill">Most flown</span>}
+              </div>
+              <p class="price display">{t.price}</p>
+              <p class="mono dim small">{t.per}</p>
+              <ul>
+                {t.items.map((it) => <li>{it}</li>)}
+              </ul>
+              <a class:list={['btn', t.featured ? 'btn-acc' : 'btn-ghost']} href="#footer">{t.cta}</a>
+            </article>
+          ))}
+        </div>
+      </section>
+    </main>
+
+    <!-- ============ FOOTER ============ -->
+    <footer class="foot" id="footer">
+      <div class="wrap foot-grid">
+        <div>
+          <p class="display foot-h">Dispatch is open <span class="dim2">06:00–23:00, every day the wind allows.</span></p>
+          <div class="cta-row">
+            <a class="btn btn-ink" href="mailto:dispatch@skerry.example">dispatch@skerry.example</a>
+            <a class="btn-line mono" href="tel:+298000214">+298 000 214</a>
+          </div>
+        </div>
+        <div class="foot-cols mono">
+          <div><p class="dim">Hub</p><p>Hafnarvegur 4<br />Toftavík, Streymø</p></div>
+          <div><p class="dim">Network</p><p><a href="#network">Corridors</a><br /><a href="#flight">Flight</a></p></div>
+          <div><p class="dim">Company</p><p><a href="#fleet">Fleet</a><br /><a href="#send">Pricing</a></p></div>
+        </div>
+      </div>
+      <div class="status mono">
+        <div class="wrap status-row">
+          <span><b class="pulse" aria-hidden="true"></b>All corridors open</span>
+          <span>Uptime 99.94%</span>
+          <span class="hide-sm">Aloft 37 / 22 airframes cycling</span>
+          <span class="hide-sm">Wind SW 11 kt</span>
+          <span>© 2026 Skerry Air</span>
+        </div>
+      </div>
+    </footer>
+
+    <style is:global>
+      :root {
+        --paper: #e8e9e5;
+        --paper-2: #f2f2ef;
+        --ink: #121413;
+        --ink-2: #4b504e;
+        --ink-3: #868b88;
+        --rule: rgb(18 20 19 / 0.14);
+        --rule-2: rgb(18 20 19 / 0.28);
+        --acc: #ff4d17;
+        --pad: clamp(16px, 2.8vw, 40px);
+        --ease: cubic-bezier(0.2, 0.7, 0.1, 1);
+      }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0; background: var(--paper); color: var(--ink);
+        font-family: 'Schibsted Grotesk', ui-sans-serif, system-ui, sans-serif;
+        font-size: 16px; line-height: 1.55; -webkit-font-smoothing: antialiased;
+        overflow-x: clip;
+      }
+      a { color: inherit; text-decoration: none; }
+      :focus-visible { outline: 2px solid var(--acc); outline-offset: 3px; }
+      .wrap { max-width: 1440px; margin: 0 auto; padding-inline: var(--pad); box-sizing: border-box; }
+      .mono { font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; line-height: 1.5; }
+      .dim { color: var(--ink-3); }
+      .dim2 { color: var(--ink-3); }
+      .acc { color: var(--acc); }
+      .small { font-size: 10.5px; }
+      .display { font-weight: 500; letter-spacing: -0.035em; line-height: 0.95; margin: 0; }
+
+      /* ---- nav ---- */
+      .nav { width: 100%; position: relative; display: flex; align-items: center; justify-content: space-between; height: 76px; border-bottom: 1px solid var(--rule); }
+      .brand { display: flex; align-items: center; gap: 12px; }
+      .mark { width: 26px; height: 26px; border: 1px solid var(--ink); display: grid; place-items: center; position: relative; }
+      .mark::before, .mark::after { content: ''; position: absolute; width: 6px; height: 6px; border: 1px solid var(--ink); background: var(--paper); }
+      .mark::before { top: -4px; left: -4px; } .mark::after { bottom: -4px; right: -4px; }
+      .mark i { width: 8px; height: 8px; background: var(--acc); }
+      .word { font-weight: 600; font-size: 19px; letter-spacing: -0.02em; }
+      .brand-sub { padding-left: 12px; border-left: 1px solid var(--rule-2); }
+      .nav-links { display: flex; gap: 44px; list-style: none; margin: 0; padding: 0; position: absolute; left: 50%; transform: translateX(-50%); }
+      .nav-links a { color: var(--ink-2); transition: color 0.3s; }
+      .nav-links a:hover { color: var(--ink); }
+      .live { display: inline-flex; align-items: center; gap: 10px; padding: 7px 12px; border: 1px solid var(--rule-2); }
+      .pulse { width: 7px; height: 7px; border-radius: 50%; background: var(--acc); display: inline-block; animation: pulse 2s infinite; }
+      @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgb(255 77 23 / 0.5); } 50% { box-shadow: 0 0 0 6px rgb(255 77 23 / 0); } }
+
+      /* ---- hero ---- */
+      .hero { position: relative; min-height: max(100svh, 780px); display: flex; flex-direction: column; }
+      .hero-body { position: relative; width: 100%; padding-top: 28px; padding-bottom: 360px; }
+      .meta-row { display: flex; gap: 40px; padding-bottom: 28px; max-width: 62%; }
+      .meta-row span + span::before { content: '/'; margin-right: 40px; color: var(--rule-2); }
+      .headline { font-size: clamp(54px, 8.6vw, 132px); max-width: 64%; }
+      .line { display: block; overflow: hidden; padding-bottom: 0.06em; margin-bottom: -0.06em; }
+      .line > span { display: inline-block; transform: translateY(105%); animation: rise 1.1s var(--ease) forwards; }
+      .line:nth-child(2) > span { animation-delay: 0.1s; }
+      .line:nth-child(3) > span { animation-delay: 0.2s; }
+      @keyframes rise { to { transform: none; } }
+      .headline em { font-style: normal; color: var(--ink); position: relative; }
+      .headline em::after { content: ''; position: absolute; left: 0.04em; right: 0.08em; bottom: 0.1em; height: 0.07em; background: var(--acc); transform: scaleX(0); transform-origin: left; animation: grow 0.9s var(--ease) 0.9s forwards; }
+      @keyframes grow { to { transform: scaleX(1); } }
+      .hero-copy { position: absolute; left: calc(var(--pad) + 43%); width: 23%; bottom: 392px; color: var(--ink-2); font-size: 15px; animation: fade 1s var(--ease) 0.5s both; }
+      .hero-copy p { margin: 0 0 22px; }
+      @keyframes fade { from { opacity: 0; transform: translateY(12px); } }
+      .cta-row { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+      .btn { display: inline-flex; align-items: center; justify-content: center; height: 44px; padding: 0 20px; font-size: 14px; font-weight: 500; border: 1px solid var(--ink); transition: background 0.3s, color 0.3s, border-color 0.3s; }
+      .btn-ink { background: var(--ink); color: var(--paper-2); }
+      .btn-ink:hover { background: var(--acc); border-color: var(--acc); color: var(--ink); }
+      .btn-ghost:hover { background: var(--ink); color: var(--paper-2); }
+      .btn-acc { background: var(--acc); border-color: var(--acc); color: var(--ink); }
+      .btn-acc:hover { background: var(--ink); border-color: var(--ink); color: var(--paper-2); }
+      .btn-line { color: var(--ink); padding-bottom: 4px; border-bottom: 1px solid var(--rule-2); transition: border-color 0.3s; }
+      .btn-line:hover { border-color: var(--acc); }
+
+      /* band */
+      .band { position: absolute; left: 0; right: 0; bottom: 0; height: 330px; margin: 0; overflow: hidden; background: #2b3134; }
+      .band-img { position: absolute; inset: -40px 0; background-size: cover; background-position: 50% 62%; animation: drift 40s ease-in-out infinite alternate; will-change: transform; }
+      @keyframes drift { from { transform: scale(1.06) translateX(-1%); } to { transform: scale(1.1) translateX(1.5%); } }
+      .band-shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgb(18 20 19 / 0.35), transparent 35%, rgb(18 20 19 / 0.45)); }
+      .ruler { position: absolute; left: 0; right: 0; top: 0; height: 12px; background: repeating-linear-gradient(90deg, rgb(255 255 255 / 0.55) 0 1px, transparent 1px 24px), repeating-linear-gradient(90deg, rgb(255 255 255 / 0.85) 0 1px, transparent 1px 120px); background-size: auto 6px, auto 12px; background-repeat: repeat-x; }
+      .route { position: absolute; inset: 0; width: 100%; height: 100%; }
+      .wp circle { fill: #fff; }
+      .wp text { fill: rgb(255 255 255 / 0.85); font: 500 10px 'IBM Plex Mono', monospace; letter-spacing: 0.14em; }
+      .craft .dot { fill: var(--acc); }
+      .craft .halo { fill: none; stroke: var(--acc); stroke-opacity: 0.6; }
+      .band-cap { position: absolute; left: var(--pad); bottom: 18px; display: flex; gap: 24px; color: rgb(255 255 255 / 0.8); }
+      .band-cap span:first-child, .band2-cap span:first-child { color: #fff; }
+
+      /* rail */
+      .rail { position: absolute; z-index: 3; top: 76px; right: var(--pad); width: min(27%, 380px); bottom: 56px; background: var(--paper-2); border: 1px solid var(--rule); border-top: 0; display: flex; flex-direction: column; box-shadow: 0 30px 60px -30px rgb(18 20 19 / 0.35); animation: fade 1s var(--ease) 0.3s both; }
+      .rail-head { display: flex; justify-content: space-between; align-items: center; padding: 18px 22px; border-bottom: 1px solid var(--rule); }
+      .bars { display: flex; gap: 3px; } .bars i { width: 4px; height: 12px; background: var(--rule-2); } .bars i.on { background: var(--acc); }
+      .card { margin: 18px; padding: 20px; background: var(--ink); color: var(--paper-2); }
+      .card-top { display: flex; justify-content: space-between; align-items: center; }
+      .flight-id { color: rgb(255 255 255 / 0.7); }
+      .pill { border: 1px solid var(--acc); color: var(--acc); padding: 3px 8px; }
+      .route-name { font-size: 18px; letter-spacing: -0.01em; margin: 16px 0 2px; }
+      .card .dim { color: rgb(255 255 255 / 0.5); }
+      .card .small { margin: 0; }
+      .eta { display: flex; align-items: baseline; justify-content: space-between; margin-top: 20px; }
+      .eta-num { font-size: 40px; letter-spacing: -0.02em; text-transform: none; color: #fff; }
+      .bar { height: 3px; background: rgb(255 255 255 / 0.12); margin: 10px 0 18px; }
+      .bar i { display: block; height: 100%; width: 52%; background: var(--acc); transition: width 1s linear; }
+      .tele { display: grid; grid-template-columns: repeat(3, 1fr); margin: 0; border-top: 1px solid rgb(255 255 255 / 0.12); padding-top: 14px; }
+      .tele dt { color: rgb(255 255 255 / 0.5); } .tele dd { margin: 2px 0 0; color: #fff; }
+      .deps { padding: 4px 22px 0; }
+      .label { margin: 0 0 8px; }
+      .deps ol { list-style: none; margin: 0; padding: 0; }
+      .deps li { display: grid; grid-template-columns: 52px 1fr auto; gap: 10px; align-items: baseline; padding: 11px 0; border-top: 1px solid var(--rule); font-size: 14px; }
+      .wind { margin: 18px 22px 0; padding-top: 14px; border-top: 1px solid var(--rule); }
+      .wind figcaption { display: flex; justify-content: space-between; margin-bottom: 12px; }
+      .wind svg { display: block; width: 100%; height: 64px; }
+      .wind rect { fill: var(--ink); fill-opacity: 0.18; }
+      .wind rect.hi { fill: var(--ink); fill-opacity: 0.8; }
+      .wind .ceil { stroke: var(--acc); stroke-dasharray: 3 3; }
+      .rail-foot { margin-top: auto; display: flex; justify-content: space-between; padding: 14px 22px; border-top: 1px solid var(--rule); }
+
+      /* ---- sections ---- */
+      .sec { padding-top: clamp(80px, 11vw, 160px); }
+      .chapter { display: flex; gap: 14px; align-items: center; padding-bottom: 18px; margin-bottom: 40px; border-bottom: 1px solid var(--rule); }
+      .chapter span:last-child { color: var(--ink-2); }
+      .h2 { font-size: clamp(34px, 4.6vw, 68px); max-width: 17ch; }
+      .lede { color: var(--ink-2); font-size: 17px; max-width: 46ch; margin: 0; }
+      .reveal { opacity: 0; transform: translateY(18px); transition: opacity 0.9s var(--ease), transform 0.9s var(--ease); }
+      .reveal.in { opacity: 1; transform: none; }
+
+      /* network */
+      #network .h2 { margin-left: calc(100% / 12 * 2); max-width: 20ch; }
+      .net-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 24px; margin-top: 72px; }
+      .map-frame { grid-column: 1 / 7; margin: 0; border: 1px solid var(--rule); background: var(--paper-2); align-self: start; position: sticky; top: 24px; }
+      .frame-head { display: flex; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--rule); }
+      .map { display: block; width: 100%; height: auto; color: var(--ink); }
+      .isle path { fill: #d7d9d3; stroke: var(--ink); stroke-width: 0.8; stroke-opacity: 0.5; }
+      .isle text, .hub text, .cor text, .compass text { font: 500 9px 'IBM Plex Mono', monospace; letter-spacing: 0.14em; fill: var(--ink-3); }
+      .cor line { stroke: var(--ink); stroke-opacity: 0.35; stroke-width: 1; stroke-dasharray: 3 4; transition: stroke 0.3s, stroke-opacity 0.3s, stroke-width 0.3s; }
+      .cor circle { fill: var(--paper-2); stroke: var(--ink); stroke-width: 1; transition: fill 0.3s; }
+      .cor.on line { stroke: var(--acc); stroke-opacity: 1; stroke-width: 2; stroke-dasharray: none; }
+      .cor.on circle { fill: var(--acc); stroke: var(--acc); }
+      .cor.on text { fill: var(--acc); }
+      .hub circle { fill: var(--acc); } .hub .hub-ring { fill: none; stroke: var(--acc); }
+      .hub text { fill: var(--ink); }
+      .compass line { stroke: var(--ink-3); }
+      .net-side { grid-column: 8 / 13; }
+      .stats { display: grid; grid-template-columns: 1fr 1fr; margin: 0 0 48px; border-top: 1px solid var(--rule); }
+      .stat { padding: 22px 0 24px; border-bottom: 1px solid var(--rule); }
+      .stat:nth-child(odd) { padding-right: 20px; border-right: 1px solid var(--rule); }
+      .stat:nth-child(even) { padding-left: 24px; }
+      .stat dd { margin: 0; }
+      .num { font-size: clamp(40px, 4.4vw, 64px); font-weight: 500; letter-spacing: -0.04em; line-height: 1.1; }
+      .unit { margin-left: 6px; color: var(--acc); }
+      .stat:nth-child(2) .num { color: var(--acc); }
+      .cor-list { list-style: none; margin: 40px 0 0; padding: 0; border-top: 1px solid var(--ink); }
+      .cor-row { all: unset; box-sizing: border-box; width: 100%; cursor: pointer; display: grid; grid-template-columns: 40px 1fr 1.6fr 74px 54px; gap: 12px; align-items: baseline; padding: 14px 0; border-bottom: 1px solid var(--rule); transition: background 0.25s, padding 0.25s; }
+      .cor-row .cor-to { font-size: 16px; }
+      .cor-row:hover, .cor-row:focus-visible, .cor-row.on { background: var(--paper-2); padding-left: 10px; }
+      .cor-row.on .acc-h { color: var(--acc); }
+      .cor-row:focus-visible { outline-offset: -2px; }
+
+      /* flight */
+      .flight-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 24px; }
+      .inset { grid-column: 1 / 6; margin: 0; position: sticky; top: 24px; height: min(78vh, 680px); align-self: start; }
+      .inset-img { position: absolute; inset: 0; background-size: cover; background-position: 55% 50%; filter: saturate(0.85); }
+      .corner { position: absolute; width: 14px; height: 14px; border: 1px solid var(--ink); }
+      .corner.tl { top: -8px; left: -8px; border-right: 0; border-bottom: 0; }
+      .corner.tr { top: -8px; right: -8px; border-left: 0; border-bottom: 0; }
+      .corner.bl { bottom: -8px; left: -8px; border-right: 0; border-top: 0; }
+      .corner.br { bottom: -8px; right: -8px; border-left: 0; border-top: 0; }
+      .inset figcaption { position: absolute; left: 0; right: 0; bottom: 0; display: flex; gap: 20px; padding: 14px 16px; background: var(--paper-2); }
+      .steps-col { grid-column: 7 / 13; }
+      .steps { list-style: none; margin: 56px 0 0; padding: 0 0 0 28px; position: relative; border-left: 1px solid var(--rule); }
+      .step { position: relative; padding: 0 0 52px; color: var(--ink-3); transition: color 0.5s; }
+      .tick { position: absolute; left: -33px; top: 4px; width: 9px; height: 9px; background: var(--paper); border: 1px solid var(--rule-2); transition: background 0.4s, border-color 0.4s; }
+      .step-meta { display: flex; gap: 18px; }
+      .step h3 { font-size: 26px; font-weight: 500; letter-spacing: -0.02em; margin: 8px 0 6px; }
+      .step p { margin: 0; max-width: 46ch; }
+      .step.on { color: var(--ink); }
+      .step.on p { color: var(--ink-2); }
+      .step.on .tick { background: var(--acc); border-color: var(--acc); }
+      .step.on .step-n { color: var(--acc); }
+
+      /* band 2 */
+      .band2 { position: relative; height: min(84vh, 760px); margin: clamp(80px, 11vw, 160px) 0 0; overflow: hidden; background: #6b7e8a; }
+      .band2-img { position: absolute; inset: -60px 0; background-size: cover; background-position: 50% 45%; }
+      .quote { position: absolute; left: var(--pad); bottom: var(--pad); margin: 0; max-width: 620px; background: var(--paper-2); padding: 32px 36px; }
+      .quote p { font-size: clamp(26px, 2.8vw, 40px); line-height: 1.08; letter-spacing: -0.025em; }
+      .quote footer { margin-top: 22px; color: var(--ink-2); }
+      .band2-cap { position: absolute; right: var(--pad); top: 22px; display: flex; gap: 20px; color: rgb(255 255 255 / 0.85); }
+
+      /* fleet */
+      .fleet-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 24px; align-items: start; }
+      .spec-img { grid-column: 1 / 8; margin: 0; position: relative; }
+      .spec-img img { display: block; width: 100%; aspect-ratio: 7 / 5; object-fit: cover; }
+      .callout { position: absolute; display: flex; align-items: center; gap: 10px; background: var(--paper-2); padding: 6px 10px; white-space: nowrap; }
+      .callout i { width: 7px; height: 7px; background: var(--acc); }
+      .c1 { left: 41%; top: 68%; } .c2 { left: 6%; top: 34%; } .c3 { right: 6%; top: 18%; }
+      .spec-side { grid-column: 9 / 13; }
+      .spec-side .lede { margin-top: 28px; font-size: 16px; }
+      .spec { width: 100%; border-collapse: collapse; margin-top: 40px; }
+      .spec caption { text-align: left; padding-bottom: 10px; }
+      .spec th, .spec td { text-align: left; padding: 11px 0; border-top: 1px solid var(--rule); font-weight: 400; }
+      .spec th { color: var(--ink-3); }
+      .spec td { text-align: right; color: var(--ink); }
+      .spec tr:last-child th, .spec tr:last-child td { border-bottom: 1px solid var(--ink); }
+      .spec tr:hover td { color: var(--acc); }
+
+      /* send */
+      .send-head { display: grid; grid-template-columns: repeat(12, 1fr); gap: 24px; align-items: end; }
+      .send-head .h2 { grid-column: 1 / 8; }
+      .send-head .lede { grid-column: 9 / 13; font-size: 15px; }
+      .tiers { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 56px; border: 1px solid var(--rule); }
+      .tier { padding: 28px 28px 32px; display: flex; flex-direction: column; background: transparent; transition: background 0.3s; }
+      .tier + .tier { border-left: 1px solid var(--rule); }
+      .tier:hover { background: var(--paper-2); }
+      .tier.featured { background: var(--paper-2); box-shadow: inset 0 3px 0 var(--acc); }
+      .tier-top { display: flex; justify-content: space-between; align-items: center; min-height: 26px; }
+      .price { font-size: clamp(40px, 4vw, 56px); margin-top: 40px; }
+      .tier ul { list-style: none; margin: 28px 0 32px; padding: 0; flex: 1; }
+      .tier li { padding: 10px 0; border-top: 1px solid var(--rule); font-size: 15px; color: var(--ink-2); }
+      .tier li::before { content: '+'; font-family: 'IBM Plex Mono', monospace; color: var(--acc); margin-right: 10px; }
+      .tier .btn { align-self: flex-start; }
+
+      /* footer */
+      .foot { margin-top: clamp(96px, 12vw, 180px); background: var(--ink); color: var(--paper-2); }
+      .foot .dim2, .foot .dim { color: rgb(242 242 239 / 0.45); }
+      .foot-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 48px; padding-top: 88px; padding-bottom: 88px; }
+      .foot-h { font-size: clamp(34px, 4.2vw, 60px); max-width: 16ch; margin-bottom: 36px; }
+      .foot .btn-ink { background: var(--paper-2); color: var(--ink); border-color: var(--paper-2); }
+      .foot .btn-ink:hover { background: var(--acc); border-color: var(--acc); }
+      .foot .btn-line { color: var(--paper-2); border-color: rgb(242 242 239 / 0.3); }
+      .foot-cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; align-self: end; }
+      .foot-cols p { margin: 0 0 8px; } .foot-cols a:hover { color: var(--acc); }
+      .status { border-top: 1px solid rgb(242 242 239 / 0.12); color: rgb(242 242 239 / 0.6); }
+      .status-row { display: flex; justify-content: space-between; gap: 24px; padding-top: 16px; padding-bottom: 16px; }
+      .status-row span:first-child { display: inline-flex; align-items: center; gap: 10px; color: var(--paper-2); }
+
+      /* ---- responsive ---- */
+      @media (max-width: 1100px) {
+        .nav-links { display: none; }
+        .hero { min-height: 0; }
+        .hero-body { padding-bottom: 40px; }
+        .meta-row, .headline { max-width: none; }
+        .hero-copy { position: static; width: auto; max-width: 52ch; margin-top: 28px; }
+        .band { position: relative; height: clamp(260px, 42vw, 380px); }
+        .band-cap { bottom: auto; top: 26px; }
+        .rail { position: relative; top: auto; right: auto; bottom: auto; width: auto; margin: -48px var(--pad) 0; border-top: 1px solid var(--rule); }
+        .map-frame, .net-side, .inset, .steps-col, .spec-img, .spec-side { grid-column: 1 / -1; }
+        .map-frame, .inset { position: relative; top: 0; }
+        .inset { height: 56vw; }
+        #network .h2 { margin-left: 0; }
+        .send-head .h2, .send-head .lede { grid-column: 1 / -1; }
+        .foot-grid { grid-template-columns: 1fr; }
+      }
+      @media (max-width: 720px) {
+        .hide-sm { display: none; }
+        .brand-sub { display: none; }
+        .meta-row { gap: 14px; flex-wrap: wrap; }
+        .meta-row span + span::before { display: none; }
+        .hero-copy { font-size: 15px; }
+        .rail { margin-inline: 12px; }
+        .band-cap { flex-direction: column; gap: 2px; }
+        .stats { grid-template-columns: 1fr 1fr; }
+        .stat:nth-child(odd) { padding-right: 12px; }
+        .stat:nth-child(even) { padding-left: 14px; }
+        .cor-row { grid-template-columns: 30px 1fr 70px 56px; gap: 8px; }
+        .inset { height: 110vw; }
+        .tiers { grid-template-columns: 1fr; }
+        .tier + .tier { border-left: 0; border-top: 1px solid var(--rule); }
+        .quote { left: 12px; right: 12px; bottom: 12px; padding: 22px; }
+        .band2 { height: 108vw; min-height: 460px; }
+        .callout { font-size: 9px; padding: 4px 7px; }
+        .c3 { right: 4%; top: 8%; } .c2 { left: 4%; }
+        .foot-cols { grid-template-columns: 1fr 1fr; }
+        .status-row { flex-wrap: wrap; gap: 8px 20px; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        html { scroll-behavior: auto; }
+        *, *::before, *::after { animation: none !important; transition: none !important; }
+        .line > span { transform: none; }
+        .headline em::after { transform: none; }
+        .reveal { opacity: 1; transform: none; }
+      }
+    </style>
+
+    <script>
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      // SMIL ignores the reduced-motion media query, so pause it here.
+      if (reduce) document.querySelector<SVGSVGElement>('.route')?.pauseAnimations();
+
+      // Live ETA countdown + progress bar for the telemetry card.
+      const eta = document.getElementById('eta');
+      const bar = document.getElementById('bar');
+      const total = 16 * 60;
+      let left = 7 * 60 + 42;
+      const render = () => {
+        const m = Math.floor(left / 60);
+        const s = left % 60;
+        if (eta) eta.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        const pct = Math.round(((total - left) / total) * 100);
+        if (bar) {
+          bar.style.width = `${pct}%`;
+          bar.parentElement?.setAttribute('aria-valuenow', String(pct));
+        }
+      };
+      render();
+      setInterval(() => {
+        left = left <= 0 ? 7 * 60 + 42 : left - 1; // ponytail: demo loop, restarts the same flight
+        render();
+      }, 1000);
+
+      // Reveal-on-scroll.
+      const io = new IntersectionObserver(
+        (entries) => entries.forEach((e) => e.isIntersecting && (e.target.classList.add('in'), io.unobserve(e.target))),
+        { rootMargin: '0px 0px -10% 0px' },
+      );
+      document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+
+      // Current flight step follows the reading line.
+      const stepEls = [...document.querySelectorAll<HTMLElement>('.step')];
+      stepEls[0]?.classList.add('on');
+      const stepIo = new IntersectionObserver(
+        (entries) =>
+          entries.forEach((e) => {
+            if (!e.isIntersecting) return;
+            stepEls.forEach((s) => s.classList.toggle('on', s === e.target));
+          }),
+        { rootMargin: '-45% 0px -45% 0px' },
+      );
+      stepEls.forEach((s) => stepIo.observe(s));
+
+      // Corridor list <-> map highlight (hover, focus or click).
+      const rows = [...document.querySelectorAll<HTMLButtonElement>('.cor-row')];
+      const lines = [...document.querySelectorAll<SVGGElement>('.cor')];
+      const select = (id: string) => {
+        rows.forEach((r) => r.classList.toggle('on', r.dataset.cor === id));
+        lines.forEach((l) => l.classList.toggle('on', l.dataset.cor === id));
+      };
+      rows.forEach((r) => {
+        const id = r.dataset.cor ?? '';
+        r.addEventListener('mouseenter', () => select(id));
+        r.addEventListener('focus', () => select(id));
+        r.addEventListener('click', () => select(id));
+      });
+      select('C3');
+
+      // Calm parallax on the two media bands.
+      if (!reduce) {
+        const drifts = [...document.querySelectorAll<HTMLElement>('.band2-img')];
+        const tick = () => {
+          drifts.forEach((el) => {
+            const r = el.parentElement!.getBoundingClientRect();
+            const p = (r.top + r.height / 2 - innerHeight / 2) / innerHeight;
+            el.style.transform = `translate3d(0, ${(p * -50).toFixed(1)}px, 0)`;
+          });
+        };
+        addEventListener('scroll', () => requestAnimationFrame(tick), { passive: true });
+        tick();
+      }
+    </script>
+  </body>
+</html>

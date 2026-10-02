@@ -1,0 +1,649 @@
+---
+import '../../styles/global.css';
+import BackPill from '../../components/BackPill.astro';
+
+const img = (id: string, w: number) => `https://images.unsplash.com/photo-${id}?w=${w}&q=72&auto=format&fit=crop`;
+
+const steps = [
+  {
+    no: '01',
+    title: 'Open scouting',
+    body: 'We watch ranked, not highlight reels. Forty hours of your own matches tell us more than any clip.',
+    mock: 'filters',
+  },
+  {
+    no: '02',
+    title: 'Trial week',
+    body: 'Five evenings with the academy squad. Comms in English, review after every map, no cuts mid-week.',
+    mock: 'week',
+  },
+  {
+    no: '03',
+    title: 'Bootcamp',
+    body: 'Two weeks at the Leiden house: sleep, physio and set plays before anyone touches a scrim block.',
+    mock: 'checklist',
+  },
+  {
+    no: '04',
+    title: 'Main stage',
+    body: 'A two-season contract, a coach who answers your messages, and a seat on the split roster.',
+    mock: 'contract',
+  },
+];
+
+const days = [
+  { d: 'Mon', blocks: [['Rest day', 'rest']] },
+  { d: 'Tue', blocks: [['Set plays', 'train'], ['Scrim · 3 maps', 'scrim']] },
+  { d: 'Wed', blocks: [['VOD review', 'review'], ['Scrim · 2 maps', 'scrim']] },
+  { d: 'Thu', blocks: [['Physio', 'rest'], ['Match day', 'match']] },
+  { d: 'Fri', blocks: [['Review · 40 min', 'review'], ['Aim block', 'train']] },
+  { d: 'Sat', blocks: [['Scrim · 3 maps', 'scrim'], ['Stream (opt.)', 'rest']] },
+  { d: 'Sun', blocks: [['Match day', 'match']] },
+] as const;
+
+const roster = [
+  { tag: 'Halde', name: 'Mira Okafor', role: 'In-game leader', stat: '4 yrs', status: 'Active', tint: '#d9cbb6' },
+  { tag: 'Vesk', name: 'Jonas Vesterlund', role: 'Entry', stat: '1.18 K/D', status: 'Active', tint: '#cfd3c2' },
+  { tag: 'Lumo', name: 'Aiko Tanabe', role: 'Support', stat: '74% util.', status: 'Active', tint: '#e0cfc3' },
+  { tag: 'Brisk', name: 'Tomás Reyes', role: 'Anchor', stat: '61% holds', status: 'Rest week', tint: '#d6d0c4' },
+  { tag: 'Oaken', name: 'Sanna Mäkelä', role: 'Flex', stat: 'Academy ↑', status: 'Trial', tint: '#d2c8bb' },
+];
+
+const faqs = [
+  ['Do I need a minimum rank to try out?', 'No hard floor. Most trialists sit in the top 2% of their region, but we have signed players from below that because their review notes were better than their rank.'],
+  ['Is the trial week paid?', 'Yes. Every trialist receives a flat €400 stipend and we cover travel if the week runs at the Leiden house.'],
+  ['How many hours a day does the team train?', 'Six on a scrim day, never more than seven. Rest days are not optional and nobody streams on them.'],
+  ['What happens if I am not signed?', 'You get a written review from the coaching staff within ten days, with the three things we would work on first.'],
+];
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Ashgrove — A calmer esports club</title>
+    <meta name="description" content="Ashgrove is a fictional esports club that trains quietly and plays loud." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <div class="wash" aria-hidden="true"><span></span><span></span></div>
+
+    <header class="nav">
+      <a href="#top" class="brand" aria-label="Ashgrove home">
+        <span class="mark" aria-hidden="true"><i></i><i></i></span>
+        <span>
+          <strong>Ashgrove</strong>
+          <small>Esports club · Leiden</small>
+        </span>
+      </a>
+      <nav aria-label="Primary">
+        <a href="#path">Tryouts</a>
+        <a href="#week">Training week</a>
+        <a href="#roster">Roster</a>
+        <a href="#faq">FAQ</a>
+      </nav>
+      <div class="nav-cta">
+        <a class="btn ghost hide-sm" href="#roster">Watch Thursday</a>
+        <a class="btn solid" href="#apply">Apply to try out</a>
+      </div>
+    </header>
+
+    <main id="top">
+      <!-- HERO -->
+      <section class="hero shell">
+        <div class="hero-copy">
+          <p class="badge"><span class="dot"></span>Spring Split · week 6 · 7–1 record</p>
+          <h1 class="mask-title" aria-label="We train quietly so we can play loud.">
+            <span class="line"><span>We train quietly</span></span>
+            <span class="line"><span>so we can</span></span>
+            <span class="line"><span class="soft">play loud.</span></span>
+          </h1>
+          <p class="lede">
+            Ashgrove is a five-player tactical shooter club with a coaching staff of three, a rest day nobody negotiates,
+            and a review after every single map.
+          </p>
+          <div class="cta-row">
+            <a class="btn solid lg" href="#apply">
+              <iconify-icon icon="solar:gamepad-linear" width="18" aria-hidden="true"></iconify-icon>
+              Apply to try out
+            </a>
+            <a class="btn ghost lg" href="#week">
+              <iconify-icon icon="solar:calendar-linear" width="18" aria-hidden="true"></iconify-icon>
+              See a training week
+            </a>
+          </div>
+          <dl class="stats">
+            <div><dt>412</dt><dd>scrims logged this split</dd></div>
+            <div><dt>38 min</dt><dd>average review per map</dd></div>
+            <div><dt>1</dt><dd>rest day, every week</dd></div>
+          </dl>
+        </div>
+
+        <div class="hero-media">
+          <figure class="photo">
+            <img src={img('1618366712010-f4ae9c647dcb', 1100)} alt="A pair of black headphones resting on a warm beige surface" width="900" height="1100" />
+            <figcaption><span class="dot"></span>Comms off at 23:00</figcaption>
+          </figure>
+          <div class="side">
+            <article class="card">
+              <div class="row between">
+                <p class="eyebrow">Next match</p>
+                <span class="pill live"><span class="dot"></span>Live Thu</span>
+              </div>
+              <p class="card-title">vs Northwind Pike<br /><span class="muted">Thursday · 19:00 CET</span></p>
+              <div class="bar" role="progressbar" aria-label="Prep complete" aria-valuenow="72" aria-valuemin="0" aria-valuemax="100"><span style="width:72%"></span></div>
+              <p class="tiny muted">Prep 72% · 3 of 4 maps drilled</p>
+            </article>
+            <article class="card">
+              <div class="row">
+                <span class="avatar" style="--t:#d9cbb6">MO</span>
+                <div>
+                  <p class="card-title">Mira “Halde” Okafor</p>
+                  <p class="tiny muted">In-game leader · 4 years</p>
+                </div>
+              </div>
+              <div class="chips">
+                <span>EN / NL / YO</span>
+                <span>212 calls / map</span>
+              </div>
+            </article>
+            <article class="card dark">
+              <p class="eyebrow">How we play</p>
+              <p>Short calls, early reads, and nobody shouting after a lost round. The review is where we argue.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- PROCESS -->
+      <section id="path" class="section reveal">
+        <header class="sec-head">
+          <p class="badge"><span class="dot"></span>The path in</p>
+          <h2>From open queue to main stage, in four quiet steps</h2>
+          <p class="muted">Every player on the current roster came through the same door. It takes about six weeks.</p>
+        </header>
+        <div class="process shell">
+          {steps.map((s) => (
+            <article class="step">
+              <p class="step-no">{s.no}</p>
+              <h3>{s.title}</h3>
+              <p class="muted">{s.body}</p>
+              <div class="mock">
+                {s.mock === 'filters' && (
+                  <>
+                    <p class="tiny muted">Scouting filter</p>
+                    <div class="chips">
+                      <span class="on">EU West</span><span class="on">Top 2%</span><span>Under 23</span><span>Support</span>
+                    </div>
+                    <p class="tiny"><span class="dot"></span>148 players in view</p>
+                  </>
+                )}
+                {s.mock === 'week' && (
+                  <>
+                    <p class="tiny muted">Trial evenings</p>
+                    <div class="ticks">
+                      <span class="done"></span><span class="done"></span><span class="done"></span><span></span><span></span>
+                    </div>
+                    <p class="tiny">Day 3 of 5 · review at 22:10</p>
+                  </>
+                )}
+                {s.mock === 'checklist' && (
+                  <ul class="check">
+                    <li class="done">Sleep baseline · 8 h</li>
+                    <li class="done">Physio screen</li>
+                    <li>Set plays · 12 of 20</li>
+                  </ul>
+                )}
+                {s.mock === 'contract' && (
+                  <>
+                    <div class="row between"><p class="tiny muted">Contract</p><span class="pill">2 seasons</span></div>
+                    <div class="bar"><span style="width:100%"></span></div>
+                    <p class="tiny"><span class="dot"></span>Signed by coach &amp; player</p>
+                  </>
+                )}
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <!-- WEEK -->
+      <section id="week" class="section reveal">
+        <header class="sec-head">
+          <p class="badge"><span class="dot"></span>Training week</p>
+          <h2>A week, exactly as the players see it</h2>
+          <p class="muted">Scrims are capped, reviews are short, and Monday belongs to nobody.</p>
+        </header>
+        <div class="app shell">
+          <div class="app-bar">
+            <div class="row"><span class="dot"></span><strong>Week 6</strong><span class="muted">· 10–16 March</span></div>
+            <div class="legend">
+              <span><i class="k-scrim"></i>Scrim</span>
+              <span><i class="k-review"></i>Review</span>
+              <span><i class="k-train"></i>Drills</span>
+              <span><i class="k-match"></i>Match</span>
+            </div>
+          </div>
+          <div class="days">
+            {days.map((day) => (
+              <div class="day">
+                <p class="day-name">{day.d}</p>
+                {day.blocks.map(([label, kind]) => (
+                  <span class={`blk k-${kind}`}>{label}</span>
+                ))}
+              </div>
+            ))}
+          </div>
+          <div class="app-foot">
+            <p><span class="muted">Hours on server</span> <strong>31 / 35</strong></p>
+            <div class="bar wide"><span style="width:88%"></span></div>
+            <p><span class="muted">Sleep avg.</span> <strong>8 h 10</strong></p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ROSTER -->
+      <section id="roster" class="section reveal">
+        <header class="sec-head">
+          <p class="badge"><span class="dot"></span>Spring Split roster</p>
+          <h2>Five players, one rest week at a time</h2>
+        </header>
+        <div class="roster">
+          {roster.map((p) => (
+            <article class="card player">
+              <div class="row between">
+                <span class="avatar" style={`--t:${p.tint}`}>{p.name.split(' ').map((n) => n[0]).join('')}</span>
+                <span class={`pill ${p.status === 'Active' ? 'live' : ''}`}><span class="dot"></span>{p.status}</span>
+              </div>
+              <p class="handle">{p.tag}</p>
+              <p class="tiny muted">{p.name}</p>
+              <div class="row between foot">
+                <span class="tiny">{p.role}</span>
+                <span class="tiny mono">{p.stat}</span>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <!-- BENTO -->
+      <section class="section reveal">
+        <div class="bento">
+          <figure class="photo tall">
+            <img src={img('1600861194942-f883de0dfe96', 1200)} alt="Two hands holding a controller in front of a monitor on a wooden desk" loading="lazy" width="1200" height="900" />
+          </figure>
+          <article class="card big">
+            <p class="eyebrow">Why calm wins</p>
+            <p class="quote">“We lost round one of the final <span style="white-space:nowrap">0–13</span> and nobody raised their voice. That is the whole reason we won the next two maps.”</p>
+            <p class="tiny muted">Ruud Haverkamp · head coach</p>
+          </article>
+          <article class="card">
+            <p class="eyebrow">Tilt incidents</p>
+            <p class="figure">0</p>
+            <p class="tiny muted">flagged by the team psychologist this split</p>
+          </article>
+          <figure class="photo">
+            <img src={img('1527814050087-3793815479db', 900)} alt="A white wireless mouse on a pale surface" loading="lazy" width="900" height="900" />
+          </figure>
+          <article class="card dark">
+            <p class="eyebrow">Our one rule</p>
+            <p>If you would not say it in the review room, do not say it on comms.</p>
+          </article>
+        </div>
+      </section>
+
+      <!-- FAQ -->
+      <section id="faq" class="section reveal faq-wrap">
+        <header class="sec-head left">
+          <p class="badge"><span class="dot"></span>Tryouts FAQ</p>
+          <h2>Before you apply</h2>
+          <p class="muted">Anything else goes to tryouts@ashgrove.gg and a coach answers within two days.</p>
+        </header>
+        <div class="faq shell">
+          {faqs.map(([q, a], i) => (
+            <details open={i === 0}>
+              <summary>{q}<span aria-hidden="true" class="plus"></span></summary>
+              <p class="muted">{a}</p>
+            </details>
+          ))}
+        </div>
+      </section>
+
+      <!-- CTA -->
+      <section id="apply" class="section reveal">
+        <div class="cta shell">
+          <p class="badge"><span class="dot"></span>Autumn tryouts open 2 September</p>
+          <h2>Send us forty hours of you.</h2>
+          <p class="muted">A ranked account, a short note on how you review your own games, and the role you actually want.</p>
+          <div class="cta-row center">
+            <a class="btn solid lg" href="#top">Apply to try out</a>
+            <a class="btn ghost lg" href="#faq">Read the FAQ</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="foot-bar">
+      <span>© 2026 Ashgrove Esports Club — a fictional team.</span>
+      <span class="mono">Leiden · NL</span>
+    </footer>
+
+    <BackPill />
+
+    <script>
+      import 'iconify-icon';
+      const els = document.querySelectorAll<HTMLElement>('.reveal');
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (reduce || !('IntersectionObserver' in window)) {
+        els.forEach((el) => el.classList.add('in'));
+      } else {
+        const io = new IntersectionObserver(
+          (entries) => entries.forEach((e) => {
+            if (e.isIntersecting) {
+              e.target.classList.add('in');
+              io.unobserve(e.target);
+            }
+          }),
+          { rootMargin: '0px 0px -10% 0px' },
+        );
+        els.forEach((el) => io.observe(el));
+      }
+    </script>
+
+    <style is:global>
+      :root {
+        --bg: #ede5d9;
+        --shell: #f5efe6;
+        --card: #faf6ef;
+        --line: rgb(74 58 40 / 0.11);
+        --line-2: rgb(74 58 40 / 0.07);
+        --ink: #29241e;
+        --muted: #776c60;
+        --espresso: #2e2923;
+        --accent: #7c8d5a;
+        --accent-soft: #e3e6d3;
+        --r-shell: 28px;
+        --r-card: 18px;
+        --ease: cubic-bezier(0.22, 1, 0.36, 1);
+      }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: 'Geist', ui-sans-serif, system-ui, sans-serif;
+        font-size: 16px;
+        -webkit-font-smoothing: antialiased;
+        overflow-x: hidden;
+      }
+      * { box-sizing: border-box; }
+      img { display: block; max-width: 100%; }
+      a { color: inherit; text-decoration: none; }
+      h1, h2, h3, p, dl, dd, ul, figure { margin: 0; }
+      .mono { font-family: 'Geist Mono', ui-monospace, monospace; }
+      .muted { color: var(--muted); }
+      .tiny { font-size: 12.5px; line-height: 1.45; }
+      .row { display: flex; align-items: center; gap: 12px; }
+      .between { justify-content: space-between; }
+
+      /* Warm painted wash, drifting slowly behind everything */
+      .wash { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+      .wash span { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.75; animation: drift 26s ease-in-out infinite alternate; }
+      .wash span:first-child { width: 60vw; height: 60vw; left: -10vw; top: -20vw; background: radial-gradient(circle, #f7efe2, transparent 70%); }
+      .wash span:last-child { width: 55vw; height: 55vw; right: -15vw; top: 20vh; background: radial-gradient(circle, #e2d5c2, transparent 70%); animation-duration: 32s; }
+      @keyframes drift { to { transform: translate3d(6vw, 4vh, 0) scale(1.08); } }
+
+      /* Nav */
+      .nav {
+        position: sticky; top: 0; z-index: 20;
+        display: flex; align-items: center; justify-content: space-between; gap: 16px;
+        padding: 14px clamp(16px, 3vw, 32px);
+        background: rgb(237 229 217 / 0.82); backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--line);
+      }
+      .brand { display: flex; align-items: center; gap: 12px; }
+      .brand strong { display: block; font-weight: 600; font-size: 15px; }
+      .brand small { display: block; font-size: 12.5px; color: var(--muted); }
+      .mark { position: relative; width: 38px; height: 38px; border-radius: 11px; background: var(--card); border: 1px solid var(--line); box-shadow: inset 0 1px 0 #fff; }
+      .mark i { position: absolute; width: 13px; height: 13px; border-radius: 50%; top: 12px; }
+      .mark i:first-child { left: 8px; background: var(--espresso); }
+      .mark i:last-child { left: 16px; background: #b59a78; mix-blend-mode: multiply; }
+      .nav nav { display: flex; gap: 30px; font-size: 14.5px; color: #4f463c; }
+      .nav nav a:hover { color: var(--ink); }
+      .nav-cta { display: flex; gap: 10px; }
+
+      /* Buttons, badges, pills */
+      .btn {
+        display: inline-flex; align-items: center; gap: 8px;
+        height: 38px; padding: 0 16px; border-radius: 999px;
+        font-size: 14px; font-weight: 500; white-space: nowrap;
+        transition: transform 0.4s var(--ease), background 0.3s, box-shadow 0.3s;
+      }
+      .btn.lg { height: 46px; padding: 0 22px; font-size: 15px; }
+      .btn.solid { color: #f8f3ea; background: linear-gradient(135deg, #2f2a24, #4a3d30); box-shadow: 0 1px 0 rgb(255 255 255 / 0.12) inset, 0 6px 16px -8px rgb(46 41 35 / 0.5); }
+      .btn.ghost { background: var(--card); border: 1px solid var(--line); }
+      .btn:hover { transform: translateY(-1px); }
+      .btn.ghost:hover { background: #fff; }
+      .btn:focus-visible, .nav a:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+      .badge {
+        display: inline-flex; align-items: center; gap: 8px;
+        padding: 6px 12px; border-radius: 999px;
+        font-size: 13px; color: #4f463c;
+        background: rgb(250 246 239 / 0.8); border: 1px solid var(--line);
+      }
+      .dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); vertical-align: middle; margin-right: 2px; }
+      .pill { display: inline-flex; white-space: nowrap; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; font-size: 12px; background: #ece5da; color: #5d5348; }
+      .pill .dot { background: #b0a493; }
+      .pill.live { background: var(--accent-soft); color: #4d5a35; }
+      .pill.live .dot { background: var(--accent); animation: pulse 2.4s ease-in-out infinite; }
+      @keyframes pulse { 50% { opacity: 0.35; } }
+      .eyebrow { font-size: 12.5px; color: var(--muted); margin-bottom: 8px; }
+
+      /* Shells and cards */
+      main { max-width: 1320px; margin: 0 auto; padding: 0 clamp(16px, 3vw, 32px); }
+      .shell {
+        background: linear-gradient(180deg, rgb(248 243 235 / 0.92), rgb(243 236 226 / 0.92));
+        border: 1px solid var(--line);
+        border-radius: var(--r-shell);
+        box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.7), 0 30px 60px -40px rgb(74 58 40 / 0.25);
+      }
+      .card {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: var(--r-card);
+        padding: 16px 18px;
+        box-shadow: inset 0 1px 0 #fff;
+      }
+      .card.dark {
+        color: #efe7da; border-color: transparent; box-shadow: none;
+        background: linear-gradient(150deg, #2f2a24 10%, #4b3d30);
+      }
+      .card.dark .eyebrow { color: #b8aa96; }
+      .card-title { font-weight: 500; font-size: 15px; line-height: 1.4; }
+      .avatar {
+        display: inline-grid; place-items: center; flex: none;
+        width: 44px; height: 44px; border-radius: 50%;
+        font-size: 13px; font-weight: 600; color: #4a3f33;
+        background: radial-gradient(circle at 30% 25%, #fbf7f0, var(--t) 70%);
+        border: 1px solid var(--line);
+      }
+      .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+      .chips span { font-size: 12.5px; padding: 6px 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--shell); color: #5d5348; }
+      .chips span.on { background: var(--accent-soft); border-color: rgb(124 141 90 / 0.25); color: #4d5a35; }
+      .bar { height: 6px; border-radius: 99px; background: #e9e1d4; overflow: hidden; margin: 12px 0 8px; }
+      .bar span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #8a6e52, #2f2a24); }
+
+      /* Hero */
+      .hero {
+        margin-top: clamp(18px, 3vw, 34px);
+        display: grid; grid-template-columns: 1.02fr 1fr; gap: clamp(24px, 3vw, 40px);
+        padding: clamp(22px, 3.2vw, 40px);
+      }
+      .hero-copy { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 24px; padding: 8px 0; }
+      .mask-title {
+        font-size: clamp(42px, 5.6vw, 76px); line-height: 1; letter-spacing: -0.035em; font-weight: 500;
+      }
+      .mask-title .line { display: block; overflow: hidden; padding-bottom: 0.08em; }
+      .mask-title .line > span { display: inline-block; transform: translateY(105%); animation: rise 1.1s var(--ease) forwards; }
+      .mask-title .line:nth-child(2) > span { animation-delay: 0.12s; }
+      .mask-title .line:nth-child(3) > span { animation-delay: 0.24s; }
+      .mask-title .soft { color: #8b7b68; }
+      @keyframes rise { to { transform: none; } }
+      .lede { font-size: clamp(16px, 1.3vw, 18px); line-height: 1.55; color: #5d5348; max-width: 34em; }
+      .hero-copy > :not(h1) { animation: fade 1s var(--ease) 0.35s both; }
+      @keyframes fade { from { opacity: 0; transform: translateY(8px); } }
+      .cta-row { display: flex; flex-wrap: wrap; gap: 10px; }
+      .cta-row.center { justify-content: center; }
+      .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; max-width: 560px; }
+      .stats div { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px; box-shadow: inset 0 1px 0 #fff; }
+      .stats dt { font-size: 22px; font-weight: 500; letter-spacing: -0.02em; }
+      .stats dd { font-size: 12.5px; color: var(--muted); margin-top: 4px; line-height: 1.35; }
+
+      .hero-media {
+        display: grid; grid-template-columns: 1.12fr 1fr; gap: 12px;
+        padding: 12px; border-radius: 24px; border: 1px solid var(--line);
+        background: rgb(250 246 239 / 0.55);
+        animation: fade 1.2s var(--ease) 0.2s both;
+      }
+      .photo { position: relative; overflow: hidden; border-radius: var(--r-card); background: #e3d6c5; min-height: 260px; }
+      .photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: saturate(0.8) sepia(0.14); }
+      .photo figcaption {
+        position: absolute; left: 12px; bottom: 12px; padding: 6px 12px; border-radius: 999px;
+        font-size: 12.5px; background: rgb(250 246 239 / 0.86); backdrop-filter: blur(6px); border: 1px solid var(--line);
+      }
+      .side { display: flex; flex-direction: column; gap: 12px; }
+      .side .card { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+      .side .card.dark p:last-child { font-size: 15px; line-height: 1.5; }
+
+      /* Sections */
+      .section { margin-top: clamp(72px, 9vw, 120px); }
+      .sec-head { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 14px; margin-bottom: 32px; }
+      .sec-head.left { align-items: flex-start; text-align: left; }
+      .sec-head h2, .cta h2 { font-size: clamp(30px, 3.4vw, 46px); font-weight: 500; letter-spacing: -0.03em; line-height: 1.08; max-width: 18em; }
+      .sec-head p.muted { max-width: 34em; line-height: 1.55; }
+      .reveal { opacity: 0; transform: translateY(18px); transition: opacity 0.9s var(--ease), transform 0.9s var(--ease); }
+      .reveal.in { opacity: 1; transform: none; }
+
+      /* Process grid */
+      .process { display: grid; grid-template-columns: repeat(4, 1fr); overflow: hidden; }
+      .step { display: flex; flex-direction: column; gap: 10px; padding: 28px 24px; border-left: 1px solid var(--line); }
+      .step:first-child { border-left: 0; }
+      .step-no { font-family: 'Geist Mono', monospace; font-size: 12px; color: var(--muted); }
+      .step h3 { font-size: 19px; font-weight: 500; letter-spacing: -0.01em; }
+      .step > p.muted { font-size: 14.5px; line-height: 1.55; min-height: 6.2em; }
+      .mock { margin-top: auto; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 10px; min-height: 132px; box-shadow: inset 0 1px 0 #fff; }
+      .mock .chips { margin-top: 0; }
+      .mock .bar { margin: 0; }
+      .ticks { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+      .ticks span { height: 28px; border-radius: 8px; background: #ece5da; border: 1px solid var(--line-2); }
+      .ticks span.done { background: var(--accent-soft); border-color: rgb(124 141 90 / 0.25); }
+      .check { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 8px; font-size: 13px; }
+      .check li { display: flex; align-items: center; gap: 8px; color: var(--muted); }
+      .check li::before { content: ''; width: 14px; height: 14px; border-radius: 5px; border: 1px solid #c9bcaa; flex: none; }
+      .check li.done { color: var(--ink); }
+      .check li.done::before { background: var(--accent) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath d='M3.5 7.2l2.2 2.2 4.8-4.8' fill='none' stroke='%23fff' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E"); border-color: var(--accent); }
+
+      /* Training week app shell */
+      .app { padding: 0; overflow: hidden; }
+      .app-bar, .app-foot { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding: 16px 22px; font-size: 14px; }
+      .app-bar { border-bottom: 1px solid var(--line); }
+      .app-foot { border-top: 1px solid var(--line); }
+      .app-foot .bar.wide { flex: 1; min-width: 120px; margin: 0; }
+      .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12.5px; color: var(--muted); }
+      .legend span { display: inline-flex; align-items: center; gap: 6px; }
+      .legend i { width: 10px; height: 10px; border-radius: 3px; }
+      .days { display: grid; grid-template-columns: repeat(7, 1fr); }
+      .day { display: flex; flex-direction: column; gap: 8px; padding: 16px 12px 22px; border-left: 1px solid var(--line-2); min-height: 150px; }
+      .day:first-child { border-left: 0; }
+      .day-name { font-family: 'Geist Mono', monospace; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+      .blk { display: block; padding: 10px; border-radius: 10px; font-size: 12.5px; line-height: 1.3; border: 1px solid var(--line-2); }
+      .k-scrim { background: #e9dfd0; }
+      .k-review { background: #f1ebe1; }
+      .k-train { background: #e4e2d6; }
+      .k-rest { background: transparent; border-style: dashed !important; border-color: #d3c6b4 !important; color: var(--muted); }
+      .k-match { background: linear-gradient(150deg, #2f2a24, #4b3d30); color: #f2eadd; border-color: transparent; }
+      .legend i.k-match { background: #3a322a; }
+
+      /* Roster */
+      .roster { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+      .player { display: flex; flex-direction: column; gap: 4px; padding: 18px; }
+      .player .handle { margin-top: 16px; font-size: 22px; font-weight: 500; letter-spacing: -0.02em; }
+      .player .mono { white-space: nowrap; }
+      .player .foot { margin-top: 18px; padding-top: 12px; border-top: 1px solid var(--line-2); }
+
+      /* Bento */
+      .bento { display: grid; grid-template-columns: 1.3fr 1fr 1fr 1fr; grid-template-rows: repeat(2, minmax(220px, auto)); gap: 12px; }
+      .bento .tall { grid-row: span 2; min-height: 460px; }
+      .bento .big { grid-column: span 3; display: flex; flex-direction: column; justify-content: space-between; gap: 18px; padding: 26px; }
+      .quote { font-size: clamp(20px, 2vw, 27px); line-height: 1.3; letter-spacing: -0.015em; max-width: 26em; }
+      .figure { font-size: 64px; font-weight: 500; letter-spacing: -0.04em; line-height: 1; margin: 8px 0; }
+      .bento .card { display: flex; flex-direction: column; justify-content: flex-end; }
+      .bento .card.dark p:last-child { font-size: 18px; line-height: 1.4; }
+
+      /* FAQ */
+      .faq-wrap { display: grid; grid-template-columns: 0.8fr 1.2fr; gap: 40px; align-items: start; }
+      .faq { padding: 6px 24px; }
+      details { border-top: 1px solid var(--line); }
+      details:first-child { border-top: 0; }
+      summary { list-style: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 20px 0; font-size: 16px; font-weight: 500; }
+      summary::-webkit-details-marker { display: none; }
+      .plus { position: relative; width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--line); background: var(--card); flex: none; }
+      .plus::before, .plus::after { content: ''; position: absolute; left: 7px; right: 7px; top: 11px; height: 1px; background: var(--ink); transition: transform 0.3s var(--ease); }
+      .plus::after { transform: rotate(90deg); }
+      details[open] .plus::after { transform: rotate(0); }
+      details p { padding: 0 40px 20px 0; line-height: 1.6; font-size: 15px; }
+
+      /* CTA + footer */
+      .cta { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 18px; padding: clamp(40px, 6vw, 72px) 20px; }
+      .cta p.muted { max-width: 30em; line-height: 1.55; }
+      .foot-bar { max-width: 1320px; margin: 72px auto 0; padding: 24px clamp(16px, 3vw, 32px) 80px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; font-size: 13px; color: var(--muted); border-top: 1px solid var(--line); }
+
+      /* Responsive */
+      @media (max-width: 1100px) {
+        .nav nav { display: none; }
+        .hero { grid-template-columns: 1fr; }
+        .process { grid-template-columns: repeat(2, 1fr); }
+        .step:nth-child(3) { border-left: 0; }
+        .step:nth-child(n + 3) { border-top: 1px solid var(--line); }
+        .roster { grid-template-columns: repeat(3, 1fr); }
+        .faq-wrap { grid-template-columns: 1fr; gap: 0; }
+      }
+      @media (max-width: 720px) {
+        .hide-sm { display: none; }
+        .brand small { display: none; }
+        .hero-media { grid-template-columns: 1fr; }
+        .hero-media .photo { min-height: 300px; }
+        .stats dt { font-size: 19px; }
+        .stats div { padding: 12px; }
+        .process { grid-template-columns: 1fr; }
+        .step { border-left: 0 !important; }
+        .step:nth-child(n + 2) { border-top: 1px solid var(--line); }
+        .step > p.muted { min-height: 0; }
+        .days { grid-template-columns: 1fr; }
+        .day { flex-direction: row; flex-wrap: wrap; align-items: center; min-height: 0; border-left: 0; border-top: 1px solid var(--line-2); padding: 12px 16px; }
+        .day:first-child { border-top: 0; }
+        .day-name { width: 40px; margin: 0; }
+        .roster { grid-template-columns: repeat(2, 1fr); }
+        .roster .player:last-child { grid-column: span 2; }
+        .bento { grid-template-columns: 1fr; grid-template-rows: none; }
+        .bento .tall { grid-row: auto; min-height: 300px; }
+        .bento .big { grid-column: auto; }
+        .bento .photo:not(.tall) { min-height: 240px; }
+        .faq { padding: 4px 18px; }
+        details p { padding-right: 0; }
+      }
+      @media (max-width: 420px) {
+        .stats { grid-template-columns: 1fr 1fr; }
+        .stats div:last-child { grid-column: span 2; }
+        .nav-cta .btn { padding: 0 14px; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after { animation: none !important; transition: none !important; }
+        .mask-title .line > span { transform: none; }
+        .reveal { opacity: 1; transform: none; }
+        html { scroll-behavior: auto; }
+      }
+    </style>
+  </body>
+</html>

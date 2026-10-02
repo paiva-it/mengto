@@ -1,0 +1,7 @@
+{
+  "title": "Awwwards-quality Sites",
+  "kind": "website",
+  "category": "Page types",
+  "concept": "Vell Halo, a fictional benchtop live-cell imager: the hero is a microscope eyepiece where the whole slide reads as label-free phase contrast and a pointer-driven objective reveals the fluorescence channels, followed by a pinned, scrubbed fourteen-day confluence chart, instrument, workflow, channel list and a loan-unit request form.",
+  "notes": "Three.js shader over a real confocal micrograph (Unsplash, copied locally) with one job: phase contrast outside the lens, magnified per-channel fluorescence inside; idle survey path, pointer/touch/arrow-key control, DPR cap 1.75, pauses offscreen/hidden, context-loss and reduced-motion fall back to a CSS-filtered poster with a static lens whose channels switch via SVG colour matrices. GSAP intro + word-staggered headings, Lenis as the only smooth-scroll engine wired to ScrollTrigger, one pinned scrub. Solar icons via iconify-icon (fetched from the Iconify API at runtime). Companion skill: animation-systems. No avatars, testimonials or logos: the brand is fictional and the curves are labelled illustrative."
+}

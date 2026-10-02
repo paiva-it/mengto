@@ -1,0 +1,7 @@
+{
+  "title": "Border Gradients",
+  "kind": "section",
+  "category": "Effects & details",
+  "concept": "Halation, a fictional Lisbon short-film week: a projector-lit hero whose opening-night glass card carries a 2px masked gradient edge, then a light-paper pass picker, a programme with gradient active tab and hover-revealed row edges, and a newsletter field that frames on focus.",
+  "notes": "Pure CSS, no dependencies. Uses both of the skill's patterns: the masked ::before (hero card over backdrop blur, programme rows) and the padding-box/border-box pattern (selected pass, active tab, focused field). One gradient level per view; resting surfaces keep a plain hairline. Dark and light sections use separate tokens (light stops are ink-based with a stronger violet). Gradients never animate — the row edge only fades in by opacity, and transitions are off under prefers-reduced-motion. Focus uses a separate outline, never the gradient alone. Photos are Unsplash hotlinks."
+}

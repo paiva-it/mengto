@@ -1,0 +1,7 @@
+{
+  "title": "Clean Minimal Beige Light Mode",
+  "kind": "website",
+  "category": "Design systems",
+  "concept": "Ashgrove, a fictional esports club that \"trains quietly so it can play loud\": warm beige shells, a framed hero with match/player/ethos cards, a four-step tryout process grid, a training-week app shell, roster, bento and FAQ.",
+  "notes": "Photos are Unsplash hot-links, warmed slightly with a CSS sepia/saturation filter. Motion is masked headline rise, scroll fade-ins and a slow drifting background wash, all disabled under prefers-reduced-motion."
+}

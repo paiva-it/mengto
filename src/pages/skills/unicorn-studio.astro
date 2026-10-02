@@ -1,0 +1,427 @@
+---
+import '../../styles/global.css';
+import BackPill from '../../components/BackPill.astro';
+import { depthLabel, LAYERS, TARGETS } from '../../components/skills/unicorn-studio/strata';
+
+const knobs = [
+  { name: 'scale', label: 'Render scale', attr: 'data-us-scale', values: ['0.5', '0.75', '1'], value: '0.75' },
+  { name: 'dpi', label: 'DPI cap', attr: 'data-us-dpi', values: ['1', '1.25', '2'], value: '1.25' },
+  { name: 'fps', label: 'FPS cap', attr: 'data-us-fps', values: ['24', '45', '60'], value: '45' },
+];
+
+const targetAt = (i: number) => TARGETS.find((t) => Math.floor(t.d * 18) === i)?.id;
+
+const guardrails = [
+  ['Give the container a size', 'The hero is 100svh and the field preview is locked to 16:10. A scene dropped into a zero-height div renders nothing and throws nothing.'],
+  ['Two scenes, not twelve', 'Browsers cap WebGL contexts around sixteen. This page runs two, and the second one is not created until you scroll near it.'],
+  ['Spend pixels where they land', 'The hero ships at scale 0.75, DPI capped at 1.25 and 45 fps. On a field tablet in the sun, nobody sees the difference — the battery does.'],
+  ['Fall back to the drawing', 'Without WebGL the section is a static strata gradient, and every number on the page still reads. The canvas is decoration; the record is the text.'],
+];
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tel Varesh Survey — Area C radar section</title>
+    <meta name="description" content="A live ground-penetrating radar section of Area C at the fictional Tel Varesh excavation, embedded as an interactive WebGL scene." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <BackPill />
+
+    <header class="hero" id="hero">
+      <div
+        class="scene"
+        id="hero-scene"
+        data-us-scale="0.75"
+        data-us-dpi="1.25"
+        data-us-fps="45"
+        data-us-production="true"
+      ></div>
+
+      <nav class="topbar shell" aria-label="Survey">
+        <a class="brand" href="#hero"><i aria-hidden="true"></i>Tel Varesh Survey</a>
+        <ul>
+          <li><a href="#budget">Field budget</a></li>
+          <li><a href="#section">Section drawing</a></li>
+        </ul>
+        <span class="meta">Area C · Season 07 · Pass 214</span>
+      </nav>
+
+      <div class="intro shell">
+        <div>
+          <p class="kicker">Ground-penetrating radar / 400 MHz / 24 m transect</p>
+          <h1>Read the ground before we break it.</h1>
+        </div>
+        <p class="lede">
+          Every forty minutes a radar sled crosses Area C and resolves eighteen soil horizons, from last spring's
+          plough line to a Bronze Age hearth 5.4 m down. We open the trench where the ground has already answered.
+        </p>
+      </div>
+
+      <ol class="ruler" aria-hidden="true">
+        {LAYERS.map((_, i) => <li data-m={i % 3 === 0 && i ? `${(i * 0.3).toFixed(1)} m` : undefined}></li>)}
+      </ol>
+
+      <div class="tip" id="tip" aria-hidden="true"></div>
+
+      <aside class="readout" aria-label="Live radar readout">
+        <div class="readout-head"><span class="live" aria-hidden="true"></span>Live pass<span class="hint"> · hover to scrub</span></div>
+        <dl>
+          <div><dt>Sled position</dt><dd><span id="pos">10.8</span> m <small>/ 24 m</small></dd></div>
+          <div><dt>Nearest return</dt><dd id="near">C-07</dd></div>
+        </dl>
+        <p id="note">{TARGETS[1].note}</p>
+        <div class="track" aria-hidden="true">
+          {TARGETS.map((t) => <span style={`left:${t.x * 100}%`}></span>)}
+          <b id="track-beam"></b>
+        </div>
+      </aside>
+    </header>
+
+    <main>
+      <section class="budget shell" id="budget" aria-labelledby="budget-title">
+        <div class="section-head">
+          <p class="kicker">02 / Field budget</p>
+          <h2 id="budget-title">Same scene, tablet budget.</h2>
+          <p>
+            The crew reads this section on a rugged tablet at the trench edge, at 38 °C, on a battery that has to last
+            the shift. These are the three embed knobs we turn — change them and watch what the scene actually costs.
+          </p>
+        </div>
+
+        <div class="budget-grid">
+          <figure class="frame">
+            <div
+              class="scene"
+              id="budget-scene"
+              data-sled="off"
+              data-us-scale="0.75"
+              data-us-dpi="1.25"
+              data-us-fps="45"
+              data-us-lazyload="true"
+              data-us-production="true"
+            ></div>
+            <figcaption>
+              <span>Preview · lazy-loaded</span>
+              <span id="backing">—</span>
+            </figcaption>
+          </figure>
+
+          <div class="controls">
+            {knobs.map((k) => (
+              <fieldset>
+                <legend>{k.label} <code>{k.attr}</code></legend>
+                <div class="seg">
+                  {k.values.map((v) => (
+                    <label>
+                      <input type="radio" name={k.name} value={v} checked={v === k.value} />
+                      <span>{v}</span>
+                    </label>
+                  ))}
+                </div>
+              </fieldset>
+            ))}
+
+            <dl class="stats">
+              <div><dt>Measured</dt><dd><span id="fps">—</span> fps</dd></div>
+              <div><dt>Pixels / second</dt><dd id="pps">—</dd></div>
+            </dl>
+
+            <pre class="code" aria-label="Embed markup for these settings"><code id="snippet"></code></pre>
+          </div>
+        </div>
+      </section>
+
+      <section class="drawing shell" id="section" aria-labelledby="section-title">
+        <div class="section-head">
+          <p class="kicker">03 / Section drawing</p>
+          <h2 id="section-title">Eighteen horizons, top to bottom.</h2>
+          <p>What each band in the scene is, as logged by the site supervisor. Targets are the radar returns the trench is being laid out to hit.</p>
+        </div>
+        <ol class="layers">
+          {LAYERS.map(([name, period], i) => (
+            <li>
+              <span class="n">L{String(i + 1).padStart(2, '0')}</span>
+              <span class="name">{name}{targetAt(i) && <em>{targetAt(i)}</em>}</span>
+              <span class="period">{period}</span>
+              <span class="depth">{depthLabel(i)}</span>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section class="rules shell" aria-labelledby="rules-title">
+        <h2 id="rules-title" class="kicker">04 / How the scene is embedded</h2>
+        <div class="rule-grid">
+          {guardrails.map(([title, body], i) => (
+            <article>
+              <span class="n">{String(i + 1).padStart(2, '0')}</span>
+              <h3>{title}</h3>
+              <p>{body}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+    </main>
+
+    <footer class="shell foot">
+      <span>Tel Varesh Survey is a fictional excavation.</span>
+      <span>Scene rendered locally against the Unicorn Studio embed contract. Add <code>?us=PROJECT_ID</code> to load a real project through the SDK.</span>
+    </footer>
+
+    <style is:global>
+      :root {
+        --bg: #080a0f;
+        --panel: rgba(18, 21, 29, 0.72);
+        --ink: #f2f5f7;
+        --muted: #929aa7;
+        --line: rgba(255, 255, 255, 0.14);
+        --accent: hsl(299 92% 68%);
+        --ground: 0.5;
+        --sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+        --display: 'Inter Tight', 'Inter', ui-sans-serif, system-ui, sans-serif;
+        --mono: 'JetBrains Mono', ui-monospace, monospace;
+        color-scheme: dark;
+      }
+      html { background: var(--bg); scroll-behavior: smooth; }
+      body { margin: 0; min-width: 320px; background: var(--bg); color: var(--ink); font-family: var(--sans); -webkit-font-smoothing: antialiased; overflow-x: clip; }
+      a { color: inherit; }
+      :focus-visible { outline: 2px solid color-mix(in srgb, var(--accent) 70%, transparent); outline-offset: 3px; }
+      .shell { width: min(1360px, calc(100% - 40px)); margin-inline: auto; }
+      .kicker { margin: 0 0 18px; color: var(--muted); font: 500 11px/1.4 var(--mono); letter-spacing: 0.14em; text-transform: uppercase; }
+
+      /* Hero: one full-bleed scene, UI framed on top of it. */
+      .hero { position: relative; min-height: max(100svh, 640px); isolation: isolate; overflow: hidden; }
+      .scene {
+        position: absolute; inset: 0; z-index: -1;
+        /* Static fallback: the strata as a drawing, visible until (or unless) WebGL paints over it. */
+        background:
+          linear-gradient(to bottom, transparent calc(var(--ground) * 100%), color-mix(in srgb, var(--accent) 60%, white) calc(var(--ground) * 100%), transparent calc(var(--ground) * 100% + 1px)),
+          repeating-linear-gradient(to bottom, transparent 0 23px, color-mix(in srgb, var(--accent) 22%, transparent) 23px 24px) 0 calc(var(--ground) * 100%) / 100% 100% no-repeat,
+          radial-gradient(60% 50% at 76% 8%, color-mix(in srgb, var(--accent) 12%, transparent), transparent),
+          linear-gradient(to bottom, var(--bg) calc(var(--ground) * 100%), #130f19);
+      }
+      .scene canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; opacity: 0; transition: opacity 0.6s; }
+
+      .topbar { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 22px 0; border-bottom: 1px solid var(--line); font: 600 11px/1 var(--sans); letter-spacing: 0.13em; text-transform: uppercase; }
+      .topbar ul { display: flex; gap: 28px; margin: 0; padding: 0; list-style: none; }
+      .topbar ul a { color: var(--muted); text-decoration: none; }
+      .topbar ul a:hover { color: var(--ink); }
+      .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+      .brand i { width: 9px; height: 9px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 22px var(--accent); }
+      .meta { color: var(--muted); font-family: var(--mono); font-weight: 500; letter-spacing: 0.1em; }
+
+      .intro { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(260px, 0.65fr); gap: 48px; align-items: end; padding-top: clamp(36px, 7vh, 84px); }
+      h1 { margin: 0; max-width: 11.5ch; font: 600 clamp(46px, 6.6vw, 98px)/0.88 var(--display); letter-spacing: -0.065em; }
+      .lede { margin: 0 0 6px; max-width: 44ch; color: var(--muted); font-size: clamp(14px, 1.15vw, 17px); line-height: 1.6; }
+
+      .ruler { position: absolute; left: 20px; top: calc(var(--ground) * 100%); bottom: 0; display: flex; flex-direction: column; margin: 0; padding: 0; list-style: none; pointer-events: none; }
+      .ruler li { flex: 1; position: relative; width: 6px; border-top: 1px solid rgba(255, 255, 255, 0.28); }
+      .ruler li[data-m] { width: 12px; border-top-color: rgba(255, 255, 255, 0.55); }
+      .ruler li[data-m]::after { content: attr(data-m); position: absolute; left: 18px; top: -7px; color: var(--muted); font: 500 10px/1 var(--mono); white-space: nowrap; }
+
+      .tip { position: absolute; z-index: 3; left: 0; top: 0; padding: 7px 10px; border: 1px solid var(--line); border-radius: 8px; background: rgba(8, 10, 15, 0.82); backdrop-filter: blur(8px); font: 500 11px/1.3 var(--mono); white-space: nowrap; pointer-events: none; opacity: 0; transition: opacity 0.2s; }
+      .tip b { color: var(--accent); font-weight: 500; }
+      .tip.on { opacity: 1; }
+
+      .readout { position: absolute; right: max(20px, calc((100% - 1360px) / 2)); bottom: 28px; width: 340px; padding: 18px; border: 1px solid var(--line); border-radius: 16px; background: var(--panel); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+      .readout-head { display: flex; align-items: center; gap: 8px; color: var(--muted); font: 500 10px/1 var(--mono); letter-spacing: 0.12em; text-transform: uppercase; }
+      .live { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 12px var(--accent); animation: pulse 1.6s ease-in-out infinite; }
+      @keyframes pulse { 50% { opacity: 0.35; } }
+      .readout dl { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0 10px; }
+      .readout dt { color: var(--muted); font-size: 11px; }
+      .readout dd { margin: 4px 0 0; font: 600 22px/1 var(--display); letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+      .readout dd small { color: var(--muted); font: 500 11px var(--mono); letter-spacing: 0; }
+      #near { color: var(--accent); }
+      #note { margin: 0 0 14px; min-height: 2.9em; color: #c9ced6; font-size: 13px; line-height: 1.45; }
+      .track { position: relative; height: 2px; background: var(--line); }
+      .track span { position: absolute; top: -3px; width: 1px; height: 8px; background: var(--muted); }
+      .track b { position: absolute; top: -5px; width: 2px; height: 12px; margin-left: -1px; background: #fff; box-shadow: 0 0 10px var(--accent); }
+
+      /* Sections */
+      main section { padding-block: clamp(80px, 11vw, 150px) 0; }
+      .section-head { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px 48px; align-items: end; margin-bottom: 40px; padding-bottom: 28px; border-bottom: 1px solid var(--line); }
+      .section-head .kicker { grid-column: 1 / -1; margin: 0; }
+      h2 { margin: 0; font: 600 clamp(34px, 4.4vw, 62px)/0.95 var(--display); letter-spacing: -0.055em; }
+      .section-head p:not(.kicker) { margin: 0; max-width: 52ch; color: var(--muted); line-height: 1.6; }
+
+      .budget-grid { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(300px, 1fr); gap: 24px; }
+      .frame { position: relative; margin: 0; aspect-ratio: 16 / 10; border: 1px solid var(--line); border-radius: 18px; overflow: hidden; isolation: isolate; --ground: 0.16; }
+      .frame figcaption { position: absolute; inset: 16px 18px auto; display: flex; justify-content: space-between; color: var(--muted); font: 500 10px/1 var(--mono); letter-spacing: 0.12em; text-transform: uppercase; pointer-events: none; }
+      .controls { display: flex; flex-direction: column; gap: 18px; padding: 22px; border: 1px solid var(--line); border-radius: 18px; background: rgba(18, 21, 29, 0.6); }
+      fieldset { margin: 0; padding: 0; border: 0; }
+      legend { display: flex; width: 100%; justify-content: space-between; margin-bottom: 10px; font-size: 13px; font-weight: 500; }
+      legend code { color: var(--muted); font: 400 11px var(--mono); }
+      .seg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 4px; border: 1px solid var(--line); border-radius: 999px; }
+      .seg label { position: relative; }
+      .seg input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+      .seg span { display: block; padding: 9px 0; border-radius: 999px; text-align: center; font: 500 13px/1 var(--mono); color: var(--muted); transition: background 0.2s, color 0.2s; }
+      .seg input:checked + span { background: var(--ink); color: var(--bg); }
+      .seg input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+      .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 4px 0 0; padding-top: 18px; border-top: 1px solid var(--line); }
+      .stats dt { color: var(--muted); font-size: 11px; }
+      .stats dd { margin: 4px 0 0; font: 600 26px/1 var(--display); letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+      .code { margin: 0; padding: 14px 16px; overflow-x: auto; border-radius: 12px; background: #05060a; border: 1px solid var(--line); font: 400 12px/1.6 var(--mono); color: #c9ced6; }
+      .code .a { color: var(--accent); }
+
+      .layers { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-flow: column; grid-template-rows: repeat(9, auto); column-gap: 48px; margin: 0; padding: 0; list-style: none; }
+      .layers li { display: grid; grid-template-columns: 48px minmax(0, 1fr) auto 92px; gap: 14px; align-items: baseline; padding: 14px 0; border-bottom: 1px solid var(--line); font-size: 15px; }
+      .layers .n, .layers .depth { color: var(--muted); font: 500 11px var(--mono); }
+      .layers .depth { text-align: right; }
+      .layers .period { color: var(--muted); font-size: 13px; }
+      .layers em { margin-left: 10px; padding: 3px 7px; border-radius: 999px; border: 1px solid color-mix(in srgb, var(--accent) 50%, transparent); color: var(--accent); font: normal 500 10px/1 var(--mono); vertical-align: 2px; }
+
+      .rule-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--line); }
+      .rule-grid article { padding: 26px 24px 30px 0; border-right: 1px solid var(--line); }
+      .rule-grid article + article { padding-left: 24px; }
+      .rule-grid article:last-child { border-right: 0; }
+      .rule-grid .n { color: var(--accent); font: 500 11px var(--mono); }
+      .rule-grid h3 { margin: 22px 0 10px; font: 600 20px/1.15 var(--display); letter-spacing: -0.03em; }
+      .rule-grid p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.6; }
+
+      .foot { display: flex; justify-content: space-between; gap: 24px; margin-top: clamp(80px, 10vw, 140px); padding: 26px 0 80px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; line-height: 1.6; }
+      .foot code { font-family: var(--mono); color: var(--ink); }
+
+      @media (max-width: 980px) {
+        .topbar ul { display: none; }
+        .intro { grid-template-columns: 1fr; gap: 20px; }
+        .budget-grid, .section-head { grid-template-columns: minmax(0, 1fr); }
+        .rule-grid { grid-template-columns: 1fr 1fr; }
+        .rule-grid article:nth-child(2) { border-right: 0; }
+        .rule-grid article:nth-child(3) { padding-left: 0; }
+        .rule-grid article:nth-child(n + 3) { border-top: 1px solid var(--line); }
+      }
+      @media (max-width: 720px) {
+        :root { --ground: 0.56; }
+        .hero { min-height: max(100svh, 720px); }
+        .meta { display: none; }
+        .readout { left: 16px; right: 16px; bottom: 16px; width: auto; padding: 14px; }
+        .readout dl { margin: 12px 0 8px; }
+        #note { display: none; }
+        .hint { display: none; }
+        .readout dl { margin-bottom: 12px; }
+        .ruler { left: 12px; }
+        .ruler li[data-m]::after { display: none; }
+        .layers { grid-template-columns: 1fr; grid-auto-flow: row; grid-template-rows: none; }
+        .layers li { grid-template-columns: 38px minmax(0, 1fr) 78px; }
+        .layers .period { display: none; }
+        .rule-grid { grid-template-columns: 1fr; }
+        .rule-grid article, .rule-grid article + article { padding: 22px 0 26px; border-right: 0; }
+        .rule-grid article + article { border-top: 1px solid var(--line); }
+        .foot { flex-direction: column; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        html { scroll-behavior: auto; }
+        .live { animation: none; }
+      }
+    </style>
+
+    <script>
+      import { mountScene } from '../../components/skills/unicorn-studio/scene';
+      import { depthLabel, LAYERS, strata, TARGETS } from '../../components/skills/unicorn-studio/strata';
+
+      const $ = (id: string) => document.getElementById(id)!;
+      const hero = $('hero');
+      const heroScene = $('hero-scene');
+      const usProject = new URLSearchParams(location.search).get('us');
+
+      // ?us=PROJECT_ID swaps the local scene for a real Unicorn Studio project through the SDK.
+      if (usProject && /^[\w-]+$/.test(usProject)) {
+        heroScene.dataset.usProject = usProject;
+        const s = document.createElement('script');
+        s.src = 'https://cdn.jsdelivr.net/gh/hiunicornstudio/unicornstudio.js@v1.4.29/dist/unicornStudio.umd.js';
+        s.onload = () => (window as unknown as { UnicornStudio: { init: () => void } }).UnicornStudio.init();
+        document.head.append(s);
+      } else {
+        const pos = $('pos');
+        const near = $('near');
+        const note = $('note');
+        const trackBeam = $('track-beam');
+        const tip = $('tip');
+        let lastTarget = '';
+        let time = 0;
+
+        mountScene(heroScene, {
+          scrollEl: hero,
+          onFrame: ({ beam, time: t }) => {
+            time = t;
+            pos.textContent = (beam * 24).toFixed(1);
+            trackBeam.style.left = `${beam * 100}%`;
+            const nearest = TARGETS.reduce((a, b) => (Math.abs(b.x - beam) < Math.abs(a.x - beam) ? b : a));
+            if (nearest.id !== lastTarget) {
+              lastTarget = nearest.id;
+              near.textContent = `${nearest.id} · ${(nearest.d * 5.4).toFixed(1)} m`;
+              note.textContent = nearest.note;
+            }
+          },
+        });
+
+        // Mousemove event: name the horizon under the cursor, using the shader's own boundary warp.
+        hero.addEventListener('pointermove', (e) => {
+          if (e.pointerType !== 'mouse') return;
+          const r = hero.getBoundingClientRect();
+          const ground = parseFloat(getComputedStyle(heroScene).getPropertyValue('--ground')) || 0.5;
+          const x = (e.clientX - r.left) / r.width;
+          const d = ((e.clientY - r.top) / r.height - ground) / (1 - ground);
+          const overUi = (e.target as HTMLElement).closest('.readout, a');
+          if (d < 0 || overUi) {
+            tip.classList.remove('on');
+            return;
+          }
+          const i = Math.min(17, Math.max(0, Math.floor(strata(x * 3, d, time))));
+          const [name, period] = LAYERS[i];
+          tip.innerHTML = `<b>L${String(i + 1).padStart(2, '0')}</b> ${name} · ${period} · ${depthLabel(i)}`;
+          const left = Math.min(e.clientX - r.left + 16, r.width - tip.offsetWidth - 12);
+          tip.style.transform = `translate(${left}px, ${e.clientY - r.top + 18}px)`;
+          tip.classList.add('on');
+        });
+        hero.addEventListener('pointerleave', () => tip.classList.remove('on'));
+      }
+
+      // Field budget: the three SDK knobs, applied live to the second (lazy-loaded) scene.
+      const budget = $('budget-scene');
+      const snippet = $('snippet');
+      const fps = $('fps');
+      const pps = $('pps');
+      const backing = $('backing');
+      const scene = mountScene(budget, {
+        onFrame: (f) => {
+          backing.textContent = `${f.width}×${f.height} px`;
+          if (f.fps) {
+            fps.textContent = f.fps.toFixed(0);
+            const per = (f.width * f.height * f.fps) / 1e6;
+            pps.textContent = `${per.toFixed(1)} M`;
+          }
+        },
+      });
+
+      const render = () => {
+        const d = budget.dataset;
+        const attr = (k: string, v?: string) => `\n  <span class="a">${k}</span>="${v}"`;
+        snippet.innerHTML =
+          `&lt;div style="width:100%;aspect-ratio:16/10"` +
+          attr('data-us-project', 'TEL_VARESH_C') +
+          attr('data-us-lazyload', d.usLazyload) +
+          attr('data-us-production', d.usProduction) +
+          attr('data-us-scale', d.usScale) +
+          attr('data-us-dpi', d.usDpi) +
+          attr('data-us-fps', d.usFps) +
+          `\n&gt;&lt;/div&gt;`;
+      };
+      render();
+
+      document.querySelectorAll<HTMLInputElement>('.controls input').forEach((input) =>
+        input.addEventListener('change', () => {
+          const key = { scale: 'usScale', dpi: 'usDpi', fps: 'usFps' }[input.name]!;
+          budget.dataset[key] = input.value;
+          render();
+          scene.rerun();
+        }),
+      );
+    </script>
+  </body>
+</html>

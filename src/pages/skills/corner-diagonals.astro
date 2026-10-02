@@ -1,0 +1,699 @@
+---
+import '../../styles/global.css';
+import BackPill from '../../components/BackPill.astro';
+
+// Setline Surf School — every button, card and panel shares one chamfer family:
+// top-left + bottom-right cuts (mirrored top-right + bottom-left for counterpoint),
+// three cut sizes only: 8 / 14 / 24 px.
+
+const slots = [
+  { t: '06:40', l: 'Dawn patrol', s: '3 boards left', on: true },
+  { t: '09:15', l: 'Mid-tide', s: '5 boards left', on: false },
+  { t: '17:30', l: 'Glass-off', s: 'Waitlist', on: false },
+];
+
+const programs = [
+  {
+    key: 'foam',
+    tag: 'Level 01',
+    name: 'Foam',
+    line: 'First time on a board',
+    price: '48',
+    unit: '2 h session',
+    body: 'Whitewater on the inside bank, waist deep. You learn to read a foam line, pop up on sand first, then catch eight to twelve waves to your feet.',
+    gets: ['Soft-top 9′0″ and 4/3 wetsuit', 'Coach-to-surfer ratio 1:4', 'Video review on the beach'],
+    cut: 'a',
+  },
+  {
+    key: 'green',
+    tag: 'Level 02',
+    name: 'Green',
+    line: 'Standing, ready for open faces',
+    price: '62',
+    unit: '2 h 30 session',
+    body: 'Paddle past the break and take unbroken waves on the shoulder. Angle, trim and the first proper turn — with a coach in the water beside you.',
+    gets: ['Epoxy mid-length 7′6″', 'Coach-to-surfer ratio 1:3', 'Lineup etiquette, rip reading'],
+    cut: 'b',
+    featured: true,
+  },
+  {
+    key: 'reef',
+    tag: 'Level 03',
+    name: 'Reef',
+    line: 'Confident, wants the point',
+    price: '85',
+    unit: '3 h session',
+    body: 'Small group on the left at Pedra Lisa when the swell wraps in. Wave selection, positioning in a crowd and a safe exit over rock at low tide.',
+    gets: ['Bring your board or pick one', 'Coach-to-surfer ratio 1:2', 'Tide-timed, booked per swell'],
+    cut: 'a',
+  },
+];
+
+const steps = [
+  { n: '06:25', h: 'Meet at the hut', p: 'Wetsuit fitted, board chosen, coffee if you want it. We look at the water before we look at the app.' },
+  { n: '06:40', h: 'Read the bank', p: 'Ten minutes on the sand: where it breaks, where the rip runs out, where you will paddle back in.' },
+  { n: '06:55', h: 'In the water', p: 'Ninety minutes in sets of three waves. Your coach calls the wave; you call the pop-up.' },
+  { n: '08:30', h: 'Out and debrief', p: 'Clips from the shoreline camera, one thing to keep and one thing to change next time.' },
+];
+
+const week = [
+  { d: 'Fri', h: 1.4, p: 11, w: 'Offshore', r: 'go' },
+  { d: 'Sat', h: 1.1, p: 10, w: 'Offshore', r: 'go' },
+  { d: 'Sun', h: 0.8, p: 9, w: 'Cross-off', r: 'go' },
+  { d: 'Mon', h: 2.3, p: 14, w: 'Onshore', r: 'hold' },
+  { d: 'Tue', h: 1.8, p: 13, w: 'Cross-on', r: 'reef' },
+  { d: 'Wed', h: 1.2, p: 11, w: 'Offshore', r: 'go' },
+  { d: 'Thu', h: 0.6, p: 8, w: 'Glassy', r: 'go' },
+];
+const maxH = 2.5;
+const verdict: Record<string, string> = { go: 'All levels', hold: 'Beach closed', reef: 'Reef only' };
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Setline Surf School — Corner Diagonals</title>
+    <meta name="description" content="Setline Surf School, Praia Comprida: dawn-patrol lessons on a chamfered interface." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <!-- ======================= HERO ======================= -->
+    <header class="hero">
+      <div class="field" aria-hidden="true">
+        <span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span><span class="blob b4"></span>
+        <span class="strip s1"></span><span class="strip s2"></span><span class="strip s3"></span>
+      </div>
+
+      <nav class="nav wrap" aria-label="Main">
+        <a class="logo" href="#top" id="top">
+          <span class="logo-mark" aria-hidden="true"></span>SETLINE
+        </a>
+        <ul class="nav-links">
+          <li><a href="#programs">Lessons</a></li>
+          <li><a href="#session">The session</a></li>
+          <li><a href="#forecast">Forecast</a></li>
+          <li><a href="#book">Book</a></li>
+        </ul>
+        <a class="cut-btn cut-btn--ghost nav-cta" href="#book"><span>Hold a board</span></a>
+      </nav>
+
+      <div class="hero-grid wrap">
+        <div class="hero-copy">
+          <p class="badge cut-sm">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1 10c2 0 2-2 4-2s2 2 4 2 2-2 4-2 2 2 2 2M1 13c2 0 2-2 4-2s2 2 4 2 2-2 4-2 2 2 2 2" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Praia Comprida · Surf school since 2014
+          </p>
+          <h1 class="display">
+            <span>Read the line.</span>
+            <span>Wait for the set.</span>
+            <span class="accent">Then go.</span>
+          </h1>
+          <p class="lede">Small-group surf lessons timed to the tide, not the clock. Four surfers to a coach, boards and suits on us, and a session that starts when the bank starts working.</p>
+          <div class="cta-row">
+            <a class="cut-btn" href="#book"><span>Book dawn patrol</span><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></a>
+            <a class="cut-btn cut-btn--ghost" href="#programs"><span>Find your level</span></a>
+          </div>
+        </div>
+
+        <aside class="hero-panel" aria-label="Tomorrow's session">
+          <div class="cut-shell cut-lg glass">
+            <div class="cut-shell__inner">
+              <div class="panel-head">
+                <p class="eyebrow mono">Tomorrow · Fri 03 Oct</p>
+                <p class="live mono"><i></i>Bank working</p>
+              </div>
+              <h2 class="panel-title">Praia Comprida, south peak</h2>
+              <dl class="readout">
+                <div class="cut-sm cell"><dt>Swell</dt><dd>1.4<small>m</small></dd><span class="mono">WNW · 11 s</span></div>
+                <div class="cut-sm cell"><dt>Wind</dt><dd>8<small>kn</small></dd><span class="mono">NE · offshore</span></div>
+                <div class="cut-sm cell"><dt>Low tide</dt><dd>06:52</dd><span class="mono">rising to 2.9 m</span></div>
+                <div class="cut-sm cell"><dt>Water</dt><dd>17<small>°C</small></dd><span class="mono">4/3 suit</span></div>
+              </dl>
+              <p class="eyebrow mono slots-label" id="slots-label">Choose a slot</p>
+              <div class="slots" role="radiogroup" aria-labelledby="slots-label">
+                {slots.map((s) => (
+                  <button class="slot cut-sm" role="radio" aria-checked={s.on ? 'true' : 'false'} tabindex={s.on ? 0 : -1} data-slot={s.t}>
+                    <b class="mono">{s.t}</b><span>{s.l}</span><em>{s.s}</em>
+                  </button>
+                ))}
+              </div>
+              <a class="cut-btn cut-btn--block" href="#book" id="panel-cta"><span>Hold a board for 06:40</span></a>
+            </div>
+          </div>
+
+          <div class="cut-shell cut-md mirror coach-card">
+            <div class="cut-shell__inner">
+              <span class="avatar cut-sm" aria-hidden="true">IB</span>
+              <div>
+                <p class="coach-name">Inês Barata leads tomorrow</p>
+                <p class="mono coach-meta">ISA Level 2 · 11 seasons on this bank</p>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </header>
+
+    <main>
+      <!-- ======================= PROGRAMS ======================= -->
+      <section id="programs" class="section wrap">
+        <div class="section-head">
+          <p class="eyebrow mono">01 — Lessons</p>
+          <h2 class="h2">Three ways into the water.</h2>
+          <p class="sub">Pick the level that matches the last time you stood up — not the one you hope for. Coaches move you up mid-session when the water says so.</p>
+        </div>
+        <div class="programs">
+          {programs.map((p) => (
+            <article class:list={['cut-shell', 'cut-md', 'program', { mirror: p.cut === 'b', featured: p.featured }]}>
+              <div class="cut-shell__inner">
+                <div class="program-top">
+                  <span class="tag cut-sm mono">{p.tag}</span>
+                  {p.featured && <span class="tag tag--hot cut-sm mono">Most booked</span>}
+                </div>
+                <h3 class="program-name">{p.name}</h3>
+                <p class="program-line">{p.line}</p>
+                <p class="price"><span>€{p.price}</span><small class="mono">{p.unit}</small></p>
+                <p class="program-body">{p.body}</p>
+                <ul class="gets">
+                  {p.gets.map((g) => <li>{g}</li>)}
+                </ul>
+                <a class:list={['cut-btn', 'cut-btn--block', { 'cut-btn--ghost': !p.featured }]} href="#book" data-level={p.name}><span>Book {p.name}</span></a>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <!-- ======================= SESSION (straight outer frame, cut inner blocks) ======================= -->
+      <section id="session" class="section wrap">
+        <div class="frame">
+          <div class="frame-head">
+            <div>
+              <p class="eyebrow mono">02 — The session</p>
+              <h2 class="h2">Two hours, four tides of attention.</h2>
+            </div>
+            <p class="sub">A dawn-patrol morning, minute by minute. Later slots follow the same rhythm, shifted to the tide.</p>
+          </div>
+          <ol class="steps">
+            {steps.map((s, i) => (
+              <li class:list={['cut-shell', 'cut-md', 'step', { mirror: i % 2 === 1 }]}>
+                <div class="cut-shell__inner">
+                  <span class="mono step-time">{s.n}</span>
+                  <h3>{s.h}</h3>
+                  <p>{s.p}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      <!-- ======================= FORECAST (dark board) ======================= -->
+      <section id="forecast" class="section wrap">
+        <div class="cut-shell cut-lg board">
+          <div class="cut-shell__inner">
+            <div class="board-head">
+              <div>
+                <p class="eyebrow mono">03 — Seven-day board</p>
+                <h2 class="h2">We cancel before you drive.</h2>
+              </div>
+              <p class="sub">Every evening at 19:00 the head coach calls the next day from the bank, not the model. If it is unsafe for your level, you get a text and a free move.</p>
+            </div>
+            <ul class="week" aria-label="Seven-day swell forecast">
+              {week.map((d) => (
+                <li class:list={['day', `day--${d.r}`]}>
+                  <span class="mono day-name">{d.d}</span>
+                  <span class="bar-track" aria-hidden="true"><span class="bar cut-sm" style={`--h:${(d.h / maxH) * 100}%`}></span></span>
+                  <b>{d.h.toFixed(1)} m</b>
+                  <span class="mono day-meta">{d.p} s · {d.w}</span>
+                  <span class="verdict cut-sm mono">{verdict[d.r]}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================= BOOK ======================= -->
+      <section id="book" class="section wrap book">
+        <div class="book-copy">
+          <p class="eyebrow mono">04 — Book</p>
+          <h2 class="h2">Hold a board. Pay at the hut.</h2>
+          <p class="sub">No deposit. We keep your board for 24 hours and confirm the slot the evening before, once the coach has seen the water.</p>
+          <ul class="facts mono">
+            <li><span>Meeting point</span>Blue hut, south car park</li>
+            <li><span>Cancel</span>Free until 19:00 the day before</li>
+            <li><span>Ages</span>8 and up · under-16s with a guardian</li>
+          </ul>
+        </div>
+        <form class="cut-shell cut-lg book-form" id="book-form">
+          <div class="cut-shell__inner">
+            <label>Name<input name="name" required autocomplete="name" placeholder="Your name" /></label>
+            <div class="two">
+              <label>Level
+                <select name="level" id="level-select">
+                  <option>Foam</option><option selected>Green</option><option>Reef</option>
+                </select>
+              </label>
+              <label>Slot
+                <select name="slot" id="slot-select">
+                  {slots.map((s) => <option selected={s.on}>{s.t}</option>)}
+                </select>
+              </label>
+            </div>
+            <label>Phone for the 19:00 call<input name="phone" type="tel" autocomplete="tel" placeholder="+351 …" /></label>
+            <button class="cut-btn cut-btn--block" type="submit"><span>Hold my board</span></button>
+            <p class="form-note mono" role="status" aria-live="polite" id="form-status">Boards held: 9 of 12 for Friday dawn patrol</p>
+          </div>
+        </form>
+      </section>
+    </main>
+
+    <footer class="footer wrap">
+      <span class="logo"><span class="logo-mark" aria-hidden="true"></span>SETLINE</span>
+      <p class="mono">Praia Comprida · Blue hut, south car park · Open on every tide worth surfing</p>
+    </footer>
+
+    <BackPill />
+
+    <script>
+      // Slot radiogroup: arrow keys + click, mirrored into the panel CTA and the booking form.
+      const group = document.querySelector<HTMLElement>('.slots');
+      const radios = [...document.querySelectorAll<HTMLButtonElement>('.slot')];
+      const cta = document.querySelector<HTMLAnchorElement>('#panel-cta span');
+      const slotSelect = document.querySelector<HTMLSelectElement>('#slot-select');
+      const select = (btn: HTMLButtonElement, focus = false) => {
+        radios.forEach((r) => {
+          const on = r === btn;
+          r.setAttribute('aria-checked', String(on));
+          r.tabIndex = on ? 0 : -1;
+        });
+        if (focus) btn.focus();
+        const t = btn.dataset.slot ?? '';
+        if (cta) cta.textContent = `Hold a board for ${t}`;
+        if (slotSelect) slotSelect.value = t;
+      };
+      radios.forEach((r) => r.addEventListener('click', () => select(r)));
+      group?.addEventListener('keydown', (e) => {
+        const i = radios.indexOf(document.activeElement as HTMLButtonElement);
+        if (i < 0) return;
+        const step = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 0;
+        if (!step) return;
+        e.preventDefault();
+        select(radios[(i + step + radios.length) % radios.length], true);
+      });
+
+      // Program buttons preselect the level in the form.
+      const levelSelect = document.querySelector<HTMLSelectElement>('#level-select');
+      document.querySelectorAll<HTMLAnchorElement>('[data-level]').forEach((a) =>
+        a.addEventListener('click', () => { if (levelSelect) levelSelect.value = a.dataset.level ?? 'Green'; }),
+      );
+
+      // Fake submit: no backend, just confirm in place.
+      const form = document.querySelector<HTMLFormElement>('#book-form');
+      const status = document.querySelector<HTMLElement>('#form-status');
+      form?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const d = new FormData(form);
+        if (status) status.textContent = `Board held for ${d.get('name')} — ${d.get('level')}, Friday ${d.get('slot')}. See you at the blue hut.`;
+      });
+    </script>
+
+    <style is:global>
+      :root {
+        /* Skill cut tokens: one scale, three sizes. */
+        --corner-cut-sm: 8px;
+        --corner-cut-md: 14px;
+        --corner-cut-lg: 24px;
+        /* Light-ground adaptation of the line/fill tokens. */
+        --corner-line: rgba(14, 30, 38, 0.14);
+        --corner-line-strong: rgba(14, 30, 38, 0.38);
+        --corner-fill: rgba(252, 250, 246, 0.86);
+        --corner-accent: #e4572e;
+
+        --sand: #f6f2ec;
+        --paper: #fcfaf6;
+        --ink: #0f1d24;
+        --ink-2: #4a5a61;
+        --ink-3: #7c898e;
+        --sea: #1b8a8f;
+        --deep: #0b1a20;
+        --font: 'Geist', ui-sans-serif, system-ui, sans-serif;
+        --mono: 'Geist Mono', ui-monospace, monospace;
+      }
+
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        background: var(--sand);
+        color: var(--ink);
+        font-family: var(--font);
+        -webkit-font-smoothing: antialiased;
+        overflow-x: clip;
+      }
+      .wrap { width: min(1320px, 100% - 48px); margin-inline: auto; }
+      .mono { font-family: var(--mono); }
+      .eyebrow { font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); margin: 0; }
+
+      /* ---------- Chamfer family ----------
+         --cut  : cut size; --o : outset (0 normally, grows on focus so the ring sits outside the fill
+         while the hit area keeps the same diagonal geometry). 0.4142 = tan(22.5°). */
+      .cut-sm { --cut: var(--corner-cut-sm); }
+      .cut-md { --cut: var(--corner-cut-md); }
+      .cut-lg { --cut: var(--corner-cut-lg); }
+      .cut-sm, .cut-md, .cut-lg, .cut-btn::before {
+        --o: 0px;
+        clip-path: polygon(
+          calc(var(--cut) - var(--o) * 0.4142) calc(0px - var(--o)),
+          calc(100% + var(--o)) calc(0px - var(--o)),
+          calc(100% + var(--o)) calc(100% - var(--cut) + var(--o) * 0.4142),
+          calc(100% - var(--cut) + var(--o) * 0.4142) calc(100% + var(--o)),
+          calc(0px - var(--o)) calc(100% + var(--o)),
+          calc(0px - var(--o)) calc(var(--cut) - var(--o) * 0.4142)
+        );
+      }
+      /* Mirrored pairing: top-right + bottom-left. */
+      .mirror, .mirror > .cut-shell__inner {
+        clip-path: polygon(
+          0 0, calc(100% - var(--cut)) 0, 100% var(--cut),
+          100% 100%, var(--cut) 100%, 0 calc(100% - var(--cut))
+        );
+      }
+
+      /* Bordered shell: gradient wrapper + inner fill on the same polygon. */
+      .cut-shell {
+        --border-size: 1px;
+        position: relative;
+        padding: var(--border-size);
+        background: linear-gradient(135deg, var(--corner-line-strong), var(--corner-line) 46%, var(--corner-line-strong));
+        background-size: 200% 200%;
+        background-position: 100% 100%;
+        transition: background-position 0.5s ease;
+      }
+      .cut-shell__inner {
+        /* inner cut shrinks by the border so the diagonal stroke keeps its 1px weight */
+        --ci: calc(var(--cut, 14px) - 0.4142px);
+        clip-path: polygon(var(--ci) 0, 100% 0, 100% calc(100% - var(--ci)), calc(100% - var(--ci)) 100%, 0 100%, 0 var(--ci));
+        height: 100%;
+        box-sizing: border-box;
+        padding: clamp(18px, 2.4vw, 28px);
+        background: var(--corner-fill);
+      }
+
+      /* ---------- Buttons ---------- */
+      .cut-btn {
+        --cut: var(--corner-cut-sm);
+        --o: 0px;
+        --fill: linear-gradient(135deg, var(--corner-accent), color-mix(in srgb, var(--corner-accent), #7a1d0a 28%));
+        position: relative;
+        isolation: isolate;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        min-height: 48px;
+        padding: 0 22px;
+        border: 0;
+        color: #fff;
+        font: 500 15px/1 var(--font);
+        letter-spacing: -0.005em;
+        text-decoration: none;
+        cursor: pointer;
+        background: transparent;
+        /* the button itself is clipped too: hit area = visible chamfer */
+        clip-path: polygon(
+          calc(var(--cut) - var(--o) * 0.4142) calc(0px - var(--o)),
+          calc(100% + var(--o)) calc(0px - var(--o)),
+          calc(100% + var(--o)) calc(100% - var(--cut) + var(--o) * 0.4142),
+          calc(100% - var(--cut) + var(--o) * 0.4142) calc(100% + var(--o)),
+          calc(0px - var(--o)) calc(100% + var(--o)),
+          calc(0px - var(--o)) calc(var(--cut) - var(--o) * 0.4142)
+        );
+      }
+      .cut-btn::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        background: var(--fill);
+        transition: filter 0.2s ease;
+      }
+      .cut-btn::after { /* focus ring: lives in the outset band, exposed only when --o grows */
+        content: '';
+        position: absolute;
+        inset: -4px;
+        z-index: -2;
+        background: var(--ink);
+        opacity: 0;
+      }
+      .cut-btn svg { width: 16px; height: 16px; transition: transform 0.25s ease; }
+      .cut-btn:hover::before { filter: brightness(1.08); }
+      .cut-btn:hover svg { transform: translateX(3px); }
+      .cut-btn:focus-visible { outline: none; --o: 4px; }
+      .cut-btn:focus-visible::after { opacity: 1; }
+      .cut-btn--ghost {
+        color: var(--ink);
+        --fill:
+          linear-gradient(var(--paper), var(--paper)) padding-box,
+          linear-gradient(135deg, var(--corner-line-strong), transparent 58%, var(--corner-accent)) border-box;
+      }
+      .cut-btn--ghost::before { border: 1px solid transparent; }
+      .cut-btn--ghost:hover::before {
+        filter: none;
+        background:
+          linear-gradient(#fff, #fff) padding-box,
+          linear-gradient(135deg, var(--corner-accent), transparent 58%, var(--corner-accent)) border-box;
+      }
+      .cut-btn--block { display: flex; width: 100%; }
+
+      /* ---------- Hero ---------- */
+      .hero { position: relative; min-height: 100vh; min-height: 100svh; overflow: hidden; background: var(--paper); }
+      .field { position: absolute; inset: 0 0 0 38%; pointer-events: none; }
+      .field::before { /* soft fade into the copy side */
+        content: ''; position: absolute; inset: 0; z-index: 2;
+        background: linear-gradient(90deg, var(--paper) 0%, rgba(252, 250, 246, 0) 34%);
+      }
+      .blob { position: absolute; border-radius: 50%; filter: blur(70px); opacity: 0.95; will-change: transform; }
+      .b1 { width: 60%; height: 55%; left: 18%; top: -10%; background: #ff9a6b; animation: drift1 18s ease-in-out infinite alternate; }
+      .b2 { width: 55%; height: 50%; right: -10%; top: 6%; background: #ff6b4a; animation: drift2 22s ease-in-out infinite alternate; }
+      .b3 { width: 70%; height: 55%; left: 10%; bottom: -12%; background: #3fb7b5; animation: drift3 20s ease-in-out infinite alternate; }
+      .b4 { width: 40%; height: 40%; left: 30%; top: 34%; background: #ffe2bf; animation: drift2 16s ease-in-out infinite alternate-reverse; }
+      .strip {
+        position: absolute; top: 0; bottom: 0; z-index: 1;
+        backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+        background: rgba(255, 255, 255, 0.07);
+        border-left: 1px solid rgba(255, 255, 255, 0.35);
+      }
+      .s1 { left: 22%; width: 18%; }
+      .s2 { left: 52%; width: 12%; }
+      .s3 { left: 78%; width: 22%; }
+      @keyframes drift1 { to { transform: translate(14%, 10%) scale(1.1); } }
+      @keyframes drift2 { to { transform: translate(-16%, 14%) scale(0.92); } }
+      @keyframes drift3 { to { transform: translate(10%, -12%) scale(1.08); } }
+
+      .nav { position: relative; z-index: 5; display: flex; align-items: center; justify-content: space-between; gap: 24px; padding-top: 26px; }
+      .logo { display: inline-flex; align-items: center; gap: 10px; font-weight: 500; letter-spacing: 0.14em; font-size: 15px; color: var(--ink); text-decoration: none; }
+      .logo-mark {
+        --cut: 5px; width: 16px; height: 16px; background: var(--corner-accent);
+        clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+      }
+      .nav-links { display: flex; gap: 36px; list-style: none; margin: 0; padding: 0; }
+      .nav-links a { color: var(--ink-2); text-decoration: none; font-size: 14px; }
+      .nav-links a:hover { color: var(--ink); }
+      .nav-cta { min-height: 44px; font-size: 14px; }
+
+      .hero-grid {
+        position: relative; z-index: 4;
+        display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+        gap: clamp(32px, 5vw, 80px); align-items: center;
+        padding-block: clamp(48px, 7vh, 88px) 64px;
+        min-height: calc(100svh - 72px); box-sizing: border-box;
+      }
+      .badge {
+        display: inline-flex; align-items: center; gap: 8px; margin: 0 0 28px;
+        padding: 8px 14px 8px 12px; font-size: 13px; color: #b23d17;
+        background: color-mix(in srgb, var(--corner-accent), white 82%);
+        box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--corner-accent), white 50%);
+      }
+      .badge svg { width: 16px; height: 16px; }
+      .display {
+        margin: 0; font-weight: 400; letter-spacing: -0.045em; line-height: 0.98;
+        font-size: clamp(48px, 7.4vw, 112px);
+      }
+      .display span { display: block; }
+      .display .accent { color: var(--corner-accent); }
+      .lede { max-width: 33rem; margin: 28px 0 0; font-size: clamp(16px, 1.25vw, 18px); line-height: 1.55; color: var(--ink-2); }
+      .cta-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 32px; }
+
+      /* hero panel */
+      .hero-panel { position: relative; display: grid; gap: 14px; max-width: 480px; justify-self: end; width: 100%; }
+      .glass > .cut-shell__inner {
+        background: rgba(252, 250, 246, 0.72);
+        backdrop-filter: blur(22px) saturate(1.2); -webkit-backdrop-filter: blur(22px) saturate(1.2);
+      }
+      .glass { background: linear-gradient(135deg, rgba(255,255,255,.95), rgba(255,255,255,.25) 46%, rgba(228, 87, 46, .7)); }
+      .panel-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+      .live { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; color: var(--sea); margin: 0; }
+      .live i { width: 7px; height: 7px; background: var(--sea); border-radius: 50%; box-shadow: 0 0 0 4px rgba(27, 138, 143, .18); animation: pulse 2s ease-in-out infinite; }
+      @keyframes pulse { 50% { box-shadow: 0 0 0 7px rgba(27, 138, 143, 0); } }
+      .panel-title { margin: 10px 0 18px; font-size: 24px; font-weight: 500; letter-spacing: -0.02em; }
+      .readout { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0 0 20px; }
+      .cell { padding: 12px 14px; background: rgba(255, 255, 255, 0.7); box-shadow: inset 0 0 0 1px var(--corner-line); }
+      .cell dt { font-size: 12px; color: var(--ink-3); }
+      .cell dd { margin: 4px 0 2px; font-size: 26px; letter-spacing: -0.03em; font-weight: 500; }
+      .cell dd small { font-size: 14px; color: var(--ink-3); margin-left: 2px; font-weight: 400; }
+      .cell > span { font-size: 11px; color: var(--ink-2); }
+      .slots-label { margin-bottom: 8px; }
+      .slots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
+      .slot {
+        --o: 0px;
+        display: grid; gap: 2px; justify-items: start; text-align: left;
+        min-height: 44px; padding: 10px 12px; border: 0; cursor: pointer;
+        font: inherit; color: var(--ink);
+        background: rgba(255, 255, 255, 0.6);
+        box-shadow: inset 0 0 0 1px var(--corner-line);
+        transition: background 0.2s, box-shadow 0.2s;
+      }
+      .slot b { font-weight: 500; font-size: 15px; }
+      .slot span { font-size: 12px; color: var(--ink-2); }
+      .slot em { font-style: normal; font-size: 11px; color: var(--ink-3); }
+      .slot:hover { box-shadow: inset 0 0 0 1px var(--corner-line-strong); background: #fff; }
+      .slot[aria-checked='true'] { background: var(--ink); color: #fff; box-shadow: none; }
+      .slot[aria-checked='true'] span, .slot[aria-checked='true'] em { color: rgba(255, 255, 255, 0.72); }
+      .slot:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--corner-accent), inset 0 0 0 4px #fff; }
+
+      .coach-card { width: 88%; justify-self: start; margin-left: -8%; }
+      .coach-card > .cut-shell__inner { display: flex; align-items: center; gap: 14px; padding: 14px 18px; background: rgba(15, 29, 36, 0.86); color: #fff; backdrop-filter: blur(14px); }
+      .coach-card { background: linear-gradient(135deg, rgba(255,255,255,.5), rgba(255,255,255,.08) 50%, rgba(228,87,46,.8)); }
+      .avatar { display: grid; place-items: center; width: 40px; height: 40px; flex: none; background: var(--corner-accent); font-size: 13px; font-weight: 600; letter-spacing: .04em; }
+      .coach-name { margin: 0; font-size: 14px; font-weight: 500; }
+      .coach-meta { margin: 3px 0 0; font-size: 11px; color: rgba(255, 255, 255, 0.62); }
+
+      /* ---------- Sections ---------- */
+      .section { padding-block: clamp(72px, 10vw, 128px) 0; }
+      .section-head { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 48px; align-items: end; margin-bottom: 40px; }
+      .section-head .eyebrow { grid-column: 1 / -1; }
+      .h2 { margin: 0; font-size: clamp(34px, 4.4vw, 60px); font-weight: 400; letter-spacing: -0.04em; line-height: 1.02; }
+      .sub { margin: 0; max-width: 34rem; color: var(--ink-2); line-height: 1.6; font-size: 16px; }
+
+      .programs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; align-items: stretch; }
+      .program > .cut-shell__inner { display: flex; flex-direction: column; gap: 0; padding: 28px; }
+      .program:hover { background-position: 0 0; }
+      .program.featured { background: linear-gradient(135deg, var(--corner-accent), rgba(228,87,46,.2) 46%, var(--corner-accent)); }
+      .program.featured > .cut-shell__inner { background: #fff; }
+      .program-top { display: flex; gap: 8px; }
+      .tag { padding: 6px 10px; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-2); background: rgba(15, 29, 36, 0.06); }
+      .tag--hot { color: #fff; background: var(--ink); }
+      .program-name { margin: 28px 0 4px; font-size: 44px; font-weight: 400; letter-spacing: -0.04em; }
+      .program-line { margin: 0; color: var(--ink-2); font-size: 15px; }
+      .price { display: flex; align-items: baseline; gap: 10px; margin: 24px 0 18px; padding-top: 18px; border-top: 1px solid var(--corner-line); }
+      .price span { font-size: 30px; font-weight: 500; letter-spacing: -0.03em; }
+      .price small { font-size: 12px; color: var(--ink-3); }
+      .program-body { margin: 0 0 18px; color: var(--ink-2); line-height: 1.6; font-size: 15px; }
+      .gets { list-style: none; margin: 0 0 28px; padding: 0; display: grid; gap: 8px; font-size: 14px; flex: 1; align-content: start; }
+      .gets li { display: flex; gap: 10px; align-items: baseline; }
+      .gets li::before {
+        content: ''; flex: none; width: 8px; height: 8px; background: var(--sea); transform: translateY(-1px);
+        clip-path: polygon(3px 0, 100% 0, 100% 5px, 5px 100%, 0 100%, 0 3px);
+      }
+
+      /* straight outer frame + chamfered inner blocks */
+      .frame { border: 1px solid var(--corner-line-strong); padding: clamp(20px, 3.5vw, 48px); background: var(--paper); position: relative; }
+      .frame::before, .frame::after { content: ''; position: absolute; width: 9px; height: 9px; background: var(--corner-accent); }
+      .frame::before { top: -5px; left: -5px; }
+      .frame::after { bottom: -5px; right: -5px; }
+      .frame-head { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 48px; align-items: end; margin-bottom: 36px; }
+      .frame-head .eyebrow { margin-bottom: 12px; }
+      .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+      .step > .cut-shell__inner { background: var(--sand); padding: 22px; }
+      .step:hover { background-position: 0 0; }
+      .step-time { display: inline-block; font-size: 13px; color: var(--corner-accent); }
+      .step h3 { margin: 40px 0 8px; font-size: 20px; font-weight: 500; letter-spacing: -0.02em; }
+      .step p { margin: 0; font-size: 14px; line-height: 1.6; color: var(--ink-2); }
+
+      /* dark board: the skill's original dark tokens */
+      .board { background: linear-gradient(135deg, rgba(255,255,255,.34), rgba(255,255,255,.06) 46%, var(--corner-accent)); }
+      .board > .cut-shell__inner {
+        background:
+          radial-gradient(120% 90% at 100% 0%, rgba(63, 183, 181, 0.18), transparent 55%),
+          radial-gradient(90% 80% at 0% 100%, rgba(228, 87, 46, 0.16), transparent 60%),
+          var(--deep);
+        color: #fff; padding: clamp(24px, 4vw, 56px);
+      }
+      .board .eyebrow { color: rgba(255, 255, 255, 0.5); margin-bottom: 12px; }
+      .board .sub { color: rgba(255, 255, 255, 0.68); }
+      .board-head { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 48px; align-items: end; margin-bottom: 40px; }
+      .week { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; }
+      .day { display: grid; gap: 8px; padding: 16px 0 0; border-top: 1px solid rgba(255, 255, 255, 0.14); }
+      .day-name { font-size: 12px; color: rgba(255, 255, 255, 0.6); text-transform: uppercase; letter-spacing: 0.08em; }
+      .bar-track { position: relative; height: 150px; display: flex; align-items: flex-end; }
+      .bar { display: block; width: 100%; height: var(--h); background: linear-gradient(180deg, #46c6c2, rgba(70, 198, 194, 0.25)); }
+      .day--hold .bar { background: linear-gradient(180deg, #ff7a52, rgba(255, 122, 82, 0.2)); }
+      .day--reef .bar { background: linear-gradient(180deg, #ffd29e, rgba(255, 210, 158, 0.2)); }
+      .day b { font-size: 22px; font-weight: 500; letter-spacing: -0.02em; }
+      .day-meta { font-size: 11px; color: rgba(255, 255, 255, 0.55); }
+      .verdict { justify-self: start; padding: 5px 9px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; background: rgba(255, 255, 255, 0.08); color: rgba(255, 255, 255, 0.82); }
+      .day--hold .verdict { background: var(--corner-accent); color: #fff; }
+
+      .book { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(32px, 6vw, 96px); align-items: start; padding-bottom: clamp(72px, 10vw, 128px); }
+      .book-copy .eyebrow { margin-bottom: 12px; }
+      .book-copy .sub { margin-top: 20px; }
+      .facts { list-style: none; margin: 32px 0 0; padding: 0; font-size: 13px; }
+      .facts li { display: grid; grid-template-columns: 9rem 1fr; gap: 16px; padding: 14px 0; border-top: 1px solid var(--corner-line); }
+      .facts span { color: var(--ink-3); }
+      .book-form > .cut-shell__inner { display: grid; gap: 16px; padding: clamp(20px, 3vw, 36px); background: #fff; }
+      .book-form label { display: grid; gap: 6px; font-size: 13px; color: var(--ink-2); }
+      .book-form .two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+      .book-form input, .book-form select {
+        height: 46px; padding: 0 12px; font: 15px var(--font); color: var(--ink);
+        background: var(--sand); border: 1px solid var(--corner-line); border-radius: 0;
+      }
+      .book-form input:focus-visible, .book-form select:focus-visible { outline: 2px solid var(--corner-accent); outline-offset: 1px; }
+      .form-note { margin: 0; font-size: 12px; color: var(--ink-3); text-align: center; }
+
+      .footer { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; padding-block: 28px 80px; border-top: 1px solid var(--corner-line); }
+      .footer p { margin: 0; font-size: 12px; color: var(--ink-3); }
+
+      /* ---------- Responsive ---------- */
+      @media (max-width: 1080px) {
+        .nav-links { display: none; }
+        .hero-grid { grid-template-columns: 1fr; min-height: 0; }
+        .hero-panel { justify-self: start; max-width: 520px; }
+        .field { inset: 0; }
+        .field::before { background: linear-gradient(180deg, var(--paper) 22%, rgba(252, 250, 246, 0) 52%); }
+        .strip { -webkit-mask-image: linear-gradient(180deg, transparent 30%, #000 60%); mask-image: linear-gradient(180deg, transparent 30%, #000 60%); }
+        .programs { grid-template-columns: 1fr; max-width: 560px; }
+        .steps { grid-template-columns: 1fr 1fr; }
+        .section-head, .frame-head, .board-head, .book { grid-template-columns: 1fr; }
+      }
+      @media (max-width: 640px) {
+        .wrap { width: calc(100% - 32px); }
+        .nav { padding-top: 18px; }
+        .hero-grid { padding-top: 40px; }
+        .badge { font-size: 12px; }
+        .display { font-size: clamp(42px, 12.5vw, 60px); }
+        .cta-row .cut-btn { flex: 1 1 100%; }
+        .coach-card { width: 100%; margin-left: 0; }
+        .slots { grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+        .slot { padding: 10px 8px; }
+        .slot em { display: none; }
+        .steps { grid-template-columns: 1fr; }
+        .step h3 { margin-top: 18px; }
+        .week { grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+        .bar-track { height: 110px; }
+        .day b { font-size: 14px; }
+        .day-meta { display: none; }
+        .verdict { font-size: 8px; padding: 4px 3px; letter-spacing: 0; justify-self: stretch; text-align: center; }
+        .book-form .two { grid-template-columns: 1fr; }
+        .facts li { grid-template-columns: 1fr; gap: 4px; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        html { scroll-behavior: auto; }
+        .blob, .live i { animation: none; }
+        .cut-shell, .cut-btn svg, .slot { transition: none; }
+      }
+    </style>
+  </body>
+</html>

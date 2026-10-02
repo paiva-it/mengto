@@ -1,0 +1,558 @@
+---
+import '../../styles/global.css';
+import BackPill from '../../components/BackPill.astro';
+
+const lots = [
+  {
+    no: '07',
+    origin: 'Kirinyaga, Kenya',
+    process: 'Washed · SL28 & SL34',
+    altitude: '1,780 m',
+    notes: 'Blackcurrant, hibiscus, raw cane sugar',
+    roast: 'Roasted Tuesday',
+  },
+  {
+    no: '11',
+    origin: 'Huila, Colombia',
+    process: 'Honey · Caturra',
+    altitude: '1,650 m',
+    notes: 'Red apple, panela, cocoa nib',
+    roast: 'Roasted Wednesday',
+  },
+  {
+    no: '14',
+    origin: 'Sidama, Ethiopia',
+    process: 'Natural · Heirloom',
+    altitude: '2,100 m',
+    notes: 'Strawberry, bergamot, milk chocolate',
+    roast: 'Roasted Thursday',
+  },
+];
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Ondo Roasters — Hillside Lots</title>
+    <meta name="description" content="An independent roastery's hero: a coffee branch, ripening cherries and roasted beans that turn toward the pointer in a shallow, damped orbit." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <main>
+      <section id="orbit" class="hero" data-motion="on" aria-labelledby="hero-title">
+        <div class="ghost" aria-hidden="true">ONDO</div>
+        <canvas class="orbit-canvas" aria-hidden="true"></canvas>
+
+        <header class="pill">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="12" rx="7" ry="9.5" fill="currentColor"></ellipse><path d="M12 3.2c-2.4 3 2.4 6.6 0 9.4s2.4 5.6 0 8.2" fill="none" stroke="#2b2a24" stroke-width="1.5" stroke-linecap="round"></path></svg>
+          <span>Ondo Roasters</span>
+        </header>
+
+        <div class="copy">
+          <h1 id="hero-title">Roasted where<br />the hill bends</h1>
+          <p class="lede">
+            Move across the field. The camera and the branch take different paths, so the cherries turn toward you
+            and the bough drifts behind — depth without losing the composition.
+          </p>
+        </div>
+
+        <article class="card">
+          <img
+            src="https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=720&q=72&auto=format&fit=crop"
+            alt="A dense spread of dark-roasted coffee beans"
+            width="360"
+            height="240"
+            loading="eager"
+          />
+          <p class="card-label">This week on the bench</p>
+          <h2>Lot 07,<br />Kirinyaga.</h2>
+          <p class="card-notes">Blackcurrant · hibiscus · cane sugar</p>
+        </article>
+
+        <div class="panel" role="group" aria-labelledby="panel-title">
+          <div class="panel-head">
+            <div>
+              <p class="panel-eyebrow">Hillside orbit · Lot 07</p>
+              <p class="panel-title" id="panel-title">One target. Three depths.</p>
+            </div>
+            <button id="orbit-motion" type="button" aria-pressed="true">Motion on</button>
+          </div>
+          <div class="ranges">
+            <label>
+              <span class="r-top"><span>Horizontal</span><output id="orbit-x-out" for="orbit-x">0.00</output></span>
+              <input id="orbit-x" type="range" min="-1" max="1" step="0.01" value="0" />
+            </label>
+            <label>
+              <span class="r-top"><span>Vertical</span><output id="orbit-y-out" for="orbit-y">0.00</output></span>
+              <input id="orbit-y" type="range" min="-1" max="1" step="0.01" value="0" />
+            </label>
+          </div>
+        </div>
+        <p id="orbit-live" class="sr-only" aria-live="polite"></p>
+      </section>
+
+      <section class="lots" aria-labelledby="lots-title">
+        <div class="lots-head">
+          <p class="eyebrow">Three lots on the bench</p>
+          <h2 id="lots-title">Twelve kilos at a time, roasted to the bean in front of us.</h2>
+          <p>
+            Ondo is a one-drum roastery in a former bakery. We buy from three farms we have visited, roast on Tuesday,
+            Wednesday and Thursday, and ship the same afternoon. Nothing sits on a shelf.
+          </p>
+        </div>
+        <ol class="lot-grid">
+          {
+            lots.map((l) => (
+              <li class="lot">
+                <p class="lot-no">Lot {l.no}</p>
+                <h3>{l.origin}</h3>
+                <dl>
+                  <div><dt>Process</dt><dd>{l.process}</dd></div>
+                  <div><dt>Grown at</dt><dd>{l.altitude}</dd></div>
+                  <div><dt>In the cup</dt><dd>{l.notes}</dd></div>
+                </dl>
+                <p class="lot-roast">{l.roast}</p>
+              </li>
+            ))
+          }
+        </ol>
+      </section>
+
+      <footer class="foot">
+        <p><strong>Ondo Roasters</strong> · Rua das Fontaínhas 41, Porto</p>
+        <p>Roasting Tue–Thu · shop open Fri–Sun, 9–14</p>
+      </footer>
+    </main>
+    <BackPill />
+
+    <script>
+      import { mount } from '../../components/skills/add-mouse-driven-orbit/orbit';
+      const root = document.getElementById('orbit');
+      if (root) mount(root);
+    </script>
+
+    <style>
+      :global(html) {
+        background: #46453c;
+      }
+      :global(body) {
+        margin: 0;
+        font-family: 'Lexend', ui-sans-serif, system-ui, sans-serif;
+        color: #f4f2ea;
+        background: #46453c;
+        -webkit-font-smoothing: antialiased;
+      }
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
+      }
+
+      /* ---------- hero ---------- */
+      .hero {
+        --ox: 0;
+        --oy: 0;
+        position: relative;
+        height: 100svh;
+        min-height: 640px;
+        overflow: hidden;
+        isolation: isolate;
+        background:
+          radial-gradient(60% 45% at 50% 92%, rgb(132 132 112 / 0.55), transparent 70%),
+          linear-gradient(90deg, transparent calc(25% - 0.5px), rgb(255 255 255 / 0.04) 25%, transparent calc(25% + 0.5px), transparent calc(50% - 0.5px), rgb(255 255 255 / 0.04) 50%, transparent calc(50% + 0.5px), transparent calc(75% - 0.5px), rgb(255 255 255 / 0.04) 75%, transparent calc(75% + 0.5px)),
+          linear-gradient(180deg, #55544a 0%, #4b4a40 55%, #403f37 100%);
+      }
+      .orbit-canvas {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+        display: block;
+      }
+      .ghost {
+        position: absolute;
+        left: 50%;
+        bottom: -0.2em;
+        z-index: 0;
+        font-weight: 500;
+        font-size: clamp(9rem, 26vw, 25rem);
+        line-height: 1;
+        letter-spacing: 0.06em;
+        color: rgb(255 255 255 / 0.07);
+        transform: translate3d(calc(-50% + var(--ox) * 4px), calc(var(--oy) * 3px), 0);
+        pointer-events: none;
+        user-select: none;
+      }
+      .pill {
+        position: absolute;
+        top: 32px;
+        left: 50%;
+        z-index: 3;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 18px 10px 12px;
+        border-radius: 14px;
+        background: #2b2a24;
+        box-shadow: 0 10px 30px rgb(0 0 0 / 0.25);
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        white-space: nowrap;
+        transform: translateX(-50%);
+      }
+      .pill svg {
+        width: 20px;
+        height: 20px;
+        color: #e9e4d4;
+      }
+
+      .copy {
+        position: absolute;
+        z-index: 3;
+        top: 23%;
+        left: clamp(24px, 3.6vw, 56px);
+        display: flex;
+        gap: 22px;
+        align-items: flex-start;
+        transform: translate3d(calc(var(--ox) * 6px), calc(var(--oy) * -4px), 0);
+      }
+      h1 {
+        margin: 0;
+        font-weight: 300;
+        font-size: clamp(2.6rem, 5vw, 4.6rem);
+        line-height: 1;
+        letter-spacing: -0.035em;
+        text-wrap: balance;
+      }
+      .lede {
+        margin: 6px 0 0;
+        max-width: 17rem;
+        font-size: 15px;
+        line-height: 1.55;
+        font-weight: 300;
+        color: rgb(244 242 234 / 0.66);
+      }
+
+      .card {
+        position: absolute;
+        z-index: 3;
+        top: 23%;
+        right: clamp(24px, 21vw, 340px);
+        width: 300px;
+        padding: 18px 18px 26px;
+        border-radius: 28px;
+        background: #f1efe8;
+        color: #23221d;
+        box-shadow: 0 30px 60px -20px rgb(20 20 14 / 0.45);
+        transform: translate3d(calc(var(--ox) * 12px), calc(var(--oy) * -8px), 0);
+      }
+      .card img {
+        display: block;
+        width: 100%;
+        height: 132px;
+        object-fit: cover;
+        border-radius: 18px;
+      }
+      .card-label {
+        margin: 16px 0 4px;
+        font-size: 12px;
+        color: #6f6c60;
+      }
+      .card h2 {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 600;
+        line-height: 1.05;
+        letter-spacing: -0.02em;
+      }
+      .card-notes {
+        margin: 12px 0 0;
+        font-size: 12.5px;
+        color: #5a574c;
+      }
+
+      .panel {
+        position: absolute;
+        z-index: 4;
+        right: clamp(16px, 2.2vw, 32px);
+        bottom: clamp(16px, 4vh, 40px);
+        width: min(430px, calc(100% - 32px));
+        padding: 16px 16px 18px;
+        border-radius: 18px;
+        background: rgb(36 36 30 / 0.86);
+        backdrop-filter: blur(14px);
+        border: 1px solid rgb(255 255 255 / 0.07);
+        box-shadow: 0 20px 50px -18px rgb(0 0 0 / 0.5);
+      }
+      .panel-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid rgb(255 255 255 / 0.08);
+      }
+      .panel-eyebrow {
+        margin: 0 0 4px;
+        font-size: 10.5px;
+        font-weight: 600;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: #dbe8a8;
+      }
+      .panel-title {
+        margin: 0;
+        font-size: 15px;
+        font-weight: 500;
+      }
+      #orbit-motion {
+        flex: none;
+        padding: 11px 16px;
+        border: 0;
+        border-radius: 12px;
+        background: #f1efe8;
+        color: #23221d;
+        font: 600 13px/1 inherit;
+        font-family: inherit;
+        cursor: pointer;
+      }
+      #orbit-motion[aria-pressed='false'] {
+        background: transparent;
+        color: #f1efe8;
+        box-shadow: inset 0 0 0 1px rgb(241 239 232 / 0.4);
+      }
+      .ranges {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        padding-top: 14px;
+      }
+      .r-top {
+        display: flex;
+        justify-content: space-between;
+        font-size: 10.5px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: rgb(244 242 234 / 0.6);
+      }
+      .r-top output {
+        letter-spacing: 0;
+        color: #f4f2ea;
+        font-variant-numeric: tabular-nums;
+      }
+      input[type='range'] {
+        width: 100%;
+        margin: 10px 0 0;
+        accent-color: #dbe8a8;
+        appearance: none;
+        background: transparent;
+        height: 18px;
+      }
+      input[type='range']::-webkit-slider-runnable-track {
+        height: 6px;
+        border-radius: 99px;
+        background: rgb(219 232 168 / 0.22);
+      }
+      input[type='range']::-moz-range-track {
+        height: 6px;
+        border-radius: 99px;
+        background: rgb(219 232 168 / 0.22);
+      }
+      input[type='range']::-webkit-slider-thumb {
+        appearance: none;
+        width: 16px;
+        height: 16px;
+        margin-top: -5px;
+        border-radius: 50%;
+        background: #dbe8a8;
+        border: 0;
+      }
+      input[type='range']::-moz-range-thumb {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: #dbe8a8;
+        border: 0;
+      }
+      :is(button, input, a):focus-visible {
+        outline: 2px solid #dbe8a8;
+        outline-offset: 3px;
+        border-radius: 8px;
+      }
+
+      /* ---------- lots ---------- */
+      .lots {
+        background: #efede6;
+        color: #23221d;
+        padding: clamp(64px, 10vw, 128px) clamp(16px, 4vw, 56px);
+      }
+      .lots-head {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px 48px;
+        max-width: 1240px;
+        margin: 0 auto 56px;
+      }
+      .eyebrow {
+        grid-column: 1 / -1;
+        margin: 0;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: #6a7a3a;
+      }
+      .lots-head h2 {
+        margin: 0;
+        font-size: clamp(1.8rem, 3.2vw, 2.8rem);
+        font-weight: 400;
+        line-height: 1.08;
+        letter-spacing: -0.03em;
+      }
+      .lots-head > p:last-child {
+        margin: 6px 0 0;
+        font-size: 16px;
+        line-height: 1.6;
+        font-weight: 300;
+        color: #57544a;
+      }
+      .lot-grid {
+        list-style: none;
+        margin: 0 auto;
+        padding: 0;
+        max-width: 1240px;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+      }
+      .lot {
+        padding: 26px 24px 24px;
+        border-radius: 24px;
+        background: #fbfaf6;
+        box-shadow: 0 1px 0 rgb(35 34 29 / 0.06), 0 18px 40px -28px rgb(35 34 29 / 0.35);
+        display: flex;
+        flex-direction: column;
+      }
+      .lot-no {
+        margin: 0;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: #8a3a2c;
+      }
+      .lot h3 {
+        margin: 10px 0 18px;
+        font-size: 24px;
+        font-weight: 500;
+        letter-spacing: -0.02em;
+      }
+      .lot dl {
+        margin: 0;
+        display: grid;
+        gap: 12px;
+        flex: 1;
+      }
+      .lot dl div {
+        display: grid;
+        grid-template-columns: 6.5rem 1fr;
+        gap: 12px;
+        padding-top: 12px;
+        border-top: 1px solid rgb(35 34 29 / 0.08);
+      }
+      .lot dt {
+        font-size: 12px;
+        color: #85816f;
+      }
+      .lot dd {
+        margin: 0;
+        font-size: 14px;
+      }
+      .lot-roast {
+        margin: 22px 0 0;
+        align-self: flex-start;
+        padding: 7px 12px;
+        border-radius: 99px;
+        background: #dbe8a8;
+        font-size: 12px;
+        font-weight: 500;
+      }
+      .foot {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 8px 24px;
+        padding: 28px clamp(16px, 4vw, 56px) 80px;
+        font-size: 13px;
+        font-weight: 300;
+        color: rgb(244 242 234 / 0.7);
+      }
+      .foot p {
+        margin: 0;
+      }
+
+      /* ---------- narrow ---------- */
+      @media (max-width: 1100px) {
+        .copy {
+          flex-direction: column;
+          gap: 16px;
+        }
+        .card {
+          right: 24px;
+        }
+      }
+      @media (max-width: 760px) {
+        .hero {
+          min-height: 700px;
+        }
+        .pill {
+          top: 20px;
+        }
+        .copy {
+          top: 96px;
+          left: 20px;
+          right: 20px;
+        }
+        h1 {
+          font-size: clamp(2.5rem, 12vw, 3.4rem);
+        }
+        .lede {
+          max-width: 22rem;
+          font-size: 14px;
+        }
+        .card {
+          display: none;
+        }
+        .panel {
+          right: 16px;
+          left: 16px;
+          bottom: 16px;
+          width: auto;
+          padding: 14px;
+        }
+        .ranges {
+          gap: 14px;
+        }
+        .lots-head,
+        .lot-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .copy,
+        .card,
+        .ghost {
+          transition: none;
+        }
+      }
+    </style>
+  </body>
+</html>

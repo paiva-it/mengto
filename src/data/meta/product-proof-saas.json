@@ -1,0 +1,7 @@
+{
+  "title": "Product Proof SaaS",
+  "kind": "website",
+  "category": "Page types",
+  "concept": "Escapement, a fictional service desk for typewriter repair benches, whose hero is a working deterministic demo: a customer's note about a skipping Olympia SM3 becomes a labelled sample work order that you can edit, approve and 'send' through six explicit states.",
+  "notes": "The draft comes from a five-rule keyword table (rules.ts) shared by the server-rendered first state, the live demo and the sample tickets, so nothing is generated or faked. Simulate menu exercises quota, network (one-shot, Retry succeeds), moderation (also triggered by a phone number in the note) and rule-set errors; Cancel during matching, Cmd/Ctrl+Enter submits, history + text transcript + copy + replay. Reduced motion settles every state instantly. Audience tabs and FAQ answers deep-link by hash; pricing table terms link to FAQ."
+}

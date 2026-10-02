@@ -1,0 +1,7 @@
+{
+  "title": "Light Mode Paper Technical",
+  "kind": "website",
+  "category": "Design systems",
+  "concept": "Sunfold, a fictional community solar co-operative: a warm parchment shell framed in a dark field, with a live roof-yield console, share-certificate and bill mockups, a published roof register, AGM minutes with motion votes and an open share offer, all drawn with L-brackets, dimension lines, diagonal hatching and a single vermilion signal.",
+  "notes": "Pure HTML/CSS + one small script (IntersectionObserver fade-ups, ticking kWh counter). Masked headline rise, accent underline sweep and SVG curve draw are CSS; prefers-reduced-motion shows everything static. Fonts: Instrument Sans + IBM Plex Mono from Google Fonts."
+}

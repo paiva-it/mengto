@@ -1,0 +1,527 @@
+---
+import '../../styles/global.css';
+import BackPill from '../../components/BackPill.astro';
+
+// Ninth Needle — a Kreuzberg tattoo collective that takes its four chairs on the road every autumn.
+const home = { id: 'berlin', n: '00', city: 'Berlin', lat: 52.52, lng: 13.405, home: true };
+const stops = [
+  { id: 'lisbon', n: '01', city: 'Lisbon', country: 'Portugal', lat: 38.72, lng: -9.14, dates: '06–11 Oct', artist: 'Mara Sólveig', style: 'Fine-line botanicals', host: 'Casa Agulha, Príncipe Real', status: 'Sold out' },
+  { id: 'reykjavik', n: '02', city: 'Reykjavík', country: 'Iceland', lat: 64.15, lng: -21.94, dates: '20–24 Oct', artist: 'Ilja Brandt', style: 'Blackwork & dotwork', host: 'Svartlist, Laugavegur', status: 'Waitlist' },
+  { id: 'montreal', n: '03', city: 'Montréal', country: 'Canada', lat: 45.5, lng: -73.57, dates: '03–09 Nov', artist: 'Mara Sólveig', style: 'Fine-line botanicals', host: 'Atelier Mile End', status: 'Open' },
+  { id: 'cdmx', n: '04', city: 'Mexico City', country: 'Mexico', lat: 19.43, lng: -99.13, dates: '17–22 Nov', artist: 'Tavi Okonkwo', style: 'Neo-traditional colour', host: 'Tinta Roma Norte', status: 'Open' },
+  { id: 'seoul', n: '05', city: 'Seoul', country: 'South Korea', lat: 37.57, lng: 126.98, dates: '01–06 Dec', artist: 'Ilja Brandt', style: 'Blackwork & dotwork', host: 'Studio Mangwon', status: 'Opens 1 Nov' },
+  { id: 'osaka', n: '06', city: 'Osaka', country: 'Japan', lat: 34.69, lng: 135.5, dates: '08–13 Dec', artist: 'Sen Arakawa', style: 'Large-scale backpieces', host: 'Horiba Kitahama', status: 'Opens 1 Nov' },
+  { id: 'melbourne', n: '07', city: 'Melbourne', country: 'Australia', lat: -37.81, lng: 144.96, dates: '12–18 Jan', artist: 'Tavi Okonkwo', style: 'Neo-traditional colour', host: 'Fitzroy Flash House', status: 'Open' },
+  { id: 'capetown', n: '08', city: 'Cape Town', country: 'South Africa', lat: -33.92, lng: 18.42, dates: '02–07 Feb', artist: 'Sen Arakawa', style: 'Large-scale backpieces', host: 'Bree Street Ink', status: 'Waitlist' },
+];
+const initial = 'montreal';
+const first = stops.find((s) => s.id === initial)!;
+const statusKey = (s: string) => (s === 'Open' ? 'open' : s === 'Sold out' ? 'out' : 'soon');
+const tour = JSON.stringify({ home, stops, initial });
+
+const artists = [
+  { name: 'Mara Sólveig', style: 'Fine-line botanicals', note: 'Single-needle ferns, seed heads and pressed-flower studies that sit flat on the skin and age softly.', route: 'Lisbon · Montréal', since: 'Chair 1 since 2017' },
+  { name: 'Ilja Brandt', style: 'Blackwork & dotwork', note: 'Geometric sleeves built from stippled gradients — no outlines, only density, about nine hours a forearm.', route: 'Reykjavík · Seoul', since: 'Chair 2 since 2019' },
+  { name: 'Tavi Okonkwo', style: 'Neo-traditional colour', note: 'Heavy lines, saturated ochre and teal, and animals drawn with more expression than they strictly need.', route: 'Mexico City · Melbourne', since: 'Chair 3 since 2020' },
+  { name: 'Sen Arakawa', style: 'Large-scale backpieces', note: 'Waves, smoke and wind bars planned over a year of sittings. Guest spots are for consultations and outlines.', route: 'Osaka · Cape Town', since: 'Chair 4 since 2022' },
+];
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Ninth Needle — Guest Spot Atlas 2026/27</title>
+    <meta name="description" content="Four tattoo artists from a Kreuzberg studio, eight guest spots on four continents. An interactive globe.gl atlas of the Ninth Needle tour." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <BackPill />
+    <div class="glow" aria-hidden="true"></div>
+
+    <header class="bar">
+      <a class="brand" href="#top" aria-label="Ninth Needle, home"><span class="dot" aria-hidden="true"></span>Ninth Needle</a>
+      <nav class="nav" aria-label="Primary">
+        <a href="#tour" aria-current="page">Tour</a>
+        <a href="#artists">Artists</a>
+        <a href="#how">Guest spots</a>
+        <a href="#book">Book</a>
+      </nav>
+      <span class="bar-meta">Oranienstraße 41 · Berlin · Guest spot atlas · 26/27</span>
+    </header>
+
+    <main id="top">
+      <section id="tour" class="hero" aria-labelledby="hero-title">
+        <div class="intro">
+          <p class="eyebrow">Tattoo collective / Kreuzberg / On the road Oct–Feb</p>
+          <h1 id="hero-title">Four chairs.<br /><span class="soft">Eight cities.</span></h1>
+          <p class="lede">
+            Every autumn Ninth Needle closes the Oranienstraße shop and takes its four resident artists on guest spots.
+            Pick a stop to see who is tattooing there, and when the books open.
+          </p>
+        </div>
+
+        <div class="stage" data-globe data-tour={tour} tabindex="0" role="group" aria-label="Interactive globe of the tour. Drag or use the arrow keys to turn it.">
+          <div class="globe-box">
+          <svg class="orbit orbit-back" viewBox="0 0 400 100" aria-hidden="true"><ellipse cx="200" cy="50" rx="198" ry="48" /></svg>
+          <div class="globe" id="globe"></div>
+          <svg class="orbit orbit-front" viewBox="0 0 400 100" aria-hidden="true">
+            <path d="M2 50 A198 48 0 0 0 398 50" />
+            <circle class="orbit-dot" r="3"><animateMotion dur="14s" repeatCount="indefinite" path="M2 50 A198 48 0 0 0 398 50 A198 48 0 0 0 2 50" /></circle>
+          </svg>
+          </div>
+
+          <div class="hud hud-tl">
+            <p class="label"><span class="live" aria-hidden="true"></span>Live · Season books</p>
+            <p class="metric">72.4<span>%</span></p>
+            <p class="sub">of 412 guest-spot hours booked</p>
+          </div>
+          <p class="hud hud-tr label" aria-live="polite"><span data-f="n">{first.n}</span> / 08 · <span data-f="city-short">{first.city}</span></p>
+
+          <article class="card" aria-live="polite">
+            <div class="card-head">
+              <p class="label">Stop <span data-f="n">{first.n}</span> · <span data-f="dates">{first.dates}</span></p>
+              <span class={`chip chip-${statusKey(first.status)}`} data-f="status">{first.status}</span>
+            </div>
+            <h2 class="card-city"><span data-f="city">{first.city}</span><span class="card-country" data-f="country">{first.country}</span></h2>
+            <dl class="card-meta">
+              <div><dt>Artist</dt><dd data-f="artist">{first.artist}</dd></div>
+              <div class="opt"><dt>Style</dt><dd data-f="style">{first.style}</dd></div>
+              <div class="opt"><dt>Host shop</dt><dd data-f="host">{first.host}</dd></div>
+            </dl>
+          </article>
+          <p class="hud hud-br label hint" aria-hidden="true">Drag to steer ↻</p>
+        </div>
+
+        <ol class="stops" aria-label="Tour stops — select one to turn the globe">
+          {stops.map((s) => (
+            <li>
+              <button type="button" class="stop" data-stop={s.id} aria-pressed={s.id === initial ? 'true' : 'false'}>
+                <span class="stop-n">{s.n}</span>
+                <span class="stop-city">{s.city}</span>
+                <span class="stop-artist">{s.artist}</span>
+                <span class="stop-dates">{s.dates}</span>
+                <span class={`chip chip-${statusKey(s.status)}`}>{s.status}</span>
+              </button>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section id="artists" class="block" aria-labelledby="artists-title">
+        <div class="block-head">
+          <p class="eyebrow">The travelling chairs</p>
+          <h2 id="artists-title">Four residents, two stops each.</h2>
+        </div>
+        <ul class="artists">
+          {artists.map((a, i) => (
+            <li class="artist">
+              <p class="label">{`0${i + 1}`} · {a.since}</p>
+              <h3>{a.name}</h3>
+              <p class="artist-style">{a.style}</p>
+              <p class="artist-note">{a.note}</p>
+              <p class="artist-route"><span aria-hidden="true">↗</span> {a.route}</p>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section id="how" class="block" aria-labelledby="how-title">
+        <div class="block-head">
+          <p class="eyebrow">How a guest spot works</p>
+          <h2 id="how-title">Three steps, no queue outside the door.</h2>
+        </div>
+        <ol class="steps">
+          <li>
+            <span class="step-n">01</span>
+            <h3>Send the idea</h3>
+            <p>Placement, rough size and up to three reference images. Each artist answers their own inbox within five working days.</p>
+          </li>
+          <li>
+            <span class="step-n">02</span>
+            <h3>Hold the slot</h3>
+            <p>An €80 deposit, taken off the final price. It moves once to any other stop on the tour, and is refunded if the artist cancels.</p>
+          </li>
+          <li>
+            <span class="step-n">03</span>
+            <h3>Sit for it</h3>
+            <p>Drawings are finished before you arrive. Most guest-spot pieces are a single sitting of three to six hours.</p>
+          </li>
+        </ol>
+      </section>
+
+      <section id="book" class="cta" aria-labelledby="book-title">
+        <p class="eyebrow">Next release</p>
+        <h2 id="book-title">Seoul and Osaka books open 1 November, 10:00 CET.</h2>
+        <p class="lede">Montréal, Mexico City and Melbourne are open now. Sold-out stops keep a waitlist; cancellations go out in the order they arrived.</p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="mailto:books@ninthneedle.example?subject=Guest%20spot%20request">Request a slot</a>
+          <a class="btn" href="#tour">Back to the atlas</a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="foot">
+      <span>Ninth Needle Tattoo Kollektiv · Oranienstraße 41, 10999 Berlin</span>
+      <span>Shop reopens 2 March · Walk-ins Thursdays</span>
+    </footer>
+
+    <style>
+      :root {
+        --bg: #0b0d11;
+        --panel: #0f1218;
+        --line: rgb(255 255 255 / 0.09);
+        --line-2: rgb(255 255 255 / 0.16);
+        --ink: #f3f2f0;
+        --muted: #8b909b;
+        --faint: #5d626c;
+        --accent: #ef7b5f;
+        --accent-soft: rgb(239 123 95 / 0.14);
+        --sans: 'Inter Tight', ui-sans-serif, system-ui, sans-serif;
+        --mono: 'JetBrains Mono', ui-monospace, monospace;
+        color-scheme: dark;
+      }
+      * { box-sizing: border-box; }
+      html { background: var(--bg); }
+      body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); -webkit-font-smoothing: antialiased; overflow-x: clip; }
+      a { color: inherit; }
+      :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
+
+      .glow {
+        position: absolute; inset: 0 0 auto 0; height: 900px; pointer-events: none; z-index: 0;
+        background: radial-gradient(620px 420px at 74% 18%, rgb(239 123 95 / 0.10), transparent 70%),
+          radial-gradient(500px 360px at 8% 92%, rgb(239 123 95 / 0.04), transparent 70%);
+      }
+
+      .label, .eyebrow, .bar, .chip, .stop-n, .stop-dates, dt {
+        font-size: 11px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase;
+      }
+      .eyebrow { color: var(--muted); margin: 0 0 18px; }
+
+      .bar {
+        position: relative; z-index: 2; display: flex; align-items: center; gap: 32px;
+        margin: 0 clamp(16px, 2.2vw, 32px); height: 64px; border-bottom: 1px solid var(--line);
+      }
+      .brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 700; letter-spacing: 0.2em; }
+      .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 12px rgb(239 123 95 / 0.6); }
+      .nav { display: flex; gap: 24px; }
+      .nav a { text-decoration: none; color: var(--muted); }
+      .nav a:hover, .nav a[aria-current] { color: var(--ink); }
+      .bar-meta { margin-left: auto; color: var(--muted); }
+
+      .hero {
+        position: relative; z-index: 1;
+        display: grid; grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
+        grid-template-areas: 'intro stage' 'stops stage';
+        grid-template-rows: auto 1fr;
+        gap: 28px clamp(24px, 3vw, 48px);
+        padding: 36px clamp(16px, 2.2vw, 32px) 40px;
+        min-height: calc(100svh - 64px);
+      }
+      .intro { grid-area: intro; padding-top: 12px; }
+      h1 {
+        margin: 0; font-weight: 600; font-size: clamp(48px, 6.1vw, 92px); line-height: 0.92; letter-spacing: -0.055em;
+      }
+      .soft { color: var(--muted); }
+      .lede { margin: 22px 0 0; max-width: 46ch; color: var(--muted); font-size: 16px; line-height: 1.55; }
+
+      .stops { grid-area: stops; list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); align-self: end; }
+      .stop {
+        width: 100%; display: grid; grid-template-columns: 30px minmax(0, 1fr) minmax(0, 1fr) 82px 92px; align-items: center; gap: 10px;
+        padding: 11px 6px; background: none; border: 0; border-bottom: 1px solid var(--line); color: var(--ink);
+        font: inherit; text-align: left; cursor: pointer; transition: background 0.2s;
+      }
+      .stop:hover { background: rgb(255 255 255 / 0.03); }
+      .stop[aria-pressed='true'] { background: var(--accent-soft); }
+      .stop[aria-pressed='true'] .stop-n { color: var(--accent); }
+      .stop-n, .stop-dates { color: var(--faint); font-family: var(--mono); font-weight: 500; letter-spacing: 0.04em; }
+      .stop-city { font-weight: 600; font-size: 15px; letter-spacing: -0.01em; }
+      .stop-artist { color: var(--muted); font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .stop .chip { justify-self: end; }
+
+      .chip { display: inline-block; padding: 4px 8px; border-radius: 999px; border: 1px solid var(--line-2); font-size: 9.5px; white-space: nowrap; }
+      .chip-open { color: var(--accent); border-color: rgb(239 123 95 / 0.45); }
+      .chip-soon { color: var(--ink); }
+      .chip-out { color: var(--faint); text-decoration: line-through; }
+
+      .stage {
+        grid-area: stage; position: relative; overflow: hidden;
+        min-height: 520px; border: 1px solid var(--line); border-radius: 22px;
+        background: radial-gradient(70% 60% at 50% 50%, rgb(239 123 95 / 0.06), transparent 70%), var(--panel);
+        cursor: grab;
+      }
+      .stage:active { cursor: grabbing; }
+      .globe-box { position: absolute; inset: 0; container-type: size; }
+      .globe { position: absolute; inset: 0; z-index: 1; }
+      .orbit {
+        position: absolute; left: 50%; top: 50%; width: 98cqh; max-width: 150cqw; aspect-ratio: 4 / 1;
+        transform: translate(-50%, -50%) rotate(-11deg); overflow: visible; pointer-events: none;
+      }
+      .orbit-back { z-index: 0; }
+      .orbit-front { z-index: 2; }
+      .orbit ellipse, .orbit path { fill: none; stroke: rgb(255 255 255 / 0.13); stroke-width: 0.6; vector-effect: non-scaling-stroke; }
+      .orbit-dot { fill: var(--accent); }
+
+      .hud { position: absolute; z-index: 3; margin: 0; pointer-events: none; }
+      .hud-tl { top: 22px; left: 24px; }
+      .hud-tr { top: 24px; right: 24px; color: var(--muted); }
+      .hud-br { bottom: 24px; right: 24px; color: var(--faint); }
+      .hud .label { margin: 0; color: var(--muted); display: flex; align-items: center; gap: 8px; }
+      .live { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); animation: pulse 1.8s ease-in-out infinite; }
+      @keyframes pulse { 50% { opacity: 0.25; } }
+      .metric { margin: 10px 0 0; font-size: clamp(44px, 4.6vw, 68px); font-weight: 600; letter-spacing: -0.05em; line-height: 1; }
+      .metric span { color: var(--accent); font-size: 0.5em; margin-left: 2px; letter-spacing: 0; }
+      .sub { margin: 6px 0 0; color: var(--muted); font-size: 13px; }
+
+      .card {
+        position: absolute; z-index: 3; left: 20px; bottom: 20px; width: min(340px, calc(100% - 40px));
+        padding: 16px 18px 14px; border-radius: 16px; border: 1px solid var(--line-2);
+        background: rgb(11 13 17 / 0.72); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      }
+      .card-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+      .card-head .label { margin: 0; color: var(--muted); }
+      .card-city { margin: 10px 0 12px; font-size: 30px; font-weight: 600; letter-spacing: -0.04em; line-height: 1; display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+      .card-country { font-size: 13px; font-weight: 500; letter-spacing: 0; color: var(--muted); }
+      .card-meta { margin: 0; display: grid; gap: 6px; border-top: 1px solid var(--line); padding-top: 10px; }
+      .card-meta div { display: grid; grid-template-columns: 84px 1fr; gap: 8px; align-items: baseline; }
+      dt { color: var(--faint); font-size: 9.5px; }
+      dd { margin: 0; font-size: 14px; }
+
+      /* globe.gl HTML labels */
+      :global(.pin) {
+        position: absolute; left: 0; bottom: 7px; transform: translateX(-50%); pointer-events: none; white-space: nowrap;
+        font: 500 10px/1 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; color: rgb(243 242 240 / 0.62);
+        padding: 4px 6px; border-radius: 5px; background: rgb(11 13 17 / 0.55); border: 1px solid rgb(255 255 255 / 0.08);
+        transition: color 0.3s, border-color 0.3s, background 0.3s;
+      }
+      :global(.pin.is-active) { color: #fff; background: rgb(239 123 95 / 0.9); border-color: transparent; }
+      :global(.pin.is-home) { color: var(--accent); }
+
+      .block { position: relative; z-index: 1; padding: 96px clamp(16px, 2.2vw, 32px) 0; }
+      .block-head { display: grid; grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr); gap: clamp(24px, 3vw, 48px); align-items: end; margin-bottom: 36px; }
+      .block-head .eyebrow { margin: 0 0 8px; }
+      .block h2, .cta h2 { margin: 0; font-size: clamp(32px, 3.6vw, 52px); font-weight: 600; letter-spacing: -0.045em; line-height: 1; max-width: 18ch; }
+
+      .artists { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--line); }
+      .artist { padding: 22px 22px 28px 0; border-right: 1px solid var(--line); }
+      .artist + .artist { padding-left: 22px; }
+      .artist:last-child { border-right: 0; }
+      .artist .label { color: var(--faint); margin: 0 0 26px; }
+      .artist h3 { margin: 0; font-size: 24px; font-weight: 600; letter-spacing: -0.03em; }
+      .artist-style { margin: 4px 0 14px; color: var(--accent); font-size: 14px; }
+      .artist-note { margin: 0; color: var(--muted); font-size: 15px; line-height: 1.55; }
+      .artist-route { margin: 18px 0 0; font-family: var(--mono); font-size: 12px; color: var(--ink); }
+
+      .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+      .steps li { padding: 24px; border-radius: 18px; border: 1px solid var(--line); background: var(--panel); }
+      .step-n { font: 500 12px/1 var(--mono); color: var(--accent); }
+      .steps h3 { margin: 40px 0 10px; font-size: 22px; font-weight: 600; letter-spacing: -0.03em; }
+      .steps p { margin: 0; color: var(--muted); font-size: 15px; line-height: 1.55; }
+
+      .cta {
+        position: relative; z-index: 1; margin: 96px clamp(16px, 2.2vw, 32px) 0; padding: clamp(32px, 5vw, 72px);
+        border-radius: 22px; border: 1px solid var(--line);
+        background: radial-gradient(520px 300px at 88% 0%, rgb(239 123 95 / 0.16), transparent 70%), var(--panel);
+      }
+      .cta h2 { max-width: 20ch; }
+      .cta-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
+      .btn {
+        display: inline-flex; align-items: center; height: 46px; padding: 0 20px; border-radius: 999px;
+        border: 1px solid var(--line-2); text-decoration: none; font-weight: 600; font-size: 15px;
+      }
+      .btn:hover { border-color: var(--ink); }
+      .btn-primary { background: var(--accent); border-color: var(--accent); color: #160b07; }
+      .btn-primary:hover { background: #f4927a; border-color: #f4927a; }
+
+      .foot {
+        display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px;
+        margin: 64px clamp(16px, 2.2vw, 32px) 0; padding: 22px 0 88px; border-top: 1px solid var(--line);
+        color: var(--faint); font-size: 13px;
+      }
+
+      @media (max-width: 1180px) {
+        .bar-meta { display: none; }
+        .stop { grid-template-columns: 28px minmax(0, 1fr) 78px 88px; }
+        .stop-artist { display: none; }
+      }
+      @media (max-width: 900px) {
+        .nav { display: none; }
+        .hero { grid-template-columns: minmax(0, 1fr); grid-template-areas: 'intro' 'stage' 'stops'; grid-template-rows: auto; min-height: 0; padding-top: 24px; gap: 22px; }
+        .stage { height: min(560px, 74svh); min-height: 460px; }
+        .block-head { grid-template-columns: minmax(0, 1fr); gap: 0; }
+        .artists { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .artist:nth-child(2) { border-right: 0; }
+        .artist:nth-child(3) { padding-left: 0; }
+        .artist:nth-child(n + 3) { border-top: 1px solid var(--line); }
+        .steps { grid-template-columns: minmax(0, 1fr); }
+        .steps h3 { margin-top: 20px; }
+      }
+      @media (max-width: 560px) {
+        .bar { gap: 16px; }
+        h1 { font-size: 46px; }
+        .lede { font-size: 15px; margin-top: 14px; }
+        .stage { height: 580px; border-radius: 18px; }
+        .globe-box { inset: 96px 0 112px; }
+        .card .opt { display: none; }
+        .hud-tl { top: 16px; left: 16px; }
+        .hud-tr { top: 18px; right: 16px; }
+        .metric { font-size: 40px; }
+        .sub { font-size: 12px; }
+        .hint { display: none; }
+        .card { left: 12px; bottom: 12px; width: calc(100% - 24px); padding: 14px; }
+        .card-city { font-size: 26px; margin: 8px 0 10px; }
+        .stop { grid-template-columns: 26px minmax(0, 1fr) 70px 84px; gap: 6px; }
+        .artists { grid-template-columns: minmax(0, 1fr); }
+        .artist, .artist + .artist { padding: 22px 0 26px; border-right: 0; border-top: 1px solid var(--line); }
+        .artist:first-child { border-top: 0; }
+        .block { padding-top: 72px; }
+        .cta { margin-top: 72px; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .live { animation: none; }
+        .orbit-dot { display: none; }
+      }
+    </style>
+
+    <script>
+      import Globe from 'globe.gl';
+
+      type Point = { id: string; n: string; city: string; lat: number; lng: number; home?: boolean };
+      type Stop = Point & { country: string; dates: string; artist: string; style: string; host: string; status: string };
+
+      const stage = document.querySelector<HTMLElement>('[data-globe]')!;
+      const mount = stage.querySelector<HTMLElement>('#globe')!;
+      const { home, stops, initial } = JSON.parse(stage.dataset.tour!) as { home: Point; stops: Stop[]; initial: string };
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const shot = new URLSearchParams(location.search).has('shot');
+      const small = matchMedia('(max-width: 560px)').matches;
+      const ACCENT = '#ef7b5f';
+      const ALT = small ? 2.25 : 2.4; // ponytail: fixed altitude keeps the globe the size the orbit ellipse was drawn for
+
+      let active = stops.find((s) => s.id === initial) ?? stops[0];
+
+      const arcs = stops.map((s) => ({ id: s.id, startLat: home.lat, startLng: home.lng, endLat: s.lat, endLng: s.lng }));
+      const labels: Record<string, HTMLElement> = {};
+      const label = (d: object) => {
+        const p = d as Point;
+        const el = document.createElement('div');
+        el.style.cssText = 'position:relative;width:0;height:0';
+        const tag = document.createElement('span');
+        tag.className = `pin${p.home ? ' is-home' : ''}`;
+        tag.textContent = p.home ? 'Berlin · Home' : `${p.n} ${p.city}`;
+        el.append(tag);
+        labels[p.id] = tag;
+        return el;
+      };
+
+      const globe = new Globe(mount, { rendererConfig: { antialias: true, alpha: true }, animateIn: !shot && !reduce })
+        .width(mount.clientWidth)
+        .height(mount.clientHeight)
+        .backgroundColor('rgba(0,0,0,0)')
+        .showAtmosphere(true)
+        .atmosphereColor(ACCENT)
+        .atmosphereAltitude(0.14)
+        .hexPolygonResolution(small ? 2 : 3)
+        .hexPolygonMargin(small ? 0.35 : 0.45)
+        .hexPolygonUseDots(true)
+        .hexPolygonAltitude(0.003)
+        .hexPolygonColor(() => 'rgba(226, 218, 210, 0.5)')
+        .arcsData(arcs)
+        .arcAltitudeAutoScale(0.42)
+        .arcDashLength(0.45)
+        .arcDashGap(0.18)
+        .arcDashInitialGap(() => Math.random())
+        .arcDashAnimateTime(reduce ? 0 : 2600)
+        .pointsData([home, ...stops])
+        .pointAltitude(0.012)
+        .pointRadius((d) => ((d as Point).home ? 0.6 : 0.38))
+        .pointsMerge(false)
+        .ringColor(() => (t: number) => `rgba(239, 123, 95, ${1 - t})`)
+        .ringMaxRadius(5)
+        .ringPropagationSpeed(2.4)
+        .ringRepeatPeriod(1100)
+        .htmlElementsData([home, ...stops])
+        .htmlAltitude(0.015)
+        .htmlElement(label);
+
+      const mat = globe.globeMaterial() as unknown as { color: { set: (c: string) => void }; emissive?: { set: (c: string) => void }; shininess?: number };
+      mat.color.set('#12151c');
+      mat.emissive?.set('#0a0b0f');
+      mat.shininess = 4;
+
+      const controls = globe.controls();
+      controls.enableZoom = false;
+      controls.autoRotate = !reduce && !shot;
+      controls.autoRotateSpeed = 0.3;
+
+      fetch('/skills/globe-gl/countries.geojson')
+        .then((r) => r.json())
+        .then((geo) => globe.hexPolygonsData(geo.features))
+        .catch(() => globe.showGraticules(true)); // no land dots: fall back to a graticule so the sphere still reads
+
+      // Midpoint of home → stop, so the active arc sits in frame (handles the antimeridian).
+      const frame = (s: Stop) => {
+        let d = s.lng - home.lng;
+        if (d > 180) d -= 360;
+        if (d < -180) d += 360;
+        return { lat: (s.lat + home.lat) / 2 - 6, lng: home.lng + d / 2, altitude: ALT };
+      };
+
+      const fields = document.querySelectorAll<HTMLElement>('[data-f]');
+      const buttons = document.querySelectorAll<HTMLButtonElement>('[data-stop]');
+      const statusClass = (s: string) => (s === 'Open' ? 'open' : s === 'Sold out' ? 'out' : 'soon');
+
+      const paint = () => {
+        const on = (d: object) => (d as { id: string }).id === active.id;
+        globe
+          .arcColor((d: object) => (on(d) ? ['rgba(239,123,95,0.35)', ACCENT] : ['rgba(239,123,95,0.05)', 'rgba(239,123,95,0.32)']))
+          .arcStroke((d: object) => (on(d) ? 0.75 : 0.28))
+          .pointColor((d: object) => ((d as Point).home || on(d) ? ACCENT : 'rgba(243,242,240,0.75)'))
+          .ringsData(reduce ? [] : [active, home]);
+        Object.entries(labels).forEach(([id, el]) => el.classList.toggle('is-active', id === active.id));
+        fields.forEach((el) => {
+          const key = el.dataset.f!;
+          const value = key === 'city-short' ? active.city : (active as unknown as Record<string, string>)[key];
+          el.textContent = value;
+          if (key === 'status') el.className = `chip chip-${statusClass(value)}`;
+        });
+        buttons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.stop === active.id)));
+      };
+
+      const select = (id: string, ms = 1400) => {
+        active = stops.find((s) => s.id === id) ?? active;
+        paint();
+        globe.pointOfView(frame(active), reduce ? 0 : ms);
+      };
+
+      // Auto-tour until the visitor takes over.
+      let cycle = 0;
+      const stopCycle = () => window.clearInterval(cycle);
+      if (!reduce && !shot) {
+        cycle = window.setInterval(() => select(stops[(stops.indexOf(active) + 1) % stops.length].id), 6500);
+      }
+
+      buttons.forEach((b) => b.addEventListener('click', () => { stopCycle(); select(b.dataset.stop!); }));
+      stage.addEventListener('pointerdown', stopCycle);
+      stage.addEventListener('keydown', (e) => {
+        const step = { ArrowLeft: [0, -20], ArrowRight: [0, 20], ArrowUp: [12, 0], ArrowDown: [-12, 0] }[e.key];
+        if (!step) return;
+        e.preventDefault();
+        stopCycle();
+        const pov = globe.pointOfView();
+        globe.pointOfView({ lat: Math.max(-70, Math.min(70, pov.lat + step[0])), lng: pov.lng + step[1], altitude: pov.altitude }, reduce ? 0 : 500);
+      });
+
+      select(active.id, 0);
+
+      new ResizeObserver(() => globe.width(mount.clientWidth).height(mount.clientHeight)).observe(mount);
+
+      // Render only while the globe is on screen and the tab is visible.
+      let inView = true;
+      const sync = () => (inView && !document.hidden ? globe.resumeAnimation() : globe.pauseAnimation());
+      new IntersectionObserver(([e]) => { inView = e.isIntersecting; sync(); }).observe(stage);
+      document.addEventListener('visibilitychange', sync);
+    </script>
+  </body>
+</html>

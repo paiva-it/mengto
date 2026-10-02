@@ -1,0 +1,7 @@
+{
+  "title": "Beautiful Shadows",
+  "kind": "section",
+  "category": "Effects & details",
+  "concept": "Ode Clay Studio: a light stone-and-white shop page for a Porto ceramics studio where one Beautiful lg plinth holds a hand-drawn moon jar, Beautiful md popovers and piece cards sit around it, and Beautiful sm carries every pill, input and button.",
+  "notes": "The three presets are used verbatim as Tailwind arbitrary shadows, neutral and never stacked; the only elevation change is piece cards lifting md → lg on hover/focus. Vessels are inline SVG drawn from lathe profiles (no images). Glaze chips are native radios that re-glaze the hero jar. Reduced motion drops the entrance, ping, kiln bar and counter."
+}

@@ -1,0 +1,677 @@
+---
+import '../../styles/global.css';
+import BackPill from '../../components/BackPill.astro';
+
+const press = ['Wheelbase Quarterly', 'KURV', 'Torque & Tide', 'Open Road Review', 'MOTO/NORD'];
+
+const modes = [
+  { id: 'glide', name: 'Glide', range: '212', top: '95', accel: '6.1', note: 'Soft throttle map and full regen. The commute mode — the one that makes Monday feel shorter.' },
+  { id: 'tempo', name: 'Tempo', range: '168', top: '130', accel: '4.2', note: 'Balanced torque for open roads and the long way round, with regen you can feel but never fight.' },
+  { id: 'ascent', name: 'Ascent', range: '124', top: '160', accel: '3.4', note: 'Every newton-metre, all at once. Traction control stays awake; the rider is the one who wakes up.' },
+];
+
+const editions = [
+  { name: 'S1', price: '€11,900', line: '9.6 kWh pack · 168 km Tempo range · 18 min fast charge', cta: 'Reserve S1' },
+  { name: 'S1 Long Range', price: '€13,400', line: '12.8 kWh pack · 224 km Tempo range · heated grips · fog-grey finish', cta: 'Reserve Long Range', featured: true },
+];
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Alda Motors — The Alda S1 Electric Motorcycle</title>
+    <meta name="description" content="Alda S1: a quiet, light electric motorcycle built in Porto for riders who would rather hear the road." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <canvas id="sky" aria-hidden="true"></canvas>
+    <div class="sky-fallback" aria-hidden="true"></div>
+
+    <div class="shell">
+      <span class="rail rail-l" aria-hidden="true"></span>
+      <span class="rail rail-r" aria-hidden="true"></span>
+
+      <!-- HERO -->
+      <header class="hero">
+        <i class="corner tl" aria-hidden="true"></i><i class="corner tr" aria-hidden="true"></i>
+        <nav class="nav" aria-label="Main">
+          <a href="#top" class="brand" id="top" aria-label="Alda Motors home">
+            <span class="brand-mark" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 16 L12 5 L20 16" /><path d="M8 16h8" /></svg>
+            </span>
+            Alda
+          </a>
+          <ul class="nav-links">
+            <li><a href="#ride">The ride</a></li>
+            <li><a href="#modes">Modes</a></li>
+            <li><a href="#reserve">Editions</a></li>
+          </ul>
+          <div class="nav-cta">
+            <a href="#reserve" class="link-quiet">Test ride</a>
+            <a href="#reserve" class="btn-dark btn-sm">Reserve</a>
+          </div>
+        </nav>
+
+        <div class="hero-grid">
+          <div class="hero-copy">
+            <a href="#reserve" class="proof-pill reveal-up" style="--d: .1s">
+              <span class="avatars" aria-hidden="true">
+                <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=64&h=64&fit=crop&crop=faces" alt="" width="24" height="24" />
+                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=64&h=64&fit=crop&crop=faces" alt="" width="24" height="24" />
+                <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=64&h=64&fit=crop&crop=faces" alt="" width="24" height="24" />
+              </span>
+              <span>2,140 riders reserved · first deliveries in March</span>
+            </a>
+
+            <h1 class="headline" aria-label="Ride the quiet between cities.">
+              <span class="w"><span style="--d: .25s">Ride</span></span>
+              <span class="w"><span style="--d: .33s">the</span></span>
+              <span class="w"><em style="--d: .41s">quiet</em></span>
+              <span class="w"><span style="--d: .49s">between</span></span>
+              <span class="w"><span style="--d: .57s">cities.</span></span>
+            </h1>
+
+            <p class="lede reveal-up" style="--d: .75s">
+              The Alda S1 is a 148 kg electric motorcycle designed in Porto. Eighty-five newton-metres the instant
+              you ask, 212 km between plugs, and nothing louder than the wind in your collar.
+            </p>
+
+            <div class="cta-row reveal-up" style="--d: .9s">
+              <a href="#reserve" class="btn-dark">
+                Reserve with €250
+                <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" /></svg>
+              </a>
+              <a href="#ride" class="btn-glass">See how it rides</a>
+            </div>
+          </div>
+
+          <figure class="bike-stage reveal-up" style="--d: .5s" aria-label="Line drawing of the Alda S1 with key figures">
+            <div class="bike-halo" aria-hidden="true"></div>
+            <svg class="bike" viewBox="0 0 620 400" fill="none" aria-hidden="true">
+              <g class="wheel" style="--cx: 150px; --cy: 290px">
+                <circle cx="150" cy="290" r="84" class="tyre" />
+                <circle cx="150" cy="290" r="70" class="rim" />
+                <circle cx="150" cy="290" r="34" class="rotor" />
+                <path d="M150 220v140M80 290h140M101 241l98 98M199 241l-98 98" class="spoke" />
+                <circle cx="150" cy="290" r="7" class="hub" />
+              </g>
+              <g class="wheel" style="--cx: 488px; --cy: 290px">
+                <circle cx="488" cy="290" r="84" class="tyre" />
+                <circle cx="488" cy="290" r="70" class="rim" />
+                <circle cx="488" cy="290" r="34" class="rotor" />
+                <path d="M488 220v140M418 290h140M439 241l98 98M537 241l-98 98" class="spoke" />
+                <circle cx="488" cy="290" r="7" class="hub" />
+              </g>
+              <!-- fenders -->
+              <path d="M70 262 A 86 86 0 0 1 208 222" class="frame thin" />
+              <path d="M420 236 A 86 86 0 0 1 560 240" class="frame thin" />
+              <!-- swingarm + subframe -->
+              <path d="M150 290 L270 262" class="frame" />
+              <path d="M134 160 L240 204" class="frame thin" />
+              <!-- battery body -->
+              <path d="M236 168 H396 Q406 168 404 180 L388 250 Q386 260 374 260 H264 Q250 260 248 250 L232 182 Q230 168 236 168 Z" class="body" />
+              <path d="M254 194 H386 M252 212 H382 M250 230 H378" class="vent" />
+              <!-- seat and tank -->
+              <path d="M116 154 Q126 140 156 138 L258 132 Q266 146 254 152 L134 162 Q118 164 116 154 Z" class="body seat" />
+              <path d="M258 132 Q290 112 344 112 Q390 114 408 146 L402 168 H246 Z" class="body tank" />
+              <!-- fork and bars -->
+              <path d="M488 290 L418 120" class="frame" />
+              <path d="M408 146 L418 120" class="frame thin" />
+              <path d="M410 112 L436 108" class="frame thin" />
+              <path d="M404 102 L456 94" class="frame" />
+              <circle cx="450" cy="150" r="12" class="lamp" />
+              <!-- motor -->
+              <circle cx="278" cy="262" r="20" class="body" />
+              <circle cx="278" cy="262" r="6" class="hub" />
+            </svg>
+
+            <div class="callout c1"><span class="dot"></span><b>212 km</b><small>range in Glide</small></div>
+            <div class="callout c2"><span class="dot"></span><b>3.4 s</b><small>0 – 100 km/h</small></div>
+            <div class="callout c3"><span class="dot"></span><b>62 dB</b><small>at full throttle</small></div>
+          </figure>
+        </div>
+
+        <div class="press reveal-up" style="--d: 1.1s">
+          <span class="press-label">Ridden by</span>
+          <ul>
+            {press.map((p, i) => <li class={`press-${i}`}>{p}</li>)}
+          </ul>
+        </div>
+      </header>
+
+      <!-- CAPABILITIES -->
+      <section class="section" id="ride" aria-labelledby="ride-title">
+        <i class="corner tl" aria-hidden="true"></i><i class="corner tr" aria-hidden="true"></i>
+        <div class="section-head reveal">
+          <span class="eyebrow"><span class="eyebrow-dot"></span>The ride</span>
+          <h2 id="ride-title"><em>Lighter</em> in every sense</h2>
+          <p>Three things we refused to compromise on, and the engineering that made the refusal possible.</p>
+        </div>
+
+        <div class="bento">
+          <article class="card reveal">
+            <div class="card-art">
+              <svg viewBox="0 0 200 200" class="range-ring" aria-hidden="true">
+                <circle cx="100" cy="100" r="74" class="ring-track" />
+                <circle cx="100" cy="100" r="74" class="ring-fill" pathLength="100" />
+              </svg>
+              <div class="ring-label"><b>212</b><span>km</span></div>
+            </div>
+            <h3>Range that outlasts the day</h3>
+            <p>A structural 9.6 kWh pack doubles as the frame spine, so the weight sits low and the kilometres go further than the map.</p>
+          </article>
+
+          <article class="card reveal" style="--d: .1s">
+            <div class="card-art">
+              <span class="chip">
+                <svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M2 8c2-4 4 4 6 0s4 4 6 0" /></svg>
+                Sound study
+              </span>
+              <div class="wave" aria-hidden="true">
+                {[22, 38, 16, 54, 30, 66, 44, 70, 26, 50, 34, 18, 40].map((h, i) => <i style={`--h:${h}px;--i:${i}`}></i>)}
+              </div>
+              <div class="readout"><b>62</b><span>dB</span><small>full throttle, 7 m</small></div>
+            </div>
+            <h3>Quiet enough to talk</h3>
+            <p>A helical-gear belt drive and a sealed axial-flux motor. Conversation at the lights is possible again; birdsong on the coast road, too.</p>
+          </article>
+
+          <article class="card reveal" style="--d: .2s">
+            <div class="card-art">
+              <div class="charge-sheet">
+                <div class="charge-top"><span>Charging · <em>Café Majestic</em></span><span>DC 50 kW</span></div>
+                <div class="charge-bar"><span></span></div>
+                <div class="charge-bottom"><span>10%</span><b>18 min</b><span>80%</span></div>
+              </div>
+            </div>
+            <h3>Charge over a coffee</h3>
+            <p>CCS fast charging from 10 to 80 percent in eighteen minutes, or a standard plug overnight. The pack lifts out for the flat on the fourth floor.</p>
+          </article>
+        </div>
+      </section>
+
+      <!-- MODES -->
+      <section class="section" id="modes" aria-labelledby="modes-title">
+        <i class="corner tl" aria-hidden="true"></i><i class="corner tr" aria-hidden="true"></i>
+        <div class="modes reveal">
+          <div class="modes-copy">
+            <span class="eyebrow"><span class="eyebrow-dot"></span>Ride modes</span>
+            <h2 id="modes-title">One motorcycle, <em>three</em> temperaments</h2>
+            <div class="seg" role="tablist" aria-label="Ride mode">
+              {modes.map((m, i) => (
+                <button type="button" role="tab" id={`tab-${m.id}`} aria-selected={i === 0 ? 'true' : 'false'} aria-controls="mode-panel" tabindex={i === 0 ? 0 : -1} data-mode={m.id}>{m.name}</button>
+              ))}
+            </div>
+            <p class="mode-note" id="mode-note">{modes[0].note}</p>
+          </div>
+          <div class="mode-panel" id="mode-panel" role="tabpanel" aria-labelledby="tab-glide">
+            <div class="stat"><span>Range</span><b id="m-range">{modes[0].range}</b><small>km</small></div>
+            <div class="stat"><span>Top speed</span><b id="m-top">{modes[0].top}</b><small>km/h</small></div>
+            <div class="stat"><span>0 – 100</span><b id="m-accel">{modes[0].accel}</b><small>s</small></div>
+          </div>
+        </div>
+        <script type="application/json" id="modes-data" set:html={JSON.stringify(modes)} />
+      </section>
+
+      <!-- QUOTE -->
+      <section class="section quote-wrap" aria-label="Rider story">
+        <i class="corner tl" aria-hidden="true"></i><i class="corner tr" aria-hidden="true"></i>
+        <figure class="quote reveal">
+          <blockquote>
+            “I rode from Porto to Viana do Castelo along the coast at dawn and heard the sea the whole way.
+            Twenty years on petrol bikes and I had <em>never</em> heard the sea.”
+          </blockquote>
+          <figcaption>
+            <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=96&h=96&fit=crop&crop=faces" alt="" width="40" height="40" />
+            <span><b>Tiago Esteves</b> Prototype rider no. 14 · 6,200 km on the S1</span>
+          </figcaption>
+        </figure>
+      </section>
+
+      <!-- RESERVE -->
+      <section class="section" id="reserve" aria-labelledby="reserve-title">
+        <i class="corner tl" aria-hidden="true"></i><i class="corner tr" aria-hidden="true"></i>
+        <div class="section-head reveal">
+          <span class="eyebrow"><span class="eyebrow-dot"></span>Editions</span>
+          <h2 id="reserve-title">Reserve your <em>S1</em></h2>
+          <p>€250 holds your place in the build queue and is refundable until the day we call you with a delivery date.</p>
+        </div>
+        <div class="editions">
+          {editions.map((e, i) => (
+            <article class={`edition reveal ${e.featured ? 'featured' : ''}`} style={`--d:${i * 0.1}s`}>
+              {e.featured && <span class="chip">Most reserved</span>}
+              <h3>{e.name}</h3>
+              <p class="price">{e.price}<small> before incentives</small></p>
+              <p class="edition-line">{e.line}</p>
+              <a href="#reserve" class={e.featured ? 'btn-dark' : 'btn-glass'}>{e.cta}</a>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <footer class="foot">
+        <span>Alda Motors · Rua do Heroísmo 212, Porto</span>
+        <span>Fictional brand, built as a design study.</span>
+      </footer>
+    </div>
+
+    <BackPill />
+
+    <style is:global>
+      :root {
+        --sky-top: #0c2a6b;
+        --sky-mid: #2c62b8;
+        --sky-low: #8fb6e6;
+        --ink: #0b1630;
+        --line: rgb(255 255 255 / 0.16);
+        --glass: rgb(255 255 255 / 0.08);
+        --glass-strong: rgb(255 255 255 / 0.14);
+        --text: #fff;
+        --text-soft: rgb(255 255 255 / 0.74);
+        --text-mute: rgb(255 255 255 / 0.55);
+        --sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+        --serif: 'Instrument Serif', Georgia, serif;
+      }
+      html { background: var(--sky-top); scroll-behavior: smooth; }
+      body {
+        margin: 0; color: var(--text); font-family: var(--sans); font-weight: 300;
+        background: linear-gradient(180deg, var(--sky-top), var(--sky-mid) 55%, var(--sky-low));
+        -webkit-font-smoothing: antialiased; overflow-x: hidden;
+      }
+      #sky, .sky-fallback { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+      .sky-fallback {
+        z-index: -1;
+        background:
+          radial-gradient(60% 40% at 20% 85%, rgb(255 255 255 / .35), transparent 70%),
+          radial-gradient(50% 35% at 80% 70%, rgb(255 255 255 / .25), transparent 70%),
+          linear-gradient(180deg, var(--sky-top), var(--sky-mid) 55%, var(--sky-low));
+      }
+      a { color: inherit; text-decoration: none; }
+      em { font-family: var(--serif); font-style: italic; font-weight: 400; letter-spacing: -0.01em; }
+      :focus-visible { outline: 2px solid #fff; outline-offset: 3px; border-radius: 999px; }
+
+      /* framing */
+      .shell { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: 0 48px; }
+      .rail { position: absolute; top: 0; bottom: 0; width: 1px; background: linear-gradient(180deg, var(--line), rgb(255 255 255 / .1) 60%, transparent); }
+      .rail-l { left: 0; } .rail-r { right: 0; }
+      .corner { position: absolute; width: 7px; height: 7px; background: rgb(255 255 255 / .7); top: -3px; }
+      .corner.tl { left: -51px; } .corner.tr { right: -51px; }
+      .hero, .section { position: relative; }
+      .section { padding: 112px 0; border-top: 1px solid rgb(255 255 255 / .1); }
+
+      /* nav */
+      .nav { display: flex; align-items: center; justify-content: space-between; padding: 26px 0; gap: 24px; }
+      .brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 500; font-size: 19px; letter-spacing: -0.01em; }
+      .brand-mark { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 11px; background: var(--glass); border: 1px solid rgb(255 255 255 / .22); box-shadow: inset 0 1px 0 rgb(255 255 255 / .2); }
+      .nav-links { display: flex; gap: 32px; list-style: none; margin: 0; padding: 0; font-size: 14px; color: var(--text-soft); }
+      .nav-links a:hover, .link-quiet:hover { color: #fff; }
+      .nav-cta { display: flex; align-items: center; gap: 20px; font-size: 14px; }
+      .link-quiet { color: var(--text-soft); }
+
+      /* buttons */
+      .btn-dark, .btn-glass {
+        display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+        height: 48px; padding: 0 24px; border-radius: 999px; font-size: 15px; font-weight: 400;
+        transition: transform .4s cubic-bezier(.2,.8,.2,1), box-shadow .4s, background .4s;
+      }
+      .btn-sm { height: 38px; padding: 0 18px; font-size: 14px; }
+      .btn-dark {
+        background: linear-gradient(180deg, #1a2747, var(--ink)); color: #fff;
+        box-shadow: 0 12px 30px -10px rgb(5 14 40 / .7), inset 0 1px 0 rgb(255 255 255 / .14);
+      }
+      .btn-glass {
+        position: relative; background: rgb(255 255 255 / .1); color: #fff;
+        backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+        box-shadow: inset 0 0 0 1px rgb(255 255 255 / .28), inset 0 1px 0 rgb(255 255 255 / .35);
+      }
+      .btn-dark:hover, .btn-glass:hover { transform: scale(1.03); }
+      .btn-dark:hover { box-shadow: 0 18px 40px -12px rgb(5 14 40 / .8), inset 0 1px 0 rgb(255 255 255 / .18); }
+      .btn-glass:hover { background: rgb(255 255 255 / .16); }
+
+      /* hero */
+      .hero { min-height: 100vh; min-height: 100svh; display: flex; flex-direction: column; }
+      .hero-grid { flex: 1; display: grid; grid-template-columns: 1.05fr 1fr; align-items: center; gap: 40px; padding: 24px 0 32px; }
+      .proof-pill {
+        display: inline-flex; align-items: center; gap: 12px; padding: 6px 16px 6px 6px; border-radius: 999px;
+        font-size: 13px; color: var(--text-soft); background: rgb(255 255 255 / .07);
+        border: 1px solid transparent;
+        background-image: linear-gradient(rgb(28 70 150 / .55), rgb(28 70 150 / .55)), linear-gradient(120deg, rgb(255 255 255 / .55), rgb(255 255 255 / .08) 50%, rgb(255 255 255 / .35));
+        background-origin: border-box; background-clip: padding-box, border-box;
+        backdrop-filter: blur(10px);
+      }
+      .avatars { display: flex; }
+      .avatars img { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; border: 1.5px solid #3d72c4; margin-left: -7px; background: #6f9bd8; }
+      .avatars img:first-child { margin-left: 0; }
+      .headline {
+        margin: 28px 0 24px; font-weight: 300; font-size: clamp(48px, 6.6vw, 92px); line-height: .98; letter-spacing: -0.045em;
+        text-wrap: balance;
+      }
+      .headline .w { margin-right: .22em; display: inline-block; overflow: hidden; padding-bottom: .08em; margin-bottom: -.08em; vertical-align: top; }
+      .headline .w > * { display: inline-block; animation: rise 1.1s cubic-bezier(.2,.8,.2,1) both; animation-delay: var(--d); }
+      .headline em { font-size: 1.08em; letter-spacing: -0.02em; }
+      .lede { max-width: 470px; font-size: 17px; line-height: 1.65; color: var(--text-soft); margin: 0; }
+      .cta-row { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 36px; }
+
+      .bike-stage { position: relative; margin: 0; aspect-ratio: 620 / 400; animation-name: rise-soft; }
+      .bike-halo { position: absolute; inset: -12% 0; background: radial-gradient(50% 50% at 50% 55%, rgb(255 255 255 / .22), transparent 70%); filter: blur(10px); }
+      .bike { position: relative; width: 100%; height: auto; overflow: visible; animation: float 9s ease-in-out infinite; }
+      .bike .tyre { stroke: #fff; stroke-width: 2.2; fill: rgb(255 255 255 / .04); }
+      .bike .rim { stroke: rgb(255 255 255 / .45); stroke-width: 1; }
+      .bike .rotor { stroke: rgb(255 255 255 / .6); stroke-width: 1.2; stroke-dasharray: 3 4; }
+      .bike .spoke { stroke: rgb(255 255 255 / .28); stroke-width: 1; }
+      .bike .hub { fill: #fff; }
+      .bike .frame { stroke: #fff; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+      .bike .thin { stroke-width: 1.2; stroke: rgb(255 255 255 / .7); }
+      .bike .body { stroke: #fff; stroke-width: 1.6; fill: rgb(255 255 255 / .1); }
+      .bike .tank { fill: rgb(255 255 255 / .2); }
+      .bike .seat { fill: rgb(11 22 48 / .35); }
+      .bike .vent { stroke: rgb(255 255 255 / .35); stroke-width: 1; }
+      .bike .lamp { stroke: #fff; stroke-width: 1.6; fill: rgb(255 255 255 / .55); filter: drop-shadow(0 0 10px #fff); }
+      .bike .wheel { transform-origin: var(--cx) var(--cy); transform-box: view-box; animation: spin 14s linear infinite; }
+
+      .callout {
+        position: absolute; display: grid; grid-template-columns: auto auto; column-gap: 10px; align-items: center;
+        padding: 10px 14px; border-radius: 14px; background: rgb(255 255 255 / .1);
+        border: 1px solid rgb(255 255 255 / .22); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+        box-shadow: 0 10px 30px -14px rgb(8 25 70 / .6);
+      }
+      .callout .dot { grid-row: span 2; width: 7px; height: 7px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 4px rgb(255 255 255 / .18); }
+      .callout b { font-weight: 400; font-size: 17px; letter-spacing: -0.01em; }
+      .callout small { font-size: 11px; color: var(--text-mute); letter-spacing: .02em; }
+      .c1 { left: 40%; bottom: -6%; } .c2 { right: 0; top: 2%; } .c3 { left: 2%; top: 6%; }
+
+      .press { display: flex; align-items: center; gap: 32px; padding: 24px 0 36px; border-top: 1px solid rgb(255 255 255 / .12); }
+      .press-label { font-size: 12px; text-transform: uppercase; letter-spacing: .14em; color: var(--text-soft); white-space: nowrap; }
+      .press ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 14px 32px; flex: 1; color: rgb(255 255 255 / .9); text-shadow: 0 1px 12px rgb(20 60 140 / .35); }
+      .press-0 { font-weight: 500; letter-spacing: -0.02em; font-size: 16px; }
+      .press-1 { font-weight: 500; letter-spacing: .32em; font-size: 14px; }
+      .press-2 { font-family: var(--serif); font-style: italic; font-size: 20px; }
+      .press-3 { font-weight: 300; font-size: 15px; letter-spacing: .02em; }
+      .press-4 { font-weight: 500; letter-spacing: .14em; font-size: 14px; }
+
+      /* section heads */
+      .eyebrow {
+        display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: 999px;
+        font-size: 12px; text-transform: uppercase; letter-spacing: .12em; color: var(--text-soft);
+        background: rgb(255 255 255 / .07); border: 1px solid rgb(255 255 255 / .2);
+      }
+      .eyebrow-dot { width: 6px; height: 6px; border-radius: 50%; background: #cfe2ff; box-shadow: 0 0 8px #cfe2ff; }
+      .section-head { max-width: 640px; margin-bottom: 56px; }
+      h2 { font-weight: 300; font-size: clamp(36px, 4.6vw, 60px); line-height: 1.04; letter-spacing: -0.04em; margin: 22px 0 16px; }
+      h2 em { font-size: 1.06em; }
+      .section-head p { color: var(--text-soft); font-size: 17px; line-height: 1.6; margin: 0; }
+
+      /* bento */
+      .bento { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+      .card {
+        padding: 8px 8px 28px; border-radius: 26px; background: var(--glass);
+        border: 1px solid rgb(255 255 255 / .18); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+        box-shadow: inset 0 1px 0 rgb(255 255 255 / .18), 0 30px 60px -40px rgb(6 20 60 / .7);
+      }
+      .card h3 { margin: 26px 20px 10px; font-weight: 400; font-size: 20px; letter-spacing: -0.01em; }
+      .card p { margin: 0 20px; color: var(--text-soft); font-size: 15px; line-height: 1.6; }
+      .card-art {
+        position: relative; height: 240px; border-radius: 20px; display: grid; place-items: center; overflow: hidden;
+        background: linear-gradient(180deg, rgb(255 255 255 / .1), rgb(255 255 255 / .02));
+        border: 1px solid rgb(255 255 255 / .1);
+      }
+      .range-ring { width: 168px; height: 168px; transform: rotate(-90deg); }
+      .range-ring circle { fill: none; stroke-width: 6; }
+      .ring-track { stroke: rgb(255 255 255 / .14); stroke-dasharray: 2 4; stroke-width: 10 !important; }
+      .ring-fill { stroke: #fff; stroke-linecap: round; stroke-dasharray: 84 100; }
+      .is-in .ring-fill { animation: ring 2.4s cubic-bezier(.2,.8,.2,1) both; }
+      .ring-label { position: absolute; display: grid; place-items: center; }
+      .ring-label b { font-weight: 300; font-size: 44px; letter-spacing: -0.04em; line-height: 1; }
+      .ring-label span { font-size: 12px; color: var(--text-mute); letter-spacing: .12em; text-transform: uppercase; }
+
+      .chip {
+        display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px;
+        font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: #fff;
+        background: rgb(255 255 255 / .12); border: 1px solid rgb(255 255 255 / .28);
+      }
+      .card-art .chip { position: absolute; top: 18px; }
+      .wave { display: flex; align-items: center; gap: 6px; height: 70px; }
+      .wave i { width: 6px; border-radius: 6px; background: linear-gradient(180deg, #fff, rgb(255 255 255 / .5)); height: var(--h); animation: wave 1.8s ease-in-out infinite; animation-delay: calc(var(--i) * -0.14s); }
+      .readout { position: absolute; bottom: 18px; display: flex; align-items: baseline; gap: 4px; padding: 6px 14px; border-radius: 12px; background: rgb(255 255 255 / .08); border: 1px solid rgb(255 255 255 / .2); }
+      .readout b { font-weight: 400; font-size: 22px; } .readout span { font-size: 12px; color: var(--text-soft); }
+      .readout small { margin-left: 10px; font-size: 11px; color: var(--text-mute); }
+
+      .charge-sheet { width: 78%; padding: 18px; border-radius: 16px; background: rgb(255 255 255 / .12); border: 1px solid rgb(255 255 255 / .3); box-shadow: 0 20px 40px -24px rgb(6 20 60 / .8); }
+      .charge-top { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-soft); gap: 8px; }
+      .charge-top em { font-size: 14px; color: #fff; }
+      .charge-bar { height: 8px; margin: 18px 0 12px; border-radius: 8px; background: rgb(255 255 255 / .14); overflow: hidden; }
+      .charge-bar span { display: block; height: 100%; width: 80%; margin-left: 0; border-radius: 8px; background: linear-gradient(90deg, rgb(255 255 255 / .35) 0 12.5%, #fff); transform-origin: 12.5% 50%; }
+      .is-in .charge-bar span { animation: charge 3.6s cubic-bezier(.4,0,.2,1) infinite; }
+      .charge-bottom { display: flex; justify-content: space-between; align-items: baseline; font-size: 11px; color: var(--text-mute); }
+      .charge-bottom b { font-weight: 400; font-size: 20px; color: #fff; }
+
+      /* modes */
+      .modes { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: center; }
+      .seg { display: inline-flex; padding: 5px; gap: 4px; border-radius: 999px; background: rgb(255 255 255 / .08); border: 1px solid rgb(255 255 255 / .2); margin: 12px 0 24px; }
+      .seg button {
+        appearance: none; border: 0; cursor: pointer; font: 400 14px var(--sans); color: var(--text-soft);
+        padding: 10px 22px; border-radius: 999px; background: transparent; transition: background .35s, color .35s, box-shadow .35s;
+      }
+      .seg button:hover { color: #fff; }
+      .seg button[aria-selected='true'] { background: #fff; color: var(--ink); box-shadow: 0 8px 20px -8px rgb(6 20 60 / .6); }
+      .mode-note { color: var(--text-soft); font-size: 16px; line-height: 1.65; max-width: 440px; margin: 0; min-height: 3.3em; }
+      .mode-panel {
+        display: grid; grid-template-columns: repeat(3, 1fr); border-radius: 26px; overflow: hidden;
+        background: var(--glass); border: 1px solid rgb(255 255 255 / .18); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      }
+      .stat { padding: 40px 24px; display: grid; gap: 6px; }
+      .stat + .stat { border-left: 1px solid rgb(255 255 255 / .14); }
+      .stat span { font-size: 12px; text-transform: uppercase; letter-spacing: .12em; color: var(--text-mute); }
+      .stat b { font-weight: 200; font-size: clamp(44px, 5vw, 68px); letter-spacing: -0.05em; line-height: 1; transition: opacity .3s, transform .3s; }
+      .stat small { font-size: 13px; color: var(--text-soft); }
+      .stat b.swap { opacity: 0; transform: translateY(8px); }
+
+      /* quote */
+      .quote { margin: 0 auto; max-width: 900px; text-align: center; }
+      .quote blockquote { margin: 0; font-weight: 300; font-size: clamp(26px, 3.2vw, 40px); line-height: 1.3; letter-spacing: -0.025em; text-wrap: balance; }
+      .quote em { font-size: 1.1em; }
+      .quote figcaption { display: inline-flex; align-items: center; gap: 14px; margin-top: 36px; text-align: left; font-size: 14px; color: var(--text-soft); }
+      .quote figcaption img { border-radius: 50%; object-fit: cover; border: 1px solid rgb(255 255 255 / .4); background: #6f9bd8; }
+      .quote figcaption b { display: block; color: #fff; font-weight: 400; }
+
+      /* editions */
+      .editions { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+      .edition {
+        position: relative; padding: 36px; border-radius: 26px; display: flex; flex-direction: column; align-items: flex-start;
+        background: var(--glass); border: 1px solid rgb(255 255 255 / .18); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      }
+      .edition.featured { background: var(--glass-strong); border-color: rgb(255 255 255 / .34); box-shadow: 0 40px 80px -40px rgb(6 20 60 / .8), inset 0 1px 0 rgb(255 255 255 / .3); }
+      .edition .chip { position: absolute; top: 36px; right: 36px; }
+      .edition h3 { margin: 0; font-weight: 400; font-size: 22px; }
+      .price { margin: 18px 0 8px; font-weight: 200; font-size: 52px; letter-spacing: -0.04em; }
+      .price small { font-size: 14px; font-weight: 300; letter-spacing: 0; color: var(--text-mute); }
+      .edition-line { margin: 0 0 32px; color: var(--text-soft); font-size: 15px; line-height: 1.6; flex: 1; }
+
+      .foot { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding: 32px 0 80px; border-top: 1px solid rgb(255 255 255 / .14); font-size: 13px; color: rgb(255 255 255 / .75); }
+
+      /* motion */
+      .reveal-up { animation: rise-soft 1.2s cubic-bezier(.2,.8,.2,1) both; animation-delay: var(--d, 0s); }
+      .reveal { opacity: 0; transform: translateY(24px); transition: opacity 1s cubic-bezier(.2,.8,.2,1), transform 1s cubic-bezier(.2,.8,.2,1); transition-delay: var(--d, 0s); }
+      .reveal.is-in { opacity: 1; transform: none; }
+      @keyframes rise { from { transform: translateY(105%); } to { transform: none; } }
+      @keyframes rise-soft { from { opacity: 0; transform: translateY(18px); filter: blur(6px); } to { opacity: 1; transform: none; filter: none; } }
+      @keyframes float { 50% { transform: translateY(-8px); } }
+      @keyframes spin { to { transform: rotate(360deg); } }
+      @keyframes wave { 0%, 100% { transform: scaleY(.4); opacity: .6; } 50% { transform: none; opacity: 1; } }
+      @keyframes ring { from { stroke-dasharray: 0 100; } }
+      @keyframes charge { 0% { transform: scaleX(0.16); } 70%, 100% { transform: scaleX(1); } }
+
+      @media (max-width: 1024px) {
+        .nav-links { display: none; }
+        .hero-grid { grid-template-columns: 1fr; gap: 56px; padding-top: 32px; }
+        .bike-stage { max-width: 620px; width: 100%; margin: 0 auto; }
+        .bento { grid-template-columns: 1fr 1fr; }
+        .bento .card:last-child { grid-column: span 2; }
+        .modes { grid-template-columns: 1fr; gap: 40px; }
+      }
+      @media (max-width: 720px) {
+        .shell { margin: 0 12px; padding: 0 16px; }
+        .corner.tl { left: -19px; } .corner.tr { right: -19px; }
+        .rail { opacity: .7; }
+        .link-quiet { display: none; }
+        .section { padding: 80px 0; }
+        .hero-grid { padding: 16px 0 28px; gap: 48px; }
+        .proof-pill { font-size: 12px; }
+        .headline { margin: 22px 0 18px; }
+        .lede { font-size: 16px; }
+        .cta-row .btn-dark, .cta-row .btn-glass { flex: 1 1 100%; }
+        .callout { padding: 7px 10px; border-radius: 11px; column-gap: 8px; }
+        .callout b { font-size: 14px; } .callout small { font-size: 10px; }
+        .c2 { right: 0; top: -10%; } .c3 { left: 0; top: -6%; } .c1 { left: 34%; bottom: -10%; }
+        .press { flex-direction: column; align-items: flex-start; gap: 16px; }
+        .press ul { justify-content: flex-start; gap: 12px 24px; }
+        .bento, .editions { grid-template-columns: 1fr; }
+        .bento .card:last-child { grid-column: auto; }
+        .card-art { height: 210px; }
+        .stat { padding: 28px 14px; }
+        .stat b { font-size: 40px; }
+        .seg button { padding: 10px 18px; }
+        .edition { padding: 28px 24px; }
+        .edition .chip { position: static; margin-bottom: 16px; }
+        .price { font-size: 44px; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after { animation-duration: 0.001s !important; animation-iteration-count: 1 !important; animation-delay: 0s !important; transition-duration: 0.001s !important; }
+        .reveal { opacity: 1; transform: none; }
+        html { scroll-behavior: auto; }
+      }
+    </style>
+
+    <script>
+      // Sky: vertical blue gradient + soft drifting cloud masses on a low-res 2D canvas.
+      const canvas = document.getElementById('sky') as HTMLCanvasElement;
+      const ctx = canvas.getContext('2d');
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      type Cloud = { x: number; y: number; r: number; a: number; v: number; sy: number; ph: number };
+      let clouds: Cloud[] = [];
+      let w = 0, h = 0;
+      const SCALE = 0.5; // ponytail: half-res canvas, CSS upscales — clouds are blurry by design.
+
+      const seed = () => {
+        const n = innerWidth < 720 ? 16 : 26;
+        clouds = Array.from({ length: n }, (_, i) => {
+          const low = i / n; // more and bigger clouds toward the bottom
+          return {
+            x: Math.random() * 1.4 - 0.2,
+            y: 0.25 + Math.pow(low, 0.7) * 0.85 + (Math.random() - 0.5) * 0.15,
+            r: 0.12 + Math.random() * 0.2 + low * 0.12,
+            a: 0.07 + low * 0.14 + Math.random() * 0.05,
+            v: (0.004 + Math.random() * 0.008) * (Math.random() < 0.5 ? 1 : 0.6),
+            sy: 0.55 + Math.random() * 0.25,
+            ph: Math.random() * Math.PI * 2,
+          };
+        });
+      };
+
+      const resize = () => {
+        w = canvas.width = Math.round(innerWidth * SCALE);
+        h = canvas.height = Math.round(innerHeight * SCALE);
+      };
+
+      const draw = (t: number) => {
+        if (!ctx) return;
+        const g = ctx.createLinearGradient(0, 0, 0, h);
+        g.addColorStop(0, '#0b2766');
+        g.addColorStop(0.45, '#2558ad');
+        g.addColorStop(0.8, '#4f86cf');
+        g.addColorStop(1, '#86b2e6');
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.fillStyle = g;
+        ctx.fillRect(0, 0, w, h);
+
+        // a soft sun-glow from the upper right
+        const sun = ctx.createRadialGradient(w * 0.78, h * 0.05, 0, w * 0.78, h * 0.05, Math.max(w, h) * 0.6);
+        sun.addColorStop(0, 'rgba(190,220,255,0.35)');
+        sun.addColorStop(1, 'rgba(190,220,255,0)');
+        ctx.fillStyle = sun;
+        ctx.fillRect(0, 0, w, h);
+
+        ctx.globalCompositeOperation = 'screen';
+        const s = Math.max(w, h);
+        for (const c of clouds) {
+          const x = (((c.x + t * c.v) % 1.6) + 1.6) % 1.6 - 0.3;
+          const y = c.y + Math.sin(t * 0.15 + c.ph) * 0.01;
+          const r = c.r * s;
+          ctx.save();
+          ctx.translate(x * w, y * h);
+          ctx.scale(1, c.sy);
+          const cg = ctx.createRadialGradient(0, 0, 0, 0, 0, r);
+          cg.addColorStop(0, `rgba(235,244,255,${c.a})`);
+          cg.addColorStop(0.5, `rgba(220,235,255,${c.a * 0.45})`);
+          cg.addColorStop(1, 'rgba(220,235,255,0)');
+          ctx.fillStyle = cg;
+          ctx.beginPath();
+          ctx.arc(0, 0, r, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+      };
+
+      let raf = 0;
+      const start = performance.now();
+      const loop = (now: number) => {
+        draw((now - start) / 1000 + 40);
+        raf = requestAnimationFrame(loop);
+      };
+      const run = () => {
+        cancelAnimationFrame(raf);
+        if (reduce) draw(40);
+        else raf = requestAnimationFrame(loop);
+      };
+
+      resize();
+      seed();
+      run();
+      addEventListener('resize', () => { resize(); if (reduce) draw(40); });
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) cancelAnimationFrame(raf);
+        else run();
+      });
+
+      // Scroll reveals.
+      const io = new IntersectionObserver((entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); }
+        }
+      }, { threshold: 0.15 });
+      document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+
+      // Ride-mode tabs.
+      type Mode = { id: string; name: string; range: string; top: string; accel: string; note: string };
+      const modes: Mode[] = JSON.parse(document.getElementById('modes-data')!.textContent || '[]');
+      const tabs = [...document.querySelectorAll<HTMLButtonElement>('.seg button')];
+      const panel = document.getElementById('mode-panel')!;
+      const note = document.getElementById('mode-note')!;
+      const fields = { range: 'm-range', top: 'm-top', accel: 'm-accel' } as const;
+
+      const select = (i: number, focus = false) => {
+        const m = modes[i];
+        tabs.forEach((t, j) => { t.setAttribute('aria-selected', String(i === j)); t.tabIndex = i === j ? 0 : -1; });
+        if (focus) tabs[i].focus();
+        panel.setAttribute('aria-labelledby', tabs[i].id);
+        note.textContent = m.note;
+        for (const [k, id] of Object.entries(fields)) {
+          const el = document.getElementById(id)!;
+          el.classList.add('swap');
+          setTimeout(() => { el.textContent = m[k as keyof typeof fields]; el.classList.remove('swap'); }, reduce ? 0 : 180);
+        }
+      };
+      tabs.forEach((t, i) => {
+        t.addEventListener('click', () => select(i));
+        t.addEventListener('keydown', (e) => {
+          const d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+          if (d) { e.preventDefault(); select((i + d + tabs.length) % tabs.length, true); }
+        });
+      });
+    </script>
+  </body>
+</html>

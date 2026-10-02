@@ -1,0 +1,7 @@
+{
+  "title": "CSS Alpha Masking",
+  "kind": "section",
+  "category": "Effects & details",
+  "concept": "Halden Glasshouse, a fictional Victorian botanical conservatory: one linear-gradient alpha mask (mask-image + -webkit-mask-image) softens a large canopy surface, a humidity metric card and a scrolling zone picker, with a live inspector for fade depth, direction and strength, then a mist-faded specimen register and an edge-faded garden walk.",
+  "notes": "Pure CSS masks; fade depth and edge colour are @property-registered custom properties so the inspector eases between values, and the live snippet below mirrors them. Reduced motion stops the register, flowering list and walk marquees. Photos are Unsplash, self-hosted."
+}

@@ -1,0 +1,7 @@
+{
+  "title": "Interactive Particle Trail",
+  "kind": "section",
+  "category": "Effects & details",
+  "concept": "Mill & Morrow, a fictional neighbourhood bakehouse on Alder Row: a procedural three-strand braided loaf lies on a rye-stone bench, and the pointer lifts discrete flour grains along its path — emitted every 7 units of travel, never by the clock — with a 'Dust the bench' burst button and a pale 'this week on the bench' menu below.",
+  "notes": "Three.js: one raycast z=0 plane mapped 1 unit = 1 CSS px, distance-sampled emission (7u spacing, 14/frame cap, 55 ms idle trickle), fixed 620-point ring with 1.6 s flight integrated in the vertex shader, one additive THREE.Points draw call, uploads only after respawns. Stale point reset on leave/miss/pointercancel. A scripted baker's-hand sweep keeps the trail alive until a real pointer arrives. Reduced motion (or ?reduced=1) renders a seeded still trail; the button swaps in a denser still. Touch draws on horizontal drags (touch-action: pan-y keeps vertical scroll). Bread photo from Unsplash."
+}

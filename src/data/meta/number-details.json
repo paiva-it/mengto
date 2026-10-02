@@ -1,0 +1,7 @@
+{
+  "title": "Number Details",
+  "kind": "section",
+  "category": "Effects & details",
+  "concept": "Static House, a fictional slow-audio podcast network on warm paper, where one quiet two-digit mono marker style (01, 02, 03) sits in the same places throughout: a ruled section gutter, the corners of the show cards, a process timeline rail and beside each episode title.",
+  "notes": "No dependencies beyond Google Fonts (Bricolage Grotesque + IBM Plex Mono). Show covers are CSS-only patterns. Numbers are aria-hidden decoration over semantic <ol> lists and lift to full ink on hover/playing. Play buttons only toggle a playing state (no audio). Reveal-on-scroll via IntersectionObserver; reduced motion shows everything static and stops the on-air bars."
+}

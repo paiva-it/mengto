@@ -1,0 +1,624 @@
+---
+import '../../styles/global.css';
+import BackPill from '../../components/BackPill.astro';
+
+// Procedural topographic contours of the Kessa summit, deterministic at build time.
+const CX = 770;
+const CY = 205;
+const RINGS = 24;
+const ring = (i: number) => {
+  const t = (i + 1) / RINGS;
+  const R = 16 + Math.pow(t, 1.35) * 640;
+  const wob = 0.025 + t * 0.11;
+  const pts: string[] = [];
+  for (let k = 0; k <= 140; k++) {
+    const a = (k / 140) * Math.PI * 2;
+    const r =
+      R *
+      (1 +
+        wob * Math.sin(2 * a + 0.6 + i * 0.13) +
+        wob * 0.7 * Math.sin(3 * a + 2.1 - i * 0.09) +
+        wob * 0.45 * Math.sin(5 * a + 0.4 + i * 0.21) +
+        wob * 0.25 * Math.sin(9 * a + i * 0.4));
+    pts.push(`${(CX + Math.cos(a) * r * 1.22).toFixed(1)},${(CY + Math.sin(a) * r * 0.86).toFixed(1)}`);
+  }
+  return { d: `M${pts.join('L')}Z`, major: i % 5 === 4, crater: i < 2 };
+};
+const contours = Array.from({ length: RINGS }, (_, i) => ring(i));
+
+const stations = [
+  { id: 'KR-01', x: 735, y: 180, live: true },
+  { id: 'KR-04', x: 905, y: 128 },
+  { id: 'KR-07', x: 640, y: 262 },
+  { id: 'KR-11', x: 975, y: 238 },
+  { id: 'KR-16', x: 590, y: 118 },
+];
+
+const metrics = [
+  ['Tremor RSAM', '312', 'counts · 10 min mean'],
+  ['SO₂ flux', '1 840', 't / day · DOAS traverse'],
+  ['Summit inflation', '+4.2', 'mm since 1 Sep · GNSS'],
+  ['Crater floor', '386', '°C max · thermal cam'],
+];
+
+const disciplines = [
+  ['01', 'Seismic listening', 'Fourteen broadband seismometers hear the mountain crack, breathe and settle. We pick every event by hand before it reaches a bulletin.'],
+  ['02', 'Gas chemistry', 'Scanning spectrometers read sulphur dioxide in the plume twice an hour. A rising ratio of CO₂ to SO₂ is often the first word of fresh magma.'],
+  ['03', 'Ground deformation', 'GNSS stations and satellite radar measure the summit swelling in millimetres. The volcano inflates like a lung before it speaks.'],
+];
+
+const network = [
+  { k: 'Seismic', n: '14', unit: 'stations', body: 'Broadband and short-period, 100 samples per second, telemetered by radio to the valley.', icon: 'M2 12h3l2-6 3 12 3-9 2 5h7' },
+  { k: 'Geodetic', n: '9', unit: 'GNSS points', body: 'Continuous positioning on the flanks plus two tiltmeters bolted to the crater rim.', icon: 'M12 3v18M3 12h18M6 6l12 12' },
+  { k: 'Gas', n: '4', unit: 'spectrometers', body: 'Scanning DOAS arrays downwind of the plume, cross-checked by a monthly road traverse.', icon: 'M4 16c2-4 6-4 8 0s6 4 8 0M4 10c2-4 6-4 8 0s6 4 8 0' },
+  { k: 'Thermal', n: '3', unit: 'cameras', body: 'Radiometric infrared on the crater floor, one frame a minute, day and night.', icon: 'M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12zM12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6z' },
+];
+
+const plans = [
+  {
+    name: 'Night at the rim',
+    price: '€42',
+    per: 'per guest',
+    body: 'An evening on the observation deck with a duty volcanologist, the live seismograph and the crater glow through the thermal scope.',
+    items: ['3 h guided session', 'Hot soup, warm parkas lent', 'Thursdays to Sundays'],
+    cta: 'Book a night',
+  },
+  {
+    name: 'Research feed',
+    price: '€180',
+    per: 'per month',
+    body: 'Raw and processed streams for universities and hazard modellers, with the analyst picks behind every bulletin.',
+    items: ['Seismic + GNSS + gas, 100 Hz', 'Analyst-reviewed event catalogue', 'Monthly call with the duty team'],
+    cta: 'Request access',
+    featured: true,
+  },
+  {
+    name: 'Civil protection',
+    price: 'Partner',
+    per: 'by agreement',
+    body: 'A direct line for the valley municipalities: alert-level changes pushed to your duty officer before they are public.',
+    items: ['Phone + SMS escalation', 'Joint exercises twice a year', 'Evacuation map reviews'],
+    cta: 'Talk to the director',
+  },
+];
+
+const bulletins = [
+  ['02 Oct', '06:00', 'Daily', 'Tremor steady at elevated background; two shallow long-period events beneath the north vent.'],
+  ['30 Sep', '18:20', 'Gas', 'SO₂ flux 1 840 t/day on the evening traverse, up from 1 310 last week. Plume drifting south-east.'],
+  ['27 Sep', '11:05', 'Level', 'Alert level held at 2 (Advisory). Exclusion zone remains 1.5 km from the active crater.'],
+  ['22 Sep', '09:40', 'Field', 'KR-11 seismometer replaced after ash abrasion; the station is back in the network.'],
+];
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Kessa Ridge Observatory — We listen to the mountain</title>
+    <meta name="description" content="Kessa Ridge Volcano Observatory: live monitoring, field nights and research data from an active stratovolcano." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <BackPill />
+    <div class="page">
+      <div class="shell">
+        <span class="sq tl"></span><span class="sq tr"></span>
+
+        <!-- Nav -->
+        <header class="nav">
+          <a class="logo" href="#top" aria-label="Kessa Ridge Observatory home">
+            <svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><path d="M3 26 13 9l3 4 3-5 10 18Z" fill="currentColor" /><circle cx="17.5" cy="5" r="2.2" fill="var(--accent)" /></svg>
+            <span>Kessa Ridge</span>
+          </a>
+          <nav aria-label="Primary">
+            <a href="#work">Monitoring</a>
+            <a href="#network">Network</a>
+            <a href="#visit">Visit &amp; data</a>
+            <a href="#bulletins">Bulletins</a>
+          </nav>
+          <a class="btn btn-ink small" href="#visit">Book a night <span aria-hidden="true">→</span></a>
+        </header>
+
+        <!-- Hero: shell → dark block → inner cards -->
+        <section class="hero-wrap" id="top">
+          <div class="dark hero">
+            <svg class="topo" viewBox="0 0 1300 700" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+              <defs>
+                <radialGradient id="glow">
+                  <stop offset="0" stop-color="#ff6a3d" stop-opacity=".55" />
+                  <stop offset="1" stop-color="#ff6a3d" stop-opacity="0" />
+                </radialGradient>
+              </defs>
+              <ellipse cx={CX} cy={CY} rx="150" ry="110" fill="url(#glow)" />
+              {contours.map((c) => <path d={c.d} class:list={['ct', { major: c.major, crater: c.crater }]} />)}
+              {stations.map((s) => (
+                <g class:list={['stn', { live: s.live }]} transform={`translate(${s.x} ${s.y})`}>
+                  <rect x="-4" y="-4" width="8" height="8" />
+                  <text x="10" y="4">{s.id}</text>
+                </g>
+              ))}
+            </svg>
+            <div class="hero-shade" aria-hidden="true"></div>
+
+            <div class="hero-top">
+              <span class="pill"><span class="dot"></span>Alert level 2 · Advisory</span>
+              <span class="mono dim">38.412° N · 22.907° E · summit 2 314 m</span>
+            </div>
+
+            <div class="hero-grid">
+              <div class="hero-copy">
+                <p class="mono label">Volcano observatory, est. 1961</p>
+                <h1 class="reveal">
+                  <span><span>We listen to the</span></span>
+                  <span><span>mountain so the</span></span>
+                  <span><span>valley can sleep.</span></span>
+                </h1>
+                <p class="lede">Thirty instruments on the flanks of Kessa, read every minute by a duty team that has not missed a night in sixty-five years.</p>
+                <div class="actions">
+                  <a class="btn btn-accent" href="#visit">Spend a night at the rim</a>
+                  <a class="btn btn-ghost" href="#bulletins">Read today’s bulletin</a>
+                </div>
+              </div>
+
+              <aside class="hero-cards" aria-label="Live readings">
+                <div class="card gb seis-card">
+                  <div class="card-head">
+                    <span class="mono"><span class="dot live"></span>KR-01 · vertical</span>
+                    <span class="mono dim">live · 100 Hz</span>
+                  </div>
+                  <canvas id="seis" aria-label="Live seismogram from station KR-01" role="img"></canvas>
+                  <div class="card-foot">
+                    <span>Last event <b>M 1.4</b> · 2.1 km deep</span>
+                    <span class="mono dim">04:12 UTC</span>
+                  </div>
+                </div>
+                <div class="card gb duty">
+                  <div class="avatar" aria-hidden="true">IM</div>
+                  <div>
+                    <p class="mono dim">On duty tonight</p>
+                    <p>Ilse Marangou, seismologist</p>
+                  </div>
+                  <span class="mono shift">Shift 3 / 3</span>
+                </div>
+              </aside>
+            </div>
+
+            <div class="metrics">
+              {metrics.map(([k, v, u]) => (
+                <div class="metric gb">
+                  <p class="mono dim">{k}</p>
+                  <p class="metric-v">{v}</p>
+                  <p class="metric-u">{u}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <div class="rule"><span class="sq l"></span><span class="sq r"></span></div>
+
+        <!-- Disciplines: light editorial block -->
+        <section class="section" id="work">
+          <div class="sec-head fade">
+            <p class="mono label ink">What we watch</p>
+            <h2>Three ways a volcano tells you it is waking up.</h2>
+            <p class="sec-sub">No single signal is a forecast. We read them together, every hour, and only then change a word in the bulletin.</p>
+          </div>
+          <div class="panel">
+            {disciplines.map(([n, t, b]) => (
+              <article class="disc fade">
+                <span class="mono num">{n}</span>
+                <h3>{t}</h3>
+                <p>{b}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <div class="rule"><span class="sq l"></span><span class="sq r"></span></div>
+
+        <!-- Network: dark block with nested cards -->
+        <section class="section" id="network">
+          <div class="dark block">
+            <div class="block-head fade">
+              <div>
+                <p class="mono label">The network</p>
+                <h2>Thirty instruments, one quiet room.</h2>
+              </div>
+              <p class="sec-sub on-dark">Every sensor on the mountain reports to a single control room at 1 100 m, staffed around the clock by one analyst and a kettle.</p>
+            </div>
+            <div class="net-grid">
+              {network.map((s) => (
+                <article class="card gb net fade">
+                  <div class="net-top">
+                    <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18"><path d={s.icon} /></svg></span>
+                    <span class="mono dim">{s.k}</span>
+                  </div>
+                  <p class="net-n">{s.n}<span>{s.unit}</span></p>
+                  <p class="net-b">{s.body}</p>
+                </article>
+              ))}
+            </div>
+            <div class="card gb uptime fade">
+              <div>
+                <p class="mono dim">Network uptime · last 365 days</p>
+                <p class="uptime-v">99.62 %</p>
+              </div>
+              <div class="bars" aria-hidden="true">
+                {Array.from({ length: 52 }, (_, i) => <span class:list={{ low: i === 17 || i === 38 }} style={`height:${62 + ((i * 37) % 38)}%`}></span>)}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div class="rule"><span class="sq l"></span><span class="sq r"></span></div>
+
+        <!-- Plans: light container with nested plan cards, middle inverted -->
+        <section class="section" id="visit">
+          <div class="sec-head fade">
+            <p class="mono label ink">Visit &amp; data</p>
+            <h2>Come up the mountain, or plug into it.</h2>
+            <p class="sec-sub">Field nights fund the network. Data partnerships keep it honest. Civil protection gets everything first, always free.</p>
+          </div>
+          <div class="plans">
+            {plans.map((p) => (
+              <article class:list={['plan', 'fade', { featured: p.featured }]}>
+                <div class="plan-top">
+                  <p class="mono">{p.name}</p>
+                  {p.featured && <span class="pill small"><span class="dot"></span>Most requested</span>}
+                </div>
+                <p class="price">{p.price}<span>{p.per}</span></p>
+                <p class="plan-b">{p.body}</p>
+                <ul>
+                  {p.items.map((it) => <li>{it}</li>)}
+                </ul>
+                <a class:list={['btn', p.featured ? 'btn-accent' : 'btn-ink']} href="#contact">{p.cta}</a>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <div class="rule"><span class="sq l"></span><span class="sq r"></span></div>
+
+        <!-- Bulletins -->
+        <section class="section bull" id="bulletins">
+          <div class="sec-head fade">
+            <p class="mono label ink">Bulletins</p>
+            <h2>The log, in plain words.</h2>
+          </div>
+          <ol class="log">
+            {bulletins.map(([d, t, tag, body]) => (
+              <li class="fade">
+                <span class="mono when">{d}<span>{t}</span></span>
+                <span class="tag mono">{tag}</span>
+                <p>{body}</p>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        <div class="rule"><span class="sq l"></span><span class="sq r"></span></div>
+
+        <!-- CTA -->
+        <section class="section" id="contact">
+          <div class="dark cta fade">
+            <div class="cta-in">
+              <p class="mono label">Duty line open 24 h</p>
+              <h2>The mountain does not keep office hours. Neither do we.</h2>
+              <div class="actions">
+                <a class="btn btn-accent" href="mailto:duty@kessaridge.example">duty@kessaridge.example</a>
+                <a class="btn btn-ghost" href="tel:+302100000000">+30 210 000 0000</a>
+              </div>
+            </div>
+            <div class="card gb cta-card">
+              <p class="mono dim">Next field night</p>
+              <p class="cta-date">Thu 9 Oct</p>
+              <p class="metric-u">7 of 12 places left · sunset 18:51</p>
+            </div>
+          </div>
+        </section>
+
+        <footer class="foot">
+          <span>© 2026 Kessa Ridge Volcano Observatory. A fictional observatory.</span>
+          <span class="mono">Bulletins are advisory. Follow civil protection instructions.</span>
+        </footer>
+      </div>
+    </div>
+
+    <script>
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      document.documentElement.classList.add('js');
+
+      // Calm fade-ins.
+      const io = new IntersectionObserver(
+        (es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }),
+        { rootMargin: '0px 0px -8% 0px' },
+      );
+      document.querySelectorAll('.fade').forEach((el) => (reduce ? el.classList.add('in') : io.observe(el)));
+
+      // Live seismogram: scrolling trace with occasional events.
+      const cv = document.getElementById('seis') as HTMLCanvasElement | null;
+      if (cv) {
+        const ctx = cv.getContext('2d')!;
+        let w = 0, h = 0, dpr = 1;
+        const N = 360;
+        const buf = new Float32Array(N);
+        let phase = 0, burst = 0, t = 0;
+        const sample = () => {
+          t++;
+          if (burst <= 0 && Math.random() < 0.006) burst = 1;
+          const amp = 0.08 + burst * 0.85;
+          burst = Math.max(0, burst - 0.012);
+          phase += 0.9 + Math.random() * 0.5;
+          return (Math.sin(phase) * 0.6 + (Math.random() - 0.5)) * amp + Math.sin(t * 0.03) * 0.03;
+        };
+        for (let i = 0; i < N; i++) buf[i] = sample();
+        // A visible event in the still frame.
+        for (let i = 220; i < 300; i++) buf[i] = Math.sin(i * 1.7) * Math.exp(-(i - 228) / 22) * 0.9 * (i >= 228 ? 1 : (i - 220) / 8);
+        const size = () => {
+          dpr = Math.min(devicePixelRatio || 1, 2);
+          w = cv.clientWidth; h = cv.clientHeight;
+          cv.width = w * dpr; cv.height = h * dpr;
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        };
+        const draw = () => {
+          ctx.clearRect(0, 0, w, h);
+          ctx.strokeStyle = 'rgba(255,255,255,.07)';
+          ctx.lineWidth = 1;
+          for (let g = 1; g < 4; g++) { ctx.beginPath(); ctx.moveTo(0, (h * g) / 4); ctx.lineTo(w, (h * g) / 4); ctx.stroke(); }
+          ctx.beginPath();
+          for (let i = 0; i < N; i++) {
+            const x = (i / (N - 1)) * w;
+            const y = h / 2 - buf[i] * h * 0.44;
+            i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+          }
+          const grad = ctx.createLinearGradient(0, 0, w, 0);
+          grad.addColorStop(0, 'rgba(255,255,255,.15)');
+          grad.addColorStop(0.75, 'rgba(255,255,255,.85)');
+          grad.addColorStop(1, '#ff6a3d');
+          ctx.strokeStyle = grad;
+          ctx.lineWidth = 1.4;
+          ctx.stroke();
+          const ly = h / 2 - buf[N - 1] * h * 0.44;
+          ctx.fillStyle = '#ff6a3d';
+          ctx.beginPath(); ctx.arc(w - 3, ly, 3, 0, Math.PI * 2); ctx.fill();
+        };
+        size(); draw();
+        new ResizeObserver(() => { size(); draw(); }).observe(cv);
+        if (!reduce) {
+          let visible = true, last = 0;
+          new IntersectionObserver(([e]) => (visible = e.isIntersecting)).observe(cv);
+          const loop = (now: number) => {
+            requestAnimationFrame(loop);
+            if (!visible || document.hidden || now - last < 33) return;
+            last = now;
+            buf.copyWithin(0, 2); buf[N - 2] = sample(); buf[N - 1] = sample();
+            draw();
+          };
+          requestAnimationFrame(loop);
+        }
+      }
+    </script>
+
+    <style is:global>
+      :root {
+        --page: #e9e6e0;
+        --shell: #f6f4f0;
+        --ink: #151311;
+        --ink-2: #57524c;
+        --line: rgb(21 19 17 / 0.1);
+        --dark: #141210;
+        --dark-2: #1c1916;
+        --accent: #ff6a3d;
+        --sans: 'Inter Tight', ui-sans-serif, system-ui, sans-serif;
+        --mono: 'JetBrains Mono', ui-monospace, monospace;
+        --r-xl: 28px;
+        --r-lg: 18px;
+        --pad: clamp(16px, 3vw, 40px);
+      }
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+      body { margin: 0; background: var(--page); color: var(--ink); font-family: var(--sans); -webkit-font-smoothing: antialiased; }
+      a { color: inherit; }
+      h1, h2, h3, p { margin: 0; }
+
+      .mono { font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; }
+      .dim { opacity: 0.55; }
+      .label { color: rgb(255 255 255 / 0.6); margin-bottom: 18px; }
+      .label.ink { color: var(--ink-2); }
+
+      /* Outer shell: rails + corner squares */
+      .page { padding: 0 clamp(8px, 3vw, 56px); overflow-x: clip; }
+      .shell {
+        position: relative; max-width: 1320px; margin: 0 auto; background: var(--shell);
+        border-left: 1px solid var(--line); border-right: 1px solid var(--line);
+        padding: 0 var(--pad) 8px;
+      }
+      .sq { position: absolute; width: 7px; height: 7px; background: var(--shell); border: 1px solid rgb(21 19 17 / 0.35); z-index: 2; }
+      .sq.tl { left: -4px; top: 14px; } .sq.tr { right: -4px; top: 14px; }
+      .rule { position: relative; height: 1px; background: var(--line); margin: 0 calc(var(--pad) * -1); }
+      .rule .sq.l { left: -4px; top: -3px; } .rule .sq.r { right: -4px; top: -3px; }
+
+      /* Nav */
+      .nav { display: flex; align-items: center; justify-content: space-between; height: 72px; gap: 20px; }
+      .logo { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 600; font-size: 17px; letter-spacing: -0.02em; }
+      .nav nav { display: flex; gap: 30px; font-size: 14px; color: var(--ink-2); }
+      .nav nav a { text-decoration: none; transition: color 0.2s; }
+      .nav nav a:hover { color: var(--ink); }
+
+      .btn {
+        display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 46px; padding: 0 20px;
+        border-radius: 999px; font: 500 14.5px/1 var(--sans); text-decoration: none; letter-spacing: -0.005em;
+        transition: transform 0.25s ease, background 0.25s, box-shadow 0.25s; white-space: nowrap;
+      }
+      .btn:hover { transform: translateY(-1px); }
+      .btn:focus-visible, .nav a:focus-visible, .logo:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+      .btn.small { height: 38px; padding: 0 16px; font-size: 13.5px; }
+      .btn-ink { background: var(--ink); color: #fff; }
+      .btn-accent { background: var(--accent); color: #1a0d07; box-shadow: 0 1px 0 rgb(255 255 255 / 0.35) inset, 0 8px 24px -10px rgb(255 106 61 / 0.7); }
+      .btn-ghost { color: #fff; border: 1px solid rgb(255 255 255 / 0.18); background: rgb(255 255 255 / 0.04); }
+      .btn-ghost:hover { background: rgb(255 255 255 / 0.09); }
+
+      .pill {
+        display: inline-flex; align-items: center; gap: 8px; height: 30px; padding: 0 12px; border-radius: 999px;
+        font: 500 12px/1 var(--sans); color: #fff; background: rgb(255 255 255 / 0.06); border: 1px solid rgb(255 255 255 / 0.12);
+      }
+      .pill.small { height: 24px; font-size: 11px; padding: 0 10px; }
+      .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 3px rgb(255 106 61 / 0.2); display: inline-block; }
+      .dot.live { animation: pulse 2s ease-in-out infinite; margin-right: 6px; vertical-align: 1px; width: 6px; height: 6px; }
+      @keyframes pulse { 50% { box-shadow: 0 0 0 6px rgb(255 106 61 / 0); } }
+
+      /* Dark inset blocks */
+      .dark {
+        position: relative; background: var(--dark); color: #fff; border-radius: var(--r-xl); overflow: hidden; isolation: isolate;
+        box-shadow: 0 1px 0 rgb(255 255 255 / 0.06) inset, 0 30px 60px -30px rgb(21 19 17 / 0.45), 0 2px 6px rgb(21 19 17 / 0.12);
+      }
+      /* Inner cards with gradient border */
+      .card { position: relative; border-radius: var(--r-lg); background: linear-gradient(180deg, rgb(255 255 255 / 0.055), rgb(255 255 255 / 0.02)); }
+      .gb::before {
+        content: ''; position: absolute; inset: 0; border-radius: inherit; padding: 1px; pointer-events: none;
+        background: linear-gradient(160deg, rgb(255 255 255 / 0.22), rgb(255 255 255 / 0.04) 45%, rgb(255 255 255 / 0.1));
+        -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude;
+      }
+
+      /* Hero */
+      .hero-wrap { padding-bottom: clamp(16px, 2.5vw, 28px); }
+      .hero { min-height: min(800px, calc(100svh - 96px)); padding: clamp(18px, 2.6vw, 32px); display: flex; flex-direction: column; gap: 24px; }
+      .topo { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -2; }
+      .ct { fill: none; stroke: rgb(255 255 255 / 0.09); stroke-width: 1; }
+      .ct.major { stroke: rgb(255 255 255 / 0.2); }
+      .ct.crater { stroke: rgb(255 106 61 / 0.75); stroke-width: 1.3; }
+      .stn rect { fill: var(--dark); stroke: rgb(255 255 255 / 0.55); }
+      .stn.live rect { fill: var(--accent); stroke: none; }
+      .stn text { fill: rgb(255 255 255 / 0.45); font: 500 11px var(--mono); letter-spacing: 0.06em; }
+      .hero-shade { position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, rgb(20 18 16 / 0.92) 0%, rgb(20 18 16 / 0.55) 42%, rgb(20 18 16 / 0.05) 70%), linear-gradient(0deg, rgb(20 18 16 / 0.85), transparent 35%); }
+      .hero-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+      .hero-grid { flex: 1; display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr); gap: 32px; align-items: end; }
+      h1 { font-size: clamp(42px, 5.6vw, 80px); line-height: 0.98; letter-spacing: -0.045em; font-weight: 500; }
+      .reveal > span { display: block; overflow: hidden; padding-bottom: 0.06em; }
+      .reveal > span > span { display: block; animation: rise 1s cubic-bezier(0.2, 0.7, 0.1, 1) both; }
+      .reveal > span:nth-child(2) > span { animation-delay: 0.08s; }
+      .reveal > span:nth-child(3) > span { animation-delay: 0.16s; }
+      @keyframes rise { from { transform: translateY(105%); } }
+      .lede { margin-top: 22px; max-width: 470px; font-size: 16.5px; line-height: 1.55; color: rgb(255 255 255 / 0.68); }
+      .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+
+      .hero-cards { display: grid; gap: 12px; }
+      .seis-card { padding: 16px 16px 14px; }
+      .card-head, .card-foot { display: flex; justify-content: space-between; gap: 10px; align-items: center; }
+      .card-foot { font-size: 13px; color: rgb(255 255 255 / 0.7); }
+      .card-foot b { color: #fff; font-weight: 600; }
+      #seis { display: block; width: 100%; height: 120px; margin: 12px 0; border-radius: 10px; background: rgb(0 0 0 / 0.28); }
+      .duty { display: flex; align-items: center; gap: 14px; padding: 14px 16px; font-size: 14px; }
+      .duty p + p { margin-top: 4px; }
+      .avatar { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; flex: none; font: 600 12px var(--sans); background: linear-gradient(135deg, #ff8a5c, #b8401c); color: #fff; }
+      .shift { margin-left: auto; color: var(--accent); white-space: nowrap; }
+
+      .metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+      .metric { padding: 16px 18px; border-radius: 16px; background: rgb(255 255 255 / 0.035); position: relative; }
+      .metric-v { font-size: clamp(26px, 2.6vw, 36px); font-weight: 500; letter-spacing: -0.04em; margin-top: 10px; }
+      .metric-u { font-size: 12.5px; color: rgb(255 255 255 / 0.5); margin-top: 4px; }
+
+      /* Sections */
+      .section { padding: clamp(56px, 8vw, 112px) 0; }
+      .sec-head { max-width: 760px; margin-bottom: clamp(32px, 4vw, 56px); }
+      h2 { font-size: clamp(32px, 4vw, 56px); line-height: 1.02; letter-spacing: -0.04em; font-weight: 500; }
+      .sec-sub { margin-top: 18px; font-size: 16.5px; line-height: 1.55; color: var(--ink-2); max-width: 560px; }
+      .sec-sub.on-dark { color: rgb(255 255 255 / 0.6); margin-top: 0; max-width: 400px; }
+
+      .panel {
+        display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-radius: var(--r-xl); background: #fff;
+        border: 1px solid var(--line); box-shadow: 0 1px 2px rgb(21 19 17 / 0.04), 0 20px 40px -28px rgb(21 19 17 / 0.25);
+      }
+      .disc { padding: clamp(24px, 3vw, 40px); }
+      .disc + .disc { border-left: 1px solid var(--line); }
+      .disc .num { color: var(--accent); }
+      .disc h3 { font-size: 22px; letter-spacing: -0.03em; font-weight: 500; margin: 48px 0 12px; }
+      .disc p { color: var(--ink-2); line-height: 1.6; font-size: 15px; }
+
+      .block { padding: clamp(24px, 4vw, 56px); }
+      .block::after { content: ''; position: absolute; inset: auto -10% -60% 40%; height: 120%; background: radial-gradient(closest-side, rgb(255 106 61 / 0.14), transparent); z-index: -1; }
+      .block-head h2 { max-width: 620px; }
+      .block-head { display: flex; justify-content: space-between; align-items: end; gap: 32px; margin-bottom: 40px; flex-wrap: wrap; }
+      .net-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+      .net { padding: 22px; display: flex; flex-direction: column; min-height: 250px; transition: transform 0.3s ease; }
+      .net:hover { transform: translateY(-3px); }
+      .net-top { display: flex; align-items: center; justify-content: space-between; }
+      .icon { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; background: rgb(255 255 255 / 0.06); }
+      .icon svg { fill: none; stroke: #fff; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+      .net-n { margin-top: auto; padding-top: 36px; font-size: 48px; font-weight: 500; letter-spacing: -0.05em; line-height: 1; }
+      .net-n span { font-size: 14px; letter-spacing: 0; color: rgb(255 255 255 / 0.5); margin-left: 8px; font-weight: 400; }
+      .net-b { margin-top: 12px; font-size: 14px; line-height: 1.55; color: rgb(255 255 255 / 0.6); }
+      .uptime { margin-top: 12px; padding: 22px; display: flex; align-items: center; gap: 32px; }
+      .uptime-v { font-size: 32px; letter-spacing: -0.04em; font-weight: 500; margin-top: 8px; }
+      .bars { flex: 1; display: flex; align-items: end; gap: 3px; height: 48px; min-width: 0; }
+      .bars span { flex: 1; background: rgb(255 255 255 / 0.22); border-radius: 2px; }
+      .bars span.low { background: var(--accent); }
+
+      .plans { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; padding: 12px; border-radius: calc(var(--r-xl) + 8px); background: rgb(21 19 17 / 0.04); border: 1px solid var(--line); }
+      .plan { display: flex; flex-direction: column; padding: 28px; border-radius: var(--r-xl); background: #fff; border: 1px solid var(--line); }
+      .plan.featured { background: var(--dark); color: #fff; border-color: transparent; box-shadow: 0 30px 60px -30px rgb(21 19 17 / 0.5); }
+      .plan-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; min-height: 24px; }
+      .price { font-size: 44px; letter-spacing: -0.05em; font-weight: 500; margin-top: 36px; }
+      .price span { font-size: 13.5px; letter-spacing: 0; margin-left: 8px; color: var(--ink-2); font-weight: 400; }
+      .featured .price span, .featured .plan-b, .featured li { color: rgb(255 255 255 / 0.62); }
+      .plan-b { margin-top: 14px; font-size: 14.5px; line-height: 1.55; color: var(--ink-2); }
+      .plan ul { list-style: none; padding: 20px 0 0; margin: 20px 0 28px; border-top: 1px solid var(--line); display: grid; gap: 10px; font-size: 14px; color: var(--ink-2); }
+      .featured ul { border-color: rgb(255 255 255 / 0.1); }
+      .plan li { display: flex; gap: 10px; align-items: baseline; }
+      .plan li::before { content: ''; width: 5px; height: 5px; flex: none; background: var(--accent); transform: translateY(-2px); }
+      .plan .btn { margin-top: auto; }
+
+      .log { list-style: none; margin: 0; padding: 0; border-radius: var(--r-xl); background: #fff; border: 1px solid var(--line); }
+      .log li { display: grid; grid-template-columns: 150px 90px minmax(0, 1fr); gap: 20px; align-items: baseline; padding: 22px clamp(20px, 3vw, 36px); }
+      .log li + li { border-top: 1px solid var(--line); }
+      .when { color: var(--ink); } .when span { color: var(--ink-2); margin-left: 10px; }
+      .tag { justify-self: start; padding: 4px 8px; border-radius: 6px; background: rgb(21 19 17 / 0.05); color: var(--ink-2); }
+      .log p { font-size: 16px; line-height: 1.5; }
+
+      .cta { padding: clamp(28px, 5vw, 64px); display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 32px; align-items: end; }
+      .cta::after { content: ''; position: absolute; inset: -40% -20% auto auto; width: 70%; height: 140%; background: radial-gradient(closest-side, rgb(255 106 61 / 0.22), transparent); z-index: -1; }
+      .cta h2 { max-width: 720px; }
+      .cta-card { padding: 22px; }
+      .cta-date { font-size: 34px; letter-spacing: -0.04em; font-weight: 500; margin-top: 10px; }
+
+      .foot { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding: 28px 0 36px; font-size: 13px; color: var(--ink-2); border-top: 1px solid var(--line); }
+
+      .js .fade { opacity: 0; transform: translateY(14px); transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.2, 0.7, 0.1, 1); }
+      .js .fade.in { opacity: 1; transform: none; }
+      @media (prefers-reduced-motion: reduce) {
+        .reveal > span > span, .dot.live { animation: none; }
+        .js .fade { opacity: 1; transform: none; transition: none; }
+      }
+
+      @media (max-width: 1080px) {
+        .net-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .plans { grid-template-columns: 1fr; }
+      }
+      @media (max-width: 900px) {
+        .nav nav { display: none; }
+        .hero-grid { grid-template-columns: 1fr; }
+        .hero-shade { background: linear-gradient(0deg, rgb(20 18 16 / 0.95) 25%, rgb(20 18 16 / 0.35)); }
+        .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .panel { grid-template-columns: 1fr; }
+        .disc + .disc { border-left: 0; border-top: 1px solid var(--line); }
+        .disc h3 { margin-top: 24px; }
+        .cta { grid-template-columns: 1fr; }
+        .log li { grid-template-columns: 1fr auto; gap: 8px 12px; }
+        .log li p { grid-column: 1 / -1; }
+      }
+      @media (max-width: 560px) {
+        .net-grid { grid-template-columns: 1fr; }
+        .net { min-height: 0; }
+        .uptime { flex-direction: column; align-items: stretch; gap: 16px; }
+        .hero-top .dim, .stn text { display: none; }
+        .metric { padding: 14px; }
+        .lede { font-size: 15.5px; }
+        .actions .btn { flex: 1 1 auto; }
+      }
+    </style>
+  </body>
+</html>

@@ -1,0 +1,7 @@
+{
+  "title": "Ambient Section Particles",
+  "kind": "section",
+  "category": "Backgrounds & atmosphere",
+  "concept": "R/V Calder, a fictional deep-sea research vessel on a marine-snow transect: a canvas layer of slowly sinking snow aggregates and rare bioluminescent motes behind the hero (with a quiet reading zone, gentle pointer wash and a 'Pulse the thrusters' gust control), and a second bounded layer where the snow settles into a height-capped seafloor bed.",
+  "notes": "Canvas 2D, one rAF loop per section, density from section area (clamped, lower on mobile/low-core devices), DPR capped at 2, IntersectionObserver + visibilitychange pausing, ResizeObserver resizes without respawning. Reduced motion renders a sparse seeded still with no loop. The light 'vessel' section between them is deliberately particle-free."
+}

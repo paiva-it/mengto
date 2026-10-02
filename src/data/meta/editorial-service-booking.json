@@ -1,0 +1,7 @@
+{
+  "title": "Editorial Service Booking",
+  "kind": "website",
+  "category": "Page types",
+  "concept": "Calder Street Library, a fictional town library reopened after a two-year redesign, presented as a quiet ivory lookbook: a documentary hero, a tabbed service stage (desk, archivist, family history, reading advice), a slow confidence line, layered redesign photographs, a near-black ledger chapter, two branches with hours and access, and a booking flow that keeps service, library, librarian and time in view through to confirmation.",
+  "notes": "Photography from Unsplash. Availability and confirmation are a simulated in-page server: the first time offered is always reported stale at confirmation, and a card number starting 0000 drops the connection once to show Retry; reschedule and cancel follow success. Choices persist in sessionStorage. Every service is free, so there is no payment step. Reduced motion expands the service tabs into a static list and removes the photo reveal and loop."
+}

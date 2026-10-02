@@ -1,0 +1,310 @@
+---
+import '../../styles/global.css';
+import BackPill from '../../components/BackPill.astro';
+
+const looks = [
+  {
+    no: 'OSS.74.017',
+    look: 'Look 17',
+    name: 'Overcoat, “Feuille morte”',
+    cloth: 'Double-faced melton, oxblood / dry amber',
+    note: 'Cut so the lining shows only when the wearer turns — the house’s first two-faced coat.',
+    swatch: ['#6b120c', '#8a1d12'],
+  },
+  {
+    no: 'OSS.74.022',
+    look: 'Look 22',
+    name: 'Cape, “Samare”',
+    cloth: 'Boiled wool, vermilion, raw hem',
+    note: 'One seam. Pattern drafted from a sycamore key pressed in the atelier’s order book.',
+    swatch: ['#b8331a', '#cf4b22'],
+  },
+  {
+    no: 'OSS.74.031',
+    look: 'Look 31',
+    name: 'Trench, “Coup de vent”',
+    cloth: 'Waxed cotton gabardine, rust',
+    note: 'Storm flap weighted with lead shot so it lifts in a gust and settles without a hand.',
+    swatch: ['#b65a20', '#c9772c'],
+  },
+  {
+    no: 'OSS.74.041',
+    look: 'Look 41',
+    name: 'Shawl coat, “Dernière”',
+    cloth: 'Alpaca bouclé, straw',
+    note: 'The finale. Shown alone, to the sound of a rake on gravel, and never put into production.',
+    swatch: ['#c9973d', '#dcb15a'],
+  },
+];
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Ossiet Archive — Chute, A/W 1974</title>
+    <meta name="description" content="The Ossiet house archive reopens Chute, its autumn/winter 1974 collection of forty-one coats." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..900&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <main>
+      <section id="hero" aria-labelledby="hero-title">
+        <canvas id="fall-back" aria-hidden="true"></canvas>
+
+        <header class="bar">
+          <a class="brand" href="#hero">Ossiet <span>Archive</span></a>
+          <nav aria-label="Archive">
+            <a href="#looks">Fonds 04</a>
+            <a href="#looks">Looks</a>
+            <a href="#visit">Visit</a>
+          </nav>
+          <p class="mono dim">Paris · Rue Vieille-du-Temple</p>
+        </header>
+
+        <div class="stage">
+          <div class="copy">
+            <p class="mono eyebrow"><span class="dot"></span>Fonds 04 — Autumn / Winter 1974 · “Chute”</p>
+            <h1 id="hero-title">Forty-one coats that learned to fall.</h1>
+            <p class="lede">
+              In September 1974 Ilse Ossiet showed a winter collection cut entirely in the colours of a plane tree
+              letting go — oxblood, vermilion, rust, straw. Every coat was double-faced, so it turned as it moved
+              and showed its paler side. The archive reopens it, one garment at a time.
+            </p>
+          </div>
+
+          <aside class="tag" aria-label="Featured accession">
+            <div class="tag-hole" aria-hidden="true"></div>
+            <p class="mono dim">Accession</p>
+            <p class="mono tag-no">OSS.74.017</p>
+            <div class="swatch" aria-hidden="true">
+              <span style="--a:#6b120c;--b:#8a1d12"></span>
+              <span style="--a:#c9b49a;--b:#b9a58a"></span>
+            </div>
+            <dl>
+              <div><dt class="mono dim">Look</dt><dd>17 of 41</dd></div>
+              <div><dt class="mono dim">Cloth</dt><dd>Double-faced melton</dd></div>
+              <div><dt class="mono dim">Faces</dt><dd>Oxblood / dry amber</dd></div>
+              <div><dt class="mono dim">Shown</dt><dd>12.IX.1974</dd></div>
+            </dl>
+          </aside>
+        </div>
+
+        <canvas id="fall-front" aria-hidden="true"></canvas>
+
+        <form class="controls" aria-label="Leaf fall controls" onsubmit="return false">
+          <label>
+            <span class="mono dim">Leaves</span>
+            <input id="c-count" type="range" min="40" max="300" step="10" value="150" />
+            <output class="mono" for="c-count">150</output>
+          </label>
+          <label>
+            <span class="mono dim">Wind</span>
+            <input id="c-wind" type="range" min="-40" max="40" step="2" value="12" />
+            <output class="mono" for="c-wind">12</output>
+          </label>
+          <label>
+            <span class="mono dim">Tumble</span>
+            <input id="c-tumble" type="range" min="30" max="200" step="10" value="100" />
+            <output class="mono" for="c-tumble">100</output>
+          </label>
+          <button id="c-gust" type="button" class="mono">Gust</button>
+          <p id="readout" class="mono dim readout" aria-live="polite"></p>
+        </form>
+      </section>
+
+      <section id="looks" class="looks" aria-labelledby="looks-title">
+        <div class="looks-head">
+          <p class="mono dim">Fonds 04 · 4 of 41 accessions shown</p>
+          <h2 id="looks-title">The house kept the leaves in the pattern book.</h2>
+        </div>
+        <ol class="grid">
+          {
+            looks.map((l) => (
+              <li class="card">
+                <div class="card-swatch" style={`--a:${l.swatch[0]};--b:${l.swatch[1]}`} aria-hidden="true" />
+                <p class="mono dim">{l.no} · {l.look}</p>
+                <h3>{l.name}</h3>
+                <p class="cloth">{l.cloth}</p>
+                <p class="note">{l.note}</p>
+              </li>
+            ))
+          }
+        </ol>
+      </section>
+
+      <footer id="visit" class="foot">
+        <p class="big">Reading room open Tuesday to Friday, by appointment, October through March.</p>
+        <div class="foot-row">
+          <p class="mono dim">Ossiet Archive · 41 rue Vieille-du-Temple, Paris IV</p>
+          <a class="mono" href="#hero">Request a viewing →</a>
+        </div>
+      </footer>
+    </main>
+    <BackPill />
+
+    <style is:global>
+      :root {
+        --paper: #ece5d8;
+        --paper-2: #e3dacb;
+        --ink: #1d1813;
+        --ink-2: #5b5047;
+        --rule: rgb(29 24 19 / 0.16);
+        --ox: #7a1a12;
+      }
+      html { background: var(--paper); }
+      body {
+        margin: 0;
+        background: var(--paper);
+        color: var(--ink);
+        font-family: 'Archivo', ui-sans-serif, system-ui, sans-serif;
+        font-variation-settings: 'wdth' 100;
+        -webkit-font-smoothing: antialiased;
+      }
+      .mono { font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; }
+      .dim { color: var(--ink-2); }
+      a { color: inherit; }
+      :focus-visible { outline: 2px solid var(--ox); outline-offset: 3px; }
+    </style>
+
+    <style>
+      #hero {
+        position: relative;
+        min-height: 100svh;
+        overflow: hidden;
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+        padding: 0 clamp(16px, 4vw, 56px);
+        background:
+          radial-gradient(120% 80% at 85% 10%, rgb(255 250 240 / 0.7), transparent 60%),
+          linear-gradient(180deg, var(--paper) 0%, var(--paper-2) 100%);
+      }
+      #hero canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+      #fall-back { z-index: 0; }
+      #fall-front { z-index: 20; }
+      .bar, .stage, .controls { position: relative; z-index: 10; }
+
+      .bar {
+        display: flex; align-items: center; justify-content: space-between; gap: 24px;
+        padding: 22px 0 18px; border-bottom: 1px solid var(--rule);
+      }
+      .brand { font-weight: 800; font-size: 15px; letter-spacing: 0.02em; text-decoration: none; text-transform: uppercase; white-space: nowrap; font-variation-settings: "wdth" 125; }
+      .brand span { font-weight: 300; }
+      .bar nav { display: flex; gap: 28px; }
+      .bar nav a { font-size: 13px; text-decoration: none; }
+      .bar nav a:hover { color: var(--ox); }
+
+      .stage {
+        display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: clamp(24px, 5vw, 80px);
+        align-items: center; padding: clamp(28px, 4.5vh, 64px) 0;
+      }
+      .eyebrow { display: flex; align-items: center; gap: 10px; margin: 0 0 22px; color: var(--ox); }
+      .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--ox); }
+      h1 {
+        margin: 0; max-width: 11.5ch;
+        font-weight: 820; font-variation-settings: 'wdth' 68;
+        font-size: clamp(54px, min(8.6vw, 14.5vh), 150px); line-height: 0.86; letter-spacing: -0.02em; text-transform: uppercase;
+      }
+      .lede { max-width: 54ch; margin: 26px 0 0; font-size: clamp(15px, 1.15vw, 17px); line-height: 1.6; color: var(--ink-2); }
+
+      .tag {
+        position: relative; align-self: start; margin-top: clamp(0px, 4vh, 48px);
+        padding: 34px 24px 24px; background: #f6f1e8; border: 1px solid var(--rule); border-radius: 4px;
+        box-shadow: 0 1px 2px rgb(29 24 19 / 0.06), 0 18px 40px -18px rgb(70 30 10 / 0.28);
+        transform: rotate(1.6deg);
+      }
+      .tag-hole { position: absolute; top: 12px; left: 50%; width: 10px; height: 10px; margin-left: -5px; border-radius: 50%; background: var(--paper-2); box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.25); }
+      .tag p { margin: 0; }
+      .tag-no { margin-top: 4px !important; font-size: 20px; letter-spacing: 0.04em; color: var(--ink); }
+      .swatch { display: grid; grid-template-columns: 2fr 1fr; height: 130px; margin: 18px 0; border-radius: 2px; overflow: hidden; }
+      .swatch span, .card-swatch {
+        background:
+          repeating-linear-gradient(45deg, rgb(255 255 255 / 0.06) 0 2px, transparent 2px 4px),
+          repeating-linear-gradient(-45deg, rgb(0 0 0 / 0.08) 0 2px, transparent 2px 4px),
+          linear-gradient(160deg, var(--a), var(--b));
+      }
+      dl { margin: 0; display: grid; gap: 8px; }
+      dl div { display: flex; justify-content: space-between; gap: 12px; border-top: 1px solid var(--rule); padding-top: 8px; }
+      dt { margin: 0; } dd { margin: 0; font-size: 13px; text-align: right; }
+
+      .controls {
+        display: flex; flex-wrap: wrap; align-items: center; gap: 14px 32px;
+        padding: 18px 0 26px; border-top: 1px solid var(--rule);
+      }
+      .controls label { display: flex; align-items: center; gap: 12px; }
+      .controls output { width: 3ch; color: var(--ink); }
+      input[type='range'] { width: 120px; accent-color: var(--ox); }
+      #c-gust {
+        padding: 9px 18px; border: 1px solid var(--ink); border-radius: 999px; background: transparent; color: var(--ink); cursor: pointer;
+      }
+      #c-gust:hover { background: var(--ink); color: var(--paper); }
+      .readout { margin: 0 0 0 auto; font-size: 10px; }
+
+      .looks { padding: clamp(64px, 10vw, 140px) clamp(16px, 4vw, 56px); border-top: 1px solid var(--rule); }
+      .looks-head { display: grid; grid-template-columns: 1fr 2fr; gap: 24px; align-items: end; margin-bottom: 48px; }
+      .looks-head p { margin: 0; }
+      h2 { margin: 0; font-weight: 760; font-variation-settings: 'wdth' 72; font-size: clamp(34px, 4.6vw, 68px); line-height: 0.95; text-transform: uppercase; letter-spacing: -0.01em; }
+      .grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; }
+      .card { border-top: 1px solid var(--ink); padding-top: 16px; }
+      .card-swatch { aspect-ratio: 4 / 5; margin-bottom: 16px; border-radius: 2px; }
+      .card p { margin: 0; }
+      h3 { margin: 10px 0 6px; font-size: 20px; font-weight: 700; font-variation-settings: 'wdth' 90; }
+      .cloth { font-size: 13px; color: var(--ox); }
+      .note { margin-top: 12px !important; font-size: 14px; line-height: 1.55; color: var(--ink-2); }
+
+      .foot { padding: clamp(56px, 8vw, 110px) clamp(16px, 4vw, 56px) 90px; background: var(--ink); color: var(--paper); }
+      .big { margin: 0 0 48px; max-width: 22ch; font-weight: 760; font-variation-settings: 'wdth' 72; font-size: clamp(30px, 4.2vw, 60px); line-height: 1; text-transform: uppercase; }
+      .foot-row { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; border-top: 1px solid rgb(236 229 216 / 0.2); padding-top: 18px; }
+      .foot-row p { margin: 0; color: rgb(236 229 216 / 0.6); }
+
+      @media (max-width: 980px) {
+        .stage { grid-template-columns: minmax(0, 1fr); }
+        .tag { display: none; }
+        .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .looks-head { grid-template-columns: 1fr; }
+        .readout { margin-left: 0; flex-basis: 100%; }
+      }
+      @media (max-width: 600px) {
+        .bar nav { display: none; }
+        .bar .dim { font-size: 10px; }
+        .stage { align-items: start; }
+        .controls { gap: 12px 20px; }
+        .controls label { flex: 1 1 100%; }
+        .controls input[type='range'] { flex: 1; }
+        .controls span { width: 6ch; }
+        .grid { grid-template-columns: minmax(0, 1fr); }
+        .card-swatch { aspect-ratio: 3 / 2; }
+      }
+    </style>
+
+    <script>
+      import { mountFall } from '../../components/skills/falling-leaves/fall';
+
+      const root = document.getElementById('hero')!;
+      const readout = document.getElementById('readout')!;
+      const fall = mountFall(
+        root,
+        document.getElementById('fall-back') as HTMLCanvasElement,
+        document.getElementById('fall-front') as HTMLCanvasElement,
+        (msg) => (readout.textContent = msg),
+      );
+
+      for (const key of ['count', 'wind', 'tumble'] as const) {
+        const input = document.getElementById(`c-${key}`) as HTMLInputElement;
+        const out = input.nextElementSibling as HTMLOutputElement;
+        input.addEventListener('input', () => {
+          out.value = input.value;
+          fall.set({ [key]: Number(input.value) });
+        });
+      }
+      document.getElementById('c-gust')!.addEventListener('click', () => {
+        fall.gust();
+        readout.textContent = `Gust · ${readout.textContent?.replace(/^Gust · /, '')}`;
+      });
+    </script>
+  </body>
+</html>

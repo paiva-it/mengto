@@ -1,0 +1,7 @@
+{
+  "title": "Framed Tech Dark Border Gradient",
+  "kind": "website",
+  "category": "Design systems",
+  "concept": "Coldframe, a fictional Norwegian warm-water liquid-cooling operator that sells data-centre heat to the town: a near-black site built from railed shells with overshooting guides and corner squares, an asymmetric hero grid (headline, live thermal-field canvas, hall selector, PUE card) and one-pixel white-to-transparent gradient edges on every premium surface.",
+  "notes": "Gradient borders use the padding + mask-composite exclude technique on a pseudo-element so the same edge reads on buttons, the active hall row and the metric/CTA cards. The hall selector is a set of aria-pressed buttons (one locked) that retunes the 2D-canvas thermal field and readouts. Monochrome with one sparse ice accent for status and active cues. Canvas pauses off-screen; reduced motion draws a single static frame and drops the reveal and scan line."
+}

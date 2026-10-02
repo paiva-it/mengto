@@ -1,0 +1,705 @@
+---
+import '../../styles/global.css';
+import BackPill from '../../components/BackPill.astro';
+
+// Corvina Records — a fictional 1950s–60s jazz label, read as an archival ledger.
+type Track = { side: string; title: string; time: string };
+type Session = {
+  cat: string;
+  fol: number;
+  artist: string;
+  title: string[];
+  date: string;
+  room: string;
+  engineer: string;
+  matrix: string;
+  sleeve: { bg: string; ink: string; mark: string };
+  lede: string;
+  body: string;
+  margin: { label: string; text: string };
+  tracks: Track[];
+  caption: string;
+  personnel: [string, string][];
+};
+
+const sessions: Session[] = [
+  {
+    cat: 'CV-1014',
+    fol: 27,
+    artist: 'Ida Varnell Quartet',
+    title: ['Late Light at', 'Marsh Street'],
+    date: '14 Nov 1958',
+    room: 'The Marsh Street Room, Baltimore',
+    engineer: 'Walt Sorensen',
+    matrix: 'MS-2207 / MS-2208',
+    sleeve: { bg: '#7a2a22', ink: '#efe2c6', mark: '#d9b98a' },
+    lede: 'Recorded after closing, with the chairs already on the tables.',
+    body: 'Varnell asked for the house lights to stay half-lit, so the engineer worked by a reading lamp clipped to the console. The quartet cut six sides in a single pass. Nothing was spliced, and the bass is slightly flat on the second chorus of the title track, which Varnell refused to fix: “that is the sound of the room getting cold.”',
+    margin: { label: 'Marginal note · fol. 27v', text: 'Tape box annotated in pencil: “do not EQ the piano.” Initialled W.S.' },
+    tracks: [
+      { side: 'A1', title: 'Late Light at Marsh Street', time: '7:42' },
+      { side: 'A2', title: 'A Coat for Thursday', time: '5:16' },
+      { side: 'A3', title: 'Lamplighter’s Waltz', time: '6:03' },
+      { side: 'B1', title: 'Harbor, 4 a.m.', time: '8:11' },
+      { side: 'B2', title: 'The Cold Room', time: '4:58' },
+      { side: 'B3', title: 'Chairs on the Tables', time: '6:27' },
+    ],
+    caption: 'Plate XIV. First pressing, laminated sleeve; label in oxblood with gilt rule.',
+    personnel: [['Ida Varnell', 'piano'], ['Lionel Pruitt', 'tenor sax'], ['Hal Whitcombe', 'bass'], ['Moss Calder', 'drums']],
+  },
+  {
+    cat: 'CV-1022',
+    fol: 41,
+    artist: 'Otis Fairleigh Septet',
+    title: ['The Tidewater', 'Suite'],
+    date: '2–3 Jun 1959',
+    room: 'St. Brendan’s Hall, Norfolk',
+    engineer: 'Walt Sorensen',
+    matrix: 'TW-3101 / TW-3104',
+    sleeve: { bg: '#2c3a3a', ink: '#e9dcc0', mark: '#b98d55' },
+    lede: 'A suite in four tides, written on the ferry between two club dates.',
+    body: 'Fairleigh scored the suite on the back of a ferry timetable, and the movements keep its headings: Slack Water, Flood, Ebb and Stand. The septet recorded in a parish hall with a forty-foot ceiling; the reverb on the trombone choir is the building itself, not a plate. Two takes of “Flood” survive and both are issued here.',
+    margin: { label: 'Marginal note · fol. 41r', text: 'Original manuscript lent by the Fairleigh estate. Timetable dated 28 May 1959.' },
+    tracks: [
+      { side: 'A1', title: 'I. Slack Water', time: '6:48' },
+      { side: 'A2', title: 'II. Flood (take 3)', time: '9:02' },
+      { side: 'B1', title: 'III. Ebb', time: '7:35' },
+      { side: 'B2', title: 'IV. Stand', time: '5:40' },
+      { side: 'B3', title: 'II. Flood (take 5)', time: '8:51' },
+    ],
+    caption: 'Plate XXII. Gatefold issue with the composer’s timetable reproduced inside.',
+    personnel: [['Otis Fairleigh', 'cornet'], ['Anselm Grieve', 'trombone'], ['Lionel Pruitt', 'tenor sax'], ['Moss Calder', 'drums']],
+  },
+  {
+    cat: 'CV-1031',
+    fol: 58,
+    artist: 'Maren Kessick Trio',
+    title: ['Nine Rooms,', 'No Windows'],
+    date: '19 Jan 1961',
+    room: 'Corvina House Studio B',
+    engineer: 'Della Ostrander',
+    matrix: 'NR-4410 / NR-4411',
+    sleeve: { bg: '#1f1a17', ink: '#e7d8b8', mark: '#a8463a' },
+    lede: 'The first Corvina date engineered by Della Ostrander.',
+    body: 'Kessick wanted a record that sounded like walking through a house at night, one room to a tune. Ostrander moved the trio between three booths and a stairwell, re-miking each time, so every track has its own air. Pressed in a run of 1,500; the stamper cracked after the 1,100th copy, which is why late pressings carry a faint tick on side B.',
+    margin: { label: 'Marginal note · fol. 58v', text: 'Stamper fault documented in pressing ledger P-61, entry 12. Ticks are not a defect of the copy.' },
+    tracks: [
+      { side: 'A1', title: 'Front Hall', time: '4:22' },
+      { side: 'A2', title: 'The Long Stair', time: '6:10' },
+      { side: 'A3', title: 'Nursery (Empty)', time: '3:47' },
+      { side: 'B1', title: 'Cellar Lamp', time: '7:18' },
+      { side: 'B2', title: 'Ninth Room', time: '9:30' },
+    ],
+    caption: 'Plate XXXI. Sleeve printed in two passes; the red ninth square is hand-registered.',
+    personnel: [['Maren Kessick', 'piano'], ['Hal Whitcombe', 'bass'], ['June Atterbury', 'drums'], ['Della Ostrander', 'engineer']],
+  },
+];
+
+const catalogue = [
+  { cat: 'CV-1003', artist: 'Ruth Abernathy', title: 'Spoken For', year: 1957, bg: '#3a2c22', ink: '#ead9b8' },
+  { cat: 'CV-1009', artist: 'The Lowell Brothers', title: 'Two Pianos, One Lamp', year: 1958, bg: '#e2d0ac', ink: '#3a2a1e' },
+  { cat: 'CV-1014', artist: 'Ida Varnell Quartet', title: 'Late Light at Marsh Street', year: 1958, bg: '#7a2a22', ink: '#efe2c6' },
+  { cat: 'CV-1019', artist: 'Ida Varnell', title: 'Solo in the Afternoon', year: 1959, bg: '#5a4a35', ink: '#efe2c6' },
+  { cat: 'CV-1022', artist: 'Otis Fairleigh Septet', title: 'The Tidewater Suite', year: 1959, bg: '#2c3a3a', ink: '#e9dcc0' },
+  { cat: 'CV-1031', artist: 'Maren Kessick Trio', title: 'Nine Rooms, No Windows', year: 1961, bg: '#1f1a17', ink: '#e7d8b8' },
+];
+
+const register = [
+  { name: 'Abernathy, Ruth', role: 'voice', refs: ['1003', '1027'] },
+  { name: 'Calder, Moss', role: 'drums', refs: ['1014', '1019', '1022'] },
+  { name: 'Fairleigh, Otis', role: 'cornet, arr.', refs: ['1022', '1029'] },
+  { name: 'Grieve, Anselm', role: 'trombone', refs: ['1022'] },
+  { name: 'Kessick, Maren', role: 'piano', refs: ['1031', '1036'] },
+  { name: 'Lowell, Amos', role: 'piano', refs: ['1009'] },
+  { name: 'Lowell, Peter', role: 'piano', refs: ['1009'] },
+  { name: 'Ostrander, Della', role: 'engineer', refs: ['1031', '1036', '1040'] },
+  { name: 'Pruitt, Lionel', role: 'tenor sax', refs: ['1014', '1022'] },
+  { name: 'Sorensen, Walt', role: 'engineer', refs: ['1003', '1009', '1014', '1022'] },
+  { name: 'Varnell, Ida', role: 'piano, leader', refs: ['1014', '1019'] },
+  { name: 'Whitcombe, Hal', role: 'bass', refs: ['1014', '1031'] },
+];
+
+const sections = [
+  { id: 'reading', num: 'I', label: 'The Reading Spread' },
+  { id: 'catalogue', num: 'II', label: 'Catalogue of Issues' },
+  { id: 'register', num: 'III', label: 'Personnel Register' },
+  { id: 'masters', num: 'IV', label: 'On the Masters' },
+  { id: 'colophon', num: 'V', label: 'Colophon' },
+];
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>The Corvina Ledger — Corvina Records reading room</title>
+    <meta name="description" content="The complete session archive of Corvina Records, 1957–1964, bound as a reading room." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="shell">
+      <div class="drift" aria-hidden="true"></div>
+      <span class="corner tl" aria-hidden="true"></span><span class="corner tr" aria-hidden="true"></span>
+
+      <header class="topbar">
+        <a href="#reading" class="brand">
+          <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="8" fill="none" stroke="currentColor" /><circle cx="9" cy="9" r="2.4" fill="var(--accent-soft)" /></svg>
+          Corvina Records
+        </a>
+        <span class="mono hide-sm">The Corvina Ledger · Session Archive 1957–1964</span>
+        <span class="mono hide-sm">Reading Room · Vol. III</span>
+        <a href="#colophon" class="mono request"><span class="hide-sm">Request a listening</span><span class="show-sm">Visit</span> ↗</a>
+      </header>
+
+      <div class="frame">
+        <!-- Index rail -->
+        <nav class="rail" aria-label="Ledger index">
+          <p class="mono rail-head">Index <span>— 5 parts</span></p>
+          <ol class="rail-list">
+            {sections.map((s) => (
+              <li>
+                <a href={`#${s.id}`} class="rail-link" data-rail={s.id}>
+                  <span class="mono num">{s.num}.</span>
+                  <span class="lbl">{s.label}</span>
+                </a>
+                {s.id === 'reading' && (
+                  <ol class="rail-sub">
+                    {sessions.map((x, i) => (
+                      <li>
+                        <button type="button" class="rail-session" data-goto={i} aria-pressed={i === 0 ? 'true' : 'false'}>
+                          <span class="mono">{x.cat}</span>
+                          <span class="t">{x.title.join(' ')}</span>
+                        </button>
+                      </li>
+                    ))}
+                  </ol>
+                )}
+              </li>
+            ))}
+          </ol>
+          <div class="rail-foot mono">
+            <p>Shelfmark <b>CVR / LDG / 3</b></p>
+            <p>Folios 1–96 · 214 × 290 mm</p>
+            <p>Held at Corvina House, Baltimore</p>
+          </div>
+        </nav>
+
+        <main class="main">
+          <!-- I. Reading spread (first viewport) -->
+          <section id="reading" class="spread-wrap" aria-label="The reading spread">
+            <div class="book">
+              {sessions.map((s, i) => (
+                <article class={`spread ${i === 0 ? 'is-active' : ''}`} data-spread={i} aria-label={`${s.cat} ${s.title.join(' ')}`} hidden={i !== 0}>
+                  <div class="page left paper">
+                    <div class="page-head mono">
+                      <span>{s.cat} · Session Nº {s.cat.slice(-2)}</span>
+                      <span>{s.date}</span>
+                    </div>
+                    <h1 class="display reveal">
+                      {s.title.map((line) => (
+                        <span class="line"><span>{line}</span></span>
+                      ))}
+                    </h1>
+                    <p class="byline">
+                      <em>{s.artist}</em> · <span class="mono">{s.room}</span>
+                    </p>
+                    <div class="text-grid">
+                      <div class="prose">
+                        <p class="lede">{s.lede}</p>
+                        <p class="dropcap">{s.body}</p>
+                      </div>
+                      <aside class="margin-note">
+                        <p class="mono">{s.margin.label}</p>
+                        <p>{s.margin.text}</p>
+                      </aside>
+                    </div>
+                    <dl class="personnel">
+                      {s.personnel.map(([n, r]) => (
+                        <div><dt class="mono">{r}</dt><dd>{n}</dd></div>
+                      ))}
+                    </dl>
+                    <div class="folio mono"><span>Corvina Ledger</span><span>fol. {s.fol}</span></div>
+                  </div>
+
+                  <div class="page right paper">
+                    <div class="page-head mono">
+                      <span>Plate & sides</span>
+                      <span>Matrix {s.matrix}</span>
+                    </div>
+                    <figure class="plate">
+                      <div class="plate-frame">
+                        <div class="disc" aria-hidden="true"><span style={`background:${s.sleeve.bg}`}></span></div>
+                        <div class="sleeve" style={`--sb:${s.sleeve.bg};--si:${s.sleeve.ink};--sm:${s.sleeve.mark}`} role="img" aria-label={`Sleeve of ${s.title.join(' ')}`}>
+                          <span class="sl-cat">{s.cat}</span>
+                          <span class="sl-grid" aria-hidden="true">{Array.from({ length: 9 }).map((_, k) => <i class={k === 8 ? 'm' : ''}></i>)}</span>
+                          <span class="sl-title">{s.title.join(' ')}</span>
+                          <span class="sl-artist">{s.artist}</span>
+                        </div>
+                      </div>
+                      <figcaption>{s.caption}</figcaption>
+                    </figure>
+                    <ol class="tracks">
+                      {s.tracks.map((t) => (
+                        <li>
+                          <span class="mono side">{t.side}</span>
+                          <span class="tt">{t.title}</span>
+                          <span class="lead" aria-hidden="true"></span>
+                          <span class="mono">{t.time}</span>
+                        </li>
+                      ))}
+                    </ol>
+                    <p class="eng mono">Engineer — {s.engineer}</p>
+                    <div class="folio mono">
+                      <button type="button" class="turn" data-turn="-1" aria-label="Previous session">← prev</button>
+                      <span>fol. {s.fol + 1}</span>
+                      <button type="button" class="turn" data-turn="1" aria-label="Next session">next →</button>
+                    </div>
+                  </div>
+                </article>
+              ))}
+              <span class="crease" aria-hidden="true"></span>
+            </div>
+          </section>
+
+          <!-- II. Catalogue -->
+          <section id="catalogue" class="part">
+            <header class="part-head">
+              <p class="mono">Part II · fol. 60–71</p>
+              <h2 class="display">Catalogue of Issues</h2>
+              <p class="part-sub">Every Corvina long-player, in the order the matrix numbers were assigned. Six of the forty-one are shown; the rest are held in the ledger.</p>
+            </header>
+            <ol class="cards">
+              {catalogue.map((c) => (
+                <li class="card paper">
+                  <div class="mini-sleeve" style={`--sb:${c.bg};--si:${c.ink}`} aria-hidden="true">
+                    <span>{c.cat}</span>
+                    <b>{c.title}</b>
+                  </div>
+                  <div class="card-meta">
+                    <p class="mono">{c.cat} · {c.year}</p>
+                    <h3>{c.title}</h3>
+                    <p><em>{c.artist}</em></p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </section>
+
+          <!-- III. Register -->
+          <section id="register" class="part">
+            <div class="sheet paper">
+              <div class="page-head mono"><span>Part III · Personnel Register</span><span>fol. 72</span></div>
+              <h2 class="display">Personnel Register</h2>
+              <p class="part-sub ink">Players and engineers, alphabetised by surname. References are catalogue numbers, read against the matrix ledger on fol. 60.</p>
+              <ul class="register">
+                {register.map((r) => (
+                  <li>
+                    <span class="nm">{r.name}</span>
+                    <span class="role">{r.role}</span>
+                    <span class="lead" aria-hidden="true"></span>
+                    <span class="mono refs">{r.refs.join(', ')}</span>
+                  </li>
+                ))}
+              </ul>
+              <div class="folio mono"><span>Register continues on fol. 73</span><span>A — W</span></div>
+            </div>
+          </section>
+
+          <!-- IV. Masters -->
+          <section id="masters" class="part">
+            <div class="essay paper">
+              <div class="page-head mono"><span>Part IV · On the Masters</span><span>fol. 88</span></div>
+              <div class="essay-grid">
+                <div class="prose">
+                  <h2 class="display">Why we never remastered</h2>
+                  <p class="dropcap">Corvina’s tapes were cut on a single Ampex 350 that Walt Sorensen kept in the back of a laundry van. When the label closed in 1964 the masters went into a church basement in Fells Point, and they stayed there, dry and forgotten, for thirty-one years.</p>
+                  <p>The reissues in this ledger are transferred flat. No noise reduction, no reverb, no re-balancing. When a bass is flat, it stays flat. Where a stamper cracked, the tick is documented rather than removed.<sup>1</sup></p>
+                  <blockquote>
+                    <p>“A record is a receipt for a room. You don’t edit a receipt.”</p>
+                    <cite class="mono">— Della Ostrander, 1987</cite>
+                  </blockquote>
+                </div>
+                <aside class="notes">
+                  <div class="margin-note"><p class="mono">Note 1</p><p>See pressing ledger P-61, entry 12, and the transfer log for CV-1031.</p></div>
+                  <div class="margin-note"><p class="mono">Provenance</p><p>Basement of St. Casimir, Fells Point. Recovered 1995 by the Ostrander family.</p></div>
+                  <dl class="facts mono">
+                    <div><dt>Reels held</dt><dd>212</dd></div>
+                    <div><dt>Sessions</dt><dd>41</dd></div>
+                    <div><dt>Splices</dt><dd>0</dd></div>
+                  </dl>
+                </aside>
+              </div>
+            </div>
+          </section>
+
+          <!-- V. Colophon -->
+          <footer id="colophon" class="part colophon">
+            <div>
+              <p class="mono">Part V · Colophon</p>
+              <h2 class="display">Visit the reading room</h2>
+              <p class="part-sub">Listening appointments at Corvina House are held Thursday to Saturday. Each visitor is assigned one turntable, one ledger and two hours.</p>
+              <form class="req" id="req">
+                <label for="email" class="mono">Your address</label>
+                <div class="req-row">
+                  <input id="email" type="email" required placeholder="name@domain.com" autocomplete="email" />
+                  <button type="submit" class="mono">Request a slot</button>
+                </div>
+                <p class="mono req-msg" role="status" aria-live="polite"></p>
+              </form>
+            </div>
+            <dl class="colo mono">
+              <div><dt>Set in</dt><dd>Cormorant Garamond, EB Garamond, IBM Plex Mono</dd></div>
+              <div><dt>Address</dt><dd>Corvina House, 9 Thames St, Baltimore</dd></div>
+              <div><dt>Ledger</dt><dd>CVR / LDG / 3 · Vol. III of IV</dd></div>
+              <div><dt>Founded</dt><dd>1957 · closed 1964 · reopened 1996</dd></div>
+            </dl>
+          </footer>
+        </main>
+
+        <aside class="edge mono" aria-hidden="true"><span>CVR · LDG · III — Session Archive — Do not remove from reading room</span></aside>
+      </div>
+    </div>
+    <BackPill />
+  </body>
+</html>
+
+<style is:global>
+  :root {
+    --shell: #16120f;
+    --shell-2: #1d1814;
+    --line: rgb(232 218 190 / 0.12);
+    --line-2: rgb(232 218 190 / 0.22);
+    --shell-ink: #c9bba1;
+    --shell-dim: #8a7d68;
+    --paper: #eee2c8;
+    --paper-2: #e4d4b2;
+    --ink: #2a2119;
+    --ink-2: #5d4e3d;
+    --rule: rgb(42 33 25 / 0.2);
+    --accent: #7c2b22;
+    --accent-soft: #b9564a;
+    --serif-d: 'Cormorant Garamond', Georgia, serif;
+    --serif: 'EB Garamond', Georgia, serif;
+    --mono: 'IBM Plex Mono', ui-monospace, monospace;
+    --noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .25 0 0 0 0 .15 0 0 0 .5 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  html { scroll-behavior: smooth; background: var(--shell); }
+  body { margin: 0; background: var(--shell); color: var(--shell-ink); font-family: var(--serif); -webkit-font-smoothing: antialiased; }
+  .mono { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; }
+  .display { font-family: var(--serif-d); font-weight: 500; letter-spacing: -0.01em; }
+  :focus-visible { outline: 1px solid var(--accent-soft); outline-offset: 3px; }
+
+  /* ---------- shell ---------- */
+  .shell { position: relative; min-height: 100vh; overflow-x: clip; }
+  .drift {
+    position: fixed; inset: -20%; pointer-events: none; z-index: 0;
+    background:
+      radial-gradient(40% 35% at 30% 30%, rgb(124 43 34 / 0.18), transparent 70%),
+      radial-gradient(35% 30% at 75% 70%, rgb(185 141 85 / 0.08), transparent 70%);
+    animation: drift 46s ease-in-out infinite alternate;
+  }
+  @keyframes drift { to { transform: translate3d(6%, -4%, 0) rotate(4deg); } }
+  .shell::after { content: ''; position: fixed; inset: 0; background: var(--noise); opacity: 0.12; pointer-events: none; z-index: 0; }
+  .corner { position: fixed; width: 14px; height: 14px; border: 1px solid var(--line-2); z-index: 3; pointer-events: none; }
+  .corner.tl { top: 58px; left: 10px; border-right: 0; border-bottom: 0; }
+  .corner.tr { top: 58px; right: 10px; border-left: 0; border-bottom: 0; }
+
+  .topbar {
+    position: sticky; top: 0; z-index: 10; height: 52px; display: flex; align-items: center; justify-content: space-between;
+    gap: 24px; padding: 0 28px; border-bottom: 1px solid var(--line);
+    background: rgb(22 18 15 / 0.86); backdrop-filter: blur(10px);
+  }
+  .show-sm { display: none; }
+  .brand { white-space: nowrap; display: flex; align-items: center; gap: 10px; color: #eadcc0; text-decoration: none; font-family: var(--serif-d); font-size: 19px; font-weight: 600; letter-spacing: 0.01em; }
+  .topbar .mono { color: var(--shell-dim); }
+  .request { color: #eadcc0 !important; text-decoration: none; border: 1px solid var(--line-2); padding: 7px 12px; transition: border-color 0.3s, background 0.3s; }
+  .request:hover { border-color: var(--accent-soft); background: rgb(124 43 34 / 0.25); }
+
+  .frame { position: relative; z-index: 1; display: grid; grid-template-columns: 252px minmax(0, 1fr) 44px; }
+
+  /* ---------- index rail ---------- */
+  .rail {
+    position: sticky; top: 52px; align-self: start; height: calc(100vh - 52px); box-sizing: border-box;
+    display: flex; flex-direction: column; padding: 26px 22px 22px 28px; border-right: 1px solid var(--line);
+  }
+  .rail-head { color: var(--shell-dim); margin: 0 0 18px; }
+  .rail-head span { opacity: 0.6; }
+  .rail-list, .rail-sub { list-style: none; margin: 0; padding: 0; }
+  .rail-list > li { border-top: 1px solid var(--line); }
+  .rail-link { display: flex; gap: 12px; align-items: baseline; padding: 11px 0; color: var(--shell-ink); text-decoration: none; transition: color 0.3s; }
+  .rail-link .num { width: 22px; color: var(--shell-dim); }
+  .rail-link .lbl { font-size: 17px; }
+  .rail-link:hover { color: #f1e4c8; }
+  .rail-link.is-current .lbl { color: #f4e7cb; font-style: italic; }
+  .rail-link.is-current .num { color: var(--accent-soft); }
+  .rail-link .num { position: relative; flex: none; }
+  .rail-link.is-current .num::before { content: ''; position: absolute; left: -11px; top: 50%; width: 5px; height: 5px; margin-top: -3px; border-radius: 50%; background: var(--accent-soft); }
+  .rail-sub { margin: -2px 0 12px 34px; border-left: 1px solid var(--line); }
+  .rail-session {
+    display: grid; gap: 2px; width: 100%; text-align: left; background: none; border: 0; cursor: pointer;
+    padding: 7px 0 7px 14px; position: relative; color: var(--shell-dim); font: inherit;
+  }
+  .rail-session .mono { font-size: 9.5px; }
+  .rail-session .t { font-size: 14.5px; font-style: italic; color: var(--shell-ink); transition: color 0.3s; }
+  .rail-session:hover .t { color: #f1e4c8; }
+  .rail-session[aria-pressed='true']::before { content: ''; position: absolute; left: -1px; top: 8px; bottom: 8px; width: 1px; background: var(--accent-soft); }
+  .rail-session[aria-pressed='true'] .mono { color: var(--accent-soft); }
+  .rail-session[aria-pressed='true'] .t { color: #f4e7cb; }
+  .rail-foot { margin-top: auto; color: var(--shell-dim); font-size: 9.5px; line-height: 1.9; border-top: 1px solid var(--line); padding-top: 14px; }
+  .rail-foot p { margin: 0; }
+  .rail-foot b { color: var(--shell-ink); font-weight: 500; }
+
+  .edge { border-left: 1px solid var(--line); position: sticky; top: 52px; height: calc(100vh - 52px); align-self: start; display: grid; place-items: center; color: var(--shell-dim); font-size: 9.5px; }
+  .edge span { writing-mode: vertical-rl; white-space: nowrap; opacity: 0.7; }
+
+  /* ---------- paper ---------- */
+  .paper {
+    position: relative; color: var(--ink);
+    background:
+      var(--noise),
+      radial-gradient(120% 90% at 50% 40%, var(--paper) 55%, var(--paper-2) 100%);
+    background-blend-mode: multiply, normal;
+  }
+  .paper::after { content: ''; position: absolute; inset: 0; pointer-events: none; box-shadow: inset 0 0 60px rgb(120 84 46 / 0.22), inset 0 0 2px rgb(80 56 30 / 0.4); }
+
+  /* ---------- reading spread ---------- */
+  .main { min-width: 0; padding: 26px 34px 80px; }
+  .spread-wrap { min-height: calc(100vh - 52px - 52px); display: flex; scroll-margin-top: 78px; }
+  .book { position: relative; flex: 1; display: flex; filter: drop-shadow(0 30px 40px rgb(0 0 0 / 0.55)) drop-shadow(0 4px 6px rgb(0 0 0 / 0.4)); }
+  .spread { flex: 1; display: grid; grid-template-columns: 1fr 1fr; }
+  .spread[hidden] { display: none; }
+  .page { box-sizing: border-box; padding: 26px 40px 20px; display: flex; flex-direction: column; min-width: 0; }
+  .page.left { border-radius: 3px 0 0 3px; }
+  .page.left::before { content: ''; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(90deg, rgb(70 44 20 / 0.12), transparent 6%, transparent 84%, rgb(70 44 20 / 0.28)); }
+  .page.right { border-radius: 0 3px 3px 0; background-color: var(--paper); }
+  .page.right::before { content: ''; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(90deg, rgb(70 44 20 / 0.3), rgb(255 248 230 / 0.15) 8%, transparent 20%, transparent 94%, rgb(70 44 20 / 0.14)); }
+  .crease { position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; transform: translateX(-1px); background: linear-gradient(rgb(60 38 18 / 0.15), rgb(60 38 18 / 0.45) 50%, rgb(60 38 18 / 0.15)); pointer-events: none; }
+
+  .page-head { display: flex; justify-content: space-between; gap: 12px; color: var(--ink-2); font-size: 9.5px; padding-bottom: 10px; border-bottom: 1px solid var(--rule); position: relative; z-index: 1; }
+  .page > *, .sheet > *, .essay > * { position: relative; z-index: 1; }
+  .page h1 { font-size: clamp(42px, 4.4vw, 66px); line-height: 0.95; margin: 22px 0 12px; color: var(--ink); }
+  .page h1 .line:last-child span { font-style: italic; color: var(--accent); }
+  .reveal .line { display: block; overflow: hidden; padding-bottom: 0.08em; }
+  .reveal .line > span { display: inline-block; }
+  .is-active .reveal .line > span { animation: rise 1.1s cubic-bezier(0.2, 0.7, 0.1, 1) both; }
+  .is-active .reveal .line:nth-child(2) > span { animation-delay: 0.12s; }
+  @keyframes rise { from { transform: translateY(105%); } }
+  .is-active .byline, .is-active .text-grid, .is-active .plate, .is-active .tracks { animation: fadein 1.2s 0.25s ease both; }
+  @keyframes fadein { from { opacity: 0; transform: translateY(8px); } }
+
+  .byline { margin: 0 0 16px; font-size: 18px; color: var(--ink-2); }
+  .byline em { color: var(--ink); }
+  .byline .mono { font-size: 9.5px; }
+  .text-grid { display: grid; grid-template-columns: minmax(0, 1fr) 132px; gap: 22px; flex: 1; }
+  .prose p { margin: 0 0 10px; font-size: 16.5px; line-height: 1.58; hyphens: auto; text-wrap: pretty; }
+  .prose .lede { font-style: italic; font-size: 18px; color: var(--ink-2); line-height: 1.4; }
+  .dropcap::first-letter { float: left; font-family: var(--serif-d); font-weight: 600; font-size: 4.3em; line-height: 0.78; padding: 6px 8px 0 0; color: var(--accent); }
+  .margin-note { align-self: start; border-top: 1px solid var(--accent); padding-top: 8px; font-size: 14px; line-height: 1.4; font-style: italic; color: var(--ink-2); }
+  .margin-note .mono { font-style: normal; font-size: 9px; color: var(--accent); margin: 0 0 6px; }
+  .margin-note p { margin: 0; }
+  .personnel { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin: 16px 0 14px; padding-top: 12px; border-top: 1px solid var(--rule); }
+  .personnel dt { font-size: 9px; color: var(--accent); margin-bottom: 3px; }
+  .personnel dd { margin: 0; font-size: 16px; line-height: 1.2; }
+  .folio { display: flex; justify-content: space-between; align-items: center; color: var(--ink-2); font-size: 9.5px; padding-top: 10px; margin-top: auto; border-top: 1px solid var(--rule); }
+
+  .plate { margin: 18px 0 12px; }
+  .plate-frame { position: relative; height: clamp(170px, 30vh, 270px); display: flex; align-items: center; padding: 14px 18px; border: 1px solid var(--rule); outline: 1px solid var(--rule); outline-offset: 3px; overflow: hidden; }
+  .sleeve {
+    position: relative; z-index: 1; height: 100%; aspect-ratio: 1; box-sizing: border-box; padding: 6%; display: flex; flex-direction: column;
+    background: var(--sb); color: var(--si); box-shadow: 0 10px 18px rgb(40 24 10 / 0.35);
+    background-image: linear-gradient(135deg, rgb(255 255 255 / 0.08), transparent 40%), var(--noise); background-blend-mode: normal, soft-light;
+  }
+  .sl-cat { font-family: var(--mono); font-size: 8.5px; letter-spacing: 0.16em; opacity: 0.85; }
+  .sl-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; width: 46%; margin: auto 0 10%; }
+  .sl-grid i { aspect-ratio: 1; border: 1px solid currentColor; opacity: 0.6; }
+  .sl-grid i.m { background: var(--sm); border-color: var(--sm); opacity: 1; }
+  .sl-title { font-family: var(--serif-d); font-size: clamp(16px, 1.7vw, 24px); line-height: 1; font-style: italic; }
+  .sl-artist { font-family: var(--mono); font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase; margin-top: 6px; opacity: 0.8; }
+  .disc {
+    position: absolute; z-index: 0; top: 14px; bottom: 14px; aspect-ratio: 1; left: calc(18px + (100% - 28px) * 0.0); translate: 46% 0; border-radius: 50%;
+    background: repeating-radial-gradient(circle, #141110 0 1.5px, #221d1a 1.5px 3px); box-shadow: 0 6px 14px rgb(0 0 0 / 0.35);
+    display: grid; place-items: center; animation: spin 14s linear infinite;
+  }
+  .disc::after { content: ''; position: absolute; inset: 0; border-radius: 50%; background: conic-gradient(from 30deg, transparent, rgb(255 255 255 / 0.12) 8%, transparent 18%, transparent 50%, rgb(255 255 255 / 0.08) 58%, transparent 68%); }
+  .disc span { width: 34%; aspect-ratio: 1; border-radius: 50%; box-shadow: inset 0 0 0 3px rgb(0 0 0 / 0.15); position: relative; }
+  .disc span::after { content: ''; position: absolute; inset: 46%; border-radius: 50%; background: #0e0c0b; }
+  @keyframes spin { to { rotate: 360deg; } }
+  .plate figcaption { font-size: 14px; font-style: italic; color: var(--ink-2); margin-top: 10px; }
+
+  .tracks { list-style: none; margin: 0; padding: 0; }
+  .tracks li { display: flex; align-items: baseline; gap: 10px; padding: 4px 0; font-size: 16px; }
+  .tracks .side { color: var(--accent); width: 22px; }
+  .tracks .mono:last-child { color: var(--ink-2); }
+  .lead { flex: 1; border-bottom: 1px dotted rgb(42 33 25 / 0.35); transform: translateY(-4px); min-width: 12px; }
+  .eng { color: var(--ink-2); font-size: 9.5px; margin: 10px 0 0; }
+  .turn { background: none; border: 0; color: var(--ink); cursor: pointer; font: inherit; letter-spacing: inherit; text-transform: inherit; padding: 4px 0; }
+  .turn:hover { color: var(--accent); }
+
+  /* ---------- parts ---------- */
+  .part { padding-top: 110px; scroll-margin-top: 40px; }
+  .part-head { display: grid; grid-template-columns: 220px 1fr; gap: 6px 40px; align-items: end; margin-bottom: 34px; padding-bottom: 20px; border-bottom: 1px solid var(--line); }
+  .part-head .mono { color: var(--accent-soft); grid-column: 1; }
+  .part-head h2 { grid-column: 1 / -1; }
+  .part h2 { font-size: clamp(38px, 4.4vw, 64px); line-height: 1; margin: 6px 0 4px; color: #efe2c6; }
+  .part-sub { font-size: 18px; line-height: 1.5; max-width: 52ch; margin: 0; color: var(--shell-ink); }
+  .part-head .part-sub { grid-column: 1 / -1; }
+
+  .cards { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; }
+  .card { display: grid; grid-template-columns: 116px minmax(0, 1fr); gap: 16px; align-items: center; padding: 12px; border-radius: 2px; transition: transform 0.5s cubic-bezier(0.2, 0.7, 0.1, 1); }
+  .card:hover { transform: translateY(-4px); }
+  .mini-sleeve { position: relative; z-index: 1; aspect-ratio: 1; background: var(--sb); color: var(--si); padding: 10px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 8px 16px rgb(40 24 10 / 0.3); background-image: var(--noise); background-blend-mode: soft-light; }
+  .mini-sleeve span { font-family: var(--mono); font-size: 7.5px; letter-spacing: 0.16em; }
+  .mini-sleeve b { font-family: var(--serif-d); font-style: italic; font-weight: 500; font-size: 17px; line-height: 1; }
+  .card-meta { position: relative; z-index: 1; padding: 0; }
+  .card-meta .mono { color: var(--accent); font-size: 9.5px; margin: 0; }
+  .card-meta h3 { font-family: var(--serif-d); font-weight: 600; font-size: 22px; margin: 4px 0 0; line-height: 1.1; }
+  .card-meta p:last-child { margin: 2px 0 0; color: var(--ink-2); }
+
+  .sheet, .essay { padding: 28px 48px 22px; border-radius: 3px; box-shadow: 0 30px 50px rgb(0 0 0 / 0.5); }
+  .sheet h2, .essay h2 { color: var(--ink); }
+  .part-sub.ink { color: var(--ink-2); margin-bottom: 26px; }
+  .register { list-style: none; margin: 0 0 24px; padding: 0; columns: 2; column-gap: 56px; }
+  .register li { display: flex; align-items: baseline; gap: 8px; padding: 6px 0; break-inside: avoid; font-size: 17px; }
+  .register .nm { font-weight: 500; }
+  .register .role { font-style: italic; color: var(--ink-2); }
+  .register .refs { color: var(--accent); font-size: 10px; letter-spacing: 0.08em; }
+
+  .essay-grid { display: grid; grid-template-columns: minmax(0, 1fr) 230px; gap: 56px; padding: 18px 0 8px; }
+  .essay .prose p { font-size: 18px; max-width: 60ch; }
+  .essay sup { color: var(--accent); font-family: var(--mono); font-size: 10px; }
+  blockquote { margin: 26px 0 10px; padding: 18px 0 0; border-top: 1px solid var(--rule); }
+  blockquote p { font-family: var(--serif-d); font-style: italic; font-size: clamp(26px, 2.6vw, 38px) !important; line-height: 1.1 !important; color: var(--accent); margin: 0 0 10px !important; }
+  blockquote cite { font-style: normal; color: var(--ink-2); font-size: 9.5px; }
+  .notes { display: grid; gap: 22px; align-content: start; padding-top: 8px; }
+  .facts { margin: 0; border-top: 1px solid var(--rule); }
+  .facts div { display: flex; justify-content: space-between; padding: 9px 0; border-bottom: 1px solid var(--rule); color: var(--ink-2); }
+  .facts dd { margin: 0; color: var(--ink); font-size: 12px; }
+
+  .colophon { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 60px; padding-bottom: 40px; }
+  .colophon > div > .mono { color: var(--accent-soft); }
+  .req { margin-top: 28px; max-width: 460px; }
+  .req label { color: var(--shell-dim); display: block; margin-bottom: 8px; }
+  .req-row { display: flex; border: 1px solid var(--line-2); }
+  .req input { flex: 1; min-width: 0; background: transparent; border: 0; padding: 13px 14px; color: #f0e3c8; font: 17px var(--serif); outline: none; }
+  .req input::placeholder { color: var(--shell-dim); }
+  .req-row:focus-within { border-color: var(--accent-soft); }
+  .req button { background: #eadcc0; color: var(--ink); border: 0; padding: 0 18px; cursor: pointer; transition: background 0.3s; }
+  .req button:hover { background: #f6ead0; }
+  .req-msg { color: var(--accent-soft); min-height: 1em; margin: 10px 0 0; }
+  .colo { margin: 0; align-self: end; border-top: 1px solid var(--line); }
+  .colo div { display: grid; grid-template-columns: 90px 1fr; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+  .colo dt { color: var(--shell-dim); }
+  .colo dd { margin: 0; color: var(--shell-ink); text-transform: none; letter-spacing: 0.02em; font-size: 11.5px; }
+
+  /* ---------- responsive ---------- */
+  @media (max-width: 1180px) {
+    .frame { grid-template-columns: 220px minmax(0, 1fr); }
+    .edge { display: none; }
+    .text-grid { grid-template-columns: 1fr; }
+    .personnel { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .margin-note { max-width: 320px; }
+    .page { padding: 22px 28px 18px; }
+  }
+  @media (max-width: 900px) {
+    .hide-sm { display: none; }
+    .show-sm { display: inline; }
+    .personnel { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .topbar { padding: 0 16px; }
+    .corner { display: none; }
+    .frame { grid-template-columns: minmax(0, 1fr); }
+    .rail { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--line); padding: 18px 16px 6px; }
+    .rail-list > li:not(:first-child), .rail-list > li > .rail-link { display: none; }
+    .rail-list > li { border-top: 0; }
+    .rail-sub { margin: 8px 0 12px; border-left: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+    .rail-session { padding: 8px 0 0; border-top: 1px solid var(--line); }
+    .rail-session .t { font-size: 13.5px; line-height: 1.2; }
+    .rail-session[aria-pressed='true']::before { left: 0; right: 0; top: -1px; bottom: auto; width: auto; height: 1px; }
+    .rail-head { display: none; }
+    .rail-foot { display: none; }
+    .rail::before { content: 'Sessions in this volume'; font: 500 10px var(--mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--shell-dim); }
+    .main { padding: 18px 16px 90px; }
+    .spread-wrap { min-height: 0; }
+    .spread { grid-template-columns: 1fr; }
+    .page { padding: 20px 20px 16px; }
+    .page.left, .page.right { border-radius: 3px; }
+    .page.right { margin-top: 2px; }
+    .crease { display: none; }
+    .part { padding-top: 80px; }
+    .part-head { grid-template-columns: 1fr; }
+    .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .sheet, .essay { padding: 22px 20px 18px; }
+    .register { columns: 1; }
+    .essay-grid { grid-template-columns: 1fr; gap: 28px; }
+    .colophon { grid-template-columns: 1fr; gap: 36px; }
+  }
+  @media (max-width: 560px) {
+    .cards { grid-template-columns: 1fr; }
+    .card { grid-template-columns: 92px minmax(0, 1fr); }
+    .plate-frame { padding: 10px 12px; }
+    .register .role { display: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+</style>
+
+<script>
+  const spreads = [...document.querySelectorAll<HTMLElement>('[data-spread]')];
+  const sessionBtns = [...document.querySelectorAll<HTMLButtonElement>('[data-goto]')];
+  let current = 0;
+
+  const show = (i: number) => {
+    current = (i + spreads.length) % spreads.length;
+    spreads.forEach((s, k) => {
+      const on = k === current;
+      s.hidden = !on;
+      s.classList.toggle('is-active', on);
+    });
+    sessionBtns.forEach((b, k) => b.setAttribute('aria-pressed', String(k === current)));
+  };
+
+  sessionBtns.forEach((b) =>
+    b.addEventListener('click', () => {
+      show(Number(b.dataset.goto));
+      document.getElementById('reading')?.scrollIntoView({ block: 'start' });
+    }),
+  );
+  document.querySelectorAll<HTMLButtonElement>('[data-turn]').forEach((b) =>
+    b.addEventListener('click', () => show(current + Number(b.dataset.turn))),
+  );
+  addEventListener('keydown', (e) => {
+    if ((e.target as HTMLElement).closest('input')) return;
+    if (e.key === 'ArrowRight') show(current + 1);
+    if (e.key === 'ArrowLeft') show(current - 1);
+  });
+
+  // Rail active state follows the part in view.
+  const links = new Map([...document.querySelectorAll<HTMLAnchorElement>('[data-rail]')].map((a) => [a.dataset.rail!, a]));
+  const io = new IntersectionObserver(
+    (entries) => {
+      for (const e of entries) {
+        if (!e.isIntersecting) continue;
+        links.forEach((a, id) => a.classList.toggle('is-current', id === e.target.id));
+      }
+    },
+    { rootMargin: '-45% 0px -50% 0px' },
+  );
+  links.forEach((_, id) => {
+    const el = document.getElementById(id);
+    if (el) io.observe(el);
+  });
+  links.get('reading')?.classList.add('is-current');
+
+  document.getElementById('req')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const msg = document.querySelector('.req-msg');
+    if (msg) msg.textContent = 'Noted in the visitors’ book. We will write to confirm a Thursday.';
+  });
+</script>

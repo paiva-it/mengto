@@ -1,0 +1,990 @@
+---
+import '../../styles/global.css';
+import BackPill from '../../components/BackPill.astro';
+
+// Corps — a fictional rehearsal-operations system for ballet companies.
+// Every company, person, run and number below is sample data.
+
+const traceSteps = [
+  { t: '09:12:04', k: 'Intake', h: 'Physio flag received', d: 'M. Okafor (Myrtha) — rest 72 h, cleared from Thu 14:00 call' },
+  { t: '09:12:06', k: 'Policy', h: 'Four checks recorded', d: 'Weekly hour cap · contract role · partnering history · rest gap' },
+  { t: '09:12:09', k: 'Action', h: 'Cast change prepared', d: 'L. Varga to Myrtha, Thu + Sat. Call sheet redrafted, not sent' },
+  { t: '09:12:11', k: 'Audit', h: 'Evidence packet attached', d: 'Physio ref PX-2291 · hours ledger · draft notices to 6 people' },
+];
+
+const week = [
+  { d: 'Mon', h: 5.5 }, { d: 'Tue', h: 6 }, { d: 'Wed', h: 3.5 }, { d: 'Thu', h: 6.5, add: true },
+  { d: 'Fri', h: 0 }, { d: 'Sat', h: 4, add: true }, { d: 'Sun', h: 0 },
+];
+const cap = 30;
+const weekTotal = week.reduce((s, x) => s + x.h, 0);
+
+const metrics = [
+  { n: '14', l: 'calls to rewrite', s: 'Studio, stage and costume calls that named the injured dancer' },
+  { n: '6', l: 'people to tell', s: 'Dancer, understudy, partner, ballet master, wardrobe, stage management' },
+  { n: '3', l: 'contracts to read', s: 'Role tier, overtime clause and touring rider for the understudy' },
+  { n: '47', u: 'min', l: 'by hand, start to sent', s: 'Timed once by the company office, one substitution, Oct 2025' },
+];
+
+const solutions = [
+  {
+    id: 'substitution',
+    title: 'Injury and illness substitutions',
+    lede: 'A physio flag becomes a prepared cast change in seconds. It reaches the studio only after the ballet master signs it.',
+    summary: 'Reads the rest flag, finds eligible understudies, checks hours and contract tier, and drafts the cast change with every notice it implies.',
+    permissions: 'Read: casting grid, rehearsal calendar, physio clear/rest flag (never the note). Write: drafts only.',
+    action: 'Drafts a cast change, a redrafted call sheet and six notifications. Nothing is sent.',
+    approval: 'Ballet master, or the artistic director as deputy. A rehearsal assistant can view but not approve.',
+    output: 'Published call sheet, updated casting grid, notices to dancer, partner, wardrobe and stage management.',
+    audit: 'Who flagged, which checks ran with their inputs, who approved, when each notice was read.',
+    exception: 'No eligible understudy under the hour cap: the run stops and names the constraint instead of breaking it.',
+    rollback: 'One step back to the last approved cast. Sent notices are retracted with a correction, not deleted.',
+  },
+  {
+    id: 'callsheet',
+    title: 'Daily rehearsal call sheets',
+    lede: 'Tomorrow’s calls drafted at 16:00 from the casting grid, the room plan and who is actually fit to work.',
+    summary: 'Builds the next day’s studio, stage and fitting calls against room capacity, pianist availability and rest gaps.',
+    permissions: 'Read: casting grid, room bookings, pianist roster, wardrobe fittings. Write: draft call sheet.',
+    action: 'Proposes a call sheet and flags every conflict it could not resolve on its own.',
+    approval: 'Company manager publishes. Any change after 18:00 also needs the ballet master.',
+    output: 'One published call sheet to the company board, the app and the stage door screen.',
+    audit: 'Draft diff against the previous day, every unresolved conflict and who overrode it.',
+    exception: 'Room double-booked by the venue: both calls stay drafted and marked, nothing is moved silently.',
+    rollback: 'Republish yesterday’s approved version for a given studio; later edits stay as a draft.',
+  },
+  {
+    id: 'workload',
+    title: 'Dancer workload limits',
+    lede: 'Hours, rest gaps and jump-heavy repertoire tracked per dancer, with the cap enforced before the cast is drafted.',
+    summary: 'Keeps a ledger of rehearsal and performance hours per dancer and refuses drafts that would cross a limit.',
+    permissions: 'Read: calendar, performance log, limits set by the medical team. Cannot edit limits.',
+    action: 'Warns at 85 % of a weekly cap and blocks drafts that would exceed it.',
+    approval: 'Only the medical lead can raise a dancer’s limit, and only for a dated window.',
+    output: 'A weekly load view per dancer shared with the dancer, ballet master and physio.',
+    audit: 'Every warning, every block, and every limit change with its reason and expiry.',
+    exception: 'Performance log late from the venue: the ledger is marked stale and new drafts pause.',
+    rollback: 'Limit changes expire automatically; an early revert is one action for the medical lead.',
+  },
+  {
+    id: 'touring',
+    title: 'Touring freight and per diems',
+    lede: 'Set, costume and rider manifests reconciled per venue, with per diems calculated and held for finance.',
+    summary: 'Matches the touring party and freight manifest to each venue and prepares per diem runs for approval.',
+    permissions: 'Read: touring party, venue riders, freight manifest. Write: draft per diem batch only.',
+    action: 'Prepares a per diem batch and a freight checklist per venue. No payment is initiated.',
+    approval: 'Tour manager approves the batch; finance releases it from their own system.',
+    output: 'Per diem batch file for finance and a freight checklist for the crew chief.',
+    audit: 'Party list snapshot, rates used and their source, approver, release reference from finance.',
+    exception: 'A dancer added to the party after the batch: the batch is invalidated and re-drafted.',
+    rollback: 'An unreleased batch is withdrawn in one step. Released payments are corrected in finance.',
+  },
+];
+const fields = [
+  ['summary', 'Summary'], ['permissions', 'Permissions'], ['action', 'Action'], ['approval', 'Approval'],
+  ['output', 'Output'], ['audit', 'Audit'], ['exception', 'Exception'], ['rollback', 'Rollback'],
+] as const;
+
+const demoStates = [
+  ['pending', 'Awaiting approval'], ['loading', 'Loading'], ['unavailable', 'Integration unavailable'],
+  ['permission', 'Insufficient permission'], ['stale', 'Stale data'], ['denied', 'Approval denied'],
+  ['partial', 'Partial completion'], ['released', 'Released'], ['rolledback', 'Rolled back'], ['error', 'Error'],
+];
+
+const risks = [
+  { r: 'A dancer is cast against medical advice', c: 'A rest flag is a hard block. Corps cannot clear it; only the physio’s own system can.', w: 'Trace · Policy' },
+  { r: 'The schedule changes without anyone deciding', c: 'Every change is a draft until a named owner approves it. Drafts never reach dancers.', w: 'Approval gate' },
+  { r: 'Too many people can change too much', c: 'Roles are scoped per company, studio and production. New users start read-only.', w: 'Permissions' },
+  { r: 'Health information spreads', c: 'Medical notes stay in your physio system. Corps stores a flag, a date and a reference.', w: 'Audit packet' },
+  { r: 'A bad change is released', c: 'One step back to the last approved state; sent notices are corrected, never silently erased.', w: 'Rollback' },
+  { r: 'The model drafts something wrong', c: 'Rule checks run before and after every draft. A failed check halts the run and names it.', w: 'Exception' },
+];
+
+const cases = [
+  {
+    tag: 'substitutions', company: 'Northbank Ballet', where: 'Leeds · 62 dancers',
+    facts: ['Live since 3 Feb 2026 on one production, then the full repertoire from 1 Apr', 'Connected: rehearsal calendar, casting grid, physio rest flags (read-only)', 'Not connected: payroll, ticketing', '118 substitutions approved, 9 denied, 2 rolled back to 30 Sep 2026'],
+    quote: 'I still make the call. I just make it with the call sheet already written and the hours already counted.',
+    who: 'Ines Halloran, Ballet Mistress',
+    read: 'Our reading: the ballet master’s review moved from building the change to judging it.',
+  },
+  {
+    tag: 'touring', company: 'Lindqvist Dance Theatre', where: 'Gothenburg · 34 dancers, 2 tours a year',
+    facts: ['Pilot on the spring 2026 tour: 11 venues, 5 countries', 'Connected: touring party list, venue riders, freight manifest', 'Per diems drafted in Corps, released from their finance system', '22 per diem batches approved, 1 withdrawn before release'],
+    quote: 'The batch is ready when I land. Finance still presses the button, which is how we want it.',
+    who: 'Johan Ek, Tour Manager',
+    read: 'Our reading: approval time fell because the evidence came with the batch, not because anything skipped review.',
+  },
+];
+
+const faqs = [
+  { q: 'Who owns a change once Corps drafts it?', a: 'The person who approves it. Corps records itself as the drafter and the approver as the owner; the audit packet names both. If nobody approves, nothing happens.' },
+  { q: 'What data does Corps read, and what does it keep?', a: 'Calendars, casting grids, room bookings and touring lists through read-only connections. From the physio system it reads only a rest/clear flag, a date and a reference. Drafts and audit packets are kept for the season plus two years, or as your policy sets.' },
+  { q: 'Which systems does it connect to?', a: 'Google and Microsoft calendars, the common casting spreadsheets, two physio record systems and CSV exports for anything else. If your system is not on the list, we say so in the first call instead of promising a connector.' },
+  { q: 'Who reviews what the model writes?', a: 'Your named approvers, every time, for every workflow on this page. Deterministic checks run first and again after the draft; a human signs before anything leaves Corps.' },
+  { q: 'What happens when something fails mid-run?', a: 'The run stops at the failed step, keeps everything it prepared as a draft and tells the owner which step failed and why. Partial releases are listed item by item with a one-step rollback.' },
+  { q: 'How does procurement work?', a: 'A season licence per company, priced by ensemble size. We send our data processing agreement, sub-processor list and the current security review status before you sign — including what we do not have yet.' },
+];
+---
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Corps — rehearsal operations with a visible boundary</title>
+  <meta name="description" content="Corps prepares cast changes, call sheets and per diems for ballet companies, and waits for a named person to approve them." />
+  <script is:inline>document.documentElement.classList.add('js');</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+</head>
+<body class="oe">
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="hdr">
+    <div class="wrap hdr-in">
+      <a class="brand" href="#top" aria-label="Corps home">
+        <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><rect x="0.5" y="0.5" width="17" height="17" fill="none" stroke="currentColor"/><path d="M9 3v12M4 9h10" stroke="currentColor"/></svg>
+        <span>CORPS</span>
+      </a>
+      <nav aria-label="Primary" class="nav">
+        <a href="#product">Product</a>
+        <a href="#solutions">Solutions</a>
+        <a href="#security">Security</a>
+        <a href="#cases">Case studies</a>
+      </nav>
+      <a class="btn btn-line" href="#review">Request a season review</a>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- HERO -->
+    <section id="top" class="hero dark grid-bg">
+      <div class="wrap hero-in">
+        <div class="hero-copy">
+          <p class="eyebrow"><span class="rule"></span>Controlled automation for ballet companies</p>
+          <h1>Prepares the cast change. Never calls the curtain.</h1>
+          <p class="lede">Corps reads the injury flag, checks hours and contracts, and drafts every call and notice a substitution needs. Then it stops, until the ballet master signs. Every change keeps its evidence and a one-step way back.</p>
+          <div class="ctas">
+            <a class="btn btn-solid" href="#review">Map your season</a>
+            <a class="btn btn-ghost" href="#security">Review the controls</a>
+          </div>
+          <dl class="boundary">
+            <div><dt>Corps does</dt><dd>Read, check, draft, record</dd></div>
+            <div><dt>People do</dt><dd>Approve, release, overrule</dd></div>
+          </dl>
+        </div>
+
+        <figure class="trace" id="trace" aria-labelledby="trace-cap">
+          <div class="trace-top mono">
+            <span>Workflow trace · sample data</span>
+            <span>Run 0187 / <span class="sig" data-run-status>Review required</span></span>
+          </div>
+          <p class="trace-title">Giselle, Act II — Thursday &amp; Saturday</p>
+          <ol class="steps">
+            {traceSteps.map((s, i) => (
+              <li class="step" data-step={i}>
+                <span class="mono t">{s.t}</span>
+                <span class="mono k">0{i + 1} · {s.k}</span>
+                <span class="h">{s.h}</span>
+                <span class="d">{s.d}</span>
+                <span class="dot" aria-hidden="true"></span>
+              </li>
+            ))}
+          </ol>
+          <div class="gate" data-step="4">
+            <div class="mono gate-top"><span>Human approval gate</span><span>Owner · Ballet master</span></div>
+            <p>Nothing reaches the studio until the ballet master reviews the cast, the hours and the rollback plan.</p>
+          </div>
+          <div class="load">
+            <div class="load-head mono"><span>L. Varga · load this week if approved</span><span><b class="num">{weekTotal}</b> / {cap} h cap</span></div>
+            <div class="bars" role="img" aria-label={`Daily rehearsal hours for L. Varga, Monday to Sunday: ${week.map((w) => `${w.d} ${w.h} hours${w.add ? ' including the new call' : ''}`).join(', ')}. Total ${weekTotal} of a ${cap} hour weekly cap.`}>
+              {week.map((w) => (
+                <div class="bar-col">
+                  <div class="bar"><i class={w.add ? 'add' : ''} style={`--h:${(w.h / 7) * 100}%`}></i></div>
+                  <span class="mono">{w.d}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div class="trace-stats">
+            <div><b class="num" data-count="4">4 / 4</b><span>Checks recorded</span></div>
+            <div><b class="num">1</b><span>Approval pending</span></div>
+            <div><b class="num">1 step</b><span>Rollback to original cast</span></div>
+          </div>
+          <figcaption id="trace-cap" class="sr">Sample workflow trace for run 0187: a physio rest flag for one dancer leads to four recorded checks, a prepared cast change and an evidence packet. The change is waiting for the ballet master's approval and can be rolled back in one step.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- METRICS (white interlude) -->
+    <section class="light metrics" aria-labelledby="m-h">
+      <div class="wrap">
+        <div class="sec-head">
+          <p class="mono kicker">01 — The problem</p>
+          <h2 id="m-h">One sprained ankle on a Tuesday rewrites the whole week.</h2>
+        </div>
+        <div class="m-grid">
+          {metrics.map((m) => (
+            <div class="m reveal">
+              <b class="num m-n">{m.n}{m.u && <small>{m.u}</small>}</b>
+              <span class="m-l">{m.l}</span>
+              <span class="m-s">{m.s}</span>
+            </div>
+          ))}
+        </div>
+        <p class="mono source">Scope: one substitution in a sample week at Northbank Ballet, 2025–26 season, counted from their office’s schedule export. Not a benchmark, not an average.</p>
+      </div>
+    </section>
+
+    <!-- SOLUTIONS -->
+    <section id="solutions" class="light solutions" aria-labelledby="s-h">
+      <div class="wrap">
+        <div class="sec-head split">
+          <div>
+            <p class="mono kicker">02 — Workflows</p>
+            <h2 id="s-h">Four workflows. Each one shows its permissions, its approver and its way back.</h2>
+          </div>
+          <p class="sec-note">Open a row to see what Corps may read and write, who signs, what it records, what stops it, and how the change is undone.</p>
+        </div>
+        <ul class="rows">
+          {solutions.map((s, i) => (
+            <li class="row" data-row>
+              <h3>
+                <button class="row-btn" aria-expanded={i === 0 ? 'true' : 'false'} aria-controls={`row-${s.id}`} id={`rowb-${s.id}`}>
+                  <span class="mono idx">0{i + 1}</span>
+                  <span class="row-title">{s.title}</span>
+                  <span class="row-lede">{s.lede}</span>
+                  <span class="row-tog mono" aria-hidden="true"><span class="lbl-open">Expand</span><span class="lbl-close">Close</span> <i></i></span>
+                </button>
+              </h3>
+              <div class="row-panel" id={`row-${s.id}`} role="region" aria-labelledby={`rowb-${s.id}`} hidden={i !== 0}>
+                <p class="flow mono" aria-label="Flow">Intake → Checks → Draft → <b>Approval</b> → Release → Audit</p>
+                <dl class="spec">
+                  {fields.map(([k, label]) => (
+                    <div class={`cell c-${k}`}><dt class="mono">{label}</dt><dd>{s[k]}</dd></div>
+                  ))}
+                </dl>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+
+    <!-- DEMO -->
+    <section id="product" class="dark demo" aria-labelledby="d-h">
+      <div class="wrap">
+        <div class="sec-head split">
+          <div>
+            <p class="mono kicker">03 — Product</p>
+            <h2 id="d-h">Run 0187, every state it can be in.</h2>
+          </div>
+          <p class="sec-note">Sample data, deterministic. Act as the ballet master or as a rehearsal assistant, approve or deny, then roll back — or jump to any state from the list.</p>
+        </div>
+
+        <div class="demo-grid">
+          <div class="demo-side">
+            <fieldset class="role">
+              <legend class="mono">Acting as</legend>
+              <label><input type="radio" name="role" value="bm" checked /> <span>Ballet master</span></label>
+              <label><input type="radio" name="role" value="ra" /> <span>Rehearsal assistant</span></label>
+            </fieldset>
+            <p class="mono side-lbl" id="states-lbl">States</p>
+            <ul class="states" aria-labelledby="states-lbl">
+              {demoStates.map(([k, l]) => (
+                <li><button class="state-btn" data-state={k} aria-pressed={k === 'pending' ? 'true' : 'false'}><i class={`tone-dot t-${k}`}></i>{l}</button></li>
+              ))}
+            </ul>
+          </div>
+
+          <div class="console" aria-live="polite">
+            <div class="console-top mono">
+              <span>Corps · Northbank Ballet · Giselle</span>
+              <span id="c-clock">Data as of 09:12</span>
+            </div>
+            <div class="console-body">
+              <div class="c-status">
+                <span class="pill mono" id="c-pill">Awaiting approval</span>
+                <span class="mono c-run">Run 0187</span>
+              </div>
+              <h3 id="c-title">Cast change ready for your review</h3>
+              <p id="c-body" class="c-body"></p>
+              <div class="c-cols">
+                <div><p class="mono c-sub">Corps did</p><ul id="c-did"></ul></div>
+                <div><p class="mono c-sub">Corps did not</p><ul id="c-didnot"></ul></div>
+              </div>
+              <div class="c-actions" id="c-actions"></div>
+            </div>
+            <ol class="c-log mono" id="c-log" aria-label="Audit log"></ol>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECURITY -->
+    <section id="security" class="dark security" aria-labelledby="sec-h">
+      <div class="wrap">
+        <div class="sec-head split">
+          <div>
+            <p class="mono kicker">04 — Security &amp; governance</p>
+            <h2 id="sec-h">Each control answers a specific risk.</h2>
+          </div>
+          <p class="sec-note">There are no badges on this page. In the review we show you the current security assessment, the sub-processor list and the data processing agreement — and say plainly what we do not have yet.</p>
+        </div>
+        <div class="risk-table" role="table" aria-label="Risks and controls">
+          <div class="risk-row head mono" role="row">
+            <span role="columnheader">Risk</span><span role="columnheader">Control</span><span role="columnheader">Where you see it</span>
+          </div>
+          {risks.map((x) => (
+            <div class="risk-row reveal" role="row">
+              <span role="cell" class="r">{x.r}</span>
+              <span role="cell" class="c">{x.c}</span>
+              <span role="cell" class="w mono">{x.w}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- CASES -->
+    <section id="cases" class="light cases" aria-labelledby="c-h">
+      <div class="wrap">
+        <div class="sec-head split">
+          <div>
+            <p class="mono kicker">05 — Case studies</p>
+            <h2 id="c-h">What was connected, what was approved, what they said.</h2>
+          </div>
+          <div class="filters" role="group" aria-label="Filter case studies">
+            <button class="chip" data-filter="all" aria-pressed="true">All</button>
+            <button class="chip" data-filter="substitutions" aria-pressed="false">Substitutions</button>
+            <button class="chip" data-filter="touring" aria-pressed="false">Touring</button>
+          </div>
+        </div>
+        <div class="case-list">
+          {cases.map((c) => (
+            <article class="case" data-tag={c.tag}>
+              <header class="case-head">
+                <div><h3>{c.company}</h3><p class="mono">{c.where}</p></div>
+                <span class="mono case-tag">{c.tag}</span>
+              </header>
+              <div class="case-body">
+                <div>
+                  <p class="mono c-sub">Implementation facts</p>
+                  <ul class="facts">{c.facts.map((f) => <li>{f}</li>)}</ul>
+                </div>
+                <div>
+                  <p class="mono c-sub">In their words</p>
+                  <blockquote><p>“{c.quote}”</p><footer>— {c.who}</footer></blockquote>
+                  <p class="mono c-sub">Interpretation</p>
+                  <p class="read">{c.read}</p>
+                </div>
+              </div>
+              <a class="case-link" href="#review" data-context={c.tag}>Ask about a pilot like this →</a>
+            </article>
+          ))}
+          <p class="empty mono" hidden>No case studies for this workflow yet.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="light faq" aria-labelledby="f-h">
+      <div class="wrap faq-in">
+        <div>
+          <p class="mono kicker">06 — Questions buyers ask</p>
+          <h2 id="f-h">Ownership, data, failure, procurement.</h2>
+        </div>
+        <div class="faq-list">
+          {faqs.map((f) => (
+            <details>
+              <summary><span>{f.q}</span><i aria-hidden="true"></i></summary>
+              <p>{f.a}</p>
+            </details>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section id="review" class="dark cta grid-bg" aria-labelledby="r-h">
+      <div class="wrap cta-in">
+        <div class="cta-copy">
+          <p class="mono kicker">07 — Season review</p>
+          <h2 id="r-h">For companies with a resident ensemble and a ballet master who signs the call sheet.</h2>
+          <p class="lede">We map one workflow from your current season — usually substitutions — against your systems, roles and approval rules, and tell you whether Corps fits. If it doesn’t, you keep the map.</p>
+          <dl class="after">
+            <div><dt class="mono">Who receives it</dt><dd>Our two-person implementation team, not a sales queue.</dd></div>
+            <div><dt class="mono">Response</dt><dd>A reply within two working days with three proposed times.</dd></div>
+            <div><dt class="mono">Data use</dt><dd>Only to arrange the review. Deleted after 90 days if we don’t work together.</dd></div>
+          </dl>
+        </div>
+
+        <form class="form" id="form" novalidate>
+          <div class="form-top mono"><span>Request a season review</span><span>Sample form · nothing is sent</span></div>
+          <div class="f-grid">
+            <label class="fld"><span>Name</span><input name="name" autocomplete="name" required /><em class="err" data-err="name"></em></label>
+            <label class="fld"><span>Work e-mail</span><input name="email" type="email" autocomplete="email" required /><em class="err" data-err="email"></em></label>
+            <label class="fld"><span>Company</span><input name="company" autocomplete="organization" required /><em class="err" data-err="company"></em></label>
+            <label class="fld"><span>Ensemble size</span>
+              <select name="size" required>
+                <option value="">Choose…</option>
+                <option>Under 20 dancers</option>
+                <option>20–40 dancers</option>
+                <option>41–80 dancers</option>
+                <option>More than 80</option>
+              </select>
+              <em class="err" data-err="size"></em>
+            </label>
+            <label class="fld wide"><span>Workflow to map first</span>
+              <select name="workflow">
+                <option value="substitutions">Injury and illness substitutions</option>
+                <option value="callsheet">Daily rehearsal call sheets</option>
+                <option value="workload">Dancer workload limits</option>
+                <option value="touring">Touring freight and per diems</option>
+              </select>
+            </label>
+            <div class="ctx wide" id="ctx" hidden>
+              <label class="check"><input type="checkbox" name="useContext" /> <span>Include which case study I came from (<b id="ctx-name"></b>). Nothing else is attached.</span></label>
+            </div>
+            <label class="check wide"><input type="checkbox" name="simfail" /> <span class="mono dim">Simulate a network failure</span></label>
+          </div>
+          <div class="f-foot">
+            <button class="btn btn-solid" type="submit" id="submit">Send request</button>
+            <p class="f-msg" id="f-msg" role="status"></p>
+          </div>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot dark">
+    <div class="wrap foot-in mono">
+      <span>Corps · rehearsal operations</span>
+      <span>Corps is fictional. Every company, person, run and number on this page is sample data.</span>
+    </div>
+  </footer>
+
+  <BackPill />
+</body>
+</html>
+
+<style is:global>
+  :root {
+    --ink: #0a0a0b; --ink-2: #111113; --ink-3: #18181b;
+    --hair: rgb(255 255 255 / 0.09); --hair-2: rgb(255 255 255 / 0.16);
+    --paper: #f1efea; --paper-2: #e8e5de; --paper-line: #d3cfc6;
+    --warm: #f3f1ec; --mute: #8f8d88; --mute-d: #6b6963;
+    --sig: #ebc6bf;          /* satin — the one signal colour */
+    --ok: #b9d3c3; --warn: #e4cf9a; --bad: #e8a59b;
+    --spectral: linear-gradient(90deg, #ebc6bf, #d9cbe8 50%, #c4dde0);
+    --sans: 'Onest', ui-sans-serif, system-ui, sans-serif;
+    --mono: 'JetBrains Mono', ui-monospace, monospace;
+    --e: cubic-bezier(.2, .7, .2, 1);
+  }
+  html { scroll-behavior: auto; }
+  body.oe { margin: 0; background: var(--ink); color: var(--warm); font-family: var(--sans); -webkit-font-smoothing: antialiased; }
+  .oe * { box-sizing: border-box; }
+  :where(.oe) :where(h1, h2, h3, p, ul, ol, dl, dd, figure, blockquote) { margin: 0; padding: 0; }
+  :where(.oe) :where(ul, ol) { list-style: none; }
+  :where(.oe) :where(a) { color: inherit; }
+  :where(.oe) :where(button) { font: inherit; color: inherit; }
+  .oe :focus-visible { outline: 2px solid var(--sig); outline-offset: 3px; }
+  .light :focus-visible { outline-color: #8a4b42; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .skip { position: absolute; left: -999px; top: 8px; z-index: 50; background: var(--warm); color: var(--ink); padding: 8px 12px; }
+  .skip:focus { left: 8px; }
+  .mono { font-family: var(--mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; }
+  .num { font-variant-numeric: tabular-nums; }
+  .wrap { width: 100%; max-width: 1280px; margin: 0 auto; padding: 0 40px; }
+  .dark { background: var(--ink); color: var(--warm); }
+  .light { background: var(--paper); color: var(--ink); }
+  .grid-bg {
+    background-image:
+      linear-gradient(var(--hair) 1px, transparent 1px),
+      linear-gradient(90deg, var(--hair) 1px, transparent 1px);
+    background-size: 80px 80px; background-position: -1px -1px;
+  }
+
+  /* buttons */
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 44px; padding: 0 20px; border-radius: 4px; font-size: 15px; font-weight: 500; text-decoration: none; cursor: pointer; transition: background .18s var(--e), color .18s var(--e), border-color .18s var(--e); border: 1px solid transparent; white-space: nowrap; }
+  .btn-solid { background: var(--warm); color: var(--ink); }
+  .btn-solid:hover { background: #fff; }
+  .btn-ghost { border-color: var(--hair-2); color: var(--warm); }
+  .btn-ghost:hover { border-color: var(--warm); }
+  .btn-line { height: 36px; padding: 0 14px; font-size: 12px; font-family: var(--mono); letter-spacing: .06em; text-transform: uppercase; border-color: var(--hair-2); }
+  .btn-line:hover { border-color: var(--sig); color: var(--sig); }
+  .btn[disabled] { opacity: .5; cursor: not-allowed; }
+
+  /* header */
+  .hdr { position: sticky; top: 0; z-index: 20; background: rgb(10 10 11 / .86); backdrop-filter: blur(10px); border-bottom: 1px solid var(--hair); }
+  .hdr-in { display: flex; align-items: center; justify-content: space-between; height: 64px; gap: 24px; }
+  .brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 700; letter-spacing: .14em; font-size: 13px; }
+  .nav { display: flex; gap: 28px; }
+  .nav a { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--mute); text-decoration: none; transition: color .18s; }
+  .nav a:hover { color: var(--warm); }
+
+  /* hero */
+  .hero { border-bottom: 1px solid var(--hair); }
+  .hero-in { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.02fr); gap: 56px; align-items: center; padding-top: 64px; padding-bottom: 72px; min-height: calc(100vh - 64px); max-height: 980px; }
+  .eyebrow { display: flex; align-items: center; gap: 12px; font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--mute); }
+  .eyebrow .rule { width: 32px; height: 1px; background: var(--spectral); }
+  .hero h1 { margin-top: 24px; font-size: clamp(42px, 5.6vw, 84px); line-height: .96; letter-spacing: -.045em; font-weight: 600; text-wrap: balance; }
+  .hero .lede { margin-top: 28px; max-width: 30em; font-size: 17px; line-height: 1.55; color: #b9b6b0; }
+  .ctas { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 32px; }
+  .boundary { display: grid; grid-template-columns: 1fr 1fr; margin-top: 40px; border-top: 1px solid var(--hair-2); max-width: 30em; }
+  .boundary div { padding-top: 14px; }
+  .boundary div + div { padding-left: 20px; border-left: 1px solid var(--hair); }
+  .boundary dt { font-family: var(--mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--mute); }
+  .boundary dd { margin-top: 6px; font-size: 14px; }
+  .boundary div + div dd { color: var(--sig); }
+
+  /* trace */
+  .trace { background: rgb(17 17 19 / .94); border: 1px solid var(--hair-2); padding: 20px; }
+  .trace-top { display: flex; justify-content: space-between; gap: 12px; color: var(--mute); }
+  .sig { color: var(--sig); }
+  .trace-title { margin-top: 14px; font-size: 15px; font-weight: 500; color: var(--warm); }
+  .steps { margin-top: 14px; border-top: 1px solid var(--hair); }
+  .step { position: relative; display: grid; grid-template-columns: 72px 92px minmax(0, 1fr); grid-template-rows: auto auto; column-gap: 12px; padding: 11px 26px 11px 0; border-bottom: 1px solid var(--hair); transition: opacity .5s var(--e); }
+  .step .t { color: var(--mute-d); grid-row: 1; }
+  .step .k { color: var(--mute); grid-row: 1; }
+  .step .h { grid-column: 3; grid-row: 1; font-size: 14px; font-weight: 500; }
+  .step .d { grid-column: 3; grid-row: 2; font-size: 12.5px; color: #9c9a95; margin-top: 2px; line-height: 1.45; }
+  .step .dot { position: absolute; right: 4px; top: 15px; width: 7px; height: 7px; border-radius: 50%; border: 1px solid var(--hair-2); transition: background .3s, border-color .3s; }
+  .step.on .dot { background: var(--ok); border-color: var(--ok); }
+  .js .step:not(.on), .js .gate:not(.on) { opacity: .28; }
+  .gate { position: relative; margin-top: 14px; padding: 14px 16px; background: var(--ink-3); border: 1px solid var(--hair-2); transition: opacity .5s var(--e); }
+  .gate::before { content: ''; position: absolute; left: -1px; right: -1px; top: -1px; height: 1px; background: var(--spectral); }
+  .gate-top { display: flex; justify-content: space-between; gap: 12px; color: var(--sig); }
+  .gate p { margin-top: 8px; font-size: 13.5px; line-height: 1.5; color: #d6d3cd; }
+  .gate.on .gate-top span:first-child::after { content: ' · pending'; color: var(--mute); }
+  .load { margin-top: 16px; }
+  .load-head { display: flex; justify-content: space-between; gap: 12px; color: var(--mute); }
+  .load-head b { color: var(--warm); font-weight: 500; }
+  .bars { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-top: 10px; }
+  .bar-col { display: grid; gap: 6px; text-align: center; color: var(--mute-d); }
+  .bar { position: relative; height: 44px; background: rgb(255 255 255 / .03); border: 1px solid var(--hair); }
+  .bar i { position: absolute; left: 0; right: 0; bottom: 0; height: var(--h); background: #3a3936; transform-origin: bottom; transition: transform .7s var(--e); }
+  .bar i.add { background: var(--sig); }
+  .js .trace:not(.drawn) .bar i { transform: scaleY(0); }
+  .trace-stats { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 16px; border-top: 1px solid var(--hair); }
+  .trace-stats div { padding-top: 14px; display: grid; gap: 4px; }
+  .trace-stats div + div { padding-left: 16px; border-left: 1px solid var(--hair); }
+  .trace-stats b { font-size: 24px; font-weight: 600; letter-spacing: -.02em; }
+  .trace-stats span { font-family: var(--mono); font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: var(--mute); }
+
+  /* section heads */
+  .metrics, .solutions, .cases, .faq { padding: 112px 0; }
+  .solutions { padding-top: 0; }
+  .demo, .security { padding: 120px 0; }
+  .security { padding-top: 0; }
+  .sec-head { margin-bottom: 48px; }
+  .sec-head.split { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 48px; align-items: end; }
+  .kicker { color: var(--mute-d); }
+  .dark .kicker { color: var(--mute); }
+  .sec-head h2, .faq h2 { margin-top: 16px; font-size: clamp(30px, 3.6vw, 52px); line-height: 1.02; letter-spacing: -.035em; font-weight: 600; max-width: 18em; text-wrap: balance; }
+  .sec-note { font-size: 15px; line-height: 1.55; color: #5d5b56; max-width: 30em; }
+  .dark .sec-note { color: #a3a09a; }
+
+  /* metrics */
+  .m-grid { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--ink); }
+  .m { padding: 24px 24px 28px 0; display: grid; align-content: start; gap: 8px; }
+  .m + .m { padding-left: 24px; border-left: 1px solid var(--paper-line); }
+  .m-n { font-size: clamp(56px, 6.4vw, 96px); line-height: .9; letter-spacing: -.05em; font-weight: 600; }
+  .m-n small { font-size: .32em; letter-spacing: 0; margin-left: 6px; font-weight: 500; }
+  .m-l { font-size: 16px; font-weight: 600; margin-top: 8px; }
+  .m-s { font-size: 13.5px; line-height: 1.5; color: #5d5b56; }
+  .source { margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--paper-line); color: var(--mute-d); text-transform: none; letter-spacing: .01em; font-size: 12px; }
+
+  /* solution rows */
+  .rows { border-top: 1px solid var(--ink); }
+  .row { border-bottom: 1px solid var(--paper-line); }
+  .row h3 { font: inherit; }
+  .row-btn { all: unset; box-sizing: border-box; width: 100%; cursor: pointer; display: grid; grid-template-columns: 56px minmax(0, 1fr) minmax(0, 1.25fr) 96px; gap: 24px; align-items: baseline; padding: 24px 0; transition: background .18s var(--e); }
+  .row-btn:hover .row-title, .row-btn:focus-visible .row-title { text-decoration: underline; text-underline-offset: 5px; text-decoration-thickness: 1px; }
+  .row-btn:focus-visible { outline: 2px solid #8a4b42; outline-offset: -2px; }
+  .idx { color: var(--mute-d); }
+  .row-title { font-size: 22px; font-weight: 600; letter-spacing: -.02em; }
+  .row-lede { font-size: 15px; line-height: 1.5; color: #5d5b56; }
+  .row-tog { justify-self: end; display: inline-flex; align-items: center; gap: 8px; }
+  .row-tog i { position: relative; width: 11px; height: 11px; }
+  .row-tog i::before, .row-tog i::after { content: ''; position: absolute; background: currentColor; left: 0; right: 0; top: 5px; height: 1px; transition: transform .2s var(--e); }
+  .row-tog i::after { transform: rotate(90deg); }
+  .row-btn[aria-expanded='true'] .row-tog i::after { transform: rotate(0); }
+  .row-btn .lbl-close, .row-btn[aria-expanded='true'] .lbl-open { display: none; }
+  .row-btn[aria-expanded='true'] .lbl-close { display: inline; }
+  .row-panel { padding: 0 0 32px 80px; }
+  .row-panel:not([hidden]) { animation: rowIn .22s var(--e); }
+  @keyframes rowIn { from { opacity: 0; transform: translateY(-4px); } }
+  .flow { color: var(--mute-d); margin-bottom: 16px; }
+  .flow b { color: #8a4b42; font-weight: 500; }
+  .spec { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border: 1px solid var(--paper-line); background: #f7f6f2; }
+  .spec .cell { padding: 16px 18px 18px; border-right: 1px solid var(--paper-line); border-bottom: 1px solid var(--paper-line); }
+  .spec .cell:nth-child(4n) { border-right: 0; }
+  .spec .cell:nth-child(n+5) { border-bottom: 0; }
+  .spec dt { color: var(--mute-d); }
+  .spec dd { margin-top: 8px; font-size: 14px; line-height: 1.5; }
+  .spec .c-approval { background: var(--ink); color: var(--warm); }
+  .spec .c-approval dt { color: var(--sig); }
+  .spec .c-rollback dt, .spec .c-exception dt { color: #8a4b42; }
+
+  /* demo */
+  .demo { border-top: 1px solid var(--hair); }
+  .demo-grid { display: grid; grid-template-columns: 280px minmax(0, 1fr); border: 1px solid var(--hair-2); }
+  .demo-side { padding: 20px; border-right: 1px solid var(--hair-2); background: var(--ink-2); }
+  .role { border: 0; padding: 0; margin: 0 0 24px; display: grid; gap: 2px; }
+  .role legend { color: var(--mute); margin-bottom: 10px; padding: 0; }
+  .role label { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border: 1px solid var(--hair); font-size: 14px; cursor: pointer; transition: border-color .18s; }
+  .role label:has(input:checked) { border-color: var(--sig); }
+  .role input { accent-color: var(--sig); margin: 0; }
+  .side-lbl { color: var(--mute); margin-bottom: 8px; }
+  .states { display: grid; }
+  .state-btn { all: unset; box-sizing: border-box; width: 100%; display: flex; align-items: center; gap: 10px; padding: 8px 10px; font-size: 14px; color: #b9b6b0; cursor: pointer; border-left: 1px solid transparent; transition: color .18s, background .18s, border-color .18s; }
+  .state-btn:hover { color: var(--warm); background: rgb(255 255 255 / .03); }
+  .state-btn[aria-pressed='true'] { color: var(--warm); border-left-color: var(--sig); background: rgb(255 255 255 / .04); }
+  .state-btn:focus-visible { outline: 2px solid var(--sig); outline-offset: -2px; }
+  .tone-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--mute-d); flex: none; }
+  .t-pending { background: var(--sig); } .t-released, .t-rolledback { background: var(--ok); }
+  .t-stale, .t-partial, .t-loading { background: var(--warn); }
+  .t-unavailable, .t-permission, .t-denied, .t-error { background: var(--bad); }
+  .console { display: grid; grid-template-rows: auto 1fr auto; min-width: 0; }
+  .console-top { display: flex; justify-content: space-between; gap: 12px; padding: 14px 24px; border-bottom: 1px solid var(--hair); color: var(--mute); }
+  .console-body { padding: 28px 24px 24px; min-height: 360px; }
+  .c-status { display: flex; align-items: center; gap: 12px; }
+  .pill { padding: 5px 9px; border: 1px solid currentColor; color: var(--sig); }
+  .pill[data-tone='ok'] { color: var(--ok); } .pill[data-tone='warn'] { color: var(--warn); } .pill[data-tone='bad'] { color: var(--bad); } .pill[data-tone='mute'] { color: var(--mute); }
+  .c-run { color: var(--mute-d); }
+  .console h3 { margin-top: 18px; font-size: 26px; letter-spacing: -.025em; font-weight: 600; }
+  .c-body { margin-top: 10px; max-width: 44em; font-size: 15px; line-height: 1.55; color: #b9b6b0; }
+  .c-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 24px; }
+  .c-sub { color: var(--mute); margin-bottom: 10px; }
+  .light .c-sub { color: var(--mute-d); }
+  .c-cols li { position: relative; padding: 7px 0 7px 18px; border-top: 1px solid var(--hair); font-size: 14px; line-height: 1.45; }
+  .c-cols li::before { content: ''; position: absolute; left: 0; top: 14px; width: 8px; height: 1px; background: var(--mute); }
+  .c-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
+  .c-actions .btn { height: 40px; font-size: 14px; }
+  .skel { height: 12px; background: linear-gradient(90deg, #1a1a1d, #26262a, #1a1a1d); background-size: 200% 100%; animation: sk 1.2s linear infinite; margin: 10px 0; }
+  @keyframes sk { to { background-position: -200% 0; } }
+  .c-log { border-top: 1px solid var(--hair); padding: 12px 24px; display: grid; gap: 4px; color: var(--mute-d); text-transform: none; letter-spacing: .02em; max-height: 120px; overflow: auto; }
+  .c-log li span { color: var(--mute); }
+
+  /* security */
+  .risk-table { border-top: 1px solid var(--hair-2); }
+  .risk-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr) 160px; gap: 32px; padding: 22px 0; border-bottom: 1px solid var(--hair); align-items: baseline; }
+  .risk-row.head { padding: 14px 0; color: var(--mute); }
+  .risk-row .r { font-size: 18px; font-weight: 500; letter-spacing: -.01em; }
+  .risk-row .c { font-size: 15px; line-height: 1.55; color: #b9b6b0; }
+  .risk-row .w { color: var(--sig); }
+
+  /* cases */
+  .filters { display: flex; flex-wrap: wrap; gap: 8px; justify-self: end; }
+  .chip { height: 34px; padding: 0 14px; border: 1px solid var(--paper-line); background: transparent; border-radius: 4px; font-size: 13px; cursor: pointer; transition: background .18s, color .18s, border-color .18s; }
+  .chip:hover { border-color: var(--ink); }
+  .chip[aria-pressed='true'] { background: var(--ink); color: var(--warm); border-color: var(--ink); }
+  .case-list { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .case { display: flex; flex-direction: column; border: 1px solid var(--paper-line); background: #f7f6f2; }
+  .case[hidden] { display: none; }
+  .case-head { display: flex; justify-content: space-between; gap: 16px; padding: 22px 24px; border-bottom: 1px solid var(--paper-line); }
+  .case-head h3 { font-size: 22px; font-weight: 600; letter-spacing: -.02em; }
+  .case-head p { margin-top: 6px; color: var(--mute-d); }
+  .case-tag { align-self: start; padding: 4px 8px; background: var(--ink); color: var(--warm); }
+  .case-body { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; padding: 22px 24px; flex: 1; }
+  .facts li { padding: 8px 0; border-top: 1px solid var(--paper-line); font-size: 14px; line-height: 1.45; }
+  blockquote p { font-size: 17px; line-height: 1.45; letter-spacing: -.01em; font-weight: 500; }
+  blockquote footer { margin-top: 10px; font-size: 13px; color: var(--mute-d); }
+  blockquote { margin-bottom: 20px; }
+  .read { font-size: 14px; line-height: 1.5; color: #5d5b56; }
+  .case-link { display: block; padding: 16px 24px; border-top: 1px solid var(--paper-line); font-weight: 500; font-size: 14px; text-decoration: none; transition: background .18s, color .18s; }
+  .case-link:hover { background: var(--ink); color: var(--warm); }
+  .empty { grid-column: 1 / -1; color: var(--mute-d); }
+
+  /* faq */
+  .faq { border-top: 1px solid var(--paper-line); }
+  .faq-in { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr); gap: 48px; }
+  .faq-list { border-top: 1px solid var(--ink); }
+  .faq details { border-bottom: 1px solid var(--paper-line); }
+  .faq summary { list-style: none; display: flex; justify-content: space-between; gap: 24px; align-items: center; padding: 20px 0; cursor: pointer; font-size: 18px; font-weight: 500; letter-spacing: -.01em; }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary i { position: relative; width: 12px; height: 12px; flex: none; }
+  .faq summary i::before, .faq summary i::after { content: ''; position: absolute; left: 0; right: 0; top: 6px; height: 1px; background: currentColor; transition: transform .2s var(--e); }
+  .faq summary i::after { transform: rotate(90deg); }
+  .faq details[open] summary i::after { transform: rotate(0); }
+  .faq details p { padding: 0 48px 22px 0; font-size: 15px; line-height: 1.6; color: #4f4d48; max-width: 44em; }
+
+  /* cta */
+  .cta { border-top: 1px solid var(--hair); }
+  .cta-in { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 56px; padding-top: 112px; padding-bottom: 112px; }
+  .cta h2 { margin-top: 16px; font-size: clamp(30px, 3.4vw, 48px); line-height: 1.04; letter-spacing: -.035em; font-weight: 600; text-wrap: balance; }
+  .cta .lede { margin-top: 20px; font-size: 16px; line-height: 1.55; color: #b9b6b0; max-width: 32em; }
+  .after { margin-top: 32px; border-top: 1px solid var(--hair-2); }
+  .after div { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--hair); }
+  .after dt { color: var(--mute); padding-top: 3px; }
+  .after dd { font-size: 14.5px; line-height: 1.5; }
+  .form { align-self: start; background: var(--ink-2); border: 1px solid var(--hair-2); }
+  .form-top { display: flex; justify-content: space-between; gap: 12px; padding: 14px 20px; border-bottom: 1px solid var(--hair); color: var(--mute); }
+  .form-top span:first-child { color: var(--sig); }
+  .f-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 20px; }
+  .wide { grid-column: 1 / -1; }
+  .fld { display: grid; gap: 6px; font-size: 13px; color: #b9b6b0; }
+  .fld input, .fld select { height: 42px; padding: 0 12px; background: var(--ink); border: 1px solid var(--hair-2); border-radius: 3px; color: var(--warm); font: 15px var(--sans); transition: border-color .18s; min-width: 0; }
+  .fld input:focus, .fld select:focus { border-color: var(--sig); outline: none; }
+  .fld input[aria-invalid='true'], .fld select[aria-invalid='true'] { border-color: var(--bad); }
+  .err { font-style: normal; font-size: 12px; color: var(--bad); min-height: 0; }
+  .check { display: flex; gap: 10px; align-items: flex-start; font-size: 13.5px; line-height: 1.45; color: #b9b6b0; cursor: pointer; }
+  .check input { margin-top: 3px; accent-color: var(--sig); }
+  .dim { color: var(--mute-d); }
+  .ctx { padding: 12px; border: 1px solid var(--hair); background: var(--ink); }
+  .f-foot { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; padding: 16px 20px 20px; border-top: 1px solid var(--hair); }
+  .f-msg { font-size: 14px; line-height: 1.45; flex: 1 1 220px; }
+  .f-msg[data-tone='ok'] { color: var(--ok); } .f-msg[data-tone='bad'] { color: var(--bad); } .f-msg[data-tone='warn'] { color: var(--warn); }
+
+  .foot { border-top: 1px solid var(--hair); }
+  .foot-in { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding-top: 24px; padding-bottom: 72px; color: var(--mute-d); text-transform: none; letter-spacing: .02em; }
+
+  /* reveals */
+  .js .reveal { opacity: 0; transform: translateY(14px); transition: opacity .6s var(--e), transform .6s var(--e); }
+  .js .reveal.in { opacity: 1; transform: none; }
+
+  @media (max-width: 1080px) {
+    .hero-in { grid-template-columns: 1fr; min-height: 0; max-height: none; gap: 48px; }
+    .nav { display: none; }
+    .m-grid { grid-template-columns: 1fr 1fr; }
+    .m:nth-child(3) { padding-left: 0; border-left: 0; }
+    .m:nth-child(n+3) { border-top: 1px solid var(--paper-line); }
+    .row-btn { grid-template-columns: 40px minmax(0, 1fr) 80px; }
+    .row-lede { grid-column: 2; grid-row: 2; }
+    .row-tog { grid-column: 3; grid-row: 1; }
+    .row-panel { padding-left: 0; }
+    .spec { grid-template-columns: 1fr 1fr; }
+    .spec .cell:nth-child(n) { border-right: 1px solid var(--paper-line); border-bottom: 1px solid var(--paper-line); }
+    .spec .cell:nth-child(2n) { border-right: 0; }
+    .spec .cell:nth-child(n+7) { border-bottom: 0; }
+    .case-list, .faq-in, .cta-in { grid-template-columns: 1fr; }
+    .sec-head.split { grid-template-columns: 1fr; gap: 20px; }
+    .filters { justify-self: start; }
+    .demo-grid { grid-template-columns: 1fr; }
+    .demo-side { border-right: 0; border-bottom: 1px solid var(--hair-2); }
+    .states { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 640px) {
+    .wrap { padding: 0 16px; }
+    .hdr .btn-line { font-size: 10.5px; padding: 0 10px; }
+    .hero-in { padding-top: 40px; padding-bottom: 48px; }
+    .hero .lede { font-size: 16px; }
+    .trace { padding: 16px; }
+    .trace-top { flex-direction: column; gap: 4px; }
+    .step { grid-template-columns: 64px minmax(0, 1fr); padding-right: 20px; }
+    .step .k { grid-column: 2; }
+    .step .h { grid-column: 1 / -1; grid-row: 2; margin-top: 6px; }
+    .step .d { grid-column: 1 / -1; grid-row: 3; }
+    .gate-top, .load-head { flex-direction: column; gap: 4px; }
+    .trace-stats b { font-size: 19px; }
+    .trace-stats div + div { padding-left: 10px; }
+    .metrics, .cases, .faq { padding: 72px 0; }
+    .solutions { padding-bottom: 72px; }
+    .demo { padding: 72px 0; }
+    .security { padding-bottom: 72px; }
+    .m-grid { grid-template-columns: 1fr; }
+    .m + .m { padding-left: 0; border-left: 0; border-top: 1px solid var(--paper-line); }
+    .row-btn { grid-template-columns: 32px minmax(0, 1fr) 24px; gap: 12px; }
+    .row-tog span { display: none !important; }
+    .row-title { font-size: 19px; }
+    .spec { grid-template-columns: 1fr; }
+    .spec .cell:nth-child(n) { border-right: 0; border-bottom: 1px solid var(--paper-line); }
+    .spec .cell:last-child { border-bottom: 0; }
+    .state-btn { font-size: 13px; padding: 8px 8px; align-items: flex-start; }
+    .state-btn .tone-dot { margin-top: 6px; }
+    .console-top { flex-direction: column; gap: 4px; padding: 12px 16px; }
+    .console-body { padding: 22px 16px; }
+    .c-cols { grid-template-columns: 1fr; }
+    .c-log { padding: 12px 16px; }
+    .risk-row { grid-template-columns: 1fr; gap: 8px; }
+    .risk-row.head { display: none; }
+    .case-body { grid-template-columns: 1fr; }
+    .case-head, .case-body { padding: 18px 16px; }
+    .after div { grid-template-columns: 1fr; gap: 4px; }
+    .f-grid { grid-template-columns: 1fr; padding: 16px; }
+    .form-top { flex-direction: column; gap: 4px; }
+    .faq details p { padding-right: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .oe *, .oe *::before, .oe *::after { transition: none !important; animation: none !important; }
+  }
+</style>
+
+<script>
+  type Tone = 'sig' | 'ok' | 'warn' | 'bad' | 'mute';
+  type Act = { label: string; to: string; kind?: 'solid' | 'ghost'; needsBm?: boolean };
+  type State = { pill: string; tone: Tone; title: string; body: string; did: string[]; didNot: string[]; actions: Act[]; loading?: boolean };
+
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.documentElement.classList.add('js');
+
+  /* ---------- hero trace: settles step by step, then holds at the gate ---------- */
+  const trace = document.getElementById('trace')!;
+  const seq = [...trace.querySelectorAll<HTMLElement>('.step'), trace.querySelector<HTMLElement>('.gate')!];
+  const settleTrace = () => { seq.forEach((el) => el.classList.add('on')); trace.classList.add('drawn'); };
+  if (reduce) settleTrace();
+  else {
+    seq.forEach((el, i) => setTimeout(() => el.classList.add('on'), 250 + i * 420));
+    setTimeout(() => trace.classList.add('drawn'), 250 + seq.length * 420);
+  }
+
+  /* ---------- section reveals ---------- */
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { rootMargin: '0px 0px -8% 0px' });
+  document.querySelectorAll('.reveal').forEach((el, i) => {
+    if (reduce) el.classList.add('in');
+    else { (el as HTMLElement).style.transitionDelay = `${(i % 4) * 70}ms`; io.observe(el); }
+  });
+  addEventListener('pagehide', () => io.disconnect());
+
+  /* ---------- solution rows (button + region: Enter and Space come free) ---------- */
+  document.querySelectorAll<HTMLButtonElement>('.row-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const open = btn.getAttribute('aria-expanded') === 'true';
+      btn.setAttribute('aria-expanded', String(!open));
+      document.getElementById(btn.getAttribute('aria-controls')!)!.hidden = open;
+    });
+  });
+
+  /* ---------- product demo: deterministic state machine ---------- */
+  const S: Record<string, State> = {
+    pending: { pill: 'Awaiting approval', tone: 'sig', title: 'Cast change ready for your review',
+      body: 'L. Varga to dance Myrtha on Thursday and Saturday. Four checks passed; the call sheet and six notices are drafted and held.',
+      did: ['Read the physio rest flag (ref PX-2291)', 'Checked hours: 25.5 of 30 h if approved', 'Drafted call sheet v14 and six notices'],
+      didNot: ['Send anything to dancers', 'Read the physio note itself', 'Change the casting grid'],
+      actions: [{ label: 'Approve and release', to: 'released', kind: 'solid', needsBm: true }, { label: 'Deny', to: 'denied', kind: 'ghost', needsBm: true }] },
+    loading: { pill: 'Loading', tone: 'warn', title: 'Fetching the latest calendar', body: 'Reading rehearsal bookings and the casting grid before drafting. Approval is disabled until the data is current.',
+      did: [], didNot: [], actions: [], loading: true },
+    unavailable: { pill: 'Integration unavailable', tone: 'bad', title: 'Physio system not responding',
+      body: 'Corps cannot confirm the rest flag, so it will not draft a substitution. The last known flag is shown but not used.',
+      did: ['Retried 3 times over 90 seconds', 'Notified the company manager'], didNot: ['Assume the dancer is fit', 'Draft a cast change on cached data'],
+      actions: [{ label: 'Retry connection', to: 'pending', kind: 'solid' }] },
+    permission: { pill: 'Insufficient permission', tone: 'bad', title: 'You can view this change, not approve it',
+      body: 'Rehearsal assistants can see drafts and add comments. Approval for cast changes belongs to the ballet master or the artistic director.',
+      did: ['Recorded the attempted approval', 'Kept the draft unchanged'], didNot: ['Release the change', 'Escalate on your behalf'],
+      actions: [{ label: 'Back to the draft', to: 'pending', kind: 'ghost' }] },
+    stale: { pill: 'Stale data', tone: 'warn', title: 'Calendar changed since this draft',
+      body: 'A pianist call was moved after Corps drafted the change. The hours check may no longer hold, so approval is paused until a re-check.',
+      did: ['Detected the calendar edit at 09:31', 'Paused approval on draft v14'], didNot: ['Silently update the draft', 'Discard your earlier comments'],
+      actions: [{ label: 'Re-run checks', to: 'pending', kind: 'solid' }] },
+    denied: { pill: 'Approval denied', tone: 'mute', title: 'Change denied by the ballet master',
+      body: 'Reason recorded: “Varga is not partnered with Albrecht’s cover yet. Use second cast.” The original cast stands; nothing was sent.',
+      did: ['Recorded the reason against run 0187', 'Kept the draft for reference'], didNot: ['Retry with another dancer automatically', 'Notify anyone of the draft'],
+      actions: [{ label: 'Draft with second cast', to: 'pending', kind: 'ghost' }] },
+    partial: { pill: 'Partial completion', tone: 'warn', title: '5 of 6 notices delivered',
+      body: 'The call sheet and casting grid are updated. Wardrobe’s inbox rejected the notice, so the costume fitting is not yet confirmed.',
+      did: ['Published call sheet v14', 'Delivered 5 notices, read receipts pending'], didNot: ['Mark the run complete', 'Re-send to a different address'],
+      actions: [{ label: 'Retry wardrobe notice', to: 'released', kind: 'solid' }, { label: 'Roll back', to: 'rolledback', kind: 'ghost', needsBm: true }] },
+    released: { pill: 'Released', tone: 'ok', title: 'Change approved and released',
+      body: 'Approved by the ballet master. Call sheet v14 is on the company board and all six notices were delivered.',
+      did: ['Published call sheet v14', 'Delivered six notices', 'Sealed the audit packet'], didNot: ['Touch Friday or Sunday', 'Change any other production'],
+      actions: [{ label: 'Roll back to original cast', to: 'rolledback', kind: 'ghost', needsBm: true }] },
+    rolledback: { pill: 'Rolled back', tone: 'ok', title: 'Original cast restored',
+      body: 'Call sheet v13 is live again. A correction went to the same six people; the earlier notices are kept in the audit trail, marked superseded.',
+      did: ['Restored call sheet v13', 'Sent six corrections'], didNot: ['Delete the earlier notices', 'Clear the physio rest flag'],
+      actions: [{ label: 'Start a new draft', to: 'pending', kind: 'ghost' }] },
+    error: { pill: 'Error', tone: 'bad', title: 'Run stopped at the policy step',
+      body: 'The contract check returned an unexpected role tier for L. Varga. Corps stopped the run rather than guess; the error is with our support team.',
+      did: ['Halted at step 02 · Policy', 'Kept intake as a draft', 'Opened ticket CRP-4471'], didNot: ['Draft a cast change', 'Continue past a failed check'],
+      actions: [{ label: 'Retry run', to: 'pending', kind: 'solid' }] },
+  };
+
+  const $ = (id: string) => document.getElementById(id)!;
+  const pill = $('c-pill'), title = $('c-title'), body = $('c-body'), did = $('c-did'), didNot = $('c-didnot'), acts = $('c-actions'), log = $('c-log');
+  const stateBtns = [...document.querySelectorAll<HTMLButtonElement>('.state-btn')];
+  const role = () => (document.querySelector<HTMLInputElement>('input[name="role"]:checked')?.value ?? 'bm');
+  let seqNo = 0; // ponytail: a fake clock — the demo is sample data
+  const stamp = () => { seqNo += 1; const m = 12 + seqNo; return `09:${String(m).padStart(2, '0')}`; };
+  const li = (t: string) => { const el = document.createElement('li'); el.textContent = t; return el; };
+  const addLog = (t: string) => { const el = document.createElement('li'); el.innerHTML = `<span>${stamp()}</span> `; el.append(t); log.prepend(el); };
+  let loadTimer = 0;
+
+  const render = (key: string, note?: string) => {
+    const s = S[key];
+    clearTimeout(loadTimer);
+    stateBtns.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.state === key)));
+    pill.textContent = s.pill; pill.dataset.tone = s.tone;
+    title.textContent = s.title; body.textContent = s.body;
+    did.replaceChildren(...s.did.map(li)); didNot.replaceChildren(...s.didNot.map(li));
+    if (s.loading) {
+      did.replaceChildren(...[0, 1, 2].map(() => Object.assign(document.createElement('li'), { className: 'skel', ariaHidden: 'true' })));
+      loadTimer = window.setTimeout(() => render('pending', 'Data refreshed; draft v14 ready'), reduce ? 0 : 1600);
+    }
+    acts.replaceChildren(...s.actions.map((a) => {
+      const b = document.createElement('button');
+      b.className = `btn btn-${a.kind ?? 'ghost'}`; b.textContent = a.label; b.type = 'button';
+      b.addEventListener('click', () => {
+        if (a.needsBm && role() !== 'bm') { addLog(`Rehearsal assistant tried “${a.label}” — refused`); render('permission'); return; }
+        addLog(`${role() === 'bm' ? 'Ballet master' : 'Rehearsal assistant'}: ${a.label}`);
+        render(a.to);
+      });
+      return b;
+    }));
+    if (note) addLog(note);
+  };
+  stateBtns.forEach((b) => b.addEventListener('click', () => { addLog(`Viewing state: ${b.textContent?.trim()}`); render(b.dataset.state!); }));
+  addLog('Run 0187 drafted · awaiting ballet master');
+  render('pending');
+
+  /* ---------- case filters + context handoff ---------- */
+  const chips = [...document.querySelectorAll<HTMLButtonElement>('.chip')];
+  const caseEls = [...document.querySelectorAll<HTMLElement>('.case')];
+  const empty = document.querySelector<HTMLElement>('.empty')!;
+  chips.forEach((c) => c.addEventListener('click', () => {
+    const f = c.dataset.filter!;
+    chips.forEach((x) => x.setAttribute('aria-pressed', String(x === c)));
+    let shown = 0;
+    caseEls.forEach((el) => { const on = f === 'all' || el.dataset.tag === f; el.hidden = !on; if (on) shown++; });
+    empty.hidden = shown > 0;
+  }));
+
+  const form = $('form') as HTMLFormElement;
+  const ctx = $('ctx'), ctxName = $('ctx-name'), msg = $('f-msg'), submit = $('submit') as HTMLButtonElement;
+  document.querySelectorAll<HTMLAnchorElement>('.case-link').forEach((a) => a.addEventListener('click', () => {
+    const tag = a.dataset.context!;
+    ctxName.textContent = a.closest('.case')!.querySelector('h3')!.textContent!;
+    ctx.hidden = false;
+    // only non-sensitive intent: the workflow select; the case reference is attached only if the box is ticked
+    (form.elements.namedItem('workflow') as HTMLSelectElement).value = tag;
+  }));
+
+  /* ---------- form: validation, loading, duplicate, network error, success ---------- */
+  const sent = new Set<string>();
+  const say = (t: string, tone: string) => { msg.textContent = t; msg.dataset.tone = tone; };
+  const checks: Record<string, (v: string) => string> = {
+    name: (v) => (v.trim() ? '' : 'Tell us who to reply to.'),
+    email: (v) => (!v.trim() ? 'We need an address to reply to.' : /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) ? '' : 'That address looks incomplete.'),
+    company: (v) => (v.trim() ? '' : 'Which company is this for?'),
+    size: (v) => (v ? '' : 'Choose an ensemble size.'),
+  };
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    let first: HTMLElement | null = null;
+    for (const [k, fn] of Object.entries(checks)) {
+      const el = form.elements.namedItem(k) as HTMLInputElement;
+      const err = fn(el.value);
+      el.setAttribute('aria-invalid', String(!!err));
+      const slot = form.querySelector(`[data-err="${k}"]`)!;
+      slot.textContent = err;
+      if (err) { el.setAttribute('aria-describedby', `err-${k}`); slot.id = `err-${k}`; first ??= el; }
+    }
+    if (first) { first.focus(); say('Check the highlighted fields.', 'bad'); return; }
+    const email = (form.elements.namedItem('email') as HTMLInputElement).value.trim().toLowerCase();
+    if (sent.has(email)) { say('We already have a request from this address. Our team will reply to that one — no need to send it twice.', 'warn'); return; }
+    submit.disabled = true; submit.textContent = 'Sending…'; say('', '');
+    setTimeout(() => {
+      submit.disabled = false; submit.textContent = 'Send request';
+      if ((form.elements.namedItem('simfail') as HTMLInputElement).checked) { say('The request didn’t reach us. Nothing was lost — your answers are still here. Try again.', 'bad'); return; }
+      sent.add(email);
+      say('Request received. The implementation team will reply within two working days with three proposed times.', 'ok');
+    }, reduce ? 200 : 1100);
+  });
+  form.addEventListener('input', (e) => {
+    const el = e.target as HTMLInputElement;
+    if (el.getAttribute('aria-invalid') === 'true' && checks[el.name] && !checks[el.name](el.value)) {
+      el.setAttribute('aria-invalid', 'false'); form.querySelector(`[data-err="${el.name}"]`)!.textContent = '';
+    }
+  });
+</script>

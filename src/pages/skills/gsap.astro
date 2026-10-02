@@ -1,0 +1,852 @@
+---
+import '../../styles/global.css';
+import BackPill from '../../components/BackPill.astro';
+
+const img = (f: string) => `/skills/gsap/${f}`;
+
+// Hero fan: each card's resting pose. x/y in px at 1100px stage width, scaled down in JS.
+const days = [
+  { n: '01', name: 'Arrive', title: 'Salt on the skin', tone: 'blue', items: ['17:00 · Welcome circle on the terrace', '19:30 · Island supper, no menus'] },
+  { n: '02', name: 'Ground', title: 'Feet before thoughts', tone: 'lav', items: ['06:40 · Sunrise vinyasa', '18:00 · Sound bath in the lava cave'] },
+  { n: '03', name: 'Open', title: 'Hips, then horizon', tone: 'cyan', items: ['07:30 · Long-hold yin', '15:00 · Cliff path to Fajã do Ouvidor'] },
+  { n: '04', name: 'Quiet', title: 'A day without words', tone: 'glass', items: ['All day · Noble silence', '16:00 · Walking meditation, slow tea'] },
+  { n: '05', name: 'Water', title: 'Breath under the swell', tone: 'red', items: ['07:00 · Sea swim + 4·4·6 holds', '18:30 · Restorative flow'] },
+  { n: '06', name: 'Fire', title: 'The strong one', tone: 'violet', items: ['06:40 · Ninety-minute flow', '21:00 · Bonfire on the black beach'] },
+  { n: '07', name: 'Return', title: 'Carry it home', tone: 'white', items: ['08:00 · Closing circle', '10:00 · A letter we post you in May'] },
+];
+
+const counters = [
+  { v: 12, l: 'mats a week, never thirteen' },
+  { v: 7, l: 'nights above the Atlantic' },
+  { v: 3, l: 'teachers, all living on the island' },
+  { v: 0, l: 'phones at the supper table' },
+];
+
+const dates = [
+  { d: '11 – 17 May', s: 'Spring tides, whales offshore', left: 3 },
+  { d: '08 – 14 June', s: 'Longest evenings of the year', left: 7 },
+  { d: '14 – 20 September', s: 'Warm sea, first rains', left: 12 },
+];
+---
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Lull — a slow yoga week on São Jorge</title>
+    <meta name="description" content="Lull is a seven-day dusk yoga retreat for twelve guests on the cliffs of Ponta Erva, São Jorge, Azores." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <script is:inline>document.documentElement.classList.replace('no-js', 'js');</script>
+  </head>
+  <body>
+    <div class="flare" aria-hidden="true"></div>
+    <canvas id="dots" aria-hidden="true"></canvas>
+
+    <!-- ───────────── HERO: draggable practice cards ───────────── -->
+    <section class="hero" id="top">
+      <div class="frame" aria-hidden="true">
+        <i class="c tl"></i><i class="c tr"></i><i class="c bl"></i><i class="c br"></i>
+        <div class="diag"></div><div class="guide-v"></div><div class="guide-h"></div>
+      </div>
+
+      <header class="nav" data-intro>
+        <a href="#top" class="logo" aria-label="Lull, home">
+          <span class="logo-mark"><span></span></span>Lull.
+        </a>
+        <nav aria-label="Sections">
+          <a href="#breath">Breath</a><a href="#days">The week</a><a href="#teachers">Teachers</a><a href="#book">Dates</a>
+        </nav>
+        <a href="#book" class="pill-btn">Hold a mat</a>
+      </header>
+
+      <div class="hero-copy">
+        <p class="eyebrow" data-intro>Ponta Erva · São Jorge, Azores · 12 mats a week</p>
+        <h1 class="title" id="hero-title">Arrange your slow week</h1>
+        <p class="sub" data-intro>Grab the practices and set them in whatever order your body asks for. Nothing here is fixed&nbsp;— not even the sunset.</p>
+      </div>
+
+      <div class="stage-wrap">
+        <div class="stage" id="stage">
+          <article class="card c-blue" data-pose="-375,60,-18,0.86" aria-label="Sunrise vinyasa">
+            <div class="grid-tex"></div>
+            <div class="card-in">
+              <span class="tag">SUNRISE · 06:40</span>
+              <div><div class="rule"></div><h3>Salt<br />water<br />vinyasa</h3></div>
+            </div>
+          </article>
+
+          <article class="card c-lav" data-pose="-200,20,-9,0.95" aria-label="Yin practice">
+            <div class="card-in dark">
+              <span class="tag">STILLNESS</span>
+              <h3>Yin until<br />the tide<br />turns</h3>
+            </div>
+            <div class="block"></div>
+          </article>
+
+          <article class="card c-cyan" data-pose="200,20,11,0.95" aria-label="Sound bath">
+            <div class="cyan-top">
+              <div class="meter">
+                <div class="meter-row"><span>Inhale</span><b style="width:44%"></b></div>
+                <div class="meter-row"><span>Hold</span><b style="width:44%" class="o"></b></div>
+                <div class="meter-row"><span>Exhale</span><b style="width:66%"></b></div>
+                <div class="wave" aria-hidden="true">{Array.from({ length: 18 }, () => <i></i>)}</div>
+              </div>
+            </div>
+            <div class="cyan-bot">
+              <div class="tail"></div>
+              <h3>SOUND<br />BATH IN<br />THE LAVA<br />CAVE</h3>
+            </div>
+          </article>
+
+          <article class="card c-red" data-pose="375,60,20,0.86" aria-label="Breath lead Mara Quental">
+            <img src={img('mara.jpg')} alt="" class="red-img" />
+            <div class="red-shade"></div>
+            <div class="red-txt"><span>BREATH LEAD</span><h3>Mara</h3></div>
+          </article>
+
+          <article class="card c-glass" data-pose="0,0,0,1.04" aria-label="Lull retreat">
+            <div class="glass-in">
+              <img src={img('ines.webp')} alt="" class="glass-img" />
+              <div class="dotmx"></div><div class="noise"></div><div class="vignette"></div>
+              <div class="glass-txt">
+                <span>LULL RETREAT · No. 14</span>
+                <h2><span>Seven days</span><span>of unhurried</span><span class="row">breath <i class="ring"></i></span></h2>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+
+      <div class="hero-foot" data-intro>
+        <span class="hint"><span class="hand" aria-hidden="true"></span>Drag any card · it floats where you leave it</span>
+        <button type="button" class="ghost-btn" id="shuffle">Shuffle the week</button>
+      </div>
+    </section>
+
+    <!-- ───────────── BREATH: a looping timeline ───────────── -->
+    <section class="breath" id="breath">
+      <div class="breath-copy">
+        <p class="eyebrow" data-reveal>Every class opens the same way</p>
+        <h2 class="h2" data-split>Four in, four held, six out.</h2>
+        <p class="body" data-reveal>Before a single pose, Mara counts the room into one rhythm. Twelve people, one breath, sixteen seconds long. Follow the circle — it is the same clock we use on the mat.</p>
+        <ol class="phases" data-reveal>
+          <li data-phase="inhale"><b>Inhale</b><span>4 s</span></li>
+          <li data-phase="hold"><b>Hold</b><span>4 s</span></li>
+          <li data-phase="exhale"><b>Exhale</b><span>6 s</span></li>
+          <li data-phase="rest"><b>Rest</b><span>2 s</span></li>
+        </ol>
+        <button type="button" class="ghost-btn" id="breath-toggle" aria-pressed="false">Pause the breath</button>
+      </div>
+      <div class="clock" data-reveal aria-live="off">
+        <div class="clock-ring r1"></div><div class="clock-ring r2"></div><div class="clock-ring r3"></div>
+        <svg class="arc" viewBox="0 0 200 200" aria-hidden="true">
+          <circle cx="100" cy="100" r="92" class="arc-bg" />
+          <circle cx="100" cy="100" r="92" class="arc-fg" id="arc" />
+        </svg>
+        <div class="orb" id="orb"></div>
+        <div class="clock-label"><b id="phase-name">Inhale</b><span id="phase-count">4</span></div>
+      </div>
+    </section>
+
+    <!-- ───────────── DAYS: pinned horizontal scrub ───────────── -->
+    <section class="days" id="days">
+      <div class="days-head">
+        <div>
+          <p class="eyebrow">The week, day by day</p>
+          <h2 class="h2">Seven days, one direction:<br />slower.</h2>
+        </div>
+        <div class="progress" aria-hidden="true"><i id="days-bar"></i></div>
+      </div>
+      <div class="track" id="track">
+        {days.map((d) => (
+          <article class={`day t-${d.tone}`}>
+            <div class="day-top"><span class="day-n">{d.n}</span><span class="tag">{d.name.toUpperCase()}</span></div>
+            <h3>{d.title}</h3>
+            <ul>{d.items.map((i) => <li>{i}</li>)}</ul>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <!-- ───────────── TEACHERS + counters ───────────── -->
+    <section class="teachers" id="teachers">
+      <div class="counters">
+        {counters.map((c) => (
+          <div class="counter" data-reveal>
+            <b data-count={c.v}>{c.v}</b>
+            <span>{c.l}</span>
+          </div>
+        ))}
+      </div>
+
+      <h2 class="h2 center" data-split>Three teachers. All of them live here.</h2>
+
+      <div class="t-grid">
+        <article class="t-card" data-reveal>
+          <div class="t-media red-tint"><img src={img('mara.jpg')} alt="Mara Quental, portrait" loading="lazy" /></div>
+          <div class="t-meta"><span class="tag">BREATH & PRANAYAMA</span><h3>Mara Quental</h3><p>Free-diver turned teacher. Twelve years of counting breaths under the swell off Velas.</p></div>
+        </article>
+        <article class="t-card" data-reveal>
+          <div class="t-media lav-tint"><img src={img('ines.webp')} alt="Inês Valadão, portrait" loading="lazy" /></div>
+          <div class="t-meta"><span class="tag">YIN & STILLNESS</span><h3>Inês Valadão</h3><p>Leads the silent day. Holds a pose longer than you think you can, and then a little longer.</p></div>
+        </article>
+        <article class="t-card" data-reveal>
+          <div class="t-media sound">
+            <div class="bars" aria-hidden="true">{Array.from({ length: 24 }, () => <i></i>)}</div>
+            <span class="sound-cap">Gruta do Fogo · 18:00</span>
+          </div>
+          <div class="t-meta"><span class="tag">SOUND & REST</span><h3>Tomé Ávila</h3><p>Plays bowls and a hand-built drum inside a lava tube where the echo lasts nine seconds.</p></div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ───────────── BOOK ───────────── -->
+    <section class="book" id="book">
+      <div class="book-card" data-reveal>
+        <div class="book-l">
+          <p class="eyebrow">2027 weeks</p>
+          <h2 class="h2">Hold one of<br />twelve mats.</h2>
+          <p class="body">€1&nbsp;840 in a shared stone room, €2&nbsp;260 on your own. Meals, ferries from Pico and every class included. We reply by hand within two days.</p>
+          <a href="mailto:mats@lull.example" class="magnet" id="magnet"><span>Request a mat</span></a>
+        </div>
+        <ul class="dates">
+          {dates.map((d) => (
+            <li data-reveal>
+              <div><b>{d.d}</b><span>{d.s}</span></div>
+              <em>{d.left === 12 ? 'Open' : `${d.left} left`}</em>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <footer class="foot">
+        <span class="logo small"><span class="logo-mark"><span></span></span>Lull.</span>
+        <span>Ponta Erva, São Jorge · Azores</span>
+        <span>A fictional retreat, built to show GSAP motion.</span>
+      </footer>
+    </section>
+
+    <BackPill />
+
+    <script>
+      import * as THREE from 'three';
+      import { gsap } from 'gsap';
+      import { ScrollTrigger } from 'gsap/ScrollTrigger';
+      import { Draggable } from 'gsap/Draggable';
+      import { InertiaPlugin } from 'gsap/InertiaPlugin';
+      import { SplitText } from 'gsap/SplitText';
+
+      gsap.registerPlugin(ScrollTrigger, Draggable, InertiaPlugin, SplitText);
+      // ponytail: wall-clock time — on a starved GPU (software WebGL) default lag smoothing stalls the intro for seconds
+      gsap.ticker.lagSmoothing(0);
+
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const $ = <T extends Element = HTMLElement>(s: string) => document.querySelector(s) as unknown as T;
+      const $$ = <T extends Element = HTMLElement>(s: string) => Array.from(document.querySelectorAll(s)) as unknown as T[];
+
+      /* ── WebGL dot field (Three.js), rendered on the GSAP ticker ── */
+      const initDots = () => {
+        const canvas = $<HTMLCanvasElement>('#dots');
+        let renderer: THREE.WebGLRenderer;
+        try {
+          renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: false });
+        } catch {
+          canvas.remove(); // ponytail: no WebGL → the CSS flare alone carries the background
+          return;
+        }
+        renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(45, 1, 1, 1000);
+        camera.position.z = 100;
+        const N = 44;
+        const pos = new Float32Array(N * N * 3);
+        const off = new Float32Array(N * N);
+        for (let i = 0; i < N * N; i++) {
+          pos[i * 3] = ((i % N) - N / 2) * 10;
+          pos[i * 3 + 1] = Math.random() * 10 - 15;
+          pos[i * 3 + 2] = (Math.floor(i / N) - N / 2) * 10;
+          off[i] = Math.random() * Math.PI * 2;
+        }
+        const geo = new THREE.BufferGeometry();
+        geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+        geo.setAttribute('aOffset', new THREE.BufferAttribute(off, 1));
+        const mat = new THREE.ShaderMaterial({
+          transparent: true,
+          depthWrite: false,
+          uniforms: { uTime: { value: 0 } },
+          vertexShader: `
+            uniform float uTime; attribute float aOffset; varying float vA;
+            void main(){
+              float p = sin(uTime*0.5 + aOffset)*0.5 + 0.5;
+              vec4 mv = modelViewMatrix * vec4(position,1.0);
+              gl_Position = projectionMatrix * mv;
+              vA = smoothstep(-160.0, 40.0, mv.z) * (0.12 + 0.34*p);
+              gl_PointSize = (2.0 + p*1.6) * (100.0 / -mv.z);
+            }`,
+          fragmentShader: `
+            varying float vA;
+            void main(){ if(length(gl_PointCoord-0.5)>0.5) discard; gl_FragColor = vec4(0.92,0.86,1.0,vA); }`,
+        });
+        const pts = new THREE.Points(geo, mat);
+        pts.rotation.x = Math.PI * 0.4;
+        pts.position.y = -20;
+        scene.add(pts);
+
+        const resize = () => {
+          camera.aspect = innerWidth / innerHeight;
+          camera.updateProjectionMatrix();
+          renderer.setSize(innerWidth, innerHeight, false);
+        };
+        addEventListener('resize', resize);
+        resize();
+
+        const mouse = { x: 0, y: 0 };
+        addEventListener('pointermove', (e) => {
+          mouse.x = (e.clientX - innerWidth / 2) * 0.025;
+          mouse.y = (e.clientY - innerHeight / 2) * 0.025;
+        });
+        const render = (time = 0) => {
+          mat.uniforms.uTime.value = time;
+          camera.position.x += (mouse.x - camera.position.x) * 0.03;
+          camera.position.y += (-mouse.y + 10 - camera.position.y) * 0.03;
+          camera.lookAt(scene.position);
+          renderer.render(scene, camera);
+        };
+        if (reduce) {
+          camera.position.y = 10;
+          render(2);
+          addEventListener('resize', () => render(2));
+        } else {
+          gsap.ticker.add((t) => render(t));
+        }
+      };
+      initDots();
+
+      /* ── Hero: entrance timeline + Draggable cards ── */
+      const hero = $('.hero');
+      const stage = $('#stage');
+      const cards = $$<HTMLElement>('.card');
+      const poses = cards.map((c) => {
+        const [x, y, rotation, scale] = c.dataset.pose!.split(',').map(Number);
+        return { x, y, rotation, scale };
+      });
+      const floats = new Map<HTMLElement, gsap.core.Tween>();
+      let topZ = 50;
+
+      const fit = () => {
+        const f = gsap.utils.clamp(0.5, 1, Math.min(innerWidth / 1180, innerHeight / 1090));
+        gsap.set(stage, { scale: f });
+      };
+      fit();
+      addEventListener('resize', fit);
+
+      const float = (card: HTMLElement) => {
+        if (reduce) return;
+        floats.get(card)?.kill();
+        floats.set(
+          card,
+          gsap.to(card, {
+            y: `+=${gsap.utils.random(-9, 9)}`,
+            rotation: `+=${gsap.utils.random(-1.5, 1.5)}`,
+            duration: gsap.utils.random(3, 5),
+            repeat: -1,
+            yoyo: true,
+            ease: 'sine.inOut',
+          }),
+        );
+      };
+
+      const intro = () => {
+        const split = SplitText.create('#hero-title', { type: 'chars,words', charsClass: 'ch' });
+        const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+        gsap.set('#hero-title', { visibility: 'visible' });
+        tl.fromTo('.frame', { autoAlpha: 0 }, { autoAlpha: 1, duration: 1.2 }, 0)
+          .from('.nav', { y: -16, autoAlpha: 0, duration: 0.8 }, 0.1)
+          .from('.hero .eyebrow', { y: 12, autoAlpha: 0, duration: 0.7 }, 0.2)
+          .from(split.chars, { yPercent: 80, autoAlpha: 0, duration: 0.9, stagger: { each: 0.02, from: 'center' }, clearProps: 'transform' }, 0.2)
+          .from('.hero .sub', { y: 16, autoAlpha: 0, duration: 0.8 }, '-=0.6')
+          .addLabel('cards', 0.35)
+          .from('.hero-foot', { y: 12, autoAlpha: 0, duration: 0.8 }, 'cards+=0.8');
+        cards.forEach((card, i) => {
+          const p = poses[i];
+          tl.fromTo(
+            card,
+            { x: p.x * 1.5, y: p.y + 180, rotation: p.rotation * 1.6, scale: p.scale * 0.8, autoAlpha: 0 },
+            { x: p.x, y: p.y, rotation: p.rotation, scale: p.scale, autoAlpha: 1, duration: 1.25, ease: 'back.out(1.25)', onComplete: () => float(card) },
+            `cards+=${i * 0.08}`,
+          );
+        });
+      };
+
+      const rest = () => {
+        cards.forEach((card, i) => gsap.set(card, { ...poses[i], autoAlpha: 1 }));
+        gsap.set('.frame, .hero [data-intro], #hero-title', { autoAlpha: 1 });
+      };
+
+      cards.forEach((card) => {
+        const tilt = gsap.quickTo(card, 'rotation', { duration: 0.5, ease: 'power3.out' });
+        let base = 0;
+        Draggable.create(card, {
+          type: 'x,y',
+          bounds: hero,
+          inertia: !reduce,
+          edgeResistance: 0.7,
+          zIndexBoost: false,
+          onPress() {
+            gsap.killTweensOf(card);
+            floats.get(card)?.kill();
+            card.style.zIndex = String(++topZ);
+            base = gsap.getProperty(card, 'rotation') as number;
+            gsap.to(card, { scale: '+=0.04', duration: 0.3, ease: 'power2.out' });
+            card.classList.add('lifted');
+          },
+          onDrag() {
+            tilt(base + gsap.utils.clamp(-14, 14, this.deltaX * 1.2));
+          },
+          onRelease() {
+            tilt(base);
+            gsap.to(card, { scale: '-=0.04', duration: 0.5, ease: 'power2.out' });
+            card.classList.remove('lifted');
+          },
+          onThrowComplete() {
+            float(card);
+          },
+          onClick() {
+            float(card);
+          },
+        });
+      });
+
+      // Keyboard-reachable: re-fan the cards in a new order with one timeline.
+      $('#shuffle').addEventListener('click', () => {
+        const order = gsap.utils.shuffle([...poses.keys()]);
+        const tl = gsap.timeline({ defaults: { duration: reduce ? 0 : 1.1, ease: 'expo.inOut' } });
+        cards.forEach((card, i) => {
+          floats.get(card)?.kill();
+          const p = poses[order[i]];
+          card.style.zIndex = String(p.scale > 1 ? 40 : p.scale > 0.9 ? 30 : 20);
+          tl.to(card, { ...p, onComplete: () => float(card) }, i * 0.05);
+        });
+      });
+
+      /* ── Breath clock: one looping timeline with labels ── */
+      const phases = [
+        { id: 'inhale', name: 'Inhale', d: 4, scale: 1.6 },
+        { id: 'hold', name: 'Hold', d: 4, scale: 1.6 },
+        { id: 'exhale', name: 'Exhale', d: 6, scale: 1 },
+        { id: 'rest', name: 'Rest', d: 2, scale: 1 },
+      ];
+      const arc = $<SVGCircleElement>('#arc');
+      const LEN = 2 * Math.PI * 92;
+      gsap.set(arc, { strokeDasharray: LEN, strokeDashoffset: LEN });
+      const nameEl = $('#phase-name');
+      const countEl = $('#phase-count');
+      const chips = $$('.phases li');
+      let shown = '';
+      const breath = gsap.timeline({
+        repeat: -1,
+        paused: true,
+        onUpdate() {
+          let t = this.time();
+          for (const ph of phases) {
+            if (t < ph.d || ph.id === 'rest') {
+              const left = String(Math.max(1, Math.ceil(ph.d - t)));
+              const key = ph.id + left;
+              if (key !== shown) {
+                shown = key;
+                nameEl.textContent = ph.name;
+                countEl.textContent = left;
+                chips.forEach((c) => c.classList.toggle('on', c.dataset.phase === ph.id));
+              }
+              break;
+            }
+            t -= ph.d;
+          }
+        },
+      });
+      phases.forEach((ph) => {
+        breath.addLabel(ph.id).to('#orb', { scale: ph.scale, duration: ph.d, ease: ph.id === 'hold' || ph.id === 'rest' ? 'none' : 'sine.inOut' });
+      });
+      breath
+        .to('.clock-ring', { scale: 1.14, autoAlpha: 0.55, stagger: 0.25, duration: 4, ease: 'sine.inOut' }, 'inhale')
+        .to('.clock-ring', { scale: 1, autoAlpha: 1, stagger: 0.25, duration: 6, ease: 'sine.inOut' }, 'exhale')
+        .fromTo(arc, { strokeDashoffset: LEN }, { strokeDashoffset: 0, duration: 16, ease: 'none' }, 0);
+      breath.progress(0.001);
+
+      const toggle = $<HTMLButtonElement>('#breath-toggle');
+      let userPaused = reduce;
+      const sync = () => {
+        toggle.textContent = userPaused ? 'Play the breath' : 'Pause the breath';
+        toggle.setAttribute('aria-pressed', String(userPaused));
+      };
+      sync();
+      toggle.addEventListener('click', () => {
+        userPaused = !userPaused;
+        userPaused ? breath.pause() : breath.play();
+        sync();
+      });
+      ScrollTrigger.create({
+        trigger: '.breath',
+        start: 'top 75%',
+        end: 'bottom 25%',
+        onToggle: (self) => (self.isActive && !userPaused ? breath.play() : breath.pause()),
+      });
+
+      /* ── Sound bars (teacher card + hero cyan card) ── */
+      if (!reduce) {
+        gsap.to('.bars i, .wave i', {
+          scaleY: () => gsap.utils.random(0.2, 1),
+          duration: 0.6,
+          ease: 'sine.inOut',
+          repeat: -1,
+          repeatRefresh: true,
+          stagger: { each: 0.04, from: 'center' },
+        });
+      }
+
+      /* ── Scroll choreography (motion only) ── */
+      const mm = gsap.matchMedia();
+      mm.add('(prefers-reduced-motion: no-preference)', () => {
+        // Line-masked heading reveals
+        $$('[data-split]').forEach((h) => {
+          SplitText.create(h, {
+            type: 'lines',
+            mask: 'lines',
+            autoSplit: true,
+            onSplit: (s) =>
+              gsap.from(s.lines, { yPercent: 105, duration: 1, ease: 'expo.out', stagger: 0.1, scrollTrigger: { trigger: h, start: 'top 85%' } }),
+          });
+        });
+
+        ScrollTrigger.batch('[data-reveal]', {
+          start: 'top 88%',
+          onEnter: (els) => gsap.fromTo(els, { y: 40, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.9, ease: 'power3.out', stagger: 0.09, overwrite: true }),
+        });
+
+        // Pinned horizontal scrub through the seven days
+        const track = $('#track');
+        const dist = () => Math.max(0, track.scrollWidth - innerWidth + 32);
+        gsap
+          .timeline({
+            scrollTrigger: { trigger: '.days', start: 'top top', end: () => `+=${dist()}`, pin: true, scrub: 1, invalidateOnRefresh: true },
+          })
+          .to(track, { x: () => -dist(), ease: 'none' }, 0)
+          .fromTo('#days-bar', { scaleX: 0 }, { scaleX: 1, ease: 'none' }, 0);
+
+        // Counters tick up once
+        $$('[data-count]').forEach((el) => {
+          const v = Number(el.dataset.count);
+          const o = { n: v === 0 ? 9 : 0 };
+          gsap.to(o, {
+            n: v,
+            duration: 1.6,
+            ease: 'power2.out',
+            snap: { n: 1 },
+            onUpdate: () => (el.textContent = String(o.n)),
+            scrollTrigger: { trigger: el, start: 'top 90%' },
+          });
+        });
+
+        // Magnetic CTA via quickTo
+        const mag = $('#magnet');
+        const mx = gsap.quickTo(mag, 'x', { duration: 0.5, ease: 'power3.out' });
+        const my = gsap.quickTo(mag, 'y', { duration: 0.5, ease: 'power3.out' });
+        const onMove = (e: PointerEvent) => {
+          const r = mag.getBoundingClientRect();
+          mx((e.clientX - r.left - r.width / 2) * 0.3);
+          my((e.clientY - r.top - r.height / 2) * 0.3);
+        };
+        const onLeave = () => (mx(0), my(0));
+        mag.addEventListener('pointermove', onMove);
+        mag.addEventListener('pointerleave', onLeave);
+        return () => {
+          mag.removeEventListener('pointermove', onMove);
+          mag.removeEventListener('pointerleave', onLeave);
+        };
+      });
+
+      // Chars split is font-agnostic, so the intro starts now; line splits use autoSplit for late fonts.
+      reduce ? rest() : intro();
+      document.fonts.ready.then(() => ScrollTrigger.refresh());
+      addEventListener('load', () => ScrollTrigger.refresh());
+    </script>
+
+    <style is:global>
+      :root {
+        --bg: #160927;
+        --flare: #5b1e91;
+        --ink: #f5f5f7;
+        --ink-2: #afafb6;
+        --muted: rgb(255 255 255 / 0.66);
+        --line: rgb(255 255 255 / 0.1);
+        --blue-a: #2d3ae4;
+        --blue-b: #161d8a;
+        --lav: #e2ddfb;
+        --lav-ink: #bdb5e9;
+        --violet: #9b32f1;
+        --cyan-a: #2b95e9;
+        --cyan-b: #1ae6f0;
+        --sky: #f2fbff;
+        --teal-ink: #0e526b;
+        --red: #eb0000;
+        --rose: #d9b5ca;
+      }
+      html { background: var(--bg); scroll-behavior: auto; }
+      body {
+        margin: 0; color: var(--ink); background: var(--bg); overflow-x: clip;
+        font-family: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+      ::selection { background: rgb(155 50 241 / 0.35); }
+      a { color: inherit; }
+      .flare {
+        position: fixed; inset: 0; z-index: 0; pointer-events: none;
+        background: radial-gradient(circle at 50% 62%, rgb(91 30 145 / 0.55) 0%, rgb(22 9 39) 66%);
+      }
+      #dots { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+      section { position: relative; z-index: 2; }
+
+      /* intro hidden states (JS on + motion allowed) */
+      @media (prefers-reduced-motion: no-preference) {
+        .js .hero [data-intro], .js #hero-title, .js .card, .js .frame { visibility: hidden; }
+      }
+
+      .eyebrow { margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: var(--lav-ink); }
+      .tag { font-size: 10px; font-weight: 600; letter-spacing: 0.2em; }
+      .h2 {
+        margin: 14px 0 0; font-size: clamp(36px, 5.2vw, 72px); line-height: 0.95; font-weight: 600; letter-spacing: -0.045em;
+        background: linear-gradient(to bottom, var(--ink), var(--ink-2)); -webkit-background-clip: text; background-clip: text; color: transparent;
+      }
+      .h2 .line, .h2 [class*='line'] { padding-bottom: 0.06em; }
+      .h2.center { text-align: center; max-width: 16ch; margin-inline: auto; }
+      .body { margin: 20px 0 0; max-width: 46ch; font-size: 17px; line-height: 1.6; color: var(--muted); }
+
+      .ghost-btn, .pill-btn {
+        font: 600 14px/1 inherit; font-family: inherit; color: var(--ink); cursor: pointer; text-decoration: none;
+        padding: 12px 18px; border-radius: 999px; background: rgb(255 255 255 / 0.06); border: 1px solid rgb(255 255 255 / 0.14);
+        backdrop-filter: blur(10px); transition: background 0.3s, transform 0.3s;
+      }
+      .ghost-btn:hover, .pill-btn:hover { background: rgb(255 255 255 / 0.12); }
+      :focus-visible { outline: 2px solid var(--cyan-b); outline-offset: 3px; }
+
+      /* ── hero ── */
+      .hero { min-height: max(100svh, 760px); overflow: hidden; display: flex; flex-direction: column; align-items: center; padding: 0 16px; }
+      .frame {
+        position: absolute; inset: 16px; border: 1px solid var(--line); border-radius: 32px; overflow: hidden;
+        pointer-events: none; /* ponytail: no mix-blend here — a full-viewport blend layer drops software compositing to ~3 fps */
+      }
+      @media (min-width: 1024px) { .frame { inset: 28px; } }
+      .frame .c { position: absolute; width: 48px; height: 48px; border-color: rgb(255 255 255 / 0.22); border-style: solid; border-width: 0; }
+      .frame .tl { top: 0; left: 0; border-top-width: 1px; border-left-width: 1px; border-top-left-radius: 32px; }
+      .frame .tr { top: 0; right: 0; border-top-width: 1px; border-right-width: 1px; border-top-right-radius: 32px; }
+      .frame .bl { bottom: 0; left: 0; border-bottom-width: 1px; border-left-width: 1px; border-bottom-left-radius: 32px; }
+      .frame .br { bottom: 0; right: 0; border-bottom-width: 1px; border-right-width: 1px; border-bottom-right-radius: 32px; }
+      .frame .diag { position: absolute; inset: 0; opacity: 0.025; background: repeating-linear-gradient(45deg, transparent 0 10px, #fff 10px 11px); }
+      .frame .guide-v { position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: rgb(255 255 255 / 0.06); }
+      .frame .guide-h { position: absolute; top: 22%; left: 0; right: 0; height: 1px; background: rgb(255 255 255 / 0.06); }
+
+      .nav {
+        width: 100%; max-width: 1320px; display: flex; align-items: center; justify-content: space-between; gap: 16px;
+        padding: 40px 20px 0; box-sizing: border-box; position: relative; z-index: 60;
+      }
+      @media (min-width: 1024px) { .nav { padding: 56px 36px 0; } }
+      .logo { display: inline-flex; align-items: center; gap: 10px; font-size: 22px; font-weight: 600; letter-spacing: -0.03em; text-decoration: none; }
+      .logo-mark {
+        width: 40px; height: 22px; border-radius: 999px; display: flex; align-items: center; justify-content: flex-end; padding: 0 3px; box-sizing: border-box;
+        background: linear-gradient(to right, rgb(255 255 255 / 0.35), #fff); box-shadow: 0 0 16px rgb(255 255 255 / 0.22);
+      }
+      .logo-mark span { width: 16px; height: 16px; border-radius: 50%; background: var(--violet); box-shadow: 0 0 10px var(--violet); }
+      .nav nav { display: none; gap: 28px; font-size: 14px; font-weight: 500; }
+      .nav nav a { text-decoration: none; color: var(--muted); transition: color 0.2s; }
+      .nav nav a:hover { color: var(--ink); }
+      @media (min-width: 900px) { .nav nav { display: flex; } }
+
+      .hero-copy { text-align: center; margin-top: clamp(36px, 7vh, 64px); display: flex; flex-direction: column; align-items: center; gap: 18px; position: relative; z-index: 55; pointer-events: none; }
+      .title {
+        margin: 0; font-size: clamp(50px, 8.6vw, 120px); line-height: 0.9; font-weight: 600; letter-spacing: -0.055em; max-width: 12ch;
+        filter: drop-shadow(0 4px 24px rgb(0 0 0 / 0.5));
+      }
+      @media (min-width: 1100px) { .title { max-width: none; } }
+      .title, .title .ch {
+        background: linear-gradient(to bottom, var(--ink), var(--ink-2)); -webkit-background-clip: text; background-clip: text; color: transparent;
+      }
+      .title .ch { display: inline-block; padding-bottom: 0.08em; }
+      .sub { margin: 0; max-width: 52ch; font-size: clamp(16px, 1.6vw, 20px); line-height: 1.5; color: var(--muted); letter-spacing: -0.01em; }
+
+      .stage-wrap { flex: 1; width: 100%; position: relative; min-height: 400px; display: flex; justify-content: center; }
+      .stage { position: absolute; top: 53%; left: 50%; width: 0; height: 0; transform-origin: 0 0; }
+      @media (max-width: 640px) { .stage-wrap { min-height: 380px; } }
+
+      .card {
+        position: absolute; left: -130px; top: -180px; width: 260px; height: 360px; border-radius: 24px; overflow: hidden;
+        cursor: grab; user-select: none; touch-action: none; will-change: transform;
+        box-shadow: 0 24px 60px rgb(0 0 0 / 0.5); border: 1px solid rgb(255 255 255 / 0.12);
+        transition: box-shadow 0.3s;
+      }
+      .card.lifted { cursor: grabbing; box-shadow: 0 40px 90px rgb(0 0 0 / 0.65); }
+      .card h3 { margin: 0; }
+      .card-in { position: relative; z-index: 2; height: 100%; padding: 24px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between; pointer-events: none; }
+
+      .c-blue { background: linear-gradient(135deg, var(--blue-a), var(--blue-b)); z-index: 10; }
+      .c-blue .grid-tex { position: absolute; inset: 0; opacity: 0.2; background-image: linear-gradient(rgb(255 255 255 / 0.25) 1px, transparent 1px), linear-gradient(90deg, rgb(255 255 255 / 0.25) 1px, transparent 1px); background-size: 20px 20px; }
+      .c-blue .tag { color: rgb(255 255 255 / 0.8); }
+      .c-blue .rule { width: 32px; height: 2px; background: #fff; margin-bottom: 16px; }
+      .c-blue h3 { font-size: 32px; line-height: 1.02; font-weight: 500; letter-spacing: -0.03em; color: rgb(255 255 255 / 0.92); }
+
+      .c-lav { left: -140px; top: -190px; width: 280px; height: 380px; background: linear-gradient(135deg, var(--lav), #fdfdfd); z-index: 20; border-color: rgb(255 255 255 / 0.4); }
+      .c-lav .card-in { justify-content: flex-start; gap: 22px; padding: 30px; }
+      .c-lav .tag { color: #9ca3af; letter-spacing: 0.24em; }
+      .c-lav h3 { font-size: 36px; line-height: 0.95; font-weight: 600; letter-spacing: -0.05em; color: var(--lav-ink); }
+      .c-lav .block { position: absolute; left: -32px; bottom: -32px; width: 190px; height: 190px; border-radius: 24px; background: var(--violet); transform: rotate(12deg); box-shadow: 0 10px 30px rgb(0 0 0 / 0.2); }
+
+      .c-cyan { left: -140px; top: -190px; width: 280px; height: 380px; background: linear-gradient(to bottom, var(--cyan-a), var(--cyan-b)); z-index: 20; }
+      .cyan-top { height: 55%; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 18px; box-sizing: border-box; pointer-events: none; }
+      .meter { width: 190px; padding: 14px; border-radius: 14px; background: #f2f6f9; box-shadow: 14px 14px 0 #1e74c8, 0 20px 40px rgb(0 0 0 / 0.25); transform: rotate(-4deg); display: grid; gap: 8px; }
+      .meter-row { display: grid; grid-template-columns: 46px 1fr; align-items: center; gap: 8px; font-size: 9px; font-weight: 600; color: #6b7280; letter-spacing: 0.06em; text-transform: uppercase; }
+      .meter-row b { display: block; height: 6px; border-radius: 99px; background: var(--cyan-a); }
+      .meter-row b.o { background: #fb923c; }
+      .wave { display: flex; align-items: center; gap: 3px; height: 26px; margin-top: 2px; }
+      .wave i, .bars i { flex: 1; height: 100%; border-radius: 99px; transform-origin: 50% 50%; transform: scaleY(0.4); }
+      .wave i { background: #1e74c8; }
+      .cyan-bot { height: 45%; position: relative; padding: 28px 24px 0; box-sizing: border-box; border-radius: 40px 40px 0 0; background: linear-gradient(to bottom, var(--sky), #d5f5ff); pointer-events: none; }
+      .cyan-bot .tail { position: absolute; top: -22px; left: 40px; width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-bottom: 25px solid var(--sky); }
+      .cyan-bot h3 { text-align: right; font-size: 25px; line-height: 0.9; font-weight: 700; letter-spacing: -0.045em; color: var(--teal-ink); }
+
+      .c-red { background: var(--red); z-index: 10; border: 0; }
+      .red-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 30% 30%; mix-blend-mode: multiply; opacity: 0.85; filter: grayscale(1) contrast(1.25); pointer-events: none; }
+      .red-shade { position: absolute; inset: 0; background: linear-gradient(to top, rgb(0 0 0 / 0.6), transparent 55%); }
+      .red-txt { position: absolute; right: 24px; bottom: 22px; text-align: right; }
+      .red-txt span { font-size: 11px; font-weight: 600; letter-spacing: 0.2em; color: rgb(255 255 255 / 0.66); }
+      .red-txt h3 { font-size: 40px; font-weight: 600; letter-spacing: -0.05em; }
+
+      .c-glass {
+        left: -150px; top: -210px; width: 300px; height: 420px; padding: 1px; box-sizing: border-box; border: 0; z-index: 40; border-radius: 24px;
+        background: linear-gradient(135deg, rgb(255 255 255 / 0.6), rgb(255 255 255 / 0.1), transparent); box-shadow: 0 30px 80px rgb(0 0 0 / 0.7);
+      }
+      .glass-in { position: relative; width: 100%; height: 100%; border-radius: 23px; overflow: hidden; background: linear-gradient(165deg, var(--rose) 0%, #7a3fae 45%, #22103a 100%); pointer-events: none; }
+      .glass-img { position: absolute; left: -25%; top: -25%; width: 150%; height: 150%; object-fit: cover; filter: blur(28px); mix-blend-mode: luminosity; opacity: 0.6; }
+      .dotmx { position: absolute; inset: 0; opacity: 0.15; background-image: radial-gradient(#fff 1px, transparent 1px); background-size: 4px 4px; }
+      .noise { position: absolute; inset: 0; opacity: 0.4; mix-blend-mode: overlay; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+      .vignette { position: absolute; inset: 0; box-shadow: inset 0 0 40px rgb(0 0 0 / 0.6); }
+      .glass-txt { position: absolute; inset: 0; padding: 32px 30px 38px; display: flex; flex-direction: column; justify-content: flex-end; }
+      .glass-txt > span { font-size: 11px; font-weight: 500; letter-spacing: 0.15em; color: rgb(255 255 255 / 0.9); margin-bottom: 12px; }
+      .glass-txt h2 { margin: 0; display: flex; flex-direction: column; font-size: 40px; line-height: 0.92; font-weight: 600; letter-spacing: -0.045em; text-shadow: 0 4px 18px rgb(0 0 0 / 0.35); }
+      .glass-txt .row { display: flex; align-items: center; gap: 10px; }
+      .ring { display: inline-block; width: 30px; height: 30px; border-radius: 50%; border: 6px solid var(--rose); box-sizing: border-box; margin-top: 4px; }
+
+      .hero-foot {
+        position: relative; z-index: 60; width: 100%; max-width: 1320px; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+        padding: 0 20px 44px; box-sizing: border-box; font-size: 13px; color: var(--muted);
+      }
+      @media (min-width: 1024px) { .hero-foot { padding: 0 36px 56px; } }
+      .hint { display: inline-flex; align-items: center; gap: 10px; }
+      .hand { width: 8px; height: 8px; border-radius: 50%; background: var(--cyan-b); box-shadow: 0 0 0 4px rgb(26 230 240 / 0.18); }
+      @media (max-width: 640px) { .hint { display: none; } .hero-foot { justify-content: center; } }
+
+      /* ── breath ── */
+      .breath {
+        max-width: 1240px; margin: 0 auto; padding: clamp(96px, 14vw, 180px) 20px; box-sizing: border-box;
+        display: grid; gap: 64px; align-items: center;
+      }
+      @media (min-width: 960px) { .breath { grid-template-columns: 1fr 1fr; } }
+      .phases { list-style: none; padding: 0; margin: 32px 0 28px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; max-width: 460px; }
+      .phases li { padding: 14px 12px; border-radius: 16px; border: 1px solid var(--line); background: rgb(255 255 255 / 0.03); transition: background 0.4s, border-color 0.4s, color 0.4s; }
+      .phases b { display: block; font-size: 13px; font-weight: 600; }
+      .phases span { font-size: 12px; color: var(--muted); }
+      .phases li.on { background: var(--lav); border-color: var(--lav); color: #1b1030; }
+      .phases li.on span { color: #5b4a86; }
+      .clock { position: relative; width: min(100%, 460px); aspect-ratio: 1; margin: 0 auto 64px; display: grid; place-items: center; }
+      .clock-ring { position: absolute; border-radius: 50%; border: 1px solid rgb(255 255 255 / 0.14); }
+      .r1 { inset: 4%; } .r2 { inset: 14%; border-style: dashed; border-color: rgb(189 181 233 / 0.25); } .r3 { inset: 24%; }
+      .arc { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
+      .arc-bg { fill: none; stroke: rgb(255 255 255 / 0.06); stroke-width: 2; }
+      .arc-fg { fill: none; stroke: url(#none); stroke: var(--cyan-b); stroke-width: 2.5; stroke-linecap: round; filter: drop-shadow(0 0 6px rgb(26 230 240 / 0.6)); }
+      .orb {
+        width: 38%; aspect-ratio: 1; border-radius: 50%;
+        background: radial-gradient(circle at 35% 30%, #fdfdfd 0%, var(--lav) 22%, var(--violet) 62%, var(--blue-b) 100%);
+        box-shadow: 0 0 80px rgb(155 50 241 / 0.55), inset 0 -20px 40px rgb(22 29 138 / 0.5);
+      }
+      .clock-label { position: absolute; top: calc(100% + 8px); display: flex; align-items: baseline; gap: 14px; color: var(--ink); pointer-events: none; }
+      .clock-label b { color: var(--lav-ink); font-size: 13px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; }
+      .clock-label span { min-width: 1ch; font-size: 40px; font-weight: 600; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; }
+
+      /* ── days ── */
+      .days { min-height: 100svh; display: flex; flex-direction: column; justify-content: center; gap: 40px; padding: 72px 0; box-sizing: border-box; overflow: hidden; }
+      .days-head { width: 100%; max-width: 1240px; margin: 0 auto; padding: 0 20px; box-sizing: border-box; display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; flex-wrap: wrap; }
+      .progress { width: 200px; height: 2px; background: var(--line); border-radius: 2px; overflow: hidden; }
+      .progress i { display: block; height: 100%; background: linear-gradient(90deg, var(--violet), var(--cyan-b)); transform-origin: 0 50%; }
+      .track { display: flex; gap: 20px; padding: 0 max(20px, calc((100vw - 1240px) / 2 + 20px)); width: max-content; will-change: transform; }
+      .day {
+        width: clamp(272px, 30vw, 400px); height: clamp(360px, 52vh, 470px); border-radius: 28px; padding: 28px; box-sizing: border-box; flex: none;
+        display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; position: relative; border: 1px solid rgb(255 255 255 / 0.12);
+        box-shadow: 0 30px 70px rgb(0 0 0 / 0.4);
+      }
+      .day-top { display: flex; justify-content: space-between; align-items: flex-start; }
+      .day-n { font-size: clamp(72px, 9vw, 120px); line-height: 0.8; font-weight: 600; letter-spacing: -0.07em; opacity: 0.9; }
+      .day h3 { margin: 0; font-size: clamp(28px, 3vw, 40px); line-height: 0.95; font-weight: 600; letter-spacing: -0.045em; }
+      .day ul { list-style: none; margin: 0; padding: 18px 0 0; border-top: 1px solid currentColor; display: grid; gap: 8px; font-size: 14px; font-weight: 500; }
+      .day li { opacity: 0.8; }
+      .t-blue { background: linear-gradient(135deg, var(--blue-a), var(--blue-b)); }
+      .t-lav { background: linear-gradient(135deg, var(--lav), #fdfdfd); color: #2a1f4f; }
+      .t-lav .day-n { color: var(--lav-ink); }
+      .t-cyan { background: linear-gradient(to bottom, var(--cyan-a), var(--cyan-b)); color: #082f3d; }
+      .t-glass { background: rgb(255 255 255 / 0.06); backdrop-filter: blur(16px); }
+      .t-red { background: var(--red); }
+      .t-violet { background: linear-gradient(160deg, var(--violet), #4b1386); }
+      .t-white { background: #fdfdfd; color: var(--bg); }
+      .t-white .day-n { background: linear-gradient(135deg, var(--violet), var(--cyan-a)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+      /* ── teachers ── */
+      .teachers { max-width: 1240px; margin: 0 auto; padding: clamp(96px, 12vw, 160px) 20px; box-sizing: border-box; }
+      .counters { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 24px; overflow: hidden; margin-bottom: clamp(80px, 10vw, 140px); }
+      @media (min-width: 900px) { .counters { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+      .counter { background: rgb(22 9 39 / 0.85); padding: 28px 24px; display: flex; flex-direction: column; gap: 8px; }
+      .counter b { font-size: clamp(48px, 6vw, 80px); font-weight: 600; line-height: 1; letter-spacing: -0.06em; font-variant-numeric: tabular-nums; background: linear-gradient(to bottom, var(--ink), var(--ink-2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+      .counter span { font-size: 14px; color: var(--muted); }
+      .t-grid { display: grid; gap: 20px; margin-top: 56px; }
+      @media (min-width: 900px) { .t-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+      .t-card { border-radius: 28px; overflow: hidden; background: rgb(255 255 255 / 0.04); border: 1px solid var(--line); }
+      .t-media { position: relative; aspect-ratio: 4 / 3.4; overflow: hidden; }
+      .t-media img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 25%; mix-blend-mode: multiply; filter: grayscale(1) contrast(1.2); display: block; }
+      .red-tint { background: var(--red); }
+      .lav-tint { background: var(--lav-ink); }
+      .sound { background: linear-gradient(to bottom, var(--cyan-a), var(--cyan-b)); display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 22px; }
+      .bars { display: flex; align-items: center; gap: 5px; height: 42%; width: 72%; }
+      .bars i { background: var(--sky); }
+      .sound-cap { font-size: 11px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--teal-ink); }
+      .t-meta { padding: 24px 24px 28px; }
+      .t-meta .tag { color: var(--lav-ink); }
+      .t-meta h3 { margin: 10px 0 8px; font-size: 26px; font-weight: 600; letter-spacing: -0.035em; }
+      .t-meta p { margin: 0; font-size: 15px; line-height: 1.55; color: var(--muted); }
+
+      /* ── book ── */
+      .book { max-width: 1240px; margin: 0 auto; padding: 0 20px 80px; box-sizing: border-box; }
+      .book-card {
+        position: relative; border-radius: 32px; padding: clamp(28px, 5vw, 64px); display: grid; gap: 48px; align-items: end; overflow: hidden;
+        background: linear-gradient(135deg, rgb(255 255 255 / 0.5), rgb(255 255 255 / 0.08) 40%, transparent) border-box;
+        border: 1px solid transparent;
+        box-shadow: inset 0 0 0 9999px rgb(30 12 54 / 0.92), 0 40px 100px rgb(0 0 0 / 0.5);
+      }
+      @media (min-width: 960px) { .book-card { grid-template-columns: 1.1fr 1fr; } }
+      .magnet {
+        display: inline-flex; margin-top: 32px; padding: 18px 30px; border-radius: 999px; text-decoration: none; font-weight: 600; font-size: 16px;
+        color: var(--bg); background: linear-gradient(to right, #fff, var(--lav)); box-shadow: 0 0 30px rgb(226 221 251 / 0.25);
+      }
+      .dates { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+      .dates li { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 18px 20px; border-radius: 18px; background: rgb(255 255 255 / 0.05); border: 1px solid var(--line); }
+      .dates b { display: block; font-size: 18px; font-weight: 600; letter-spacing: -0.02em; }
+      .dates span { font-size: 13px; color: var(--muted); }
+      .dates em { font-style: normal; font-size: 12px; font-weight: 600; white-space: nowrap; padding: 6px 10px; border-radius: 999px; background: var(--lav); color: #2a1f4f; }
+      .foot { display: flex; flex-wrap: wrap; gap: 12px 28px; justify-content: space-between; align-items: center; padding: 40px 4px 0; font-size: 13px; color: var(--muted); }
+      .logo.small { font-size: 18px; color: var(--ink); }
+      .logo.small .logo-mark { width: 34px; height: 19px; }
+      .logo.small .logo-mark span { width: 13px; height: 13px; }
+
+      @media (prefers-reduced-motion: reduce) {
+        .days { overflow: visible; }
+        .track { width: auto; flex-wrap: wrap; justify-content: center; padding: 0 20px; }
+        .day { height: auto; min-height: 320px; gap: 40px; }
+      }
+    </style>
+  </body>
+</html>

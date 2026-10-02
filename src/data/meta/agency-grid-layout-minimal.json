@@ -1,0 +1,7 @@
+{
+  "title": "Agency Grid Layout Minimal",
+  "kind": "website",
+  "category": "Design systems",
+  "concept": "Parapet, a fictional New York urban beekeeping co-op, presented as a minimal agency site on a strict 12-column grid: oversized tight-tracked Inter Tight headlines, tiny mono uppercase metadata, a greyscale rooftop panorama, hover-shifting practice rows, and an off-white sheet that overlays the page with a honey-by-postcode ledger.",
+  "notes": "No dependencies beyond Google Fonts (Inter Tight, Geist Mono). Masked headline rise, slow image settle and IntersectionObserver reveals; all motion off under prefers-reduced-motion. Photography from Unsplash, stored locally and graded to greyscale; the honeycomb is the one deliberate colour departure."
+}

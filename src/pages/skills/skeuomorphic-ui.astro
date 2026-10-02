@@ -1,0 +1,617 @@
+---
+import '../../styles/global.css';
+import BackPill from '../../components/BackPill.astro';
+
+// Kerbside Sketch School — a soft-plastic "field kit" that draws a Lisbon street corner.
+// Geometry: two facades receding to one vanishing point; windows are interpolated quads.
+type P = [number, number];
+const lerp = (a: P, b: P, t: number): P => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
+const quad = (top0: P, top1: P, bot0: P, bot1: P, t0: number, t1: number, r0: number, r1: number) => {
+  const pt = (t: number, r: number) => lerp(lerp(top0, top1, t), lerp(bot0, bot1, t), r);
+  const pts = [pt(t0, r0), pt(t1, r0), pt(t1, r1), pt(t0, r1)];
+  return `M${pts.map((p) => p.map((n) => n.toFixed(1)).join(' ')).join(' L')} Z`;
+};
+const L = { t0: [0, 30] as P, t1: [232, 150] as P, b0: [0, 300] as P, b1: [232, 214] as P };
+const R = { t0: [520, 14] as P, t1: [356, 128] as P, b0: [520, 330] as P, b1: [356, 220] as P };
+const lCols = [[0.05, 0.17], [0.26, 0.36], [0.44, 0.52], [0.6, 0.66], [0.73, 0.78]];
+const rCols = [[0.08, 0.22], [0.34, 0.46], [0.57, 0.66], [0.76, 0.83]];
+const rows = [[0.1, 0.27], [0.38, 0.55]];
+const winL = lCols.flatMap(([a, b]) => rows.map(([r0, r1]) => quad(L.t0, L.t1, L.b0, L.b1, a, b, r0, r1)));
+const winR = rCols.flatMap(([a, b]) => rows.map(([r0, r1]) => quad(R.t0, R.t1, R.b0, R.b1, a, b, r0, r1)));
+const doorL = quad(L.t0, L.t1, L.b0, L.b1, 0.27, 0.35, 0.7, 1);
+const hatch = Array.from({ length: 9 }, (_, i) => {
+  const t = 0.06 + i * 0.075;
+  const a = lerp(lerp(R.t0, R.t1, t), lerp(R.b0, R.b1, t), 0.66);
+  const b = lerp(lerp(R.t0, R.t1, t + 0.05), lerp(R.b0, R.b1, t + 0.05), 0.95);
+  return `M${a[0].toFixed(1)} ${a[1].toFixed(1)} L${b[0].toFixed(1)} ${b[1].toFixed(1)}`;
+});
+
+// Drawing order = the order a tutor would teach it: big shapes, the tram, then detail.
+const strokes = [
+  'M0 30 L232 150 L232 214 L0 300',
+  'M520 14 L356 128 L356 220 L520 330',
+  'M232 150 L232 124 L262 120 L262 206',
+  'M262 128 L300 132 L300 200 M300 140 L330 136 L330 204 L356 210',
+  'M40 340 L284 214 M486 340 L330 214',
+  'M0 316 L232 222 M520 338 L356 226',
+  'M268 210 L268 178 Q268 170 276 170 L318 170 Q326 170 326 178 L326 210 Z',
+  'M274 178 L320 178 L320 192 L274 192 Z M297 178 L297 192',
+  'M296 170 L308 134 M200 132 L520 74',
+  'M406 334 L406 168 Q406 154 392 154 L382 154 M376 154 L388 154 L386 164 L378 164 Z',
+  doorL,
+  ...winL,
+  ...winR,
+  ...hatch,
+  'M150 296 Q154 280 160 296 M156 278 a4 4 0 1 0 0.1 0',
+  'M462 300 Q466 284 472 300 M468 282 a4 4 0 1 0 0.1 0',
+];
+
+const nibs = [
+  { id: 'fine', label: 'Fineliner', spec: '0.3 mm' },
+  { id: 'brush', label: 'Brush pen', spec: 'Soft tip' },
+  { id: 'graphite', label: 'Graphite', spec: '4B' },
+];
+
+const courses = [
+  { no: '01', name: 'Line & Kerb', when: '4 Saturdays · 09:30–12:30', copy: 'One fineliner and a pocket book. We draw what is in front of us — doorways, café chairs, the 28 tram — and learn to trust the first line.', price: '€160', seats: 6, of: 10, kit: 'Fineliner' },
+  { no: '02', name: 'Wash at Dusk', when: '3 evenings · 18:00–20:30', copy: 'Watercolour over ink while the light turns. Three pigments, one waterbrush, and the miradouros when the tiles go pink.', price: '€135', seats: 3, of: 8, kit: 'Waterbrush' },
+  { no: '03', name: 'Perspective, No Ruler', when: '1 Sunday intensive · 10:00–17:00', copy: 'Vanishing points found by eye on the steep streets of Alfama. You leave able to draw a staircase that does not fall over.', price: '€70', seats: 9, of: 12, kit: 'Graphite' },
+];
+
+const walks = [
+  { date: 'Sat 4 Oct', place: 'Largo do Carmo', meet: 'by the fountain, 09:30', level: 'All levels' },
+  { date: 'Wed 8 Oct', place: 'Miradouro de Santa Luzia', meet: 'tile bench, 18:15', level: 'Wash' },
+  { date: 'Sat 11 Oct', place: 'Rua da Bica', meet: 'top of the funicular, 09:30', level: 'Perspective' },
+  { date: 'Sun 19 Oct', place: 'Mercado de Campo de Ourique', meet: 'north door, 10:00', level: 'All levels' },
+];
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Kerbside Sketch School — Skeuomorphic UI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+      <filter id="grain"><feTurbulence type="fractalNoise" baseFrequency="1.4" numOctaves="2" seed="3" /><feDisplacementMap in="SourceGraphic" scale="1.6" /></filter>
+      <filter id="bleed"><feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="3" seed="8" /><feDisplacementMap in="SourceGraphic" scale="9" /></filter>
+    </svg>
+
+    <div class="page">
+      <header class="wrap nav-row">
+        <nav class="nav sk" aria-label="Main">
+          <a class="brand" href="#top">
+            <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 20 L14 6 L18 9 L8 22 Z M14 6 L16 3 L20 6 L18 9" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" /></svg></span>
+            <span>Kerbside</span>
+          </a>
+          <div class="nav-links">
+            <a href="#courses">Courses</a>
+            <a href="#walks">Walks</a>
+            <a href="#join">Join</a>
+          </div>
+          <a class="btn btn-ink btn-sm" href="#join">Book a stool</a>
+        </nav>
+      </header>
+
+      <main id="top">
+        <section class="wrap hero">
+          <div class="hero-copy">
+            <p class="chip sk-well"><span class="led on" aria-hidden="true"></span>Autumn term · Lisbon · from 4 October</p>
+            <h1>Draw the city<br /> standing up.</h1>
+            <p class="lede">Kerbside is a sketching school with no classroom. Saturday mornings and weekday dusks on the steep streets of Lisbon — one pen, one small book, one corner at a time. No ruler, no eraser, no apologies.</p>
+            <div class="hero-ctas">
+              <a class="btn btn-ink" href="#courses">See the three courses</a>
+              <a class="btn" href="#walks">Next free walk</a>
+            </div>
+            <dl class="facts">
+              <div><dt>Group size</dt><dd>8–12</dd></div>
+              <div><dt>Kit included</dt><dd>Yes</dd></div>
+              <div><dt>Since</dt><dd>2014</dd></div>
+            </dl>
+          </div>
+
+          <div class="kit sk" aria-label="Field kit demo: draw a street corner">
+            <div class="kit-head">
+              <span class="screws" aria-hidden="true"><i></i><i></i></span>
+              <span class="mono emb">KSS-04 · Field kit</span>
+              <span class="led on" id="kit-led" aria-hidden="true"></span>
+            </div>
+
+            <div class="viewport sk-well">
+              <svg id="scene" class="scene nib-fine" viewBox="0 0 520 340" role="img" aria-label="A pen sketch of a Lisbon street corner with a tram, drawn stroke by stroke">
+                <g class="wash" filter="url(#bleed)" aria-hidden="true">
+                  <path d="M-20 -20 H540 V0 L520 14 L356 128 L330 136 L262 120 L232 124 L232 150 L0 30 Z" fill="#9db8d6" />
+                  <path d="M0 30 L232 150 L232 214 L0 300 Z" fill="#e8b766" />
+                  <path d="M520 14 L356 128 L356 220 L520 330 Z" fill="#d9826b" />
+                  <path d="M0 300 L232 214 L356 220 L520 330 L540 360 H-20 Z" fill="#b7b2a6" />
+                  <path d="M232 214 L232 124 L262 120 L300 132 L330 136 L356 128 L356 220 Z" fill="#e3ddcf" />
+                  <path d="M268 210 L268 178 Q268 170 276 170 L318 170 Q326 170 326 178 L326 210 Z" fill="#f2c230" />
+                </g>
+                <g class="guides" aria-hidden="true">
+                  <path d="M300 172 L0 30 M300 172 L0 300 M300 172 L520 14 M300 172 L520 330 M0 172 H520" />
+                </g>
+                <g class="ink" fill="none">
+                  {strokes.map((d) => <path d={d} pathLength="1" />)}
+                </g>
+              </svg>
+              <span class="viewport-tag mono" id="readout">Fineliner · 24 min · 0 strokes</span>
+            </div>
+
+            <fieldset class="nibs sk-well" aria-label="Nib">
+              <legend class="sr">Nib</legend>
+              {nibs.map((n, i) => (
+                <label class="nib">
+                  <input type="radio" name="nib" value={n.id} checked={i === 0} />
+                  <span class="nib-face"><b>{n.label}</b><small class="mono">{n.spec}</small></span>
+                </label>
+              ))}
+            </fieldset>
+
+            <div class="kit-controls">
+              <label class="slider-block">
+                <span class="ctl-label mono emb">On the corner <output id="mins">24</output> min</span>
+                <input id="time" class="slider" type="range" min="2" max="30" step="1" value="24" />
+              </label>
+              <div class="switch-block">
+                <span class="ctl-label mono emb" id="wash-label">Wash</span>
+                <button class="switch" role="switch" aria-checked="false" aria-labelledby="wash-label" id="wash"><span class="knob"></span></button>
+              </div>
+              <button class="draw-btn" id="draw" type="button" aria-label="Redraw the sketch">
+                <svg viewBox="0 0 24 24" aria-hidden="true" class="sk-icon"><path d="M5 19 L15 7 L18 10 L8 21 L4 22 Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" /></svg>
+                <span>Draw</span>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <section class="wrap section" id="courses">
+          <div class="section-head">
+            <p class="mono eyebrow">Courses · Autumn 2026</p>
+            <h2>Three ways onto the street.</h2>
+            <p class="section-lede">Every course meets outside, carries its own stool and finishes at a café table where we lay the books out and look.</p>
+          </div>
+          <div class="cards">
+            {courses.map((c) => (
+              <article class="card sk">
+                <div class="card-top">
+                  <span class="num sk-well mono">{c.no}</span>
+                  <span class="mono kit-tag">{c.kit}</span>
+                </div>
+                <h3>{c.name}</h3>
+                <p class="mono when">{c.when}</p>
+                <p class="card-copy">{c.copy}</p>
+                <div class="seats" aria-label={`${c.of - c.seats} of ${c.of} seats taken`}>
+                  {Array.from({ length: c.of }, (_, i) => <i class={i < c.of - c.seats ? 'taken' : ''}></i>)}
+                </div>
+                <div class="card-foot">
+                  <span class="price">{c.price}</span>
+                  <button class="btn btn-sm reserve" type="button" aria-pressed="false" data-left={c.seats}>
+                    <span class="r-label">Reserve a seat</span>
+                  </button>
+                </div>
+                <p class="mono left" aria-live="polite"><span>{c.seats}</span> seats left</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section class="wrap section walks-wrap" id="walks">
+          <div class="walks sk">
+            <div class="walks-intro">
+              <p class="mono eyebrow">Free walks · October</p>
+              <h2>Bring a pen. We bring the stools.</h2>
+              <p class="section-lede">Once a week we meet somewhere with a good view and draw for ninety minutes. Free, no sign-up, ends with a bica.</p>
+            </div>
+            <ul class="walk-list sk-well">
+              {walks.map((w) => (
+                <li>
+                  <span class="mono walk-date">{w.date}</span>
+                  <span class="walk-place"><b>{w.place}</b><small>{w.meet}</small></span>
+                  <span class="pill mono">{w.level}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+
+        <section class="wrap section" id="join">
+          <form class="join sk" id="join-form">
+            <div>
+              <p class="mono eyebrow">The term letter</p>
+              <h2>One e-mail a month: where we’ll be standing.</h2>
+            </div>
+            <div class="join-row">
+              <label class="sr" for="email">E-mail address</label>
+              <input class="field sk-well" id="email" type="email" required placeholder="you@example.com" autocomplete="email" />
+              <button class="btn btn-ink" type="submit">Save my stool</button>
+            </div>
+            <p class="lcd mono" id="lcd" aria-live="polite">Ready · 0 letters sent this month</p>
+          </form>
+        </section>
+      </main>
+
+      <footer class="wrap foot">
+        <span class="mono emb">Kerbside Sketch School · Rua do Norte, Lisbon</span>
+        <span class="mono emb">Rain policy: we draw from under the arcades.</span>
+      </footer>
+    </div>
+    <BackPill />
+  </body>
+</html>
+
+<style is:global>
+  :root {
+    --sk-bg-top: #f8fafc;
+    --sk-bg-mid: #e9eef5;
+    --sk-bg-bottom: #cfd7e4;
+    --sk-edge-top: rgba(255, 255, 255, 0.82);
+    --sk-edge-bottom: rgba(79, 93, 122, 0.34);
+    --sk-shadow: rgba(31, 41, 55, 0.18);
+    --sk-shadow-deep: rgba(31, 41, 55, 0.28);
+    --sk-highlight: rgba(255, 255, 255, 0.72);
+    --ink: #1f2a3d;
+    --text: #334155;
+    --muted: #64748b;
+    --signal: #e0572f;
+    --paper: #f6f3ea;
+    --sans: 'Schibsted Grotesk', ui-sans-serif, system-ui, sans-serif;
+    --mono: 'IBM Plex Mono', ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: var(--sans);
+    color: var(--text);
+    background: linear-gradient(180deg, #eef2f7, #dde4ee 60%, #d4dce8);
+    background-attachment: fixed;
+  }
+  .page {
+    min-height: 100vh;
+    overflow-x: clip;
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.34) 0 1px, transparent 1.5px),
+      radial-gradient(circle at 70% 65%, rgba(31, 41, 55, 0.06) 0 1px, transparent 1.5px);
+    background-size: 18px 18px, 22px 22px;
+  }
+  .wrap { width: min(1240px, 100% - 32px); margin-inline: auto; }
+  .mono { font-family: var(--mono); font-size: 12px; letter-spacing: 0.04em; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  a { color: inherit; }
+  :focus-visible { outline: 2px solid var(--signal); outline-offset: 3px; }
+
+  /* ---------- skill surfaces ---------- */
+  .sk {
+    position: relative;
+    border: 1px solid transparent;
+    border-radius: 22px;
+    background:
+      linear-gradient(180deg, var(--sk-bg-top), var(--sk-bg-mid) 48%, var(--sk-bg-bottom)) padding-box,
+      linear-gradient(180deg, var(--sk-edge-top), rgba(255, 255, 255, 0.22) 45%, var(--sk-edge-bottom)) border-box;
+    box-shadow:
+      0 18px 34px var(--sk-shadow),
+      0 5px 12px rgba(31, 41, 55, 0.12),
+      inset 0 1px 0 var(--sk-highlight),
+      inset 0 -1px 0 rgba(79, 93, 122, 0.24);
+    transition: box-shadow 200ms ease, transform 200ms ease, background 200ms ease;
+  }
+  .sk::after {
+    content: '';
+    position: absolute;
+    inset: 1px 1px auto;
+    height: 35%;
+    border-radius: inherit;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.42), transparent);
+    pointer-events: none;
+  }
+  /* Content sits above the sheen so headings keep full contrast. */
+  .sk > * { position: relative; z-index: 1; }
+  .sk-well {
+    border: 1px solid transparent;
+    background:
+      linear-gradient(180deg, #d5dce8, #e6ebf2 52%, #eef2f7) padding-box,
+      linear-gradient(180deg, rgba(72, 84, 112, 0.34), rgba(255, 255, 255, 0.7)) border-box;
+    box-shadow: inset 0 3px 8px rgba(31, 41, 55, 0.16), inset 0 -1px 0 rgba(255, 255, 255, 0.72);
+  }
+  .emb, .sk-label { color: #475569; text-shadow: 0 1px 0 rgba(255, 255, 255, 0.78), 0 -1px 0 rgba(31, 41, 55, 0.12); }
+  .sk-icon { filter: drop-shadow(0 1px 0 rgba(255, 255, 255, 0.78)) drop-shadow(0 -1px 0 rgba(31, 41, 55, 0.14)); }
+
+  .btn {
+    position: relative;
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    min-height: 48px; padding: 0 22px;
+    border: 1px solid transparent; border-radius: 999px;
+    font: 600 15px/1 var(--sans); color: var(--ink); text-decoration: none; cursor: pointer;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.78);
+    background:
+      linear-gradient(180deg, var(--sk-bg-top), var(--sk-bg-mid) 48%, var(--sk-bg-bottom)) padding-box,
+      linear-gradient(180deg, var(--sk-edge-top), rgba(255, 255, 255, 0.22) 45%, var(--sk-edge-bottom)) border-box;
+    box-shadow: 0 8px 16px var(--sk-shadow), 0 2px 4px rgba(31, 41, 55, 0.12), inset 0 1px 0 var(--sk-highlight), inset 0 -1px 0 rgba(79, 93, 122, 0.24);
+    transition: box-shadow 180ms ease, transform 180ms ease, background 180ms ease;
+  }
+  .btn:hover { transform: translateY(-1px); box-shadow: 0 12px 22px var(--sk-shadow), 0 3px 6px rgba(31, 41, 55, 0.12), inset 0 1px 0 var(--sk-highlight), inset 0 -1px 0 rgba(79, 93, 122, 0.24); }
+  .btn:active, .btn[aria-pressed='true'] {
+    transform: translateY(1px);
+    background:
+      linear-gradient(180deg, #d5dce8, #eef2f7 52%, #f8fafc) padding-box,
+      linear-gradient(180deg, rgba(72, 84, 112, 0.38), rgba(255, 255, 255, 0.62)) border-box;
+    box-shadow: inset 0 4px 10px rgba(31, 41, 55, 0.22), inset 0 -1px 0 rgba(255, 255, 255, 0.72), 0 4px 10px rgba(31, 41, 55, 0.1);
+  }
+  .btn-sm { min-height: 40px; padding: 0 16px; font-size: 14px; }
+  /* One enamel colour: the signal orange, still lit from above. */
+  .btn-ink {
+    color: #fff8f3; text-shadow: 0 -1px 0 rgba(122, 36, 10, 0.45);
+    background:
+      linear-gradient(180deg, #f27a52, #e0572f 50%, #c4441f) padding-box,
+      linear-gradient(180deg, rgba(255, 214, 196, 0.9), rgba(255, 255, 255, 0.15) 45%, rgba(122, 36, 10, 0.55)) border-box;
+    box-shadow: 0 10px 20px rgba(160, 52, 20, 0.28), 0 2px 4px rgba(122, 36, 10, 0.2), inset 0 1px 0 rgba(255, 220, 204, 0.75), inset 0 -1px 0 rgba(122, 36, 10, 0.35);
+  }
+  .btn-ink:hover { box-shadow: 0 14px 26px rgba(160, 52, 20, 0.32), 0 3px 6px rgba(122, 36, 10, 0.2), inset 0 1px 0 rgba(255, 220, 204, 0.75), inset 0 -1px 0 rgba(122, 36, 10, 0.35); }
+  .btn-ink:active {
+    background:
+      linear-gradient(180deg, #b93f1c, #d5512b 52%, #e86a43) padding-box,
+      linear-gradient(180deg, rgba(122, 36, 10, 0.6), rgba(255, 214, 196, 0.6)) border-box;
+    box-shadow: inset 0 4px 10px rgba(90, 24, 6, 0.4), inset 0 -1px 0 rgba(255, 220, 204, 0.5), 0 4px 10px rgba(160, 52, 20, 0.18);
+  }
+
+  .led { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #9aa6b8; box-shadow: inset 0 1px 1px rgba(31, 41, 55, 0.35), 0 1px 0 rgba(255, 255, 255, 0.8); }
+  .led.on { background: radial-gradient(circle at 35% 30%, #ffd2bf, #f26a3f 55%, #c4441f); box-shadow: 0 0 8px rgba(242, 106, 63, 0.7), 0 1px 0 rgba(255, 255, 255, 0.8); }
+
+  /* ---------- nav ---------- */
+  .nav-row { padding-top: 20px; }
+  .nav { display: flex; align-items: center; gap: 20px; padding: 8px 8px 8px 18px; border-radius: 999px; }
+  .brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 800; font-size: 18px; letter-spacing: -0.01em; color: var(--ink); text-decoration: none; text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8); }
+  .brand-mark { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 10px; color: var(--signal);
+    background: linear-gradient(180deg, #d5dce8, #eef2f7); box-shadow: inset 0 2px 5px rgba(31, 41, 55, 0.2), inset 0 -1px 0 rgba(255, 255, 255, 0.8); }
+  .brand-mark svg { width: 18px; height: 18px; }
+  .nav-links { display: flex; gap: 4px; margin-left: auto; }
+  .nav-links a { padding: 10px 14px; border-radius: 999px; font-size: 15px; font-weight: 500; text-decoration: none; color: #475569; text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8); transition: background 180ms ease, box-shadow 180ms ease; }
+  .nav-links a:hover { background: linear-gradient(180deg, #dde3ec, #eef2f7); box-shadow: inset 0 2px 5px rgba(31, 41, 55, 0.14), inset 0 -1px 0 #fff; }
+
+  /* ---------- hero ---------- */
+  .hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr); gap: 56px; align-items: center; padding: 48px 0 72px; min-height: calc(100vh - 80px); }
+  .chip { display: inline-flex; align-items: center; gap: 10px; margin: 0; padding: 8px 14px; border-radius: 999px; font-size: 13px; font-weight: 500; color: #475569; }
+  h1, h2, h3 { color: var(--ink); text-shadow: 0 1px 0 rgba(255, 255, 255, 0.85); margin: 0; }
+  h1 { margin-top: 26px; font-size: clamp(46px, 6.4vw, 92px); line-height: 0.95; letter-spacing: -0.035em; font-weight: 800; }
+  .lede { max-width: 32em; margin: 26px 0 0; font-size: 18px; line-height: 1.6; color: #475569; }
+  .hero-ctas { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 32px; }
+  .facts { display: flex; gap: 36px; margin: 40px 0 0; padding-top: 22px; border-top: 1px solid rgba(79, 93, 122, 0.18); box-shadow: 0 1px 0 rgba(255, 255, 255, 0.7) inset; }
+  .facts dt { font: 12px var(--mono); letter-spacing: 0.04em; color: var(--muted); }
+  .facts dd { margin: 6px 0 0; font-size: 26px; font-weight: 700; color: var(--ink); letter-spacing: -0.02em; }
+
+  /* ---------- the field kit ---------- */
+  .kit { padding: 16px; border-radius: 30px; }
+  .kit-head { display: flex; align-items: center; gap: 12px; padding: 2px 8px 14px; }
+  .kit-head .mono { flex: 1; text-transform: uppercase; font-size: 11px; letter-spacing: 0.12em; }
+  .screws { display: inline-flex; gap: 6px; }
+  .screws i { width: 9px; height: 9px; border-radius: 50%; background: linear-gradient(180deg, #c3ccd9, #f3f6fa); box-shadow: inset 0 1px 1px rgba(31, 41, 55, 0.35), 0 1px 0 #fff; position: relative; }
+  .screws i::after { content: ''; position: absolute; left: 2px; right: 2px; top: 4px; height: 1px; background: rgba(31, 41, 55, 0.35); transform: rotate(-30deg); }
+  .viewport { position: relative; padding: 10px; border-radius: 20px; }
+  .scene { display: block; width: 100%; height: auto; border-radius: 12px; aspect-ratio: 520 / 340;
+    background: var(--paper) radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.6), transparent 60%);
+    box-shadow: 0 1px 2px rgba(31, 41, 55, 0.25), 0 0 0 1px rgba(79, 93, 122, 0.12); }
+  .viewport-tag { position: absolute; right: 22px; bottom: 20px; padding: 5px 9px; border-radius: 6px; font-size: 11px; color: #5b6578; background: rgba(246, 243, 234, 0.9); }
+  .guides path { fill: none; stroke: #8fb0d8; stroke-width: 0.6; stroke-dasharray: 3 4; opacity: 0.55; }
+  .ink path { stroke-dasharray: 1; stroke-dashoffset: 1; stroke-linecap: round; stroke-linejoin: round; }
+  .nib-fine .ink path { stroke: #1d2433; stroke-width: 1.15; }
+  .nib-brush .ink path { stroke: #141a26; stroke-width: 2.6; }
+  .nib-graphite .ink { filter: url(#grain); }
+  .nib-graphite .ink path { stroke: #59616f; stroke-width: 1.5; opacity: 0.9; }
+  .wash { opacity: 0; transition: opacity 600ms ease; mix-blend-mode: multiply; }
+  .wash path { opacity: 0.55; }
+  .scene.washed .wash { opacity: 1; }
+
+  .nibs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 14px 0 0; padding: 6px; border-radius: 18px; min-width: 0; }
+  .nib { position: relative; cursor: pointer; }
+  .nib input { position: absolute; opacity: 0; inset: 0; cursor: pointer; }
+  .nib-face { display: flex; flex-direction: column; gap: 3px; padding: 10px 12px; border-radius: 13px; border: 1px solid transparent; transition: box-shadow 180ms ease, background 180ms ease, transform 180ms ease; }
+  .nib-face b { font-size: 14px; color: #475569; text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8); }
+  .nib-face small { font-size: 11px; color: var(--muted); }
+  .nib input:checked + .nib-face {
+    background:
+      linear-gradient(180deg, var(--sk-bg-top), var(--sk-bg-mid) 48%, var(--sk-bg-bottom)) padding-box,
+      linear-gradient(180deg, var(--sk-edge-top), rgba(255, 255, 255, 0.22) 45%, var(--sk-edge-bottom)) border-box;
+    box-shadow: 0 6px 12px var(--sk-shadow), 0 2px 3px rgba(31, 41, 55, 0.12), inset 0 1px 0 var(--sk-highlight);
+  }
+  .nib input:checked + .nib-face b { color: var(--ink); }
+  .nib input:focus-visible + .nib-face { outline: 2px solid var(--signal); outline-offset: 2px; }
+
+  .kit-controls { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 22px; padding: 18px 8px 6px; }
+  .ctl-label { display: block; margin-bottom: 10px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; }
+  .ctl-label output { color: var(--signal); font-weight: 500; text-shadow: none; }
+  .slider { -webkit-appearance: none; appearance: none; width: 100%; height: 28px; background: transparent; margin: 0; cursor: pointer; }
+  .slider::-webkit-slider-runnable-track { height: 8px; border-radius: 99px; background: linear-gradient(180deg, #c7d0dd, #e7ecf3); box-shadow: inset 0 2px 4px rgba(31, 41, 55, 0.28), 0 1px 0 #fff; }
+  .slider::-moz-range-track { height: 8px; border-radius: 99px; background: linear-gradient(180deg, #c7d0dd, #e7ecf3); box-shadow: inset 0 2px 4px rgba(31, 41, 55, 0.28), 0 1px 0 #fff; }
+  .slider::-webkit-slider-thumb { -webkit-appearance: none; width: 26px; height: 26px; margin-top: -9px; border-radius: 50%; border: 1px solid rgba(79, 93, 122, 0.3);
+    background: radial-gradient(circle, #e0572f 0 2.5px, transparent 3px), linear-gradient(180deg, #ffffff, #e9eef5 50%, #cfd7e4);
+    box-shadow: 0 5px 10px var(--sk-shadow-deep), inset 0 1px 0 #fff, inset 0 -1px 0 rgba(79, 93, 122, 0.24); }
+  .slider::-moz-range-thumb { width: 24px; height: 24px; border-radius: 50%; border: 1px solid rgba(79, 93, 122, 0.3);
+    background: radial-gradient(circle, #e0572f 0 2.5px, transparent 3px), linear-gradient(180deg, #ffffff, #e9eef5 50%, #cfd7e4);
+    box-shadow: 0 5px 10px var(--sk-shadow-deep), inset 0 1px 0 #fff; }
+  .switch { position: relative; width: 62px; height: 32px; padding: 0; border-radius: 99px; border: 1px solid rgba(72, 84, 112, 0.3); cursor: pointer;
+    background: linear-gradient(180deg, #c7d0dd, #e7ecf3); box-shadow: inset 0 3px 6px rgba(31, 41, 55, 0.26), 0 1px 0 #fff; transition: background 220ms ease; }
+  .switch .knob { position: absolute; top: 2px; left: 2px; width: 26px; height: 26px; border-radius: 50%;
+    background: linear-gradient(180deg, #ffffff, #e9eef5 50%, #cfd7e4); box-shadow: 0 4px 8px var(--sk-shadow-deep), inset 0 1px 0 #fff, inset 0 -1px 0 rgba(79, 93, 122, 0.24); transition: transform 220ms ease; }
+  .switch[aria-checked='true'] { background: linear-gradient(180deg, #c4441f, #ea6a42); box-shadow: inset 0 3px 6px rgba(90, 24, 6, 0.4), 0 1px 0 #fff; }
+  .switch[aria-checked='true'] .knob { transform: translateX(30px); }
+  .draw-btn { display: grid; place-items: center; align-content: center; gap: 2px; width: 76px; height: 76px; border-radius: 50%; cursor: pointer;
+    border: 1px solid transparent; color: #fff8f3; font: 600 12px var(--sans); letter-spacing: 0.04em; text-transform: uppercase; text-shadow: 0 -1px 0 rgba(122, 36, 10, 0.45);
+    background:
+      linear-gradient(180deg, #f27a52, #e0572f 50%, #c4441f) padding-box,
+      linear-gradient(180deg, rgba(255, 214, 196, 0.9), rgba(255, 255, 255, 0.15) 45%, rgba(122, 36, 10, 0.55)) border-box;
+    box-shadow: 0 0 0 6px #e3e8f0, 0 0 0 7px rgba(79, 93, 122, 0.18), 0 12px 20px rgba(160, 52, 20, 0.3), inset 0 1px 0 rgba(255, 220, 204, 0.75), inset 0 -2px 0 rgba(122, 36, 10, 0.3);
+    transition: box-shadow 180ms ease, transform 180ms ease, background 180ms ease; }
+  .draw-btn svg { width: 22px; height: 22px; filter: drop-shadow(0 -1px 0 rgba(122, 36, 10, 0.4)); }
+  .draw-btn:active, .draw-btn.is-pressed { transform: translateY(1px);
+    background:
+      linear-gradient(180deg, #b93f1c, #d5512b 52%, #e86a43) padding-box,
+      linear-gradient(180deg, rgba(122, 36, 10, 0.6), rgba(255, 214, 196, 0.6)) border-box;
+    box-shadow: 0 0 0 6px #e3e8f0, 0 0 0 7px rgba(79, 93, 122, 0.18), 0 4px 8px rgba(160, 52, 20, 0.2), inset 0 5px 10px rgba(90, 24, 6, 0.42), inset 0 -1px 0 rgba(255, 220, 204, 0.5); }
+
+  /* ---------- sections ---------- */
+  .section { padding: 56px 0; }
+  .section-head { max-width: 640px; margin-bottom: 36px; }
+  .eyebrow { margin: 0 0 14px; color: var(--signal); text-transform: uppercase; letter-spacing: 0.14em; font-size: 11px; }
+  h2 { font-size: clamp(32px, 4vw, 52px); line-height: 1; letter-spacing: -0.035em; font-weight: 800; }
+  .section-lede { margin: 18px 0 0; font-size: 17px; line-height: 1.6; color: #475569; }
+  .cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+  .card { display: flex; flex-direction: column; padding: 24px; }
+  .card:hover { transform: translateY(-2px); }
+  .card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 26px; }
+  .num { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 12px; font-size: 14px; color: #475569; text-shadow: 0 1px 0 #fff; }
+  .kit-tag { color: var(--muted); }
+  .card h3 { font-size: 26px; letter-spacing: -0.025em; font-weight: 700; }
+  .when { margin: 8px 0 0; color: var(--muted); }
+  .card-copy { margin: 16px 0 22px; line-height: 1.6; flex: 1; }
+  .seats { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 22px; }
+  .seats i { width: 12px; height: 12px; border-radius: 50%; background: linear-gradient(180deg, #ffffff, #dfe5ee); box-shadow: 0 1px 2px rgba(31, 41, 55, 0.25), inset 0 1px 0 #fff; }
+  .seats i.taken { background: linear-gradient(180deg, #c7d0dd, #e3e8f0); box-shadow: inset 0 1px 2px rgba(31, 41, 55, 0.3), 0 1px 0 #fff; }
+  .seats i.mine { background: radial-gradient(circle at 35% 30%, #ffd2bf, #f26a3f 55%, #c4441f); box-shadow: 0 0 6px rgba(242, 106, 63, 0.6); }
+  .card-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 18px; border-top: 1px solid rgba(79, 93, 122, 0.16); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7); }
+  .price { font-size: 28px; font-weight: 800; color: var(--ink); letter-spacing: -0.03em; text-shadow: 0 1px 0 #fff; }
+  .left { margin: 12px 0 0; color: var(--muted); }
+
+  .walks { display: grid; grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr); gap: 40px; padding: 40px; border-radius: 30px; }
+  .walk-list { list-style: none; margin: 0; padding: 8px; border-radius: 20px; }
+  .walk-list li { display: grid; grid-template-columns: 96px minmax(0, 1fr) auto; gap: 16px; align-items: center; padding: 16px 14px; }
+  .walk-list li + li { border-top: 1px solid rgba(79, 93, 122, 0.14); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6); }
+  .walk-date { color: var(--signal); }
+  .walk-place b { display: block; color: var(--ink); font-size: 17px; }
+  .walk-place small { color: var(--muted); font-size: 14px; }
+  .pill { padding: 6px 10px; border-radius: 99px; font-size: 11px; color: #475569; white-space: nowrap;
+    background: linear-gradient(180deg, #ffffff, #e9eef5); box-shadow: 0 2px 4px rgba(31, 41, 55, 0.14), inset 0 1px 0 #fff, inset 0 -1px 0 rgba(79, 93, 122, 0.2); }
+
+  .join { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px 40px; align-items: end; padding: 40px; border-radius: 30px; }
+  .join h2 { font-size: clamp(28px, 3vw, 40px); }
+  .join-row { display: flex; gap: 10px; }
+  .field { flex: 1; min-width: 0; height: 52px; padding: 0 18px; border-radius: 999px; font: 16px var(--sans); color: var(--ink); outline: none; }
+  .field:focus-visible { outline: 2px solid var(--signal); outline-offset: 2px; }
+  .lcd { grid-column: 2; margin: 0; padding: 10px 14px; border-radius: 10px; color: #c9f0d8; font-size: 12px;
+    background: linear-gradient(180deg, #23313a, #2e3f49); box-shadow: inset 0 3px 8px rgba(10, 18, 24, 0.6), 0 1px 0 #fff; text-shadow: 0 0 6px rgba(130, 230, 170, 0.5); }
+  .foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; padding: 32px 0 72px; }
+
+  @media (max-width: 980px) {
+    .hero { grid-template-columns: minmax(0, 1fr); min-height: 0; gap: 40px; padding-top: 32px; }
+    .cards { grid-template-columns: minmax(0, 1fr); }
+    .walks, .join { grid-template-columns: minmax(0, 1fr); padding: 26px; }
+    .lcd { grid-column: 1; }
+  }
+  @media (max-width: 560px) {
+    .nav-links { display: none; }
+    .nav .btn { margin-left: auto; }
+    .kit { padding: 10px; border-radius: 24px; }
+    .viewport { padding: 6px; border-radius: 16px; }
+    .viewport-tag { right: 12px; bottom: 12px; font-size: 10px; }
+    .nib-face { padding: 8px; }
+    .nib-face b { font-size: 12px; }
+    .kit-controls { grid-template-columns: minmax(0, 1fr) auto; gap: 16px; }
+    .slider-block { grid-column: 1 / -1; }
+    .switch-block { display: flex; align-items: center; gap: 12px; }
+    .switch-block .ctl-label { margin: 0; }
+    .draw-btn { width: 64px; height: 64px; }
+    .facts { gap: 24px; }
+    .walk-list li { grid-template-columns: minmax(0, 1fr) auto; }
+    .walk-date { grid-column: 1 / -1; }
+    .join-row { flex-direction: column; }
+    .field { flex: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { transition-duration: 0ms !important; }
+  }
+</style>
+
+<script>
+  const scene = document.getElementById('scene') as unknown as SVGSVGElement;
+  const paths = [...scene.querySelectorAll<SVGPathElement>('.ink path')];
+  const time = document.getElementById('time') as HTMLInputElement;
+  const mins = document.getElementById('mins') as HTMLOutputElement;
+  const readout = document.getElementById('readout')!;
+  const wash = document.getElementById('wash')!;
+  const draw = document.getElementById('draw')!;
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const nibNames: Record<string, string> = { fine: 'Fineliner', brush: 'Brush pen', graphite: 'Graphite' };
+  let shown = 0;
+  let raf = 0;
+
+  // Progress 0..1 reveals strokes in order; each stroke draws itself over its own slice.
+  const render = (p: number) => {
+    shown = p;
+    const n = paths.length;
+    let done = 0;
+    paths.forEach((path, i) => {
+      const local = Math.min(1, Math.max(0, p * n - i));
+      path.style.strokeDashoffset = String(1 - local);
+      if (local > 0) done++;
+    });
+    const nib = (document.querySelector('input[name="nib"]:checked') as HTMLInputElement).value;
+    readout.textContent = `${nibNames[nib]} · ${time.value} min · ${done} strokes`;
+  };
+
+  const target = () => Number(time.value) / 30;
+
+  const animateTo = (to: number, from = shown, ms = 1600) => {
+    cancelAnimationFrame(raf);
+    if (reduce) return render(to);
+    const start = performance.now();
+    const step = (now: number) => {
+      const k = Math.min(1, (now - start) / ms);
+      const e = 1 - Math.pow(1 - k, 3);
+      render(from + (to - from) * e);
+      if (k < 1) raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+  };
+
+  time.addEventListener('input', () => {
+    mins.value = time.value;
+    animateTo(target(), shown, 220);
+  });
+  document.querySelectorAll<HTMLInputElement>('input[name="nib"]').forEach((r) =>
+    r.addEventListener('change', () => {
+      scene.classList.remove('nib-fine', 'nib-brush', 'nib-graphite');
+      scene.classList.add(`nib-${r.value}`);
+      render(shown);
+    }),
+  );
+  wash.addEventListener('click', () => {
+    const on = wash.getAttribute('aria-checked') !== 'true';
+    wash.setAttribute('aria-checked', String(on));
+    scene.classList.toggle('washed', on);
+  });
+  draw.addEventListener('click', () => {
+    draw.classList.add('is-pressed');
+    setTimeout(() => draw.classList.remove('is-pressed'), 200);
+    animateTo(target(), 0, 1800);
+  });
+
+  // Course reservations: the button stays pressed while your seat is held.
+  document.querySelectorAll<HTMLButtonElement>('.reserve').forEach((btn) => {
+    const card = btn.closest('.card')!;
+    const left = card.querySelector('.left span')!;
+    const base = Number(btn.dataset.left);
+    btn.addEventListener('click', () => {
+      const on = btn.getAttribute('aria-pressed') !== 'true';
+      btn.setAttribute('aria-pressed', String(on));
+      btn.querySelector('.r-label')!.textContent = on ? 'Seat held' : 'Reserve a seat';
+      left.textContent = String(on ? base - 1 : base);
+      const free = card.querySelectorAll('.seats i:not(.taken)');
+      free[0]?.classList.toggle('mine', on);
+    });
+  });
+
+  const form = document.getElementById('join-form') as HTMLFormElement;
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const email = (document.getElementById('email') as HTMLInputElement).value;
+    document.getElementById('lcd')!.textContent = `Saved · first letter to ${email} on 1 Nov`;
+  });
+
+  // First view: the kit draws the corner up to the default 24 minutes, wash on.
+  wash.click();
+  render(0);
+  animateTo(target(), 0, 1800);
+</script>

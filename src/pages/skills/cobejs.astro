@@ -1,0 +1,465 @@
+---
+import '../../styles/global.css';
+import BackPill from '../../components/BackPill.astro';
+
+// Ferro Lund Arquitectos — one studio in Lisbon, nine built sites in nine climates.
+const studio = { id: 'lisboa', name: 'Studio', city: 'Lisboa', lat: 38.7223, lon: -9.1393 };
+const sites = [
+  { id: 'ridge', n: '01', name: 'Ridge House', city: 'Tromsø', country: 'Norway', lat: 69.6496, lon: 18.956, climate: 'Dfc', climateName: 'Subarctic', year: '2019', status: 'Built', area: '410 m²', note: 'A timber house dug into the slope, so the polar wind passes over the roof instead of through the walls.' },
+  { id: 'basalt', n: '02', name: 'Basalt Chapel', city: 'Reykjavík', country: 'Iceland', lat: 64.1466, lon: -21.9426, climate: 'Cfc', climateName: 'Subpolar oceanic', year: '2022', status: 'Built', area: '260 m²', note: 'Cast in lava-aggregate concrete. A single slot window lines up with the midsummer sun at midnight.' },
+  { id: 'ashquay', n: '03', name: 'Ash Quay Housing', city: 'Rotterdam', country: 'Netherlands', lat: 51.9244, lon: 4.4777, climate: 'Cfb', climateName: 'Oceanic', year: '2024', status: 'Built', area: '18 400 m²', note: '212 homes on a former coal quay, every ground floor raised one storey above the 2100 flood line.' },
+  { id: 'courtyard', n: '04', name: 'Courtyard School', city: 'Marrakesh', country: 'Morocco', lat: 31.6295, lon: -7.9811, climate: 'BSh', climateName: 'Hot semi-arid', year: '2021', status: 'Built', area: '5 900 m²', note: 'Rammed-earth classrooms around four shaded courts. Forty-one degrees outside, twenty-six inside, no air conditioning.' },
+  { id: 'mesa', n: '05', name: 'Mesa Reading Room', city: 'Tucson', country: 'United States', lat: 32.2226, lon: -110.9747, climate: 'BWh', climateName: 'Hot desert', year: '2020', status: 'Built', area: '720 m²', note: 'Sixty-centimetre adobe walls and a north light that reaches every desk and never glares.' },
+  { id: 'salt', n: '06', name: 'Salt Library', city: 'Valparaíso', country: 'Chile', lat: -33.0472, lon: -71.6127, climate: 'Csb', climateName: 'Mediterranean', year: '2026', status: 'On site', area: '3 100 m²', note: 'A public library terraced down the cerro, with a reading landing at every turn of the funicular.' },
+  { id: 'monsoon', n: '07', name: 'Monsoon Market', city: 'Kochi', country: 'India', lat: 9.9312, lon: 76.2673, climate: 'Am', climateName: 'Tropical monsoon', year: '2025', status: 'Built', area: '6 200 m²', note: 'One roof, 140 metres long, pitched to shed three thousand millimetres of rain a year into the canal.' },
+  { id: 'cedar', n: '08', name: 'Cedar Bathhouse', city: 'Matsumoto', country: 'Japan', lat: 36.238, lon: 137.972, climate: 'Dfa', climateName: 'Humid continental', year: '2023', status: 'Built', area: '980 m²', note: 'Hinoki baths under a cedar roof engineered to carry a metre of snow without a single interior column.' },
+  { id: 'tidal', n: '09', name: 'Tidal Pavilion', city: 'Hobart', country: 'Australia', lat: -42.8821, lon: 147.3272, climate: 'Cfb', climateName: 'Oceanic', year: '2027', status: 'In design', area: '1 450 m²', note: 'A harbour shelter whose stone floor floods twice a day, on purpose, and dries in the wind by noon.' },
+];
+const initial = sites[2];
+const payload = JSON.stringify({ studio, sites, initial: initial.id });
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Ferro Lund Arquitectos — Atlas of built work</title>
+    <meta name="description" content="Nine buildings in nine climates, drawn at one table in Lisbon. An interactive cobe globe of Ferro Lund's built work." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <BackPill />
+
+    <header class="bar">
+      <a class="mark" href="#top" aria-label="Ferro Lund Arquitectos, home">
+        <span class="mark-square" aria-hidden="true"></span>
+        <span>Ferro Lund <em>Arquitectos</em></span>
+      </a>
+      <nav aria-label="Primary" class="nav">
+        <a href="#atlas" aria-current="page">Atlas</a>
+        <a href="#practice">Practice</a>
+        <a href="#contact">Contact</a>
+      </nav>
+      <span class="mono bar-meta">Rua da Boavista 84 · Lisboa</span>
+    </header>
+
+    <main id="top">
+      <section id="atlas" class="hero" aria-labelledby="hero-title">
+        <div class="copy">
+          <p class="mono eyebrow"><span class="dot" aria-hidden="true"></span> Atlas of built work · 2019–2027</p>
+          <h1 id="hero-title">Nine sites.<br />Nine climates.<br /><span class="soft">One drawing table.</span></h1>
+          <p class="lede">
+            We are a twelve-person studio in Lisbon. Every building starts the same way — a year of weather
+            data pinned to the wall — and ends somewhere the weather is nothing like ours.
+          </p>
+
+          <ol class="index" aria-label="Projects — select one to turn the globe">
+            {sites.map((s) => (
+              <li>
+                <button type="button" class="row" data-site={s.id} aria-pressed={s.id === initial.id ? 'true' : 'false'}>
+                  <span class="mono n">{s.n}</span>
+                  <span class="nm">{s.name}</span>
+                  <span class="mono ct">{s.city}</span>
+                  <span class="mono kp" title={s.climateName}>{s.climate}</span>
+                </button>
+              </li>
+            ))}
+          </ol>
+        </div>
+
+        <div class="stage-wrap">
+          <div class="stage" id="stage">
+            <canvas id="globe" aria-label="Globe showing the studio in Lisbon and nine project sites, connected by arcs" role="img"></canvas>
+            <span class="pin-label studio-label mono" style={`position-anchor: --cobe-${studio.id}; opacity: var(--cobe-visible-${studio.id}, 0);`} aria-hidden="true">Studio · Lisboa</span>
+            {sites.map((s) => (
+              <span class="pin-label mono" data-label={s.id} style={`position-anchor: --cobe-${s.id}; opacity: var(--cobe-visible-${s.id}, 0);`} aria-hidden="true">
+                <b>{s.n}</b> {s.city}
+              </span>
+            ))}
+            <svg class="orbit" viewBox="0 0 600 600" aria-hidden="true">
+              <ellipse id="orbit-path" cx="300" cy="300" rx="292" ry="96" transform="rotate(-14 300 300)" />
+              <circle r="3.5" class="sat">
+                <animateMotion dur="28s" repeatCount="indefinite" rotate="auto">
+                  <mpath href="#orbit-path" />
+                </animateMotion>
+              </circle>
+            </svg>
+          </div>
+
+          <p class="mono tag tag-live"><span class="live" aria-hidden="true"></span> Live field · <span id="clock">Lisboa —:—</span></p>
+          <p class="mono tag tag-hint">Drag to steer</p>
+
+          <article class="card" aria-live="polite" id="card">
+            <p class="mono card-meta">
+              <span id="c-n">{initial.n}</span> · <span id="c-status">{initial.status}</span> · <span id="c-year">{initial.year}</span>
+            </p>
+            <h2 id="c-name">{initial.name}</h2>
+            <p class="mono card-place"><span id="c-city">{initial.city}, {initial.country}</span></p>
+            <p class="card-note" id="c-note">{initial.note}</p>
+            <dl class="card-stats">
+              <div><dt class="mono">Climate</dt><dd id="c-climate">{initial.climate} · {initial.climateName}</dd></div>
+              <div><dt class="mono">Floor area</dt><dd id="c-area">{initial.area}</dd></div>
+            </dl>
+          </article>
+
+          <button type="button" class="spin mono" id="spin" aria-pressed="true">Orbit on</button>
+        </div>
+      </section>
+
+      <section id="practice" class="practice" aria-labelledby="practice-title">
+        <h2 id="practice-title" class="mono eyebrow">How a Lisbon studio builds in the Arctic</h2>
+        <div class="figures">
+          <div>
+            <p class="fig">37 420<span>m²</span></p>
+            <p>built or building since 2019 — from a 260 m² chapel to 212 homes on a coal quay.</p>
+          </div>
+          <div>
+            <p class="fig">8 760<span>h</span></p>
+            <p>of local weather modelled for every site before the first sketch: one full year, hour by hour.</p>
+          </div>
+          <div>
+            <p class="fig">14 200<span>km</span></p>
+            <p>from our table to the furthest site in Hobart. We spend the first month there, not here.</p>
+          </div>
+        </div>
+        <div class="method">
+          <article>
+            <p class="mono">i. Read the year</p>
+            <p>Sun path, rain, snow load and wind rose go on one sheet. The plan is drawn on top of it, never beside it.</p>
+          </article>
+          <article>
+            <p class="mono">ii. Build with what is there</p>
+            <p>Earth in Marrakesh, lava stone in Reykjavík, cedar in Nagano. Imported material is a last resort we have to justify.</p>
+          </article>
+          <article>
+            <p class="mono">iii. Partner, then stay</p>
+            <p>Each site has a local architect of record and a builder we visit after handover — twice a year, for ten years.</p>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer id="contact" class="foot">
+      <p class="foot-big">Have a site with difficult weather?</p>
+      <div class="foot-row">
+        <a class="cta" href="mailto:studio@ferrolund.example">studio@ferrolund.example</a>
+        <p class="mono">Ferro Lund Arquitectos · Rua da Boavista 84, 1200-066 Lisboa · Fictional studio</p>
+      </div>
+    </footer>
+
+    <script type="application/json" id="atlas-data" set:html={payload} />
+
+    <style>
+      :root {
+        --bg: #e8e5dd;
+        --paper: #f3f1ec;
+        --ink: #1b1c1a;
+        --muted: #6c6a63;
+        --line: #cfcabf;
+        --oxide: #b4442a;
+        --sans: 'Archivo', ui-sans-serif, system-ui, sans-serif;
+        --mono: 'IBM Plex Mono', ui-monospace, monospace;
+      }
+      html { background: var(--bg); }
+      body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); -webkit-font-smoothing: antialiased; overflow-x: clip; }
+      .mono { font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; }
+      a { color: inherit; }
+      :focus-visible { outline: 2px solid var(--oxide); outline-offset: 3px; }
+
+      .bar { display: flex; align-items: center; justify-content: space-between; gap: 24px; height: 64px; padding: 0 clamp(16px, 3vw, 40px); border-bottom: 1px solid var(--line); }
+      .mark { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 600; font-size: 15px; font-variation-settings: 'wdth' 110; letter-spacing: -0.01em; }
+      .mark em { font-style: normal; font-weight: 400; color: var(--muted); }
+      .mark-square { width: 14px; height: 14px; background: var(--oxide); }
+      .nav { display: flex; gap: 28px; font-size: 14px; }
+      .nav a { text-decoration: none; color: var(--muted); }
+      .nav a[aria-current] { color: var(--ink); }
+      .nav a:hover { color: var(--ink); }
+      .bar-meta { color: var(--muted); }
+
+      .hero { display: grid; grid-template-columns: minmax(0, 470px) minmax(0, 1fr); gap: clamp(24px, 3vw, 48px); padding: 32px clamp(16px, 3vw, 40px) 40px; min-height: calc(100vh - 64px); box-sizing: border-box; }
+      .copy { display: flex; flex-direction: column; min-width: 0; }
+      .eyebrow { display: flex; align-items: center; gap: 10px; margin: 0 0 20px; color: var(--muted); }
+      .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--oxide); }
+      h1 { margin: 0; font-weight: 600; font-variation-settings: 'wdth' 118; font-size: clamp(38px, 4.1vw, 58px); line-height: 0.98; letter-spacing: -0.035em; }
+      h1 .soft { color: var(--muted); font-weight: 400; }
+      .lede { margin: 22px 0 0; max-width: 42ch; color: #45443f; font-size: 15px; line-height: 1.55; }
+
+      .index { list-style: none; margin: auto 0 0; padding: 28px 0 0; border-bottom: 1px solid var(--line); }
+      .row { all: unset; box-sizing: border-box; display: grid; grid-template-columns: 30px minmax(0, 1fr) auto 38px; align-items: baseline; gap: 12px; width: 100%; padding: 9px 4px; border-top: 1px solid var(--line); cursor: pointer; transition: background 0.2s, padding 0.2s; }
+      .row .nm { font-size: 15px; font-weight: 500; font-variation-settings: 'wdth' 104; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .row .n, .row .ct, .row .kp { color: var(--muted); }
+      .row .kp { text-align: right; text-transform: none; }
+      .row:hover { background: var(--paper); }
+      .row:focus-visible { outline-offset: -2px; }
+      .row[aria-pressed='true'] { background: var(--ink); color: var(--paper); padding-left: 10px; }
+      .row[aria-pressed='true'] .n, .row[aria-pressed='true'] .ct, .row[aria-pressed='true'] .kp { color: #b9b5aa; }
+      .row[aria-pressed='true'] .n { color: #f08a6c; }
+
+      .stage-wrap { position: relative; min-width: 0; display: grid; place-items: center; border: 1px solid var(--line); background:
+        radial-gradient(closest-side, rgb(255 255 255 / 0.55), transparent 72%),
+        repeating-linear-gradient(90deg, transparent 0 79px, rgb(27 28 26 / 0.05) 79px 80px),
+        repeating-linear-gradient(0deg, transparent 0 79px, rgb(27 28 26 / 0.05) 79px 80px), var(--paper); overflow: hidden; }
+      .stage { position: relative; width: min(100%, calc(100vh - 150px), 760px); aspect-ratio: 1; touch-action: pan-y; cursor: grab; }
+      .stage.dragging { cursor: grabbing; }
+      #globe { display: block; width: 100%; height: 100%; }
+      .orbit { position: absolute; inset: -6%; width: 112%; height: 112%; pointer-events: none; overflow: visible; }
+      .orbit ellipse { fill: none; stroke: rgb(27 28 26 / 0.22); stroke-width: 1; stroke-dasharray: 2 5; }
+      .orbit .sat { fill: var(--oxide); }
+
+      .pin-label { position: absolute; bottom: anchor(top); left: anchor(center); translate: -50% -9px; padding: 4px 7px 3px; border-radius: 2px; background: rgb(243 241 236 / 0.92); border: 1px solid var(--line); color: var(--ink); font-size: 10px; white-space: nowrap; pointer-events: none; transition: opacity 0.35s, background 0.3s, color 0.3s; }
+      .pin-label b { color: var(--oxide); font-weight: 500; }
+      .pin-label.on { background: var(--oxide); border-color: var(--oxide); color: #fff; z-index: 2; }
+      .pin-label.on b { color: #fff; }
+      .studio-label { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+      @supports not (position-anchor: --a) { .pin-label { display: none; } }
+
+      .tag { position: absolute; margin: 0; color: var(--muted); }
+      .tag-live { top: 18px; left: 20px; display: flex; align-items: center; gap: 8px; color: var(--ink); }
+      .live { width: 7px; height: 7px; border-radius: 50%; background: var(--oxide); box-shadow: 0 0 0 0 rgb(180 68 42 / 0.5); animation: pulse 2.4s infinite; }
+      @keyframes pulse { 70% { box-shadow: 0 0 0 8px rgb(180 68 42 / 0); } 100% { box-shadow: 0 0 0 0 rgb(180 68 42 / 0); } }
+      .tag-hint { top: 18px; right: 20px; }
+      .tag-hint::before { content: '↔ '; }
+      .spin { position: absolute; right: 20px; bottom: 20px; all: unset; position: absolute; right: 20px; bottom: 20px; padding: 7px 11px; border: 1px solid var(--line); background: var(--paper); cursor: pointer; font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; }
+      .spin:hover { border-color: var(--ink); }
+      .spin:focus-visible { outline: 2px solid var(--oxide); outline-offset: 3px; }
+
+      .card { position: absolute; left: 20px; bottom: 20px; width: min(320px, calc(100% - 40px)); box-sizing: border-box; padding: 16px 18px 14px; background: rgb(243 241 236 / 0.94); backdrop-filter: blur(6px); border: 1px solid var(--line); border-top: 3px solid var(--oxide); }
+      .card-meta { margin: 0; color: var(--oxide); }
+      .card h2 { margin: 8px 0 2px; font-size: 22px; font-weight: 600; font-variation-settings: 'wdth' 112; letter-spacing: -0.02em; }
+      .card-place { margin: 0; color: var(--muted); }
+      .card-note { margin: 10px 0 12px; font-size: 13.5px; line-height: 1.5; color: #3d3c38; }
+      .card-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 0; padding-top: 10px; border-top: 1px solid var(--line); }
+      .card-stats dt { color: var(--muted); font-size: 10px; }
+      .card-stats dd { margin: 3px 0 0; font-size: 13px; font-weight: 500; }
+      .card.swap { animation: swap 0.45s ease; }
+      @keyframes swap { from { opacity: 0.2; translate: 0 6px; } }
+
+      .practice { padding: 88px clamp(16px, 3vw, 40px) 72px; border-top: 1px solid var(--line); }
+      .practice .eyebrow { margin-bottom: 36px; }
+      .figures { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid var(--ink); }
+      .figures > div { padding: 24px 24px 28px 0; }
+      .figures > div + div { padding-left: 24px; border-left: 1px solid var(--line); }
+      .fig { margin: 0 0 10px; font-size: clamp(44px, 6vw, 88px); font-weight: 500; font-variation-settings: 'wdth' 120; letter-spacing: -0.04em; line-height: 1; }
+      .fig span { font-size: 0.32em; margin-left: 6px; color: var(--oxide); letter-spacing: 0; }
+      .figures p:not(.fig) { margin: 0; max-width: 34ch; color: #45443f; font-size: 15px; line-height: 1.5; }
+      .method { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; margin-top: 64px; }
+      .method article { padding: 22px; background: var(--paper); border: 1px solid var(--line); }
+      .method .mono { margin: 0 0 12px; color: var(--oxide); }
+      .method p:not(.mono) { margin: 0; font-size: 15px; line-height: 1.55; }
+
+      .foot { padding: 72px clamp(16px, 3vw, 40px) 88px; background: var(--ink); color: var(--paper); }
+      .foot-big { margin: 0 0 36px; font-size: clamp(32px, 5vw, 72px); font-weight: 600; font-variation-settings: 'wdth' 118; letter-spacing: -0.035em; line-height: 1; max-width: 16ch; }
+      .foot-row { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 20px; }
+      .foot-row .mono { margin: 0; color: #9d998f; }
+      .cta { display: inline-block; padding: 14px 20px; background: var(--oxide); color: #fff; text-decoration: none; font-weight: 500; overflow-wrap: anywhere; }
+      .cta:hover { background: #9a3820; }
+
+      @media (max-width: 1080px) {
+        .bar-meta { display: none; }
+        .hero { display: flex; flex-direction: column; min-height: 0; padding-top: 28px; }
+        .copy { display: contents; }
+        .copy > * { order: 1; }
+        .stage-wrap { order: 2; display: flex; flex-direction: column; align-items: center; padding-top: 44px; }
+        .copy > .index { order: 3; margin-top: 0; padding-top: 0; }
+        .stage { width: min(100%, 620px); }
+        .card { position: relative; left: auto; bottom: auto; width: auto; margin: 4px 14px 14px; align-self: stretch; }
+        .spin { top: 12px; right: 14px; bottom: auto; }
+        .tag-hint { right: auto; left: 20px; top: 42px; }
+      }
+      @media (max-width: 720px) {
+        .nav { gap: 16px; font-size: 13px; }
+        .nav a:nth-child(2) { display: none; }
+        .tag-live { left: 14px; top: 14px; }
+        .tag-hint { left: 14px; top: 38px; }
+        .figures, .method { grid-template-columns: minmax(0, 1fr); }
+        .figures > div + div { padding-left: 0; border-left: 0; border-top: 1px solid var(--line); }
+        .practice { padding-top: 64px; }
+        .method { margin-top: 40px; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .live { animation: none; }
+        .card.swap { animation: none; }
+        .row, .pin-label { transition: none; }
+      }
+    </style>
+
+    <script>
+      import createGlobe from 'cobe';
+
+      type Site = { id: string; n: string; name: string; city: string; country: string; lat: number; lon: number; climate: string; climateName: string; year: string; status: string; area: string; note: string };
+      type Data = { studio: { id: string; lat: number; lon: number }; sites: Site[]; initial: string };
+
+      const data: Data = JSON.parse(document.getElementById('atlas-data')!.textContent!);
+      const stage = document.getElementById('stage')!;
+      const canvas = document.getElementById('globe') as HTMLCanvasElement;
+      const spinBtn = document.getElementById('spin') as HTMLButtonElement;
+      const params = new URLSearchParams(location.search);
+      const shot = params.has('shot');
+      const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (reduced || shot) (document.querySelector('.orbit') as SVGSVGElement | null)?.pauseAnimations();
+
+      const RAD = Math.PI / 180;
+      const oxide: [number, number, number] = [0.706, 0.267, 0.165];
+      const ink: [number, number, number] = [0.106, 0.11, 0.102];
+      // Angles that bring [lat, lon] to the front of the sphere (cobe's projection).
+      const anglesFor = (lat: number, lon: number) => [Math.PI - (lon * RAD - Math.PI / 2), Math.max(-0.75, Math.min(0.75, lat * RAD * 0.85))];
+      const wrap = (a: number) => Math.atan2(Math.sin(a), Math.cos(a));
+
+      const byId = new Map(data.sites.map((s) => [s.id, s]));
+      let selected = data.initial;
+      const markers = () => [
+        { id: data.studio.id, location: [data.studio.lat, data.studio.lon] as [number, number], size: 0.04, color: ink },
+        ...data.sites.map((s) => ({ id: s.id, location: [s.lat, s.lon] as [number, number], size: s.id === selected ? 0.055 : 0.03 })),
+      ];
+      const arcs = data.sites.map((s) => ({ id: `a-${s.id}`, from: [data.studio.lat, data.studio.lon] as [number, number], to: [s.lat, s.lon] as [number, number] }));
+
+      // Opening pose: the Atlantic with Lisbon, so most of the work is on the near side.
+      let [phi, theta] = anglesFor(44, -18);
+      let target = { phi, theta };
+      let spinning = !reduced && !shot;
+      let drag: { x: number; y: number; phi: number; theta: number } | null = null;
+
+      const size = () => {
+        const r = stage.getBoundingClientRect();
+        return { width: Math.round(r.width), height: Math.round(r.height) };
+      };
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const globe = createGlobe(canvas, {
+        devicePixelRatio: dpr,
+        ...size(),
+        phi,
+        theta,
+        dark: 0,
+        diffuse: 1.15,
+        scale: 1,
+        mapSamples: 16000,
+        mapBrightness: 9,
+        mapBaseBrightness: 0,
+        baseColor: [0.97, 0.955, 0.93],
+        markerColor: oxide,
+        glowColor: [1, 0.985, 0.95],
+        markers: markers(),
+        arcs,
+        arcColor: oxide,
+        arcWidth: 0.6,
+        arcHeight: 0.28,
+        markerElevation: 0.015,
+        opacity: 0.95,
+      });
+
+      // Render loop — pauses when the stage is offscreen or the tab is hidden.
+      let raf = 0;
+      let last = performance.now();
+      let onScreen = true;
+      const frame = (now: number) => {
+        const dt = Math.min(48, now - last) / 16.67;
+        last = now;
+        if (!drag) {
+          if (spinning) target.phi += 0.0022 * dt;
+          const k = reduced ? 1 : 1 - Math.pow(1 - 0.075, dt);
+          phi += wrap(target.phi - phi) * k;
+          theta += (target.theta - theta) * k;
+        }
+        globe.update({ phi, theta });
+        raf = requestAnimationFrame(frame);
+      };
+      const run = () => {
+        if (raf || !onScreen || document.hidden) return;
+        last = performance.now();
+        raf = requestAnimationFrame(frame);
+      };
+      const stop = () => {
+        cancelAnimationFrame(raf);
+        raf = 0;
+      };
+      new IntersectionObserver(([e]) => {
+        onScreen = e.isIntersecting;
+        onScreen ? run() : stop();
+      }).observe(stage);
+      document.addEventListener('visibilitychange', () => (document.hidden ? stop() : run()));
+      new ResizeObserver(() => globe.update(size())).observe(stage);
+      run();
+
+      // Selection: list rows turn the globe, update the card and the anchored label.
+      const rows = [...document.querySelectorAll<HTMLButtonElement>('.row')];
+      const card = document.getElementById('card')!;
+      const set = (id: string, text: string) => (document.getElementById(id)!.textContent = text);
+      const setSpin = (on: boolean) => {
+        spinning = on && !reduced;
+        spinBtn.setAttribute('aria-pressed', String(spinning));
+        spinBtn.textContent = spinning ? 'Orbit on' : 'Orbit off';
+      };
+      const select = (id: string, turn = true) => {
+        const s = byId.get(id);
+        if (!s) return;
+        selected = id;
+        rows.forEach((r) => r.setAttribute('aria-pressed', String(r.dataset.site === id)));
+        document.querySelectorAll<HTMLElement>('[data-label]').forEach((l) => l.classList.toggle('on', l.dataset.label === id));
+        set('c-n', s.n);
+        set('c-status', s.status);
+        set('c-year', s.year);
+        set('c-name', s.name);
+        set('c-city', `${s.city}, ${s.country}`);
+        set('c-note', s.note);
+        set('c-climate', `${s.climate} · ${s.climateName}`);
+        set('c-area', s.area);
+        card.classList.remove('swap');
+        void card.offsetWidth;
+        card.classList.add('swap');
+        globe.update({ markers: markers() });
+        if (turn) {
+          const [p, t] = anglesFor(s.lat, s.lon);
+          target = { phi: phi + wrap(p - phi), theta: t };
+          setSpin(false);
+        }
+      };
+      rows.forEach((r) => r.addEventListener('click', () => select(r.dataset.site!)));
+      select(selected, false);
+      setSpin(spinning);
+      spinBtn.addEventListener('click', () => setSpin(!spinning));
+      if (reduced) spinBtn.hidden = true;
+
+      // Drag to steer (pointer + touch; vertical touch still scrolls the page).
+      stage.addEventListener('pointerdown', (e) => {
+        drag = { x: e.clientX, y: e.clientY, phi, theta };
+        stage.setPointerCapture(e.pointerId);
+        stage.classList.add('dragging');
+      });
+      stage.addEventListener('pointermove', (e) => {
+        if (!drag) return;
+        const w = stage.clientWidth;
+        phi = drag.phi + ((e.clientX - drag.x) / w) * Math.PI;
+        theta = Math.max(-0.75, Math.min(0.75, drag.theta + ((e.clientY - drag.y) / w) * Math.PI * 0.6));
+        target = { phi, theta };
+      });
+      const end = () => {
+        if (!drag) return;
+        drag = null;
+        stage.classList.remove('dragging');
+      };
+      stage.addEventListener('pointerup', end);
+      stage.addEventListener('pointercancel', end);
+
+      // Keyboard steering on the canvas region.
+      stage.tabIndex = 0;
+      stage.setAttribute('aria-label', 'Globe. Use arrow keys to steer.');
+      stage.addEventListener('keydown', (e) => {
+        const step = 0.25;
+        if (e.key === 'ArrowLeft') target.phi -= step;
+        else if (e.key === 'ArrowRight') target.phi += step;
+        else if (e.key === 'ArrowUp') target.theta = Math.max(-0.75, target.theta - step / 2);
+        else if (e.key === 'ArrowDown') target.theta = Math.min(0.75, target.theta + step / 2);
+        else return;
+        e.preventDefault();
+        setSpin(false);
+      });
+
+      // Studio clock in the live tag.
+      const clock = document.getElementById('clock')!;
+      const tick = () => (clock.textContent = `Lisboa ${new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Lisbon' }).format(new Date())}`);
+      tick();
+      setInterval(tick, 30000);
+    </script>
+  </body>
+</html>

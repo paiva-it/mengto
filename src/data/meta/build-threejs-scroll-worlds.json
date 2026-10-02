@@ -1,0 +1,7 @@
+{
+  "title": "Three.js Scroll Worlds",
+  "kind": "website",
+  "category": "3D & WebGL",
+  "concept": "Tern Orbital, a fictional sun-synchronous imaging operator: one persistent Three.js world (procedural planet with clouds, city lights and atmosphere, a modelled imaging satellite, its pushbroom swath, a ground station and a 12-bird constellation) conducted by native scroll through six chapters, from orbit down to the downlink and back out to the night side.",
+  "notes": "Uses the skill's scroll-conductor (exact vs damped progress) with a chapter ledger of desktop and portrait camera endpoints on Catmull-Rom curves, plus per-chapter world channels: planet rotation under the bird, beam, imaged strip, downlink, constellation and in-atmosphere sky. Planet maps are generated on the CPU (~0.7 s); coastlines are resolved per fragment so they stay sharp at close range. The instrument hotspots are raycast proxies mirrored by DOM buttons (hover, focus and active state stay in sync, and they only respond in their own chapter). There is also a true-colour / near-infrared / radar band toggle and a pass-request form. Reduced motion snaps to the nearest chapter and stops ambient motion. Without WebGL it shows a poster still. No CDN dependencies."
+}

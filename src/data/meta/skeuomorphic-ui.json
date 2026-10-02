@@ -1,0 +1,7 @@
+{
+  "title": "Skeuomorphic UI",
+  "kind": "website",
+  "category": "Components",
+  "concept": "Kerbside Sketch School: a Lisbon urban-sketching school whose hero is a soft-plastic field kit — nib selector, time slider, wash switch and an enamel Draw button — that sketches a street corner stroke by stroke, with the same raised/pressed surfaces carried through course cards, walk list and sign-up.",
+  "notes": "Skill tokens and recipes used verbatim (cool slate soft plastic, 1px gradient-border wrapper, stacked outer + inset shadows, top sheen, embossed labels, micro-dot texture); one orange enamel material for primary actions. Pressed state is reserved for interactive states (selected nib, held seat, switch, active button). Drawing is inline SVG with pathLength dash reveal; no images, no CDN deps. Reduced motion renders the sketch instantly and drops transitions."
+}

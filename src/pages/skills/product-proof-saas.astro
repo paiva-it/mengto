@@ -1,0 +1,1078 @@
+---
+import '../../styles/global.css';
+import BackPill from '../../components/BackPill.astro';
+import { constraintOf, draftLines, eur, RATE, SAMPLE_NOTE, totals } from '../../components/skills/product-proof-saas/rules';
+
+const lines = draftLines(SAMPLE_NOTE);
+const constraint = constraintOf(SAMPLE_NOTE);
+const t = totals(lines);
+const hm = (m: number) => (m >= 60 ? `${Math.floor(m / 60)} h ${m % 60 ? `${m % 60} min` : ''}`.trim() : `${m} min`);
+
+const steps = ['Intake', 'Matching', 'Draft', 'Edit', 'Approve', 'Send'];
+
+const icons: Record<string, string> = {
+  machine: '<rect x="3" y="10" width="18" height="10" rx="2"/><path d="M7 10V5h10v5"/><path d="M7 14h.01M11 14h.01M15 14h.01M8 17h8"/>',
+  book: '<path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19V5M9 7h6"/>',
+  box: '<path d="m3 7 9-4 9 4-9 4z"/><path d="M3 7v10l9 4 9-4V7M12 11v10"/>',
+  clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  check: '<circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/>',
+  history: '<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5M12 7v5l3 2"/>',
+};
+
+const features = [
+  { icon: 'machine', title: 'Model cards', body: 'Each machine you service keeps its model, serial and past tickets, so a returning Olympia arrives with its history.' },
+  { icon: 'book', title: 'Manual references', body: 'Draft lines point at the section of your own service manual they came from. You can always check the source.' },
+  { icon: 'box', title: 'Parts shelf', body: 'Ribbons, springs and sent-out jobs are priced from your shelf, not guessed. Out of stock shows before you quote.' },
+  { icon: 'clock', title: 'Bench time', body: 'Minutes per line are yours to set. The estimate is minutes × your hourly rate + parts, shown on every ticket.' },
+  { icon: 'check', title: 'Customer approval', body: 'The customer sees one page with the lines, the total and one button. Nothing is touched before they press it.' },
+  { icon: 'history', title: 'Version history', body: 'Every edit is a new version with who changed what. A quote can always be traced back to the customer’s first words.' },
+];
+
+const flow = [
+  { n: '01', s: 'Intake', who: 'Counter', body: 'The customer’s words are saved as written. Model and year are typed in, not inferred.' },
+  { n: '02', s: 'Matching', who: 'Escapement', body: 'The note is matched against your rule table. Unmatched notes become a bench inspection, never a guess.' },
+  { n: '03', s: 'Draft', who: 'Escapement', body: 'Lines, manual references, parts and minutes appear as a draft labelled “not sent”.' },
+  { n: '04', s: 'Edit', who: 'Technician', body: 'Change a line, the minutes or a part. Each save is a new version.' },
+  { n: '05', s: 'Approve', who: 'Technician', body: 'A person signs the draft. Editing after approval withdraws the signature.' },
+  { n: '06', s: 'Send', who: 'Customer', body: 'The customer gets the quote and decides. Work starts on their yes.' },
+];
+
+const samples = [
+  { machine: 'Hermes 3000 · 1964', note: 'Keys are sluggish and the type bars jam when I type quickly. Paper slips at the bottom of the page.' },
+  { machine: 'Smith-Corona Silent-Super · 1957', note: 'The margin bell never rings. Otherwise it types fine.' },
+  { machine: 'Adler Tippa · 1972', note: 'Found it in an attic. Not sure what is wrong, it just feels off.' },
+].map((s) => ({ ...s, lines: draftLines(s.note), t: totals(draftLines(s.note)) }));
+
+const plans = [
+  { id: 'bench', name: 'Bench', m: 0, y: 0, for: 'One technician, one bench.', cta: 'Start free' },
+  { id: 'workshop', name: 'Workshop', m: 24, y: 20, for: 'A counter and a few benches.', cta: 'Start Workshop trial', pick: true },
+  { id: 'guild', name: 'Guild', m: 68, y: 57, for: 'Several shops, one rule table.', cta: 'Start Guild trial' },
+];
+
+const compare: { label: string; faq?: string; v: string[] }[] = [
+  { label: 'Seats', v: ['1', 'Up to 4', 'Up to 15'] },
+  { label: 'Draft work orders / month', faq: 'faq-work-order', v: ['15', '300', '1,500'] },
+  { label: 'Over the limit', faq: 'faq-overage', v: ['Drafting pauses', '€0.10 per draft', '€0.06 per draft'] },
+  { label: 'Customer approval page', faq: 'faq-approval', v: ['E-mail link', 'Branded page', 'Branded page'] },
+  { label: 'Own rule table', faq: 'faq-rules', v: ['5 rules', 'Unlimited', 'Shared across shops'] },
+  { label: 'Version history', faq: 'faq-history', v: ['30 days', '12 months', 'Unlimited'] },
+  { label: 'Parts shelf', v: ['—', 'Included', 'Included, per shop'] },
+];
+
+const faqs = [
+  { id: 'faq-work-order', q: 'What counts as a draft work order?', a: 'One run from a customer note to a draft. Editing, approving, re-sending or reopening that draft does not count again. Replaying the sample on this page counts nothing.' },
+  { id: 'faq-overage', q: 'What happens when I pass the monthly limit?', a: 'On Bench, drafting pauses until the 1st and every note you type is kept. On Workshop and Guild, extra drafts are billed per draft at the end of the month, and you can set a cap of zero to behave like Bench.' },
+  { id: 'faq-approval', q: 'What does the customer see when they approve?', a: 'The machine, each line in plain words, minutes, parts and the total, and one approve button. They can also reply with a question instead. A signed quote cannot be edited, only replaced by a new version.' },
+  { id: 'faq-rules', q: 'Where do the rules come from?', a: 'From you. Escapement ships with five starter rules (the ones driving the demo above); each rule is a few words to look for, a cause, a line and minutes. Nothing is matched by a language model.' },
+  { id: 'faq-history', q: 'How long is version history kept?', a: 'Every version of every ticket for the period on your plan. Downgrading keeps tickets but trims versions older than the new period, after a 30-day notice.' },
+  { id: 'faq-billing', q: 'Monthly or yearly?', a: 'Either. Yearly is billed once, up front, and the per-month price shown is that total divided by twelve. Prices are in EUR, excluding VAT.' },
+];
+
+const audiences = [
+  { id: 'for-solo', tab: 'Solo bench', title: 'You are the counter and the bench.', body: 'Type the note while the customer is still standing there, read the draft back to them, and send the quote before they reach the door.', points: ['Draft at the counter, sign at the bench', 'Estimate shown in minutes and euros', 'Call-before-replacing notes kept on top'] },
+  { id: 'for-shop', tab: 'Shop with a counter', title: 'The counter takes notes. The bench signs.', body: 'Counter staff never quote. They save the customer’s words; a technician opens the draft, edits it and is the only one who can approve.', points: ['Roles: counter, technician, owner', 'Approval needs a technician seat', 'Queue of drafts waiting for a signature'] },
+  { id: 'for-restorer', tab: 'Collector restorer', title: 'Long jobs, many small decisions.', body: 'Restorations run for weeks. Split a machine into several quotes, keep every version, and let the collector approve one stage at a time.', points: ['One machine, several staged quotes', 'Full version trail for provenance', 'Sent-out jobs tracked as parts'] },
+];
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Escapement — the service desk for typewriter repair benches</title>
+    <meta name="description" content="Escapement turns a customer's own words into a draft typewriter work order your technician edits, signs and sends." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <div class="shell">
+      <header class="top">
+        <a class="brand" href="#top" aria-label="Escapement home"><span class="mark" aria-hidden="true">E</span>Escapement</a>
+        <nav aria-label="Primary">
+          <a href="#product">Product</a><a href="#workflow">Workflow</a><a href="#pricing">Pricing</a><a href="#faq">FAQ</a>
+        </nav>
+        <div class="top-cta"><a class="btn ghost sm" href="#pricing">Sign in</a><a class="btn dark sm" href="#pricing">Start a bench</a></div>
+      </header>
+
+      <main id="main">
+        <!-- HERO -->
+        <section class="hero" id="top">
+          <div class="grid-bg" aria-hidden="true"></div>
+          <div class="wrap hero-grid">
+            <div class="hero-copy">
+              <p class="chip mono"><i></i>Bench workflow · sample demo</p>
+              <h1>From <span class="nw">&ldquo;it skips&rdquo;</span> to a signed work order.</h1>
+              <p class="lede">Escapement turns the customer&rsquo;s own words into a draft typewriter work order&nbsp;&mdash; lines, manual references, parts and bench time&nbsp;&mdash; that your technician edits and signs before anything is quoted.</p>
+              <div class="cta-row"><a class="btn dark" href="#stage">Try the sample</a><a class="btn ghost" href="#workflow">See how it works</a></div>
+              <dl class="facts">
+                <div><dt>6 states</dt><dd class="mono">Always visible</dd></div>
+                <div><dt>0 auto-quotes</dt><dd class="mono">A person signs</dd></div>
+                <div><dt>Your rules</dt><dd class="mono">No model guessing</dd></div>
+              </dl>
+            </div>
+
+            <div class="stage" id="stage" data-state="draft">
+              <div class="stage-in">
+                <div class="st-head">
+                  <span class="mono">Intake #0417 / <span id="ver">v02</span></span>
+                  <span class="pill mono" id="pill"><i></i><span id="status">Draft ready</span></span>
+                </div>
+                <ol class="steps mono" aria-label="Workflow state">
+                  {steps.map((s, i) => <li data-step={s.toLowerCase()} class={i < 3 ? 'done' : ''} aria-current={i === 2 ? 'step' : undefined}><span>{String(i + 1).padStart(2, '0')}</span>{s}</li>)}
+                </ol>
+                <div class="st-body">
+                  <form class="st-input" id="intake" novalidate>
+                    <p class="lbl mono">Input · customer&rsquo;s words</p>
+                    <h2 class="machine">Olympia SM3 <span>· 1961</span></h2>
+                    <label for="note" class="sr-only">Customer note</label>
+                    <textarea id="note" rows="6" spellcheck="false">{SAMPLE_NOTE}</textarea>
+                    <div class="sim">
+                      <label class="mono" for="sim">Simulate</label>
+                      <select id="sim">
+                        <option value="ok">Normal run</option>
+                        <option value="quota">Quota reached</option>
+                        <option value="network">Network drop</option>
+                        <option value="flag">Flagged wording</option>
+                        <option value="error">Rule set unavailable</option>
+                      </select>
+                    </div>
+                    <button class="btn signal run" id="run" type="submit">Draft work order</button>
+                    <p class="hint mono">Sample rules · fixed timing · no model call</p>
+                  </form>
+
+                  <section class="st-out" aria-labelledby="out-h">
+                    <div class="out-head mono"><span id="out-h">Draft work order</span><span class="tag" id="tag">Sample · not sent</span></div>
+                    <div class="msg" id="msg" role="status" aria-live="polite" hidden></div>
+                    <div class="proc" id="proc" hidden>
+                      <ol class="mono">
+                        <li data-p="0">Reading the note</li>
+                        <li data-p="1">Matching sample rules</li>
+                        <li data-p="2">Pricing bench time at {eur(RATE)}/h</li>
+                      </ol>
+                      <div class="bar"><span id="procbar"></span></div>
+                    </div>
+                    <div class="lines" id="lines">
+                      {lines.map((l, i) => (
+                        <button type="button" class={`line${i === 0 ? ' sel' : ''}`} data-i={i} aria-pressed={i === 0 ? 'true' : 'false'}>
+                          <span class="mono k">{String(i + 1).padStart(2, '0')} · {l.area}</span>
+                          <strong>{l.line}</strong>
+                          <span class="why">{l.cause}.</span>
+                          <span class="mono meta">{l.minutes} min · {l.ref}{l.parts.length ? ` · ${l.parts.map((p) => p.name).join(', ')}` : ''}</span>
+                        </button>
+                      ))}
+                    </div>
+                    <p class="constraint" id="constraint" hidden={!constraint}><span class="mono">Note</span>{constraint}</p>
+                    <dl class="totals" id="totals">
+                      <div><dt class="mono">Bench time</dt><dd>{hm(t.minutes)}</dd></div>
+                      <div><dt class="mono">Parts</dt><dd>{eur(t.parts)}</dd></div>
+                      <div><dt class="mono">Estimate</dt><dd>{eur(t.estimate)}</dd></div>
+                    </dl>
+                    <div class="actions">
+                      <button type="button" class="btn ghost sm" id="edit">Edit line</button>
+                      <button type="button" class="btn dark sm" id="approve">Approve</button>
+                      <button type="button" class="btn ghost sm" id="send" disabled>Send quote</button>
+                    </div>
+                  </section>
+                </div>
+                <div class="st-foot">
+                  <details class="pop" id="hist">
+                    <summary class="mono">History (<span id="histn">2</span>)</summary>
+                    <ol id="histlist"><li><b>v01</b> Intake saved</li><li><b>v02</b> Draft from sample rules</li></ol>
+                  </details>
+                  <details class="pop" id="trans">
+                    <summary class="mono">Transcript</summary>
+                    <ol id="translist"><li>Intake saved as written (v01).</li><li>Matched 2 sample rules: escapement, ribbon feed.</li><li>Draft ready, not sent (v02).</li></ol>
+                  </details>
+                  <span class="grow"></span>
+                  <button type="button" class="link mono" id="copy">Copy transcript</button>
+                  <button type="button" class="link mono" id="replay">Replay</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- FRICTION -->
+        <section class="sec" id="product">
+          <div class="wrap">
+            <div class="sec-head">
+              <p class="eyebrow mono">The friction</p>
+              <h2>The note says &ldquo;it skips&rdquo;. The bench needs six answers.</h2>
+              <p>Customers describe what they hear and feel. A ticket needs a mechanism, a manual page, parts, minutes and a yes. Escapement fills the gap in the open, and leaves the blanks blank.</p>
+            </div>
+            <div class="ba">
+              <article class="ba-card">
+                <p class="mono lbl">What arrives at the counter</p>
+                <blockquote>&ldquo;{SAMPLE_NOTE}&rdquo;</blockquote>
+                <p class="mono small">Olympia SM3 · 1961 · handed in Tuesday</p>
+                <p class="missing"><span class="mono">Not in the note</span>Mechanism · manual page · parts · minutes · approval</p>
+              </article>
+              <div class="ba-arrow" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" /></svg></div>
+              <article class="ba-card need">
+                <p class="mono lbl">What the bench needs before work starts</p>
+                <ul class="checks">
+                  <li class="ok"><span>Model &amp; year</span><em class="mono">from counter</em></li>
+                  <li class="ok"><span>Mechanism: escapement, ribbon feed</span><em class="mono">from rules</em></li>
+                  <li class="ok"><span>Manual §4.2, §6.1</span><em class="mono">from rules</em></li>
+                  <li class="ok"><span>Parts: one nylon ribbon</span><em class="mono">from shelf</em></li>
+                  <li class="ok"><span>{t.minutes} min at {eur(RATE)}/h</span><em class="mono">from your rate</em></li>
+                  <li class="todo"><span>Customer&rsquo;s yes</span><em class="mono">only they give it</em></li>
+                </ul>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <!-- FEATURES -->
+        <section class="sec tint">
+          <div class="wrap">
+            <div class="sec-head">
+              <p class="eyebrow mono">What it does</p>
+              <h2>Every module feeds the work order.</h2>
+            </div>
+            <div class="feat">
+              {features.map((f) => (
+                <article>
+                  <span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true" set:html={icons[f.icon]} /></span>
+                  <h3>{f.title}</h3>
+                  <p>{f.body}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <!-- WORKFLOW -->
+        <section class="sec" id="workflow">
+          <div class="wrap">
+            <div class="sec-head">
+              <p class="eyebrow mono">Workflow</p>
+              <h2>Six states. Escapement owns only two.</h2>
+              <p>There is no one-click repair. Escapement drafts; a technician signs; the customer decides.</p>
+            </div>
+            <ol class="flow">
+              {flow.map((f) => (
+                <li class={f.who === 'Escapement' ? '' : 'human'}>
+                  <span class="mono n">{f.n}</span>
+                  <h3>{f.s}</h3>
+                  <span class="mono who">{f.who}</span>
+                  <p>{f.body}</p>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </section>
+
+        <!-- AUDIENCES -->
+        <section class="sec tint" id="audiences">
+          <div class="wrap">
+            <div class="sec-head">
+              <p class="eyebrow mono">Who it is for</p>
+              <h2>Same ticket, different benches.</h2>
+            </div>
+            <div class="tabs" role="tablist" aria-label="Audience">
+              {audiences.map((a, i) => <button role="tab" id={`tab-${a.id}`} aria-controls={a.id} aria-selected={i === 0 ? 'true' : 'false'} tabindex={i === 0 ? 0 : -1}>{a.tab}</button>)}
+            </div>
+            {audiences.map((a) => (
+              <div class="panel" role="tabpanel" id={a.id} aria-labelledby={`tab-${a.id}`}>
+                <div>
+                  <h3>{a.title}</h3>
+                  <p>{a.body}</p>
+                </div>
+                <ul class="mono">{a.points.map((p) => <li>{p}</li>)}</ul>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <!-- PROOF -->
+        <section class="sec">
+          <div class="wrap">
+            <div class="sec-head">
+              <p class="eyebrow mono">Sample tickets</p>
+              <h2>Three notes, run through the same five rules.</h2>
+              <p>These notes were written for this page and drafted by the rule table in the demo above. No customer, shop or result here is real.</p>
+            </div>
+            <div class="tickets">
+              {samples.map((s) => (
+                <article class="ticket">
+                  <div class="t-head mono"><span>{s.machine}</span><span class="tag">Sample</span></div>
+                  <p class="t-note">&ldquo;{s.note}&rdquo;</p>
+                  <ul>
+                    {s.lines.map((l) => <li><span>{l.line}</span><em class="mono">{l.minutes} min</em></li>)}
+                  </ul>
+                  <div class="t-foot mono"><span>{s.lines.length} {s.lines.length === 1 ? 'line' : 'lines'}</span><span>Estimate {eur(s.t.estimate)}</span></div>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <!-- PRICING -->
+        <section class="sec tint" id="pricing">
+          <div class="wrap">
+            <div class="sec-head row">
+              <div>
+                <p class="eyebrow mono">Pricing</p>
+                <h2>Priced per bench, counted per draft.</h2>
+              </div>
+              <fieldset class="cadence">
+                <legend class="sr-only">Billing cadence</legend>
+                <label><input type="radio" name="cad" value="m" checked /><span>Monthly</span></label>
+                <label><input type="radio" name="cad" value="y" /><span>Yearly</span></label>
+              </fieldset>
+            </div>
+            <div class="plans">
+              {plans.map((p) => (
+                <article class={`plan${p.pick ? ' pick' : ''}`}>
+                  <div class="p-top"><h3>{p.name}</h3>{p.pick && <span class="mono tag">Most benches</span>}</div>
+                  <p class="price"><span class="amt" data-m={eur(p.m)} data-y={eur(p.y)}>{eur(p.m)}</span><span class="per mono">/ month</span></p>
+                  <p class="mono cadnote" data-m={p.m ? "Billed monthly" : "No card needed"} data-y={p.y ? `Billed ${eur(p.y * 12)} yearly` : "No card needed"}>{p.m ? "Billed monthly" : "No card needed"}</p>
+                  <p class="for">{p.for}</p>
+                  <button type="button" class={`btn ${p.pick ? 'dark' : 'ghost'} plan-cta`} data-plan={p.name}>{p.cta}</button>
+                  <p class="mono plan-msg" role="status" aria-live="polite"></p>
+                </article>
+              ))}
+            </div>
+            <div class="table-wrap" id="compare">
+              <table>
+                <caption class="sr-only">Plan comparison</caption>
+                <thead><tr><th scope="col">Shared limits</th>{plans.map((p) => <th scope="col">{p.name}</th>)}</tr></thead>
+                <tbody>
+                  {compare.map((r) => (
+                    <tr>
+                      <th scope="row">{r.faq ? <a href={`#${r.faq}`}>{r.label}<sup class="mono">?</sup></a> : r.label}</th>
+                      {r.v.map((v) => <td>{v}</td>)}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <p class="foot mono">Prices in EUR excl. VAT. Escapement is a fictional product &mdash; nothing can be bought from this page.</p>
+          </div>
+        </section>
+
+        <!-- FAQ -->
+        <section class="sec" id="faq">
+          <div class="wrap faq-grid">
+            <div class="sec-head">
+              <p class="eyebrow mono">FAQ</p>
+              <h2>The terms in the table, in plain words.</h2>
+              <p><a href="#compare" class="back mono">&larr; Back to the comparison</a></p>
+            </div>
+            <div class="faqs">
+              {faqs.map((f) => (
+                <details id={f.id}>
+                  <summary>{f.q}</summary>
+                  <p>{f.a}</p>
+                </details>
+              ))}
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="ft">
+        <div class="wrap">
+          <div class="ft-top">
+            <div>
+              <a class="brand" href="#top"><span class="mark" aria-hidden="true">E</span>Escapement</a>
+              <p>The service desk for typewriter repair benches. Drafts are proposals; people sign.</p>
+            </div>
+            <nav aria-label="Footer" class="ft-links">
+              <div><p class="mono">Product</p><a href="#workflow">Workflow</a><a href="#pricing">Pricing</a><a href="#faq">FAQ</a></div>
+              <div><p class="mono">Trust</p><a href="#faq-rules">How rules work</a><a href="#faq-history">Data &amp; history</a><a href="#faq-approval">Approvals</a></div>
+              <div><p class="mono">Legal</p><a href="#top">Terms</a><a href="#top">Privacy</a><a href="#top">Imprint</a></div>
+            </nav>
+          </div>
+          <p class="mono ft-note">A fictional product made for a design study. Every ticket on this page is a labelled sample.</p>
+        </div>
+      </footer>
+    </div>
+    <BackPill />
+  </body>
+</html>
+
+<script>
+  import { constraintOf, draftLines, eur, SAMPLE_NOTE, totals } from '../../components/skills/product-proof-saas/rules';
+  import type { Line } from '../../components/skills/product-proof-saas/rules';
+
+  const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const STEPS = ['intake', 'matching', 'draft', 'edit', 'approve', 'send'];
+
+  const stage = $('stage');
+  const note = $<HTMLTextAreaElement>('note');
+  const sim = $<HTMLSelectElement>('sim');
+  const run = $<HTMLButtonElement>('run');
+  const msg = $('msg');
+  const proc = $('proc');
+  const linesEl = $('lines');
+  const totalsEl = $('totals');
+  const constraintEl = $('constraint');
+  const editBtn = $<HTMLButtonElement>('edit');
+  const approveBtn = $<HTMLButtonElement>('approve');
+  const sendBtn = $<HTMLButtonElement>('send');
+  const tag = $('tag');
+
+  let lines: Line[] = draftLines(SAMPLE_NOTE);
+  let selected = 0;
+  let version = 2;
+  let timers: number[] = [];
+  let transcript: string[] = ['Intake saved as written (v01).', 'Matched 2 sample rules: escapement, ribbon feed.', 'Draft ready, not sent (v02).'];
+  const versions: [number, string][] = [[1, 'Intake saved'], [2, 'Draft from sample rules']];
+
+  const hm = (m: number) => (m >= 60 ? `${Math.floor(m / 60)} h ${m % 60 ? `${m % 60} min` : ''}`.trim() : `${m} min`);
+  const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
+
+  const STATUS: Record<string, string> = {
+    intake: 'Intake', matching: 'Matching', draft: 'Draft ready', edit: 'Editing', approve: 'Approved', send: 'Sent · sample', error: 'Needs attention',
+  };
+
+  const log = (line: string) => {
+    transcript.push(line);
+    $('translist').innerHTML = transcript.map((l) => `<li>${esc(l)}</li>`).join('');
+  };
+  const bump = (label: string) => {
+    version += 1;
+    versions.push([version, label]);
+    $('ver').textContent = `v${String(version).padStart(2, '0')}`;
+    $('histn').textContent = String(versions.length);
+    $('histlist').innerHTML = versions.map(([v, l]) => `<li><b>v${String(v).padStart(2, '0')}</b> ${esc(l)}</li>`).join('');
+  };
+
+  const setState = (s: string) => {
+    stage.dataset.state = s;
+    $('status').textContent = STATUS[s];
+    const at = s === 'error' ? 1 : STEPS.indexOf(s);
+    stage.querySelectorAll<HTMLLIElement>('.steps li').forEach((li, i) => {
+      li.classList.toggle('done', i <= at && s !== 'error');
+      li.classList.toggle('err', s === 'error' && i === at);
+      if (i === at) {
+        li.setAttribute('aria-current', 'step');
+      } else {
+        li.removeAttribute('aria-current');
+      }
+    });
+    const hasDraft = ['draft', 'edit', 'approve', 'send'].includes(s);
+    editBtn.disabled = !hasDraft || s === 'send';
+    approveBtn.disabled = s !== 'draft';
+    sendBtn.disabled = s !== 'approve';
+    run.disabled = false;
+    note.readOnly = s === 'matching';
+    tag.textContent = s === 'send' ? 'Sample · nothing was sent' : s === 'approve' ? 'Signed · not sent' : 'Sample · not sent';
+    editBtn.textContent = s === 'edit' ? 'Cancel' : 'Edit line';
+    approveBtn.textContent = s === 'edit' ? 'Save' : 'Approve';
+    if (s === 'edit') {
+      approveBtn.disabled = false;
+    }
+  };
+
+  const showMsg = (text: string, kind: string, actions = '') => {
+    msg.hidden = false;
+    msg.className = `msg ${kind}`;
+    msg.innerHTML = `<p>${text}</p>${actions}`;
+  };
+  const hideMsg = () => {
+    msg.hidden = true;
+  };
+
+  const renderLines = (editing = false) => {
+    linesEl.classList.remove('in');
+    linesEl.innerHTML = lines
+      .map((l, i) => {
+        const sel = i === selected;
+        if (editing && sel) {
+          return `<div class="line sel editing" data-i="${i}">
+            <span class="mono k">${String(i + 1).padStart(2, '0')} · ${esc(l.area)} · editing</span>
+            <label class="sr-only" for="ed-line">Line</label><input id="ed-line" value="${esc(l.line)}" />
+            <label class="mono ed-min" for="ed-min">Minutes <input id="ed-min" type="number" min="5" max="600" step="5" value="${l.minutes}" /></label>
+          </div>`;
+        }
+        const parts = l.parts.length ? ` · ${l.parts.map((p) => esc(p.name)).join(', ')}` : '';
+        return `<button type="button" class="line${sel ? ' sel' : ''}" data-i="${i}" aria-pressed="${sel}" style="--d:${i * 55}ms">
+          <span class="mono k">${String(i + 1).padStart(2, '0')} · ${esc(l.area)}</span>
+          <strong>${esc(l.line)}</strong>
+          <span class="why">${esc(l.cause)}.</span>
+          <span class="mono meta">${l.minutes} min · ${esc(l.ref)}${parts}</span>
+        </button>`;
+      })
+      .join('');
+    const t = totals(lines);
+    totalsEl.innerHTML = `<div><dt class="mono">Bench time</dt><dd>${hm(t.minutes)}</dd></div><div><dt class="mono">Parts</dt><dd>${eur(t.parts)}</dd></div><div><dt class="mono">Estimate</dt><dd>${eur(t.estimate)}</dd></div>`;
+  };
+
+  const clear = () => {
+    timers.forEach(clearTimeout);
+    timers = [];
+  };
+  const later = (fn: () => void, ms: number) => timers.push(window.setTimeout(fn, reduce ? 0 : ms));
+
+  const ERRORS: Record<string, [string, string]> = {
+    quota: ['Bench plan: 15 of 15 drafts used this month. Your note is kept; drafting resumes on the 1st.', '<a class="link mono" href="#pricing">See plans</a>'],
+    network: ['Connection dropped while matching. Your note is saved on this device.', '<button type="button" class="link mono" data-act="retry">Retry</button>'],
+    error: ['The rule set could not be loaded. Nothing was drafted or changed.', '<button type="button" class="link mono" data-act="retry">Retry</button>'],
+  };
+
+  const fail = (kind: string) => {
+    clear();
+    resetRun();
+    proc.hidden = true;
+    linesEl.hidden = false;
+    setState('error');
+    const [text, act] = ERRORS[kind];
+    showMsg(text, 'bad', act);
+    log(`Run stopped: ${kind === 'quota' ? 'quota reached' : kind === 'network' ? 'network dropped' : 'rule set unavailable'}. Previous draft unchanged.`);
+    if (kind === 'network') {
+      sim.value = 'ok'; // ponytail: a network drop is a one-shot fault so Retry can succeed
+    }
+  };
+
+  const resetRun = () => {
+    run.textContent = 'Draft work order';
+    delete run.dataset.busy;
+  };
+
+  const start = () => {
+    const text = note.value.trim();
+    hideMsg();
+    if (!text) {
+      setState('error');
+      showMsg('Add the customer’s words first. The draft is built only from what they said.', 'warn');
+      note.focus();
+      return;
+    }
+    if (sim.value === 'flag' || /\d{3}[\s-]?\d{3}[\s-]?\d{3}/.test(text)) {
+      setState('error');
+      showMsg('The note holds a phone number or flagged wording. Contact details belong in the customer record — edit the note and draft again.', 'warn');
+      log('Held for review: note contains flagged wording. Nothing drafted.');
+      return;
+    }
+    if (sim.value === 'quota') {
+      fail('quota');
+      return;
+    }
+    clear();
+    setState('matching');
+    run.textContent = 'Cancel';
+    run.dataset.busy = '1';
+    linesEl.hidden = true;
+    constraintEl.hidden = true;
+    proc.hidden = false;
+    const items = proc.querySelectorAll('li');
+    items.forEach((li) => li.classList.remove('on', 'done'));
+    const bar = $('procbar');
+    bar.style.width = '0%';
+    log('Draft requested from the note as written.');
+    [0, 1, 2].forEach((p) =>
+      later(() => {
+        items.forEach((li, i) => {
+          li.classList.toggle('done', i < p);
+          li.classList.toggle('on', i === p);
+        });
+        bar.style.width = `${(p + 1) * 33.3}%`;
+        if (p === 1 && sim.value === 'network') {
+          later(() => fail('network'), 300);
+        }
+        if (p === 1 && sim.value === 'error') {
+          later(() => fail('error'), 300);
+        }
+      }, p * 520),
+    );
+    later(() => {
+      if (stage.dataset.state !== 'matching') {
+        return;
+      }
+      lines = draftLines(text);
+      selected = 0;
+      proc.hidden = true;
+      linesEl.hidden = false;
+      renderLines();
+      void linesEl.offsetWidth;
+      linesEl.classList.add('in');
+      const c = constraintOf(text);
+      constraintEl.hidden = !c;
+      constraintEl.innerHTML = `<span class="mono">Note</span>${c ?? ''}`;
+      resetRun();
+      setState('draft');
+      bump('Draft from sample rules');
+      log(`Matched ${lines.length} ${lines.length === 1 ? 'line' : 'lines'}: ${lines.map((l) => l.area.toLowerCase()).join(', ')}. Draft ready, not sent.`);
+    }, 1700);
+  };
+
+  const cancel = () => {
+    clear();
+    resetRun();
+    proc.hidden = true;
+    linesEl.hidden = false;
+    constraintEl.hidden = !constraintOf(note.value);
+    setState('draft');
+    showMsg('Cancelled. The previous draft is unchanged.', 'info');
+    log('Run cancelled by the user. Previous draft kept.');
+  };
+
+  $('intake').addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (run.dataset.busy) {
+      cancel();
+      return;
+    }
+    start();
+  });
+  note.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+      e.preventDefault();
+      $<HTMLFormElement>('intake').requestSubmit();
+    }
+  });
+  msg.addEventListener('click', (e) => {
+    if ((e.target as HTMLElement).dataset.act === 'retry') {
+      start();
+    }
+  });
+
+  linesEl.addEventListener('click', (e) => {
+    const b = (e.target as HTMLElement).closest<HTMLButtonElement>('button.line');
+    if (!b || stage.dataset.state === 'edit') {
+      return;
+    }
+    selected = Number(b.dataset.i);
+    linesEl.querySelectorAll('button.line').forEach((x, i) => {
+      x.classList.toggle('sel', i === selected);
+      x.setAttribute('aria-pressed', String(i === selected));
+    });
+  });
+
+  editBtn.addEventListener('click', () => {
+    hideMsg();
+    if (stage.dataset.state === 'edit') {
+      renderLines();
+      setState('draft');
+      return;
+    }
+    if (stage.dataset.state === 'approve') {
+      log('Editing withdrew the signature.');
+    }
+    setState('edit');
+    renderLines(true);
+    $<HTMLInputElement>('ed-line').focus();
+  });
+
+  approveBtn.addEventListener('click', () => {
+    if (stage.dataset.state === 'edit') {
+      const name = $<HTMLInputElement>('ed-line').value.trim();
+      const min = Math.round(Number($<HTMLInputElement>('ed-min').value));
+      if (!name || !(min >= 5 && min <= 600)) {
+        showMsg('A line needs a name and 5–600 minutes.', 'warn');
+        return;
+      }
+      lines[selected] = { ...lines[selected], line: name, minutes: min };
+      renderLines();
+      hideMsg();
+      setState('draft');
+      bump(`Edited line ${selected + 1}`);
+      log(`Technician edited line ${selected + 1}: “${name}”, ${min} min.`);
+      return;
+    }
+    setState('approve');
+    bump('Approved by technician');
+    log('Draft approved by the technician. Not sent yet.');
+  });
+
+  sendBtn.addEventListener('click', () => {
+    setState('send');
+    showMsg('Quote marked as sent. This is a sample — no e-mail left this page.', 'info');
+    log('Quote marked as sent (sample — nothing was sent).');
+  });
+
+  $('copy').addEventListener('click', async (e) => {
+    const b = e.currentTarget as HTMLButtonElement;
+    try {
+      await navigator.clipboard.writeText(transcript.map((l, i) => `${i + 1}. ${l}`).join('\n'));
+      b.textContent = 'Copied';
+    } catch {
+      b.textContent = 'Copy failed — open Transcript';
+    }
+    setTimeout(() => (b.textContent = 'Copy transcript'), 1800);
+  });
+
+  $('replay').addEventListener('click', () => {
+    note.value = SAMPLE_NOTE;
+    sim.value = 'ok';
+    transcript = [];
+    log('Replay: sample note restored.');
+    start();
+  });
+
+  // Audience tabs: every panel stays in the DOM, hash deep-links pick one.
+  const tabs = [...document.querySelectorAll<HTMLButtonElement>('[role=tab]')];
+  const pick = (t: HTMLButtonElement, focus = false) => {
+    tabs.forEach((x) => {
+      const on = x === t;
+      x.setAttribute('aria-selected', String(on));
+      x.tabIndex = on ? 0 : -1;
+      $(x.getAttribute('aria-controls')!).hidden = !on;
+    });
+    if (focus) {
+      t.focus();
+    }
+  };
+  tabs.forEach((t, i) => {
+    t.addEventListener('click', () => {
+      pick(t);
+      history.replaceState(null, '', `#${t.getAttribute('aria-controls')}`);
+    });
+    t.addEventListener('keydown', (e) => {
+      const d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+      if (d) {
+        pick(tabs[(i + d + tabs.length) % tabs.length], true);
+      }
+    });
+  });
+
+  const fromHash = () => {
+    const id = location.hash.slice(1);
+    const tab = tabs.find((t) => t.getAttribute('aria-controls') === id);
+    pick(tab ?? tabs[0]);
+    const d = id && document.getElementById(id);
+    if (d instanceof HTMLDetailsElement) {
+      d.open = true;
+    }
+  };
+  fromHash();
+  addEventListener('hashchange', fromHash);
+
+  // Cadence + plan CTAs
+  document.querySelectorAll<HTMLInputElement>('input[name=cad]').forEach((r) =>
+    r.addEventListener('change', () => {
+      document.querySelectorAll<HTMLElement>('[data-m][data-y]').forEach((el) => {
+        el.textContent = el.dataset[r.value as 'm' | 'y'] ?? '';
+      });
+    }),
+  );
+  document.querySelectorAll<HTMLButtonElement>('.plan-cta').forEach((b) =>
+    b.addEventListener('click', () => {
+      const out = b.nextElementSibling as HTMLElement;
+      const label = b.textContent;
+      b.disabled = true;
+      b.setAttribute('aria-busy', 'true');
+      b.textContent = 'Starting…';
+      out.textContent = '';
+      setTimeout(() => {
+        b.disabled = false;
+        b.removeAttribute('aria-busy');
+        b.textContent = label;
+        out.textContent = `Not created: ${b.dataset.plan} is a sample plan on a design study. Your selection is kept.`;
+      }, reduce ? 0 : 700);
+    }),
+  );
+</script>
+
+<style is:global>
+  :root {
+    --ink: #0d1117;
+    --ink-2: #4a5563;
+    --ink-3: #7b8594;
+    --line: #e3e8ef;
+    --line-2: #d3dbe6;
+    --bg: #ffffff;
+    --pale: #f3f7fc;
+    --pale-2: #e8f0fa;
+    --sig: #0b7a9c;
+    --sig-soft: #e4f3f8;
+    --sig-line: #9fd2e2;
+    --warn: #9a5b00;
+    --bad: #b42318;
+    --r: 14px;
+    --sans: 'Geist', ui-sans-serif, system-ui, sans-serif;
+    --mono: 'Geist Mono', ui-monospace, monospace;
+  }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); -webkit-font-smoothing: antialiased; }
+  .shell { overflow-x: clip; }
+  .mono { font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .skip { position: absolute; left: -999px; top: 8px; }
+  .skip:focus { left: 8px; z-index: 50; background: var(--ink); color: #fff; padding: 8px 12px; border-radius: 8px; }
+  :focus-visible { outline: 2px solid var(--sig); outline-offset: 2px; }
+  .wrap { max-width: 1240px; margin: 0 auto; padding: 0 32px; }
+
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 44px; padding: 0 18px; border-radius: 10px; font: 500 15px/1 var(--sans); text-decoration: none; border: 1px solid transparent; cursor: pointer; transition: background 180ms, border-color 180ms, color 180ms, transform 180ms; }
+  .btn.sm { height: 34px; padding: 0 12px; font-size: 13px; border-radius: 8px; }
+  .btn.dark { background: var(--ink); color: #fff; }
+  .btn.dark:hover { background: #262d38; }
+  .btn.ghost { background: #fff; color: var(--ink); border-color: var(--line); }
+  .btn.ghost:hover { border-color: var(--line-2); background: var(--pale); }
+  .btn.signal { background: var(--sig); color: #fff; }
+  .btn.signal:hover { background: #086781; }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn:active:not(:disabled) { transform: translateY(1px); }
+  .link { background: none; border: 0; padding: 4px 0; color: var(--ink-2); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--line-2); }
+  .link:hover { color: var(--ink); }
+
+  /* header */
+  .top { position: sticky; top: 0; z-index: 20; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; height: 64px; padding: 0 28px; background: rgb(255 255 255 / 0.82); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+  .brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 600; font-size: 15px; color: var(--ink); text-decoration: none; letter-spacing: -0.01em; }
+  .mark { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 7px; background: var(--ink); color: #fff; font: 500 13px/1 var(--mono); }
+  .top nav { display: flex; gap: 28px; }
+  .top nav a { color: var(--ink-2); text-decoration: none; font-size: 14px; }
+  .top nav a:hover { color: var(--ink); }
+  .top-cta { display: flex; gap: 8px; justify-content: flex-end; }
+
+  /* hero */
+  .hero { position: relative; padding: 64px 0 88px; background: linear-gradient(#fff, var(--pale) 85%); }
+  .grid-bg { position: absolute; inset: 0; background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px); background-size: 72px 72px; background-position: -1px -1px; mask-image: linear-gradient(#000 60%, transparent); -webkit-mask-image: linear-gradient(#000 60%, transparent); pointer-events: none; }
+  .hero-grid { position: relative; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 24px; align-items: center; }
+  .hero-copy { grid-column: 1 / span 5; }
+  .stage { grid-column: 6 / span 7; }
+  .chip { display: inline-flex; align-items: center; gap: 8px; margin: 0 0 24px; padding: 7px 12px; border: 1px solid var(--line); border-radius: 999px; background: #fff; color: var(--ink-2); }
+  .chip i, .pill i { width: 6px; height: 6px; border-radius: 50%; background: var(--sig); }
+  h1 { margin: 0; font-size: clamp(44px, 5vw, 72px); line-height: 0.98; letter-spacing: -0.045em; font-weight: 600; text-wrap: balance; }
+  .nw { white-space: nowrap; }
+  .lede { margin: 24px 0 0; max-width: 30em; font-size: 17px; line-height: 1.55; color: var(--ink-2); }
+  .cta-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 30px; }
+  .facts { display: flex; flex-wrap: wrap; gap: 14px 36px; margin: 40px 0 0; }
+  .facts dt { font-weight: 600; font-size: 17px; letter-spacing: -0.02em; }
+  .facts dd { margin: 4px 0 0; color: var(--ink-3); font-size: 10px; }
+
+  /* product stage */
+  .stage-in { padding: 8px; border-radius: 20px; background: rgb(255 255 255 / 0.7); border: 1px solid var(--line); box-shadow: 0 1px 2px rgb(13 17 23 / 0.04), 0 24px 60px -24px rgb(25 60 110 / 0.22); }
+  .st-head, .steps, .st-body, .st-foot { background: #fff; border: 1px solid var(--line); }
+  .st-head { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-radius: 12px 12px 0 0; border-bottom: 0; color: var(--ink-2); }
+  .pill { display: inline-flex; align-items: center; gap: 7px; color: var(--ink); }
+  [data-state='matching'] .pill i { animation: blink 1s steps(2) infinite; }
+  [data-state='error'] .pill i { background: var(--bad); }
+  [data-state='approve'] .pill i, [data-state='send'] .pill i { background: #1a7f4b; }
+  @keyframes blink { 50% { opacity: 0.25; } }
+  .steps { display: grid; grid-template-columns: repeat(6, 1fr); margin: 0; padding: 0; list-style: none; border-bottom: 0; }
+  .steps li { position: relative; padding: 10px 10px 11px; font-size: 10px; color: var(--ink-3); border-right: 1px solid var(--line); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .steps li:last-child { border-right: 0; }
+  .steps li span { margin-right: 6px; opacity: 0.6; }
+  .steps li::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: transparent; transition: background 420ms; }
+  .steps li.done { color: var(--ink); }
+  .steps li.done::after { background: var(--sig); }
+  .steps li[aria-current='step'] { background: var(--sig-soft); color: var(--sig); }
+  .steps li.err { background: #fdecea; color: var(--bad); }
+  .st-body { display: grid; grid-template-columns: 236px 1fr; }
+  .st-input { padding: 18px; border-right: 1px solid var(--line); display: flex; flex-direction: column; gap: 12px; }
+  .lbl { margin: 0; color: var(--ink-3); font-size: 10px; }
+  .machine { margin: -4px 0 0; font-size: 20px; letter-spacing: -0.02em; font-weight: 600; }
+  .machine span { color: var(--ink-3); font-weight: 500; }
+  textarea { width: 100%; box-sizing: border-box; resize: vertical; min-height: 140px; padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--pale); font: 13.5px/1.55 var(--sans); color: var(--ink); }
+  textarea:focus { outline: none; border-color: var(--sig-line); box-shadow: 0 0 0 3px var(--sig-soft); background: #fff; }
+  textarea[readonly] { color: var(--ink-3); }
+  .sim { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .sim label { color: var(--ink-3); font-size: 10px; }
+  .sim select { flex: 1; min-width: 0; height: 30px; border: 1px solid var(--line); border-radius: 8px; background: #fff; font: 12px var(--sans); color: var(--ink); padding: 0 6px; }
+  .run { width: 100%; }
+  .hint { margin: 0; font-size: 9.5px; color: var(--ink-3); text-align: center; }
+  .st-out { padding: 18px; background: linear-gradient(#fbfdff, var(--pale)); display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+  .out-head { display: flex; justify-content: space-between; gap: 8px; color: var(--ink-3); font-size: 10px; }
+  .tag { color: var(--ink-2); }
+  .lines { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .line { display: flex; flex-direction: column; gap: 6px; text-align: left; padding: 14px; border: 1px solid var(--line); border-radius: 12px; background: #fff; font: inherit; color: inherit; cursor: pointer; transition: border-color 180ms, background 180ms, box-shadow 180ms; }
+  .line:hover { border-color: var(--line-2); }
+  .line.sel { border-color: var(--sig-line); background: var(--sig-soft); box-shadow: inset 0 0 0 1px var(--sig-line); }
+  .line .k { font-size: 9.5px; color: var(--ink-3); }
+  .line.sel .k { color: var(--sig); }
+  .line strong { font-size: 15.5px; line-height: 1.25; letter-spacing: -0.015em; font-weight: 600; }
+  .line .why { font-size: 12.5px; line-height: 1.45; color: var(--ink-2); }
+  .line .meta { font-size: 9.5px; color: var(--ink-3); margin-top: auto; padding-top: 4px; text-transform: none; letter-spacing: 0.02em; }
+  .line input { font: 600 15px var(--sans); width: 100%; box-sizing: border-box; padding: 8px 10px; border: 1px solid var(--sig-line); border-radius: 8px; background: #fff; min-width: 0; }
+  .ed-min { display: flex; align-items: center; gap: 8px; font-size: 10px; color: var(--ink-2); }
+  .ed-min input { width: 72px; font: 500 13px var(--mono); }
+  .lines.in .line { animation: rise 520ms cubic-bezier(0.2, 0.7, 0.2, 1) both; animation-delay: var(--d, 0ms); }
+  @keyframes rise { from { opacity: 0; transform: translateY(8px); } }
+  @media (prefers-reduced-motion: reduce) { .lines.in .line, [data-state='matching'] .pill i { animation: none; } }
+  .constraint { margin: 0; display: flex; gap: 10px; align-items: baseline; padding: 10px 12px; border: 1px dashed var(--line-2); border-radius: 10px; font-size: 12.5px; color: var(--ink-2); background: #fff; }
+  .constraint .mono { font-size: 9.5px; color: var(--sig); flex: none; }
+  .constraint[hidden], .lines[hidden], .proc[hidden], .msg[hidden] { display: none; }
+  .totals { display: grid; grid-template-columns: repeat(3, 1fr); margin: 0; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
+  .totals div { padding: 10px 12px; border-right: 1px solid var(--line); }
+  .totals div:last-child { border-right: 0; }
+  .totals dt { font-size: 9.5px; color: var(--ink-3); }
+  .totals dd { margin: 4px 0 0; font-weight: 600; font-size: 16px; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+  .actions { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
+  .proc { padding: 16px; border: 1px solid var(--line); border-radius: 12px; background: #fff; }
+  .proc ol { margin: 0 0 14px; padding: 0; list-style: none; display: grid; gap: 10px; font-size: 10.5px; color: var(--ink-3); }
+  .proc li::before { content: '○ '; }
+  .proc li.on { color: var(--sig); }
+  .proc li.on::before { content: '◐ '; }
+  .proc li.done { color: var(--ink); }
+  .proc li.done::before { content: '● '; }
+  .bar { height: 3px; border-radius: 3px; background: var(--line); overflow: hidden; }
+  .bar span { display: block; height: 100%; width: 0; background: var(--sig); transition: width 500ms cubic-bezier(0.3, 0.6, 0.2, 1); }
+  .msg { padding: 10px 12px; border-radius: 10px; font-size: 13px; line-height: 1.45; display: flex; gap: 12px; align-items: baseline; justify-content: space-between; border: 1px solid var(--line); background: #fff; }
+  .msg p { margin: 0; }
+  .msg.warn { border-color: #f1d39b; background: #fff8eb; color: var(--warn); }
+  .msg.bad { border-color: #f4c5c0; background: #fdf1f0; color: var(--bad); }
+  .msg .link { color: inherit; flex: none; }
+  .st-foot { display: flex; align-items: flex-start; gap: 14px; padding: 10px 16px; border-top: 0; border-radius: 0 0 12px 12px; position: relative; }
+  .st-foot .grow { flex: 1; }
+  .pop summary { cursor: pointer; color: var(--ink-2); font-size: 10px; padding: 4px 0; list-style: none; }
+  .pop summary::-webkit-details-marker { display: none; }
+  .pop summary::before { content: '+ '; color: var(--ink-3); }
+  .pop[open] summary::before { content: '– '; }
+  .pop ol { position: absolute; left: 12px; right: 12px; bottom: calc(100% + 6px); z-index: 5; margin: 0; padding: 12px 14px 12px 34px; background: #fff; border: 1px solid var(--line-2); border-radius: 12px; box-shadow: 0 16px 40px -16px rgb(25 60 110 / 0.3); font-size: 12.5px; line-height: 1.6; color: var(--ink-2); max-height: 220px; overflow: auto; }
+  .pop ol b { font: 500 11px var(--mono); color: var(--sig); margin-right: 6px; }
+  .st-foot .link { font-size: 10px; }
+
+  /* sections */
+  .sec { padding: 112px 0; }
+  .sec.tint { background: var(--pale); border-block: 1px solid var(--line); }
+  .sec-head { max-width: 640px; margin-bottom: 48px; }
+  .sec-head.row { max-width: none; display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; flex-wrap: wrap; }
+  .eyebrow { margin: 0 0 14px; color: var(--sig); }
+  .sec h2 { margin: 0; font-size: clamp(32px, 3.6vw, 48px); line-height: 1.04; letter-spacing: -0.035em; font-weight: 600; text-wrap: balance; }
+  .sec-head > p:not(.eyebrow) { margin: 18px 0 0; font-size: 17px; line-height: 1.55; color: var(--ink-2); }
+
+  .ba { display: grid; grid-template-columns: 1fr 56px 1fr; gap: 0; align-items: stretch; }
+  .ba-card { padding: 28px; display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: 16px; background: #fff; }
+  .ba-card.need { background: linear-gradient(#fff, var(--pale)); }
+  .ba-card blockquote { margin: 18px 0; font-size: 20px; line-height: 1.5; letter-spacing: -0.01em; }
+  .missing { margin: auto 0 0; padding-top: 18px; border-top: 1px dashed var(--line-2); display: flex; flex-direction: column; gap: 6px; font-size: 15px; color: var(--ink-2); }
+  .missing .mono { color: var(--bad); font-size: 10px; }
+  .ba-card .small { margin-bottom: 24px; }
+  .small { color: var(--ink-3); font-size: 10px; margin: 0; }
+  .ba-arrow { display: grid; place-items: center; }
+  .ba-arrow svg { width: 22px; fill: none; stroke: var(--ink-3); stroke-width: 1.5; }
+  .checks { list-style: none; margin: 18px 0 0; padding: 0; }
+  .checks li { display: flex; justify-content: space-between; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--line); font-size: 15px; }
+  .checks li:last-child { border-bottom: 0; }
+  .checks li span::before { content: ''; display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 12px; background: var(--sig); vertical-align: 1px; }
+  .checks li.todo span::before { background: transparent; box-shadow: inset 0 0 0 1.5px var(--ink-3); }
+  .checks em { font-style: normal; color: var(--ink-3); font-size: 10px; white-space: nowrap; }
+
+  .feat { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
+  .feat article { background: #fff; padding: 28px; }
+  .ico { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 10px; border: 1px solid var(--line); background: var(--pale); }
+  .ico svg { width: 18px; height: 18px; fill: none; stroke: var(--ink); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+  .feat h3 { margin: 20px 0 8px; font-size: 17px; letter-spacing: -0.015em; font-weight: 600; }
+  .feat p { margin: 0; font-size: 14.5px; line-height: 1.55; color: var(--ink-2); }
+
+  .flow { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(6, 1fr); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
+  .flow li { padding: 24px 20px 28px; border-right: 1px solid var(--line); background: #fff; position: relative; }
+  .flow li:last-child { border-right: 0; }
+  .flow li::before { content: ''; position: absolute; inset: 0 0 auto; height: 3px; background: var(--line); }
+  .flow li.human::before { background: var(--ink); }
+  .flow .n { color: var(--ink-3); }
+  .flow h3 { margin: 28px 0 6px; font-size: 19px; letter-spacing: -0.02em; font-weight: 600; }
+  .flow .who { display: inline-block; padding: 3px 7px; border-radius: 6px; font-size: 9.5px; background: var(--pale-2); color: var(--ink-2); }
+  .flow li.human .who { background: var(--ink); color: #fff; }
+  .flow p { margin: 14px 0 0; font-size: 14px; line-height: 1.5; color: var(--ink-2); }
+
+  .tabs { display: inline-flex; gap: 4px; padding: 4px; border: 1px solid var(--line); border-radius: 12px; background: #fff; margin-bottom: 20px; max-width: 100%; overflow-x: auto; }
+  .tabs button { border: 0; background: none; padding: 9px 14px; border-radius: 8px; font: 500 14px var(--sans); color: var(--ink-2); cursor: pointer; white-space: nowrap; transition: background 180ms, color 180ms; }
+  .tabs button[aria-selected='true'] { background: var(--ink); color: #fff; }
+  .panel { display: grid; grid-template-columns: 1.2fr 1fr; gap: 40px; padding: 36px; border: 1px solid var(--line); border-radius: 16px; background: #fff; margin-bottom: 12px; }
+  .panel[hidden] { display: none; }
+  .panel h3 { margin: 0 0 12px; font-size: 26px; letter-spacing: -0.03em; font-weight: 600; }
+  .panel p { margin: 0; font-size: 16px; line-height: 1.6; color: var(--ink-2); }
+  .panel ul { list-style: none; margin: 0; padding: 0; align-self: center; }
+  .panel li { padding: 12px 0; border-bottom: 1px solid var(--line); color: var(--ink); font-size: 11px; }
+  .panel li::before { content: '→ '; color: var(--sig); }
+
+  .tickets { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .ticket { display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: 16px; background: #fff; overflow: hidden; }
+  .t-head { display: flex; justify-content: space-between; gap: 8px; padding: 14px 18px; border-bottom: 1px solid var(--line); font-size: 10px; color: var(--ink-2); }
+  .t-head .tag { color: var(--sig); }
+  .t-note { margin: 0; padding: 18px; font-size: 15px; line-height: 1.5; border-bottom: 1px dashed var(--line); }
+  .ticket ul { list-style: none; margin: 0; padding: 8px 18px; flex: 1; }
+  .ticket li { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; font-size: 14px; border-bottom: 1px solid var(--line); }
+  .ticket li:last-child { border-bottom: 0; }
+  .ticket em { font-style: normal; color: var(--ink-3); font-size: 10px; white-space: nowrap; }
+  .t-foot { display: flex; justify-content: space-between; padding: 12px 18px; background: var(--pale); border-top: 1px solid var(--line); font-size: 10px; }
+
+  .cadence { display: inline-flex; padding: 4px; border: 1px solid var(--line); border-radius: 12px; background: #fff; margin: 0; }
+  .cadence label { position: relative; cursor: pointer; }
+  .cadence input { position: absolute; opacity: 0; inset: 0; cursor: pointer; }
+  .cadence span { display: block; padding: 8px 14px; border-radius: 8px; font-size: 14px; color: var(--ink-2); transition: background 180ms, color 180ms; }
+  .cadence input:checked + span { background: var(--ink); color: #fff; }
+  .cadence input:focus-visible + span { outline: 2px solid var(--sig); outline-offset: 2px; }
+  .plans { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .plan { display: flex; flex-direction: column; padding: 26px; border: 1px solid var(--line); border-radius: 16px; background: #fff; }
+  .plan.pick { border-color: var(--sig-line); box-shadow: inset 0 0 0 1px var(--sig-line); }
+  .p-top { display: flex; justify-content: space-between; align-items: center; }
+  .plan h3 { margin: 0; font-size: 18px; font-weight: 600; }
+  .p-top .tag { color: var(--sig); font-size: 10px; }
+  .price { margin: 22px 0 4px; display: flex; align-items: baseline; gap: 8px; }
+  .amt { font-size: 44px; font-weight: 600; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; }
+  .per, .cadnote { color: var(--ink-3); font-size: 10px; margin: 0; }
+  .for { margin: 16px 0 22px; color: var(--ink-2); font-size: 15px; }
+  .plan-cta { margin-top: auto; }
+  .plan-cta[aria-busy='true'] { opacity: 0.7; cursor: progress; }
+  .plan-msg { min-height: 2.6em; margin: 10px 0 0; font-size: 10px; color: var(--warn); text-transform: none; letter-spacing: 0.02em; line-height: 1.4; }
+  .table-wrap { margin-top: 24px; border: 1px solid var(--line); border-radius: 16px; background: #fff; overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; min-width: 620px; font-size: 14px; }
+  th, td { text-align: left; padding: 14px 20px; border-bottom: 1px solid var(--line); font-weight: 400; }
+  thead th { font: 500 11px var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); background: var(--pale); }
+  tbody th { color: var(--ink-2); }
+  tbody tr:last-child > * { border-bottom: 0; }
+  td { font-variant-numeric: tabular-nums; }
+  th a { color: var(--ink); text-decoration: underline; text-decoration-color: var(--sig-line); text-underline-offset: 3px; }
+  th sup { margin-left: 4px; color: var(--sig); }
+  .foot { margin: 16px 0 0; color: var(--ink-3); font-size: 10px; }
+
+  .faq-grid { display: grid; grid-template-columns: 5fr 7fr; gap: 48px; }
+  .back { color: var(--sig); text-decoration: none; }
+  .faqs details { border-bottom: 1px solid var(--line); scroll-margin-top: 90px; }
+  .faqs details:first-child { border-top: 1px solid var(--line); }
+  .faqs summary { cursor: pointer; padding: 20px 32px 20px 0; font-size: 17px; font-weight: 500; letter-spacing: -0.01em; list-style: none; position: relative; }
+  .faqs summary::-webkit-details-marker { display: none; }
+  .faqs summary::after { content: '+'; position: absolute; right: 4px; top: 18px; font: 400 20px var(--mono); color: var(--ink-3); }
+  .faqs details[open] summary::after { content: '–'; }
+  .faqs details:target summary { color: var(--sig); }
+  .faqs p { margin: 0 0 22px; font-size: 15.5px; line-height: 1.6; color: var(--ink-2); max-width: 40em; }
+
+  .ft { padding: 72px 0 96px; background: linear-gradient(#fff, var(--pale-2)); border-top: 1px solid var(--line); }
+  .ft-top { display: flex; justify-content: space-between; gap: 48px; flex-wrap: wrap; }
+  .ft-top > div > p { color: var(--ink-2); max-width: 26em; line-height: 1.55; }
+  .ft-links { display: flex; gap: 64px; flex-wrap: wrap; }
+  .ft-links div { display: flex; flex-direction: column; gap: 10px; }
+  .ft-links p { margin: 0 0 4px; color: var(--ink-3); }
+  .ft-links a { color: var(--ink-2); text-decoration: none; font-size: 14px; }
+  .ft-links a:hover { color: var(--ink); }
+  .ft-note { margin: 56px 0 0; color: var(--ink-3); font-size: 10px; }
+
+  @media (max-width: 1100px) {
+    .hero-copy, .stage { grid-column: 1 / -1; }
+    .hero-copy { max-width: 720px; }
+    .flow { grid-template-columns: repeat(3, 1fr); }
+    .flow li:nth-child(3) { border-right: 0; }
+    .flow li:nth-child(-n + 3) { border-bottom: 1px solid var(--line); }
+  }
+  @media (max-width: 820px) {
+    .top { grid-template-columns: 1fr auto; padding: 0 16px; }
+    .top nav, .top-cta .ghost { display: none; }
+    .wrap { padding: 0 16px; }
+    .hero { padding: 40px 0 64px; }
+    .grid-bg { background-size: 48px 48px; }
+    .st-body { grid-template-columns: 1fr; }
+    .st-input { border-right: 0; border-bottom: 1px solid var(--line); }
+    .steps li { font-size: 0; padding: 10px 0; text-align: center; }
+    .steps li span { font-size: 10px; margin: 0; }
+    .steps li[aria-current='step'] { font-size: 9px; }
+    .steps li[aria-current='step'] span { display: none; }
+    .lines { grid-template-columns: 1fr; }
+    .sec { padding: 80px 0; }
+    .ba { grid-template-columns: 1fr; }
+    .ba-arrow { height: 44px; transform: rotate(90deg); }
+    .feat, .tickets, .plans { grid-template-columns: 1fr; }
+    .flow { grid-template-columns: 1fr 1fr; }
+    .flow li { border-bottom: 1px solid var(--line); }
+    .flow li:nth-child(3) { border-right: 1px solid var(--line); }
+    .flow li:nth-child(2n) { border-right: 0; }
+    .panel, .faq-grid { grid-template-columns: 1fr; gap: 24px; }
+    .panel { padding: 24px; }
+    .st-foot { flex-wrap: wrap; }
+  }
+  @media (max-width: 480px) {
+    .flow { grid-template-columns: 1fr; }
+    .flow li { border-right: 0 !important; }
+    .totals dd { font-size: 14px; }
+    .totals div { padding: 10px; }
+    .checks li { flex-direction: column; gap: 4px; }
+  }
+</style>

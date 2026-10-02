@@ -1,0 +1,7 @@
+{
+  "title": "Image First Grid Layout",
+  "kind": "website",
+  "category": "Design systems",
+  "concept": "Brinehall, a fictional public aquarium on Pier 9: four full-bleed underwater stages (eagle ray, reef, sunlit water, looking up from the reef) carry the whole site, with a five-rail container grid, square crossing markers, bottom-anchored headlines and low-fill glass boxes for a live tank readout, hall depth gauges, husbandry figures and a timed-entry picker.",
+  "notes": "Photos from Unsplash. The hero adds a faint screen-blended 2D-canvas line field (paused offscreen and on hidden tabs) and every stage image drifts with a slow scroll parallax; masked line reveals and button highlight sweeps. Reduced motion freezes the line field to one frame and drops parallax, sweeps and reveals. The ticket form is a demo and books nothing."
+}

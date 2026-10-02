@@ -1,0 +1,7 @@
+{
+  "title": "Horizontal Scroll Scenes",
+  "kind": "section",
+  "category": "Motion & scroll",
+  "concept": "En Passant, a chess club in an old tram depot: one Thursday evening as five rooms laid left to right on a fixed stage (Opening, Blitz, Lesson, Gambit, Mate), driven only by native vertical scroll. Between rooms, a checkered clock-wipe line writes the next chapter in while the board, clock and endgame pieces play out over each dwell.",
+  "notes": "Vanilla TS + DOM/CSS + inline SVG, no libraries. The skill's travel() verbatim: DWELL 1.15 / MOVE 0.85 / SPAN 9.15, track (span+1)*100vh, index flip at f < 0.39, per-room craft clocks --p/--e on the stage, two world copies clipped either side of the line, Clock wipe / Pan toggle, last-move-only glide under a veil for index jumps, wheel/touch/keys cancel it, inert hidden chapters, polite live region on landings, reduced motion cross-fades. No wheel hijack, no scroll-snap. Verified: 21 states identical forward vs reverse, identical after reload at 3 depths, 1→5 glide lands and announces. ?shot (not on reload or with a hash) parks the page mid-wipe between rooms 1 and 2 for the card capture."
+}
