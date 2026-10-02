@@ -39,7 +39,7 @@ const builtCount = cards.filter((c) => c.built).length;
     />
     <title>Web Design Skills</title>
   </head>
-  <body class="min-h-screen bg-[#0c0c0d] text-neutral-200 antialiased [font-family:'Inter_Tight',ui-sans-serif,system-ui]">
+  <body class="min-h-screen overflow-x-clip bg-[#0c0c0d] text-neutral-200 antialiased [font-family:'Inter_Tight',ui-sans-serif,system-ui]">
     <header class="mx-auto max-w-[1440px] px-4 pt-16 pb-10 sm:px-8 sm:pt-24">
       <p class="font-mono text-xs tracking-[0.18em] text-neutral-500 uppercase">
         {cards.length} skills · {builtCount} examples
@@ -50,6 +50,31 @@ const builtCount = cards.filter((c) => c.built).length;
       <p class="mt-5 max-w-2xl text-base text-neutral-400 sm:text-lg">
         Every card is an example page made by following that skill. Hover to run it live, click to open it.
       </p>
+
+      <aside
+        aria-label="Credits"
+        class="mt-8 flex max-w-3xl flex-col gap-4 rounded-2xl border border-white/10 bg-white/[0.03] p-5 sm:flex-row sm:items-start"
+      >
+        <img
+          src="https://github.com/MengTo.png?size=96"
+          alt=""
+          width="48"
+          height="48"
+          class="size-12 shrink-0 rounded-full border border-white/10"
+        />
+        <div class="text-sm leading-relaxed text-neutral-400">
+          <p class="text-neutral-200">
+            {`All ${cards.length} skills are by `}<a href="https://x.com/MengTo" class="font-medium text-white underline decoration-white/30 underline-offset-4 hover:decoration-white">Meng To</a>{', founder of '}
+            <a href="https://neuform.ai" class="text-white underline decoration-white/30 underline-offset-4 hover:decoration-white">Neuform</a>{', '}<a href="https://aura.build" class="text-white underline decoration-white/30 underline-offset-4 hover:decoration-white">Aura</a>{' and '}<a href="https://designcode.io" class="text-white underline decoration-white/30 underline-offset-4 hover:decoration-white">Design+Code</a>{'. They are published free under the MIT License at '}
+            <a href="https://github.com/MengTo/skills" class="text-white underline decoration-white/30 underline-offset-4 hover:decoration-white">github.com/MengTo/skills</a>.
+          </p>
+          <p class="mt-2">
+            {'The skill names, commands and descriptions on these cards are his. The example pages are fictional design studies built with '}
+            <a href="https://claude.com/claude-code" class="text-neutral-200 underline decoration-white/20 underline-offset-4 hover:decoration-white">Claude Code</a>{' by following each skill. Photos come from Unsplash, and every photographer, library, font and icon set is credited in '}
+            <a href="https://github.com/paiva-it/mengto/blob/main/CREDITS.md" class="text-neutral-200 underline decoration-white/20 underline-offset-4 hover:decoration-white">CREDITS.md</a>{' and the '}<a href="https://github.com/paiva-it/mengto#credits" class="text-neutral-200 underline decoration-white/20 underline-offset-4 hover:decoration-white">README</a>.
+          </p>
+        </div>
+      </aside>
 
       <div class="mt-10 flex flex-col gap-4 lg:flex-row lg:items-center">
         <label class="relative w-full lg:max-w-sm">
@@ -74,7 +99,7 @@ const builtCount = cards.filter((c) => c.built).length;
         {
           cards.map((c) => (
             <li
-              class="card group"
+              class="card group min-w-0"
               data-cat={c.category}
               data-search={`${c.name} ${c.title} ${c.description} ${c.concept ?? ''} ${c.category}`.toLowerCase()}
             >
@@ -161,6 +186,17 @@ const builtCount = cards.filter((c) => c.built).length;
       }
       .preview :global(iframe.ready) {
         opacity: 1;
+        pointer-events: auto;
+      }
+      .preview {
+        transition:
+          transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+          box-shadow 0.35s;
+      }
+      .preview.live {
+        z-index: 30;
+        transform: scale(1.1);
+        box-shadow: 0 30px 80px -20px rgb(0 0 0 / 0.8);
       }
     </style>
 
@@ -215,6 +251,7 @@ const builtCount = cards.filter((c) => c.built).length;
 
       const stop = () => {
         clearTimeout(timer);
+        live?.parentElement?.classList.remove('live');
         live?.remove();
         live = null;
       };
@@ -229,7 +266,17 @@ const builtCount = cards.filter((c) => c.built).length;
               frame.tabIndex = -1;
               frame.setAttribute('aria-hidden', 'true');
               frame.style.transform = `scale(${link.clientWidth / 1440})`;
-              frame.addEventListener('load', () => setTimeout(() => frame.classList.add('ready'), 400));
+              frame.addEventListener('load', () => {
+                // Same origin: keep wheel scrolling inside the live page instead of chaining to the gallery.
+                frame.contentDocument?.documentElement.style.setProperty('overscroll-behavior', 'contain');
+                setTimeout(() => {
+                  if (live !== frame) {
+                    return;
+                  }
+                  frame.classList.add('ready');
+                  link.classList.add('live');
+                }, 400);
+              });
               link.append(frame);
               live = frame;
             }, 250);
