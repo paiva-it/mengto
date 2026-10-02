@@ -147,7 +147,7 @@ const builtCount = cards.filter((c) => c.built).length;
         color: black;
         border-color: white;
       }
-      .preview iframe {
+      .preview :global(iframe) {
         position: absolute;
         top: 0;
         left: 0;
@@ -159,7 +159,7 @@ const builtCount = cards.filter((c) => c.built).length;
         opacity: 0;
         transition: opacity 0.3s;
       }
-      .preview iframe.ready {
+      .preview :global(iframe.ready) {
         opacity: 1;
       }
     </style>
