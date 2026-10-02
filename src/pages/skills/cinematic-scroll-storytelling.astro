@@ -1,0 +1,764 @@
+---
+import '../../styles/global.css';
+import BackPill from '../../components/BackPill.astro';
+
+const img = (n: string) => `/skills/cinematic-scroll-storytelling/${n}.jpg`;
+
+const legs = [
+  {
+    n: '01',
+    time: 'Day 2 · 09:15',
+    place: 'Gipuzkoa, Basque Country',
+    title: 'Mist country',
+    body: 'The coast range keeps its cloud until mid-morning. Breakfast is served late enough that you can watch it lift from your berth.',
+    side: 'Window side · right',
+    src: img('mist'),
+  },
+  {
+    n: '02',
+    time: 'Day 2 · 12:50',
+    place: 'Massif Central, France',
+    title: 'The viaducts at noon',
+    body: 'Granite arches, a river far below, and lunch laid in the dining car. We slow to forty here on purpose, and nobody has ever complained.',
+    side: 'Window side · left',
+    src: img('viaduct'),
+  },
+  {
+    n: '03',
+    time: 'Day 2 · 16:40',
+    place: 'Haute-Savoie, France',
+    title: 'The long climb east',
+    body: 'Four hours of rising ground. The observation car fills, the conversation thins, and somebody always says the word "alpenglow".',
+    side: 'Observation car',
+    src: img('peaks'),
+  },
+  {
+    n: '04',
+    time: 'Day 3 · 06:20',
+    place: 'Tirol, Austria',
+    title: 'The Inn valley, last bend',
+    body: 'Larches on fire in October, the river beside the track, and eighty minutes left. Coffee is on the trolley before you have to ask for it.',
+    side: 'Window side · either',
+    src: img('valley'),
+  },
+];
+---
+<html lang="en" class="cs">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Vesper Line — the night is the destination</title>
+    <meta name="description" content="Vesper Line runs one sleeper train from Lisbon to Innsbruck: thirty-seven hours, two nights, and nowhere you need to be." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;1,6..96,400&family=Inter+Tight:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="preload" as="image" href={img('hero')} />
+    <script is:inline>
+      // Preloader only when JS runs, motion is allowed and this is not a capture.
+      if (!matchMedia('(prefers-reduced-motion: reduce)').matches && !new URLSearchParams(location.search).has('shot')) {
+        document.documentElement.classList.add('cs-boarding');
+      }
+    </script>
+  </head>
+  <body class="cs-body">
+    <div class="cs-preloader" data-preloader aria-hidden="true">
+      <div class="cs-preloader__inner">
+        <p class="cs-eyebrow">Vesper Line · Train 701</p>
+        <p class="cs-preloader__title">Now boarding</p>
+        <div class="cs-preloader__track"><div class="cs-preloader__bar" data-preloader-bar></div></div>
+        <p class="cs-preloader__meta"><span>Lisboa Sta. Apolónia</span><span data-preloader-count>00</span></p>
+      </div>
+    </div>
+
+    <header class="cs-nav">
+      <a href="#top" class="cs-logo" aria-label="Vesper Line home">
+        <span class="cs-logo__mark" aria-hidden="true"></span>
+        Vesper Line
+      </a>
+      <nav aria-label="Primary" class="cs-nav__links">
+        <a href="#departure">Departure</a>
+        <a href="#route">The route</a>
+        <a href="#arrival">Fares</a>
+      </nav>
+      <div class="cs-nav__actions">
+        <button type="button" class="cs-replay" data-replay aria-label="Replay the opening sequence">
+          <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 8a5.5 5.5 0 1 0 1.8-4.07M2.5 2.5v3.2h3.2" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
+          <span>Replay</span>
+        </button>
+        <a href="#arrival" class="cs-nav__cta">Book a berth</a>
+      </div>
+    </header>
+
+    <main id="top">
+      <!-- Hero -->
+      <section class="cs-hero" data-parallax-section>
+        <div class="cs-hero__media" data-parallax-layer data-speed="0.22">
+          <img src={img('hero')} alt="" fetchpriority="high" />
+        </div>
+        <div class="cs-hero__shade" aria-hidden="true"></div>
+        <div class="cs-hero__content">
+          <p class="cs-eyebrow" data-hero-fade>Lisboa → Innsbruck · Sleeper service · Tue, Thu, Sat</p>
+          <h1 class="cs-hero__title" data-hero-title>The night <em>is</em> the destination.</h1>
+          <div class="cs-hero__row">
+            <p class="cs-hero__lede" data-hero-fade>
+              One train, three times a week. Thirty-seven hours, two nights, fourteen carriages, and nowhere you need to be until Innsbruck.
+            </p>
+            <dl class="cs-board" data-hero-fade>
+              <div><dt>Departs</dt><dd>18:40</dd></div>
+              <div><dt>Arrives</dt><dd>07:40<sup>+2</sup></dd></div>
+              <div><dt>Berths from</dt><dd>€640</dd></div>
+            </dl>
+          </div>
+        </div>
+        <a href="#manifesto" class="cs-cue" data-hero-fade>
+          <span class="cs-cue__line" aria-hidden="true"></span>
+          Scroll to board
+        </a>
+      </section>
+
+      <!-- Kinetic intro -->
+      <section class="cs-manifesto" id="manifesto">
+        <p class="cs-eyebrow">Why we run it slowly</p>
+        <p class="cs-manifesto__text" data-scrub-words>
+          We are not the fastest way across Europe. We are the slowest one that still feels like a decision: a bed that rocks a little, a window that never repeats, and a dinner nobody rushes because nobody can leave.
+        </p>
+      </section>
+
+      <!-- Story: departure -->
+      <section class="cs-story" id="departure" data-story-section>
+        <div class="cs-story__copy">
+          <p class="cs-chapter" data-reveal-item><span>Chapter I</span> 18:40 · Santa Apolónia</p>
+          <h2 class="cs-h2" data-reveal-item>Boarding is the first course.</h2>
+          <p class="cs-body-copy" data-reveal-item>
+            Platform 4 opens ninety minutes before departure. Your steward already knows your name, your pillow, and which side of the carriage the Tagus will be on when we pull out.
+          </p>
+          <ul class="cs-facts" data-reveal-item>
+            <li><strong>1 : 9</strong><span>stewards to berths</span></li>
+            <li><strong>42</strong><span>berths per departure</span></li>
+            <li><strong>0</strong><span>announcements after 22:00</span></li>
+          </ul>
+        </div>
+        <figure class="cs-story__figure" data-clip-reveal>
+          <div class="cs-story__img" data-inner-parallax>
+            <img src={img('station')} alt="A long-distance train waiting under the iron roof of a station hall" loading="lazy" />
+          </div>
+          <figcaption>Platform 4, an hour before departure.</figcaption>
+        </figure>
+      </section>
+
+      <!-- Pinned, scrubbed progression -->
+      <section class="cs-night" data-progress-scene aria-labelledby="night-title">
+        <div class="cs-night__media" data-progress-media>
+          <img src={img('clouds')} alt="Mountain peaks breaking through a sea of cloud at first light" loading="lazy" />
+        </div>
+        <div class="cs-night__dark" data-progress-dark aria-hidden="true"></div>
+        <div class="cs-night__inner">
+          <div class="cs-night__clock">
+            <p class="cs-chapter"><span>Chapter II</span> The first night ends</p>
+            <p class="cs-night__time" aria-hidden="true" data-progress-clock>04:10</p>
+            <h2 id="night-title" class="cs-night__title">Somewhere over the Pyrenees, the sky changes its mind.</h2>
+          </div>
+          <ol class="cs-night__log">
+            <li data-progress-copy><time>04:30</time>The carriage goes quiet in a different way. Fewer lights below, more above.</li>
+            <li data-progress-copy><time>06:05</time>A knock, then coffee. Nobody remembers ordering it; everybody did.</li>
+            <li data-progress-copy><time>07:12</time>First light above the cloud line. The blinds go up along the corridor, one by one.</li>
+          </ol>
+        </div>
+      </section>
+
+      <!-- Sticky card stack -->
+      <section class="cs-route" id="route">
+        <div class="cs-route__head" data-story-section>
+          <p class="cs-chapter" data-reveal-item><span>Chapter III</span> The window</p>
+          <h2 class="cs-h2" data-split-reveal>Four views you will have entirely to yourself.</h2>
+        </div>
+        <div class="cs-stack" data-sticky-stack>
+          {legs.map((leg, i) => (
+            <article class="cs-card" data-stack-card style={`--i:${i}`}>
+              <div class="cs-card__media">
+                <img src={leg.src} alt="" loading="lazy" />
+              </div>
+              <div class="cs-card__body">
+                <div class="cs-card__top">
+                  <span class="cs-card__n">{leg.n}</span>
+                  <span class="cs-card__time">{leg.time}</span>
+                </div>
+                <div>
+                  <p class="cs-card__place">{leg.place}</p>
+                  <h3 class="cs-card__title">{leg.title}</h3>
+                  <p class="cs-card__text">{leg.body}</p>
+                </div>
+                <p class="cs-card__side">{leg.side}</p>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer reveal -->
+    <footer class="cs-footer" id="arrival" data-parallax-section>
+      <div class="cs-footer__media" data-parallax-layer data-speed="-0.14">
+        <img src={img('dawn')} alt="" loading="lazy" />
+      </div>
+      <div class="cs-footer__shade" aria-hidden="true"></div>
+      <div class="cs-footer__inner" data-footer-parallax>
+        <p class="cs-chapter"><span>Arrival</span> 07:40 · Innsbruck Hbf</p>
+        <h2 class="cs-footer__title" data-split-reveal>You will miss it <em>already.</em></h2>
+        <div class="cs-fares" data-story-section>
+          <div class="cs-fare" data-reveal-item>
+            <p>Couchette</p><strong>€640</strong><span>Shared four-berth, linen and breakfast</span>
+          </div>
+          <div class="cs-fare" data-reveal-item>
+            <p>Private berth</p><strong>€1,180</strong><span>Single cabin, washbasin, dinner for one</span>
+          </div>
+          <div class="cs-fare cs-fare--hi" data-reveal-item>
+            <p>Vesper suite</p><strong>€2,450</strong><span>Double bed, shower, both dinners, the good window</span>
+          </div>
+        </div>
+        <div class="cs-footer__bottom">
+          <a href="#top" class="cs-btn">Check autumn departures</a>
+          <p>Vesper Line is a fictional sleeper service. Photography via Unsplash.</p>
+        </div>
+      </div>
+    </footer>
+
+    <div class="cs-hud" aria-hidden="true">
+      <span class="cs-hud__dot"></span>
+      <span class="cs-hud__time" data-hud-time>Day 1 · 18:40</span>
+      <span class="cs-hud__place" data-hud-place>Lisboa Sta. Apolónia</span>
+      <span class="cs-hud__track"><span class="cs-hud__fill" data-hud-fill></span></span>
+    </div>
+
+    <BackPill />
+
+    <style is:global>
+      :root {
+        --cs-ink: #0b0a09;
+        --cs-ink-2: #15130f;
+        --cs-paper: #f1ebe0;
+        --cs-mute: rgb(241 235 224 / 0.62);
+        --cs-faint: rgb(241 235 224 / 0.14);
+        --cs-lamp: #e9a55b;
+        --cs-serif: 'Bodoni Moda', 'Didot', Georgia, serif;
+        --cs-sans: 'Inter Tight', ui-sans-serif, system-ui, sans-serif;
+        --cs-gutter: clamp(20px, 4vw, 56px);
+      }
+      .cs-body {
+        margin: 0;
+        background: var(--cs-ink);
+        color: var(--cs-paper);
+        font-family: var(--cs-sans);
+        -webkit-font-smoothing: antialiased;
+        overflow-x: clip;
+      }
+      .cs-body img { display: block; width: 100%; height: 100%; object-fit: cover; }
+      .cs-body a { color: inherit; }
+      .cs-body :focus-visible { outline: 2px solid var(--cs-lamp); outline-offset: 3px; border-radius: 6px; }
+
+      .cs-eyebrow, .cs-chapter {
+        font-size: 11.5px; letter-spacing: 0.18em; text-transform: uppercase; font-weight: 500;
+        color: var(--cs-mute); margin: 0;
+      }
+      .cs-chapter span { color: var(--cs-lamp); margin-right: 0.9em; }
+
+      /* Preloader */
+      .cs-preloader { display: none; }
+      .cs-boarding .cs-preloader {
+        display: grid; place-items: center; position: fixed; inset: 0; z-index: 100;
+        background: #050504; padding: var(--cs-gutter);
+      }
+      .cs-boarding body { overflow: hidden; }
+      .cs-preloader__inner { width: min(420px, 100%); }
+      .cs-preloader__title { font-family: var(--cs-serif); font-size: clamp(40px, 6vw, 64px); margin: 14px 0 28px; line-height: 1; }
+      .cs-preloader__track { height: 1px; background: var(--cs-faint); overflow: hidden; }
+      .cs-preloader__bar { height: 100%; background: var(--cs-lamp); transform: scaleX(0); transform-origin: left; }
+      .cs-preloader__meta { display: flex; justify-content: space-between; margin: 14px 0 0; font-size: 12px; color: var(--cs-mute); font-variant-numeric: tabular-nums; }
+
+      /* Nav */
+      .cs-nav {
+        position: absolute; inset: 0 0 auto; z-index: 20;
+        display: flex; align-items: center; justify-content: space-between; gap: 16px;
+        padding: 22px var(--cs-gutter);
+      }
+      .cs-logo { display: inline-flex; align-items: center; gap: 10px; font-family: var(--cs-serif); font-size: 21px; text-decoration: none; letter-spacing: -0.01em; }
+      .cs-logo__mark { width: 16px; height: 16px; border-radius: 50%; box-shadow: inset -5px -2px 0 0 var(--cs-lamp); transform: rotate(-20deg); }
+      .cs-nav__links { display: flex; gap: 34px; font-size: 13.5px; }
+      .cs-nav__links a { text-decoration: none; color: var(--cs-mute); transition: color .3s; }
+      .cs-nav__links a:hover { color: var(--cs-paper); }
+      .cs-nav__actions { display: flex; align-items: center; gap: 10px; }
+      .cs-replay {
+        display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
+        font: 500 13px/1 var(--cs-sans); color: var(--cs-paper);
+        background: rgb(255 255 255 / 0.06); border: 1px solid var(--cs-faint);
+        padding: 10px 14px; border-radius: 999px; backdrop-filter: blur(10px);
+        transition: background .3s;
+      }
+      .cs-replay:hover { background: rgb(255 255 255 / 0.12); }
+      .cs-nav__cta {
+        font-size: 13px; font-weight: 500; text-decoration: none; color: var(--cs-ink) !important;
+        background: var(--cs-paper); padding: 11px 18px; border-radius: 999px;
+      }
+
+      /* Hero */
+      .cs-hero {
+        position: relative; min-height: 100svh; overflow: hidden; isolation: isolate;
+        display: flex; flex-direction: column; justify-content: flex-end;
+        padding: 120px var(--cs-gutter) clamp(36px, 6vh, 64px);
+      }
+      .cs-hero__media { position: absolute; inset: -12% 0 -12%; z-index: -2; }
+      .cs-hero__media img { object-position: 50% 40%; }
+      .cs-hero__shade {
+        position: absolute; inset: 0; z-index: -1;
+        background:
+          radial-gradient(80% 60% at 70% 20%, transparent, rgb(11 10 9 / 0.35)),
+          linear-gradient(180deg, rgb(11 10 9 / 0.55) 0%, rgb(11 10 9 / 0.05) 30%, rgb(11 10 9 / 0.35) 60%, var(--cs-ink) 100%);
+      }
+      .cs-hero__title {
+        font-family: var(--cs-serif); font-weight: 400;
+        font-size: clamp(54px, 10.4vw, 168px); line-height: 0.92; letter-spacing: -0.035em;
+        margin: 20px 0 0; max-width: 11ch;
+      }
+      .cs-hero__title em { color: var(--cs-lamp); font-style: italic; }
+      .cs-hero__row {
+        display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 32px;
+        margin-top: clamp(28px, 4.5vh, 48px); padding-top: 24px; border-top: 1px solid var(--cs-faint);
+        max-width: 1328px;
+      }
+      .cs-hero__lede { margin: 0; max-width: 46ch; font-size: clamp(15px, 1.15vw, 17px); line-height: 1.55; color: var(--cs-mute); }
+      .cs-board { display: flex; gap: clamp(20px, 3.4vw, 52px); margin: 0 clamp(0px, 12vw, 180px) 0 0; }
+      .cs-board div { display: grid; gap: 6px; }
+      .cs-board dt { font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--cs-mute); }
+      .cs-board dd { margin: 0; font-family: var(--cs-serif); font-size: clamp(26px, 2.6vw, 40px); line-height: 1; font-variant-numeric: lining-nums; }
+      .cs-board sup { font-family: var(--cs-sans); font-size: 11px; color: var(--cs-lamp); margin-left: 3px; vertical-align: top; }
+      .cs-cue {
+        position: absolute; right: var(--cs-gutter); top: 50%; transform: translateY(-50%) rotate(90deg); transform-origin: right center;
+        display: flex; align-items: center; gap: 12px; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; text-decoration: none; color: var(--cs-mute);
+      }
+      .cs-cue__line { width: 56px; height: 1px; background: var(--cs-faint); position: relative; overflow: hidden; }
+      .cs-cue__line::after { content: ''; position: absolute; inset: 0; background: var(--cs-lamp); animation: cs-cue 2.4s cubic-bezier(.65,0,.35,1) infinite; }
+      @keyframes cs-cue { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
+
+      /* Split text */
+      .split-word-mask { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: 0.08em; margin-bottom: -0.08em; }
+      .split-word { display: inline-block; will-change: transform, opacity, filter; }
+
+      /* Manifesto */
+      .cs-manifesto { padding: clamp(110px, 18vh, 200px) var(--cs-gutter); max-width: 1240px; margin: 0 auto; }
+      .cs-manifesto__text {
+        font-family: var(--cs-serif); font-size: clamp(30px, 4.4vw, 66px); line-height: 1.12; letter-spacing: -0.02em;
+        margin: 28px 0 0;
+      }
+      .cs-scrub-word { display: inline; }
+
+      /* Story */
+      .cs-story {
+        display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 0.95fr); gap: clamp(40px, 7vw, 120px); align-items: center;
+        padding: 0 var(--cs-gutter) clamp(120px, 18vh, 200px); max-width: 1328px; margin: 0 auto;
+      }
+      .cs-h2 { font-family: var(--cs-serif); font-weight: 400; font-size: clamp(38px, 5vw, 76px); line-height: 1; letter-spacing: -0.03em; margin: 22px 0 0; }
+      .cs-body-copy { font-size: 17px; line-height: 1.6; color: var(--cs-mute); max-width: 44ch; margin: 28px 0 0; }
+      .cs-facts { list-style: none; padding: 28px 0 0; margin: 40px 0 0; border-top: 1px solid var(--cs-faint); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+      .cs-facts strong { display: block; font-family: var(--cs-serif); font-weight: 400; font-size: clamp(30px, 3vw, 44px); line-height: 1; }
+      .cs-facts span { display: block; margin-top: 8px; font-size: 12.5px; color: var(--cs-mute); }
+      .cs-story__figure { margin: 0; }
+      .cs-story__figure > div { aspect-ratio: 4 / 5; overflow: hidden; border-radius: 4px; }
+      .cs-story__img img { transform: scale(1.18); }
+      .cs-story__figure figcaption { margin-top: 14px; font-size: 12px; color: var(--cs-mute); }
+
+      /* Night scene */
+      .cs-night { position: relative; height: 100svh; min-height: 620px; overflow: hidden; isolation: isolate; }
+      .cs-night__media { position: absolute; inset: 0; z-index: -2; }
+      .cs-night__dark { position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgb(5 6 14 / 0.94), rgb(9 9 20 / 0.82)); }
+      .cs-night__inner {
+        height: 100%; box-sizing: border-box; padding: clamp(80px, 12vh, 120px) var(--cs-gutter);
+        display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr); gap: clamp(32px, 6vw, 96px); align-items: end;
+        max-width: 1328px; margin: 0 auto;
+      }
+      .cs-night__time { font-family: var(--cs-serif); font-size: clamp(96px, 17vw, 260px); line-height: 0.85; letter-spacing: -0.05em; margin: 18px 0 0; font-variant-numeric: lining-nums tabular-nums; }
+      .cs-night__title { font-family: var(--cs-serif); font-weight: 400; font-size: clamp(26px, 2.8vw, 42px); line-height: 1.1; letter-spacing: -0.015em; margin: 22px 0 0; max-width: 18ch; }
+      .cs-night__log { list-style: none; margin: 0; padding: 0; display: grid; gap: 22px; }
+      .cs-night__log li { padding-top: 16px; border-top: 1px solid rgb(241 235 224 / 0.24); font-size: 15.5px; line-height: 1.55; color: rgb(241 235 224 / 0.86); text-shadow: 0 1px 18px rgb(0 0 0 / 0.4); }
+      .cs-night__log time { display: block; font-size: 11.5px; letter-spacing: 0.16em; color: var(--cs-lamp); margin-bottom: 6px; }
+
+      /* Route stack */
+      .cs-route { padding: clamp(120px, 18vh, 200px) var(--cs-gutter) 0; max-width: 1328px; margin: 0 auto; }
+      .cs-route__head { margin-bottom: clamp(48px, 8vh, 96px); }
+      .cs-route__head .cs-h2 { max-width: 14ch; }
+      .cs-stack { position: relative; padding-bottom: 14vh; }
+      .cs-card {
+        position: sticky; top: calc(12vh + var(--i) * 14px);
+        height: min(76vh, 720px); margin-bottom: 10vh;
+        display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+        background: var(--cs-ink-2); border: 1px solid var(--cs-faint); border-radius: 22px; overflow: hidden;
+        box-shadow: 0 -24px 60px rgb(0 0 0 / 0.45);
+        transform-origin: center top; will-change: transform, opacity;
+      }
+      .cs-card:last-child { margin-bottom: 0; }
+      .cs-card__media { overflow: hidden; }
+      .cs-card__body { display: flex; flex-direction: column; justify-content: space-between; gap: 24px; padding: clamp(24px, 3.2vw, 48px); }
+      .cs-card__top { display: flex; justify-content: space-between; font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--cs-mute); }
+      .cs-card__n { color: var(--cs-lamp); }
+      .cs-card__place { margin: 0; font-size: 13px; color: var(--cs-mute); }
+      .cs-card__title { font-family: var(--cs-serif); font-weight: 400; font-size: clamp(32px, 3.4vw, 54px); line-height: 1; letter-spacing: -0.025em; margin: 12px 0 0; }
+      .cs-card__text { margin: 20px 0 0; font-size: 16px; line-height: 1.6; color: var(--cs-mute); max-width: 40ch; }
+      .cs-card__side { margin: 0; padding-top: 18px; border-top: 1px solid var(--cs-faint); font-size: 12.5px; color: var(--cs-mute); }
+
+      /* Footer */
+      .cs-footer { position: relative; overflow: hidden; isolation: isolate; margin-top: clamp(100px, 16vh, 180px); }
+      .cs-footer__media { position: absolute; inset: -14% 0; z-index: -2; }
+      .cs-footer__shade { position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, var(--cs-ink) 0%, rgb(11 10 9 / 0.45) 35%, rgb(11 10 9 / 0.88) 100%); }
+      .cs-footer__inner { padding: clamp(140px, 24vh, 260px) var(--cs-gutter) 40px; max-width: 1328px; margin: 0 auto; }
+      .cs-footer__title { font-family: var(--cs-serif); font-weight: 400; font-size: clamp(52px, 9vw, 150px); line-height: 0.92; letter-spacing: -0.04em; margin: 24px 0 0; }
+      .cs-footer__title em { color: var(--cs-lamp); }
+      .cs-fares { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: clamp(48px, 8vh, 88px); }
+      .cs-fare { padding: 24px; border-radius: 16px; background: rgb(11 10 9 / 0.55); border: 1px solid var(--cs-faint); backdrop-filter: blur(14px); }
+      .cs-fare p { margin: 0; font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--cs-mute); }
+      .cs-fare strong { display: block; font-family: var(--cs-serif); font-weight: 400; font-size: 44px; margin: 14px 0 8px; }
+      .cs-fare span { font-size: 14px; color: var(--cs-mute); }
+      .cs-fare--hi { border-color: rgb(233 165 91 / 0.5); }
+      .cs-footer__bottom { display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap; margin-top: 56px; padding: 28px 0 96px; border-top: 1px solid var(--cs-faint); }
+      .cs-footer__bottom p { margin: 0; font-size: 12.5px; color: var(--cs-mute); }
+      .cs-btn { display: inline-block; padding: 15px 24px; border-radius: 999px; background: var(--cs-lamp); color: var(--cs-ink) !important; text-decoration: none; font-weight: 600; font-size: 14px; }
+
+      /* Journey HUD */
+      .cs-hud {
+        position: fixed; right: 16px; bottom: 16px; z-index: 30;
+        display: grid; grid-template-columns: auto 1fr; column-gap: 10px; row-gap: 8px; align-items: center;
+        padding: 12px 16px; border-radius: 14px; min-width: 200px;
+        background: rgb(11 10 9 / 0.66); border: 1px solid var(--cs-faint); backdrop-filter: blur(12px);
+        font-size: 12px; font-variant-numeric: tabular-nums;
+      }
+      .cs-hud__dot { width: 6px; height: 6px; border-radius: 50%; background: var(--cs-lamp); box-shadow: 0 0 10px var(--cs-lamp); }
+      .cs-hud__time { font-weight: 600; letter-spacing: 0.04em; }
+      .cs-hud__place { grid-column: 2; color: var(--cs-mute); margin-top: -4px; }
+      .cs-hud__track { grid-column: 1 / -1; height: 2px; background: var(--cs-faint); border-radius: 2px; overflow: hidden; }
+      .cs-hud__fill { display: block; height: 100%; background: var(--cs-lamp); transform-origin: left; transform: scaleX(0); }
+
+      @media (max-width: 900px) {
+        .cs-nav__links { display: none; }
+        .cs-hero__row { grid-template-columns: minmax(0, 1fr); }
+        .cs-board { margin: 0; }
+        .cs-cue { display: none; }
+        .cs-story { grid-template-columns: minmax(0, 1fr); }
+        .cs-night__inner { grid-template-columns: minmax(0, 1fr); align-content: end; }
+        .cs-card { grid-template-columns: minmax(0, 1fr); grid-template-rows: 38% minmax(0, 1fr); height: min(78svh, 680px); top: calc(9svh + var(--i) * 10px); }
+        .cs-card__body { gap: 14px; }
+        .cs-card__text { font-size: 15px; margin-top: 12px; }
+        .cs-fares { grid-template-columns: minmax(0, 1fr); }
+      }
+      @media (max-width: 520px) {
+        .cs-nav { padding-top: 16px; }
+        .cs-nav__cta { display: none; }
+        .cs-hero { padding-bottom: 96px; }
+        .cs-board dd { font-size: 26px; }
+        .cs-facts strong { font-size: 28px; }
+        .cs-night { height: auto; min-height: 100svh; }
+        .cs-card__title { font-size: 30px; }
+        .cs-hud { min-width: 0; padding: 10px 12px; }
+        .cs-hud__place { display: none; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .cs-cue__line::after { animation: none; }
+        .cs-story__img img { transform: none; }
+        .cs-night__dark { background: linear-gradient(180deg, rgb(5 6 14 / 0.7), rgb(9 9 20 / 0.35)); }
+      }
+    </style>
+
+    <script>
+      import Lenis from 'lenis';
+      import 'lenis/dist/lenis.css';
+      import { gsap } from 'gsap';
+      import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+      gsap.registerPlugin(ScrollTrigger);
+
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const html = document.documentElement;
+      let lenis: Lenis | null = null;
+      let nightST: ScrollTrigger | undefined;
+
+      if (!reduceMotion) {
+        lenis = new Lenis({ lerp: 0.08, smoothWheel: true, wheelMultiplier: 0.9 });
+        lenis.on('scroll', ScrollTrigger.update);
+        gsap.ticker.add((time) => lenis!.raf(time * 1000));
+        gsap.ticker.lagSmoothing(0);
+      }
+
+      // Split into masked words. Element children (e.g. <em>) stay intact as one unit.
+      function splitWords(el: HTMLElement, masked = true) {
+        if (el.dataset.splitReady === 'true') return el.querySelectorAll<HTMLElement>('.split-word');
+        el.setAttribute('aria-label', (el.textContent || '').replace(/\s+/g, ' ').trim());
+        const nodes = Array.from(el.childNodes);
+        el.textContent = '';
+        const wrap = (child: Node) => {
+          const word = document.createElement('span');
+          word.className = 'split-word';
+          word.appendChild(child);
+          if (!masked) {
+            word.setAttribute('aria-hidden', 'true');
+            el.appendChild(word);
+            return;
+          }
+          const mask = document.createElement('span');
+          mask.className = 'split-word-mask';
+          mask.setAttribute('aria-hidden', 'true');
+          mask.appendChild(word);
+          el.appendChild(mask);
+        };
+        nodes.forEach((node) => {
+          if (node.nodeType !== Node.TEXT_NODE) return wrap(node);
+          (node.textContent || '').split(/(\s+)/).forEach((part) => {
+            if (!part) return;
+            if (!part.trim()) el.appendChild(document.createTextNode(' '));
+            else wrap(document.createTextNode(part));
+          });
+        });
+        el.dataset.splitReady = 'true';
+        return el.querySelectorAll<HTMLElement>('.split-word');
+      }
+
+      // 1. Preloader → 2. hero entrance
+      function initPreloader(): Promise<void> {
+        const loader = document.querySelector<HTMLElement>('[data-preloader]');
+        if (!html.classList.contains('cs-boarding') || !loader) {
+          loader?.remove();
+          return Promise.resolve();
+        }
+        lenis?.stop();
+        const bar = loader.querySelector('[data-preloader-bar]');
+        const count = loader.querySelector('[data-preloader-count]')!;
+        const progress = { v: 0 };
+        return new Promise((resolve) => {
+          const done = () => {
+            loader.remove();
+            html.classList.remove('cs-boarding');
+            lenis?.start();
+            resolve();
+          };
+          const tl = gsap.timeline({ defaults: { ease: 'power3.out' }, onComplete: done });
+          tl.to(progress, { v: 100, duration: 1.1, ease: 'power2.inOut', onUpdate: () => (count.textContent = String(Math.round(progress.v)).padStart(2, '0')) })
+            .fromTo(bar, { scaleX: 0 }, { scaleX: 1, duration: 1.1, ease: 'power2.inOut' }, 0)
+            .to(loader, { yPercent: -100, duration: 0.9, ease: 'power4.inOut' }, '+=0.15');
+          // Never strand the visitor behind the loader.
+          setTimeout(() => tl.progress() < 1 && tl.progress(1), 4000);
+        });
+      }
+
+      const heroWords = splitWords(document.querySelector<HTMLElement>('[data-hero-title]')!);
+      const heroFades = document.querySelectorAll('[data-hero-fade]');
+      const heroImg = document.querySelector('.cs-hero__media img');
+
+      function heroEntrance() {
+        if (reduceMotion) return;
+        gsap.timeline({ defaults: { ease: 'power4.out' } })
+          .fromTo(heroImg, { scale: 1.14, filter: 'brightness(0.4)' }, { scale: 1, filter: 'brightness(1)', duration: 2.2, ease: 'power3.out' }, 0)
+          .fromTo(heroWords, { yPercent: 110, autoAlpha: 0, filter: 'blur(8px)' }, { yPercent: 0, autoAlpha: 1, filter: 'blur(0px)', duration: 1, stagger: 0.07 }, 0.15)
+          .fromTo(heroFades, { y: 28, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.9, stagger: 0.1, ease: 'power3.out' }, 0.55);
+      }
+
+      if (!reduceMotion) gsap.set(heroWords, { yPercent: 110, autoAlpha: 0 });
+
+      // Masked word reveals for headings further down: play once.
+      function initSplitReveals() {
+        gsap.utils.toArray<HTMLElement>('[data-split-reveal]').forEach((el) => {
+          const words = splitWords(el);
+          if (reduceMotion) return;
+          gsap.fromTo(words, { yPercent: 110, autoAlpha: 0, filter: 'blur(8px)' }, {
+            yPercent: 0, autoAlpha: 1, filter: 'blur(0px)', duration: 0.95, ease: 'power4.out', stagger: 0.05,
+            scrollTrigger: { trigger: el, start: 'top 82%', once: true },
+          });
+        });
+      }
+
+      // Kinetic manifesto: word opacity follows the scrollbar.
+      function initScrubWords() {
+        const el = document.querySelector<HTMLElement>('[data-scrub-words]');
+        if (!el || reduceMotion) return;
+        const words = splitWords(el, false);
+        gsap.fromTo(words, { opacity: 0.14 }, {
+          opacity: 1, ease: 'none', stagger: 0.05,
+          scrollTrigger: { trigger: el, start: 'top 78%', end: 'bottom 45%', scrub: 1 },
+        });
+      }
+
+      function initSectionReveals() {
+        if (reduceMotion) return;
+        gsap.utils.toArray<HTMLElement>('[data-story-section]').forEach((section) => {
+          const items = section.querySelectorAll('[data-reveal-item]');
+          if (!items.length) return;
+          gsap.fromTo(items, { y: 36, autoAlpha: 0, filter: 'blur(8px)' }, {
+            y: 0, autoAlpha: 1, filter: 'blur(0px)', duration: 1, ease: 'power4.out', stagger: 0.08,
+            scrollTrigger: { trigger: section, start: 'top 82%', once: true },
+          });
+        });
+        // Clip reveal for the departure photograph, plus a small inner drift.
+        gsap.utils.toArray<HTMLElement>('[data-clip-reveal]').forEach((fig) => {
+          const frame = fig.firstElementChild;
+          gsap.fromTo(frame, { clipPath: 'inset(100% 0% 0% 0%)' }, {
+            clipPath: 'inset(0% 0% 0% 0%)', duration: 1.2, ease: 'power4.out',
+            scrollTrigger: { trigger: fig, start: 'top 80%', once: true },
+          });
+          gsap.fromTo(fig.querySelector('img'), { yPercent: -8 }, {
+            yPercent: 8, ease: 'none',
+            scrollTrigger: { trigger: fig, start: 'top bottom', end: 'bottom top', scrub: 1 },
+          });
+        });
+      }
+
+      // Pinned night → dawn scene, desktop only; mobile scrubs without pinning.
+      function initProgressionScenes() {
+        if (reduceMotion) return;
+        const scene = document.querySelector<HTMLElement>('[data-progress-scene]');
+        if (!scene) return;
+        const media = scene.querySelector('[data-progress-media]');
+        const dark = scene.querySelector('[data-progress-dark]');
+        const copy = scene.querySelectorAll('[data-progress-copy]');
+        const clock = scene.querySelector('[data-progress-clock]')!;
+        const t = { m: 4 * 60 + 10 };
+        const fmt = (m: number) => `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(Math.floor(m % 60)).padStart(2, '0')}`;
+        const build = (pin: boolean) => {
+          const tl = gsap.timeline({
+            defaults: { ease: 'none' },
+            scrollTrigger: pin
+              ? { trigger: scene, start: 'top top', end: '+=140%', scrub: 1.1, pin: true, anticipatePin: 1 }
+              : { trigger: scene, start: 'top 70%', end: 'bottom 40%', scrub: 1 },
+          });
+          tl.fromTo(media, { scale: 1.12 }, { scale: 1, duration: 1 }, 0)
+            .fromTo(dark, { opacity: 1 }, { opacity: 0.18, duration: 1 }, 0)
+            .fromTo(t, { m: 4 * 60 + 10 }, { m: 7 * 60 + 12, duration: 1, onUpdate: () => (clock.textContent = fmt(t.m)) }, 0)
+            .fromTo(copy, { autoAlpha: 0, y: 40 }, { autoAlpha: 1, y: 0, stagger: 0.22, duration: 0.3 }, 0.15);
+          nightST = tl.scrollTrigger;
+          return () => { clock.textContent = '04:10'; };
+        };
+        gsap.matchMedia()
+          .add('(min-width: 901px)', () => build(true))
+          .add('(max-width: 900px)', () => build(false));
+      }
+
+      function initStickyCardStack() {
+        if (reduceMotion) return;
+        const cards = gsap.utils.toArray<HTMLElement>('[data-stack-card]');
+        cards.forEach((card, index) => {
+          const nextCard = cards[index + 1];
+          const img = card.querySelector('img');
+          gsap.fromTo(img, { scale: 1.15 }, {
+            scale: 1, ease: 'none',
+            scrollTrigger: { trigger: card, start: 'top bottom', end: 'top 20%', scrub: 1 },
+          });
+          if (!nextCard) return;
+          gsap.to(card, {
+            // ponytail: brightness instead of the skill's autoAlpha 0.72, so the card underneath never shows through.
+            scale: 0.92 + index * 0.015, filter: 'brightness(0.5)', y: -24, ease: 'none',
+            scrollTrigger: { trigger: nextCard, start: 'top 78%', end: 'top 24%', scrub: true, invalidateOnRefresh: true },
+          });
+        });
+      }
+
+      function initParallax() {
+        if (reduceMotion) return;
+        gsap.utils.toArray<HTMLElement>('[data-parallax-layer]').forEach((layer) => {
+          const speed = Number(layer.dataset.speed || -0.16);
+          const section = layer.closest('[data-parallax-section]') || layer;
+          gsap.to(layer, {
+            y: () => window.innerHeight * speed, ease: 'none',
+            scrollTrigger: {
+              trigger: section, start: section.classList.contains('cs-hero') ? 'top top' : 'top bottom', end: 'bottom top',
+              scrub: 1, invalidateOnRefresh: true,
+            },
+          });
+        });
+      }
+
+      function initFooterReveal() {
+        if (reduceMotion) return;
+        const footer = document.querySelector('[data-footer-parallax]');
+        if (!footer) return;
+        gsap.fromTo(footer, { yPercent: -12, autoAlpha: 0.85 }, {
+          yPercent: 0, autoAlpha: 1, ease: 'none',
+          scrollTrigger: { trigger: '.cs-footer', start: 'top bottom', end: 'top 45%', scrub: 1 },
+        });
+      }
+
+      // Journey HUD: the whole page is the 37-hour trip. Anchors keep it in step with the
+      // night-scene clock and the times printed on each card; linear in between.
+      function initJourney() {
+        const time = document.querySelector('[data-hud-time]')!;
+        const place = document.querySelector('[data-hud-place]')!;
+        const fill = document.querySelector<HTMLElement>('[data-hud-fill]')!;
+        const stations = ['Lisboa Sta. Apolónia', 'Salamanca', 'Vitoria-Gasteiz', 'Bordeaux St-Jean', 'Lyon Part-Dieu', 'Genève Cornavin', 'Zürich HB', 'Innsbruck Hbf'];
+        const hm = (day: number, h: number, m: number) => (day - 1) * 1440 + h * 60 + m;
+        const START = hm(1, 18, 40);
+        const END = hm(3, 7, 40);
+        let anchors: [number, number][] = [[0, START], [1, END]];
+
+        const measure = () => {
+          const vh = window.innerHeight;
+          const max = ScrollTrigger.maxScroll(window);
+          const scene = document.querySelector<HTMLElement>('[data-progress-scene]')!;
+          const sceneTop = scene.getBoundingClientRect().top + window.scrollY;
+          const night: [number, number][] = nightST
+            ? [[nightST.start, hm(2, 4, 10)], [nightST.end, hm(2, 7, 12)]]
+            : [[sceneTop, hm(2, 4, 10)], [sceneTop + vh, hm(2, 7, 12)]];
+          // Sticky cards report their stuck position, so derive the natural one from the stack.
+          const stack = document.querySelector<HTMLElement>('[data-sticky-stack]')!;
+          const stackTop = stack.getBoundingClientRect().top + window.scrollY;
+          const cardTimes = [hm(2, 9, 15), hm(2, 12, 50), hm(2, 16, 40), hm(3, 6, 20)];
+          let y = stackTop;
+          const cards = gsap.utils.toArray<HTMLElement>('[data-stack-card]').map((card, i): [number, number] => {
+            const at = y - parseFloat(getComputedStyle(card).top) + vh * 0.2;
+            y += card.offsetHeight + parseFloat(getComputedStyle(card).marginBottom);
+            return [at, cardTimes[i]];
+          });
+          anchors = [[0, START], ...night, ...cards, [max, END]]
+            .map(([pos, m]) => [Math.min(pos, max), m] as [number, number])
+            .filter(([pos], i, all) => i === 0 || pos > all[i - 1][0]);
+        };
+
+        const render = (scroll: number) => {
+          let m = END;
+          for (let i = 1; i < anchors.length; i++) {
+            const [p0, m0] = anchors[i - 1];
+            const [p1, m1] = anchors[i];
+            if (scroll <= p1) {
+              m = m0 + (m1 - m0) * Math.max(0, (scroll - p0) / (p1 - p0));
+              break;
+            }
+          }
+          m = Math.round(m);
+          const progress = (m - START) / (END - START);
+          const hh = String(Math.floor((m % 1440) / 60)).padStart(2, '0');
+          const mm = String(m % 60).padStart(2, '0');
+          time.textContent = `Day ${Math.floor(m / 1440) + 1} · ${hh}:${mm}`;
+          place.textContent = stations[Math.min(stations.length - 1, Math.floor(progress * (stations.length - 1) + 0.15))];
+          fill.style.transform = `scaleX(${progress})`;
+        };
+
+        ScrollTrigger.addEventListener('refresh', () => {
+          measure();
+          render(window.scrollY);
+        });
+        ScrollTrigger.create({ start: 0, end: 'max', onUpdate: (self) => render(self.scroll()) });
+      }
+
+      document.querySelector('[data-replay]')!.addEventListener('click', () => {
+        if (lenis) lenis.scrollTo(0, { immediate: true });
+        else window.scrollTo(0, 0);
+        heroEntrance();
+      });
+
+      initSplitReveals();
+      initScrubWords();
+      initSectionReveals();
+      initProgressionScenes();
+      initStickyCardStack();
+      initParallax();
+      initFooterReveal();
+      initJourney();
+
+      initPreloader().then(heroEntrance);
+      window.addEventListener('load', () => ScrollTrigger.refresh());
+      document.fonts?.ready.then(() => ScrollTrigger.refresh());
+    </script>
+  </body>
+</html>

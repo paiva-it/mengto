@@ -1,0 +1,7 @@
+{
+  "title": "Cinematic Scroll Storytelling",
+  "kind": "website",
+  "category": "Motion & scroll",
+  "concept": "Vesper Line, a fictional Lisbon-to-Innsbruck sleeper train, told as one 37-hour journey: boarding preloader, parallax night-sky hero with masked headline, scroll-scrubbed manifesto, a pinned night-to-dawn scene with a running clock, a sticky stack of window views and a parallax arrival footer.",
+  "notes": "GSAP ScrollTrigger + Lenis (installed). A fixed journey HUD maps total scroll to the trip clock. The preloader is skipped under ?shot and prefers-reduced-motion; the night scene pins only above 900px. Photography from Unsplash, stored locally."
+}

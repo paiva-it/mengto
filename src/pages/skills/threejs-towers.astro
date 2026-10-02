@@ -1,0 +1,187 @@
+---
+import '../../styles/global.css';
+import BackPill from '../../components/BackPill.astro';
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Ardra Lights — Construction Studies</title>
+    <meta name="description" content="Three procedural lighthouses, each assembled behind a rising clipping plane with its scaffolding one lift ahead." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <main id="tw" data-light="rock">
+      <canvas id="tw-canvas" aria-label="A lighthouse assembling course by course, drag to walk around it"></canvas>
+
+      <header class="bar">
+        <a class="brand" href="#tw" aria-label="Ardra Lights">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 21h4l-.6-11h-2.8z M9.2 9h5.6v-2.2a2.8 2.8 0 0 0-5.6 0z M2 6l6 1.4 M22 6l-6 1.4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"></path></svg>
+          <span>Ardra Lights</span>
+          <em>Construction studies</em>
+        </a>
+        <nav class="ctrl" aria-label="Study controls">
+          <button id="b-light" type="button"><span class="lbl-light">Light /</span> <b id="b-light-v">Ardra Rock</b></button>
+          <button id="b-scaf" type="button" aria-pressed="true"><span>Scaffold /</span> <b id="b-scaf-v">On</b></button>
+          <button id="b-sound" type="button" aria-pressed="false"><span>Sound /</span> <b id="b-sound-v">Off</b></button>
+          <button id="b-rebuild" type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M13 8a5 5 0 1 1-1.6-3.7M13 2.5v2.8h-2.8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"></path></svg> Rebuild</button>
+        </nav>
+      </header>
+
+      <section class="note">
+        <p class="eyebrow">Ardra Light Commission · 1838–1872</p>
+        <h1>Three lights, <i>one kit of parts.</i></h1>
+        <p class="lede">
+          Every light on this coast is drawn from the same builders — face, box, prism, lathe, ring, roof. The whole
+          tower exists from the first frame; one plane rises through it, so everything below the line is finished
+          masonry and the scaffolding stands a lift ahead. Drag to walk around it. Scrub to stop anywhere in the build.
+        </p>
+      </section>
+
+      <aside class="card" aria-live="polite">
+        <p class="card-no"><span id="i-no">Nº 1</span> <span id="i-name">Ardra Rock</span></p>
+        <p class="card-built" id="i-built">Dovetailed granite · 1847</p>
+        <dl>
+          <div><dt>Focal plane</dt><dd id="i-focal">48 m</dd></div>
+          <div><dt>Range</dt><dd id="i-range">23 nmi</dd></div>
+          <div><dt>Character</dt><dd id="i-char">Fl W 5s</dd></div>
+        </dl>
+      </aside>
+
+      <div id="tw-stage" class="plaque" aria-hidden="true">Ready</div>
+      <div id="tw-pct" class="pct" aria-hidden="true">0<i>%</i></div>
+
+      <footer class="foot">
+        <label for="tw-scrub">Build</label>
+        <input id="tw-scrub" type="range" min="0" max="1000" step="1" value="0" />
+        <span class="time" id="tw-time">0.00 / 4.60 s</span>
+        <span class="calls"><span id="tw-calls">0</span> draw calls</span>
+      </footer>
+      <BackPill />
+    </main>
+
+    <script>
+      import { mount } from '../../components/skills/threejs-towers/stage.js';
+      const root = document.getElementById('tw');
+      if (root) mount(root);
+    </script>
+
+    <style>
+      :global(html), :global(body) { height: 100%; }
+      :global(body) { margin: 0; background: #0f1721; overflow: hidden; }
+      #tw {
+        --ink: #efe7d8; --muted: rgb(239 231 216 / 0.62); --hair: rgb(239 231 216 / 0.2);
+        --accent: #f2b46b; --sans: 'IBM Plex Sans Condensed', ui-sans-serif, system-ui, sans-serif;
+        --serif: 'Newsreader', Georgia, serif;
+        position: fixed; inset: 0; overflow: hidden; color: var(--ink); font-family: var(--sans);
+        -webkit-font-smoothing: antialiased;
+        background:
+          radial-gradient(70% 34% at 50% 60%, rgb(222 146 98 / 0.5), transparent 70%),
+          linear-gradient(180deg, #0b121b 0%, #162231 30%, #2f3b4d 50%, #6b6168 60%, #3b4352 72%, #1b2633 100%);
+      }
+      #tw[data-light='iron'] { --accent: #ff8a6b; }
+      #tw[data-light='harbour'] { --accent: #8ff0b8; }
+      #tw-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: grab; touch-action: none; }
+      #tw-canvas:global(.drag) { cursor: grabbing; }
+
+      .bar {
+        position: absolute; inset: 0 0 auto; display: flex; align-items: center; gap: 24px;
+        height: 60px; padding: 0 32px; border-bottom: 1px solid var(--hair);
+      }
+      .brand { display: flex; align-items: center; gap: 10px; color: var(--ink); text-decoration: none; }
+      .brand svg { width: 22px; height: 22px; color: var(--accent); transition: color 0.6s; }
+      .brand span { font-weight: 700; font-size: 15px; letter-spacing: 0.24em; text-transform: uppercase; }
+      .brand em { font-style: normal; font-size: 12px; color: var(--muted); letter-spacing: 0.06em; padding-left: 12px; border-left: 1px solid var(--hair); }
+      .ctrl { margin-left: auto; display: flex; gap: 26px; }
+      .ctrl button {
+        font: 600 11.5px/1 var(--sans); letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink);
+        background: none; border: 0; padding: 0 0 7px; border-bottom: 1px solid var(--hair); cursor: pointer;
+        white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; transition: color 0.2s, border-color 0.2s;
+      }
+      .ctrl button span { color: var(--muted); }
+      .ctrl button b { font-weight: 700; }
+      .ctrl button svg { width: 13px; height: 13px; }
+      .ctrl button:hover, .ctrl button:focus-visible { color: var(--accent); border-color: var(--accent); outline: none; }
+
+      .note { position: absolute; left: 32px; top: 96px; max-width: 360px; pointer-events: none; }
+      .eyebrow { margin: 0 0 14px; font-size: 11.5px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent); transition: color 0.6s; }
+      h1 { margin: 0 0 16px; font: 400 40px/1.02 var(--serif); letter-spacing: -0.01em; }
+      h1 i { color: var(--muted); }
+      .lede { margin: 0; font: 400 15.5px/1.6 var(--serif); color: rgb(239 231 216 / 0.82); }
+
+      .card {
+        position: absolute; left: 32px; bottom: 96px; width: 270px; padding: 18px 20px 6px;
+        border: 1px solid var(--hair); background: rgb(12 19 28 / 0.42); backdrop-filter: blur(10px);
+      }
+      .card p { margin: 0; }
+      .card-no { font: 400 26px/1.1 var(--serif); }
+      .card-no #i-no { font: 700 12px/1 var(--sans); letter-spacing: 0.14em; color: var(--accent); vertical-align: 0.45em; margin-right: 6px; transition: color 0.6s; }
+      .card-built { margin-top: 6px !important; font-size: 12.5px; color: var(--muted); letter-spacing: 0.03em; }
+      dl { margin: 14px 0 0; }
+      dl div { display: flex; justify-content: space-between; padding: 9px 0; border-top: 1px solid var(--hair); font-size: 12.5px; }
+      dt { color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; font-size: 11px; }
+      dd { margin: 0; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+      .plaque {
+        position: absolute; left: 0; top: 0; pointer-events: none; white-space: nowrap;
+        padding: 7px 13px 6px; background: #f4ecdc; color: #1c2430; border: 1px solid rgb(0 0 0 / 0.12);
+        font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+        box-shadow: 0 6px 18px rgb(0 0 0 / 0.3); will-change: transform;
+      }
+      .pct {
+        position: absolute; right: 32px; bottom: 92px; pointer-events: none;
+        font: 700 148px/0.76 var(--sans); letter-spacing: -0.05em; font-variant-numeric: tabular-nums;
+        color: rgb(239 231 216 / 0.9); transition: opacity 0.8s ease;
+      }
+      .pct i { font-style: normal; font-size: 42px; letter-spacing: 0; margin-left: 6px; color: var(--muted); }
+      #tw:global(.is-done) .pct { opacity: 0.16; }
+
+      .foot {
+        position: absolute; inset: auto 0 0; height: 62px; display: flex; align-items: center; gap: 18px;
+        padding: 0 32px 0 150px; border-top: 1px solid var(--hair);
+      }
+      .foot label { font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+      .foot input { flex: 1 1 auto; min-width: 0; appearance: none; height: 18px; background: transparent; cursor: pointer; }
+      .foot input::-webkit-slider-runnable-track { height: 2px; background: var(--hair); }
+      .foot input::-moz-range-track { height: 2px; background: var(--hair); }
+      .foot input::-webkit-slider-thumb { appearance: none; width: 14px; height: 14px; margin-top: -6px; border-radius: 50%; background: var(--ink); border: 3px solid #172331; }
+      .foot input::-moz-range-thumb { width: 10px; height: 10px; border-radius: 50%; background: var(--ink); border: 3px solid #172331; }
+      .foot input:focus-visible { outline: 1px solid var(--accent); outline-offset: 4px; }
+      .time, .calls { font-size: 11.5px; font-weight: 600; letter-spacing: 0.06em; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+      .calls { padding-left: 18px; border-left: 1px solid var(--hair); }
+
+      @media (max-width: 900px) {
+        .brand em, .ctrl .lbl-light { display: none; }
+        .ctrl { gap: 16px; }
+        .lede { display: none; }
+        h1 { font-size: 30px; }
+      }
+      @media (max-width: 640px) {
+        .bar { flex-wrap: wrap; height: auto; padding: 14px 16px 12px; row-gap: 14px; }
+        .ctrl { margin-left: 0; width: 100%; justify-content: space-between; gap: 8px; }
+        .ctrl button { font-size: 10.5px; letter-spacing: 0.1em; }
+        .note { left: 16px; right: 16px; top: 104px; }
+        .eyebrow { margin-bottom: 8px; font-size: 10.5px; }
+        h1 { font-size: 26px; }
+        .card { left: 16px; bottom: 76px; width: auto; max-width: 196px; padding: 12px 14px 2px; }
+        .card-no { font-size: 20px; }
+        .card-built { font-size: 11.5px; }
+        dl { margin-top: 8px; }
+        dl div { padding: 6px 0; font-size: 11.5px; gap: 12px; }
+        dl div:nth-child(2) { display: none; }
+        .pct { right: 16px; bottom: 82px; font-size: 76px; }
+        .pct i { font-size: 24px; }
+        .foot { height: 56px; padding: 0 16px 0 132px; gap: 12px; }
+        .foot label, .calls { display: none; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .pct, .brand svg, .eyebrow { transition: none; }
+      }
+    </style>
+  </body>
+</html>

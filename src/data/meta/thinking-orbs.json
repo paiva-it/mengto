@@ -1,0 +1,7 @@
+{
+  "title": "Thinking Orbs",
+  "kind": "section",
+  "category": "Components",
+  "concept": "Halyard, a passage-planning assistant for small-boat sailors, whose live planning console maps each real phase (voice brief, tide lookup, window planning, route drawing, brief writing) to one of the six thinking-orb states, with a light chartroom view that shows theme=\"auto\" flipping the ink.",
+  "notes": "React islands using the installed thinking-orbs 0.3.2 package. Sticks to the skill's six documented states and the tuned 20/64 sizes, monochrome (no color prop). Orbs are aria-hidden next to role=status text; the orb is removed when the brief is ready; reduced motion is handled by the library's static frame."
+}

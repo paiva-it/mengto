@@ -1,0 +1,7 @@
+{
+  "title": "Landing Page",
+  "kind": "website",
+  "category": "Page types",
+  "concept": "A single-offer landing page for Mise, a fictional plate-costing tool for independent restaurants: one primary CTA (30-day free trial), a hero where a fish invoice arrives and re-costs a dish live, then problem → benefits → how it works → case study → FAQ → risk-reversal final CTA.",
+  "notes": "Layout A (classic hero + sections). Indexed evergreen page: title/meta set and FAQ rendered as plain Q/A with FAQPage JSON-LD. Hero card has a 'Replay invoice' button; reduced motion shows the final state without tweening."
+}

@@ -1,0 +1,7 @@
+{
+  "title": "Marquee Loop",
+  "kind": "section",
+  "category": "Effects & details",
+  "concept": "Nocturne, a fictional European sleeper-train operator: a framed night-palette hero stacking three seamless CSS loops — a departures ticker, fixed-width route cards that pause on hover/focus, and reversed passenger notes — over a still, readable timetable.",
+  "notes": "Pure CSS marquees (duplicated groups, translate 0 → -50%, edge masks); reduced motion swaps to a static wrap. Images are the skill's demo assets, duotone-graded to the night palette."
+}

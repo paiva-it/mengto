@@ -1,0 +1,536 @@
+---
+import '../../styles/global.css';
+import BackPill from '../../components/BackPill.astro';
+
+const img = (f: string) => `/skills/marquee-loop/${f}`;
+
+// Departures ticker — short, scannable, duplicated for the loop.
+const departures = [
+  { t: '21:28', r: 'Wien Hbf → Venezia S. Lucia', s: 'On time' },
+  { t: '22:04', r: 'Berlin Hbf → Stockholm C', s: 'Boarding' },
+  { t: '20:51', r: 'Zürich HB → Praha hl.n.', s: 'Platform 11' },
+  { t: '23:10', r: 'Paris Est → Berlin Hbf', s: 'On time' },
+  { t: '19:46', r: 'Hamburg Hbf → Narvik', s: '+4 min' },
+  { t: '21:55', r: 'Bruxelles-Midi → Bolzano', s: 'On time' },
+];
+
+// Route cards — every card shares one fixed width so the loop never jumps.
+type Card =
+  | { kind: 'photo'; src: string; pos: string; from: string; to: string; time: string; note: string }
+  | { kind: 'ticket' }
+  | { kind: 'stat' };
+const cards: Card[] = [
+  { kind: 'photo', src: img('alps.jpg'), pos: '50% 35%', from: 'Wien', to: 'Venezia', time: '10 h 40', note: 'Over the Semmering in the dark' },
+  { kind: 'ticket' },
+  { kind: 'photo', src: img('lake.jpg'), pos: '45% 60%', from: 'Berlin', to: 'Stockholm', time: '15 h 05', note: 'The train that boards a ferry' },
+  { kind: 'stat' },
+  { kind: 'photo', src: img('arctic.jpg'), pos: '60% 50%', from: 'Hamburg', to: 'Narvik', time: '22 h 15', note: 'North of the circle by breakfast' },
+  { kind: 'photo', src: img('alps.jpg'), pos: '50% 88%', from: 'Bruxelles', to: 'Bolzano', time: '13 h 20', note: 'Dolomites at the window, 06:40' },
+];
+
+const quotes = [
+  { p: img('p1.jpg'), q: 'Fell asleep in Austria, woke up to the lagoon.', n: 'Jonas, Graz' },
+  { p: img('p2.jpg'), q: 'Smaller than my bathtub. Slept better than at home.', n: 'Ana, Lisboa' },
+  { p: img('p3.jpg'), q: 'Breakfast over a fjord beats any airport lounge.', n: 'Mirelle, Lyon' },
+  { p: img('p4.jpg'), q: 'The kids still talk about the ferry carriage.', n: 'Tomás, Madrid' },
+];
+
+const tonight = [
+  ['21:28', 'Wien Hbf', 'Venezia S. Lucia', '07:58', 'Couchette · Sleeper · Suite', '6 berths left'],
+  ['22:04', 'Berlin Hbf', 'Stockholm C', '13:09', 'Sleeper · Family cabin', '2 cabins left'],
+  ['20:51', 'Zürich HB', 'Praha hl.n.', '09:12', 'Couchette · Sleeper', 'Available'],
+  ['23:10', 'Paris Est', 'Berlin Hbf', '09:49', 'Seat · Sleeper · Suite', 'Available'],
+  ['19:46', 'Hamburg Hbf', 'Narvik', '18:01 +1', 'Sleeper · Suite', 'Waitlist'],
+  ['21:55', 'Bruxelles-Midi', 'Bolzano', '11:15', 'Couchette · Sleeper', '11 berths left'],
+];
+
+const words = ['Board at dusk', 'Sleep across borders', 'Wake somewhere new', 'Breakfast at the window'];
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Nocturne — sleeper trains across Europe</title>
+    <meta name="description" content="Nocturne runs night trains between twelve European cities. Board at dusk, wake somewhere new." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <main>
+      <!-- ============ HERO: three loops in one frame ============ -->
+      <section class="frame" aria-labelledby="hero-title">
+        <span class="tick tl"></span><span class="tick tr"></span><span class="tick bl"></span><span class="tick br"></span>
+
+        <nav class="topbar" aria-label="Primary">
+          <a class="brand" href="#">
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"
+              ><path d="M15.5 3a9 9 0 1 0 5.5 15.9A8 8 0 0 1 15.5 3Z" fill="currentColor"></path></svg
+            >
+            Nocturne
+          </a>
+          <ul>
+            <li><a href="#tonight">Tonight</a></li>
+            <li><a href="#cabins">Cabins</a></li>
+            <li><a href="#tonight" class="pill">Book a berth</a></li>
+          </ul>
+        </nav>
+
+        <!-- Loop 1: departures ticker -->
+        <div class="marquee ticker" style="--dur: 48s" aria-label="Tonight's departures">
+          <div class="track">
+            {
+              [0, 1].map((copy) => (
+                <ul class="group" aria-hidden={copy === 1 ? 'true' : undefined}>
+                  {departures.map((d) => (
+                    <li class="dep">
+                      <span class="dep-t">{d.t}</span>
+                      <span class="dep-r">{d.r}</span>
+                      <span class:list={['dep-s', d.s.startsWith('+') && 'late']}>{d.s}</span>
+                    </li>
+                  ))}
+                </ul>
+              ))
+            }
+          </div>
+        </div>
+
+        <div class="hero">
+          <p class="eyebrow"><span class="dot"></span> 12 cities · 9 night lines · every evening</p>
+          <h1 id="hero-title">Fall asleep in one country.<br /><em>Wake up in another.</em></h1>
+          <div class="hero-side">
+            <p>
+              Nocturne runs sleeper trains between Europe's late-night stations. A locking cabin, fresh linen, a reading
+              lamp — and the border crossed while you dream.
+            </p>
+            <a href="#tonight" class="cta">See tonight's trains <span aria-hidden="true">→</span></a>
+          </div>
+        </div>
+
+        <!-- Loop 2: route cards (pauses on hover/focus — the cards are links) -->
+        <div class="marquee routes" style="--dur: 60s" aria-label="Routes">
+          <div class="track">
+            {
+              [0, 1].map((copy) => (
+                <ul class="group" aria-hidden={copy === 1 ? 'true' : undefined}>
+                  {cards.map((c) => (
+                    <li class="card-slot">
+                      {c.kind === 'photo' && (
+                        <a class="card photo" href="#tonight" tabindex={copy === 1 ? -1 : undefined}>
+                          <img src={c.src} alt="" loading="eager" decoding="async" style={`object-position:${c.pos}`} />
+                          <span class="photo-shade" />
+                          <span class="photo-top">
+                            <span class="chip">{c.time}</span>
+                          </span>
+                          <span class="photo-body">
+                            <span class="route">
+                              {c.from} <span class="arrow">→</span> {c.to}
+                            </span>
+                            <span class="note">{c.note}</span>
+                          </span>
+                        </a>
+                      )}
+                      {c.kind === 'ticket' && (
+                        <div class="card ticket">
+                          <div class="ticket-head">
+                            <span>Boarding pass</span>
+                            <span>NR 471</span>
+                          </div>
+                          <div class="ticket-route">
+                            <div>
+                              <b>WIE</b>
+                              <small>21:28</small>
+                            </div>
+                            <svg viewBox="0 0 80 12" aria-hidden="true">
+                              <path d="M0 6h80" stroke="currentColor" stroke-dasharray="3 4" />
+                              <circle cx="40" cy="6" r="4" fill="currentColor" />
+                            </svg>
+                            <div>
+                              <b>VCE</b>
+                              <small>07:58</small>
+                            </div>
+                          </div>
+                          <dl class="ticket-grid">
+                            <div><dt>Car</dt><dd>07</dd></div>
+                            <div><dt>Cabin</dt><dd>3</dd></div>
+                            <div><dt>Berth</dt><dd>B · lower</dd></div>
+                            <div><dt>Breakfast</dt><dd>06:40</dd></div>
+                          </dl>
+                          <div class="ticket-perf" />
+                          <div class="barcode" aria-hidden="true" />
+                        </div>
+                      )}
+                      {c.kind === 'stat' && (
+                        <div class="card stat">
+                          <span class="stat-label">Wien → Venezia, per traveller</span>
+                          <div class="stat-num">
+                            11<span>kg CO₂</span>
+                          </div>
+                          <div class="bars" aria-hidden="true">
+                            <span style="--w: 11%">Nocturne</span>
+                            <span style="--w: 100%">Flight + transfers · 98 kg</span>
+                          </div>
+                          <p>And no 05:00 alarm for a gate that closes at 06:10.</p>
+                        </div>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              ))
+            }
+          </div>
+        </div>
+
+        <!-- Loop 3: passenger notes, reversed direction -->
+        <div class="marquee quotes reverse" style="--dur: 52s" aria-label="Passenger notes">
+          <div class="track">
+            {
+              [0, 1].map((copy) => (
+                <ul class="group" aria-hidden={copy === 1 ? 'true' : undefined}>
+                  {quotes.map((q) => (
+                    <li class="quote">
+                      <img src={q.p} alt="" width="32" height="32" />
+                      <span>“{q.q}”</span>
+                      <small>{q.n}</small>
+                    </li>
+                  ))}
+                </ul>
+              ))
+            }
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ TONIGHT: static, readable — no motion on the data you must read ============ -->
+      <section id="tonight" class="block" aria-labelledby="tonight-title">
+        <div class="block-head">
+          <p class="eyebrow"><span class="dot"></span> Thursday 2 October</p>
+          <h2 id="tonight-title">Tonight across the network</h2>
+          <p class="muted">Timetables stay still. Read them at your own pace — the trains will wait until 21:28.</p>
+        </div>
+        <div class="table-wrap" role="region" aria-label="Tonight's timetable" tabindex="0">
+          <table>
+            <thead>
+              <tr><th>Departs</th><th>From</th><th>To</th><th>Arrives</th><th>Classes</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+              {
+                tonight.map((r) => (
+                  <tr>
+                    <td class="mono">{r[0]}</td>
+                    <td>{r[1]}</td>
+                    <td>{r[2]}</td>
+                    <td class="mono">{r[3]}</td>
+                    <td class="muted">{r[4]}</td>
+                    <td>
+                      <span class:list={['status', r[5] === 'Waitlist' && 'wait']}>{r[5]}</span>
+                    </td>
+                  </tr>
+                ))
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="cabins" class="block" aria-labelledby="cabins-title">
+        <div class="block-head">
+          <p class="eyebrow"><span class="dot"></span> Three ways to sleep</p>
+          <h2 id="cabins-title">Pick a berth, not a seat.</h2>
+        </div>
+        <div class="cabins">
+          <article>
+            <span class="price">from €59</span>
+            <h3>Couchette</h3>
+            <p>Six berths, a shared compartment and the honest camaraderie of a night train. Pillow, duvet and earplugs included.</p>
+          </article>
+          <article class="featured">
+            <span class="price">from €129</span>
+            <h3>Sleeper</h3>
+            <p>A private cabin for one to three with a washbasin, a key card and breakfast served to the door before arrival.</p>
+          </article>
+          <article>
+            <span class="price">from €249</span>
+            <h3>Suite</h3>
+            <p>Your own shower, a proper double bed and a window wide enough to watch the Alps go by from under the covers.</p>
+          </article>
+        </div>
+      </section>
+
+      <!-- Loop 4: big closing word band -->
+      <footer class="outro">
+        <div class="marquee words" style="--dur: 40s" aria-label="Nocturne">
+          <div class="track">
+            {
+              [0, 1].map((copy) => (
+                <ul class="group" aria-hidden={copy === 1 ? 'true' : undefined}>
+                  {words.map((w) => (
+                    <li>
+                      {w}
+                      <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M15.5 3a9 9 0 1 0 5.5 15.9A8 8 0 0 1 15.5 3Z" fill="currentColor" />
+                      </svg>
+                    </li>
+                  ))}
+                </ul>
+              ))
+            }
+          </div>
+        </div>
+        <p class="fine">Nocturne Rail is a fictional operator. Timetables, prices and emissions are illustrative.</p>
+      </footer>
+    </main>
+    <BackPill />
+  </body>
+</html>
+
+<style is:global>
+  :root {
+    --ink: #0a0c14;
+    --ink-2: #111522;
+    --line: rgb(236 230 218 / 0.09);
+    --paper: #ece6da;
+    --muted: #8f8b86;
+    --amber: #f2b45a;
+  }
+  html { background: var(--ink); }
+  body {
+    margin: 0;
+    color: var(--paper);
+    font-family: 'Inter Tight', ui-sans-serif, system-ui, sans-serif;
+    background:
+      radial-gradient(1200px 600px at 80% -10%, rgb(242 180 90 / 0.07), transparent 60%),
+      radial-gradient(900px 500px at 0% 30%, rgb(90 110 180 / 0.08), transparent 60%),
+      var(--ink);
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; text-decoration: none; }
+  ul { list-style: none; margin: 0; padding: 0; }
+  a:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; border-radius: 6px; }
+
+  /* ---------------- The marquee primitive ----------------
+     Two identical groups; the track moves exactly one group (-50%).
+     Spacing lives INSIDE each group (gap + matching padding-right), so the seam is invisible. */
+  .marquee {
+    --gap: 2.5rem;
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  }
+  .marquee .track {
+    display: flex;
+    width: max-content;
+    animation: marquee var(--dur, 40s) linear infinite;
+    will-change: transform;
+  }
+  .marquee.reverse .track { animation-direction: reverse; }
+  .marquee .group {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: var(--gap);
+    padding-right: var(--gap);
+  }
+  @keyframes marquee {
+    from { transform: translate3d(0, 0, 0); }
+    to { transform: translate3d(-50%, 0, 0); }
+  }
+  /* Pause only where interaction is useful: the route cards are links; the quotes are worth a stop. */
+  .routes:hover .track, .routes:focus-within .track,
+  .quotes:hover .track { animation-play-state: paused; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .marquee { -webkit-mask-image: none; mask-image: none; }
+    .marquee .track { animation: none; width: auto; }
+    .marquee .group[aria-hidden='true'] { display: none; }
+    .marquee .group { flex-wrap: wrap; justify-content: center; flex-shrink: 1; padding-right: 0; row-gap: 1rem; }
+    .ticker .dep::after { display: none; }
+  }
+
+  /* ---------------- Frame ---------------- */
+  .frame {
+    position: relative;
+    margin: 20px;
+    padding: 0 0 26px;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    background: linear-gradient(180deg, rgb(17 21 34 / 0.75), rgb(10 12 20 / 0.4));
+    min-height: calc(100svh - 40px);
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+  }
+  .tick { position: absolute; width: 14px; height: 14px; border-color: rgb(236 230 218 / 0.45); border-style: solid; border-width: 0; }
+  .tl { top: -1px; left: -1px; border-top-width: 1px; border-left-width: 1px; }
+  .tr { top: -1px; right: -1px; border-top-width: 1px; border-right-width: 1px; }
+  .bl { bottom: -1px; left: -1px; border-bottom-width: 1px; border-left-width: 1px; }
+  .br { bottom: -1px; right: -1px; border-bottom-width: 1px; border-right-width: 1px; }
+
+  .topbar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 18px clamp(18px, 3vw, 40px);
+  }
+  .brand { display: inline-flex; align-items: center; gap: 10px; font-family: 'Instrument Serif', serif; font-size: 26px; letter-spacing: -0.01em; }
+  .brand svg { color: var(--amber); }
+  .topbar ul { display: flex; align-items: center; gap: 26px; font-size: 14px; color: rgb(236 230 218 / 0.75); }
+  .topbar ul a:hover { color: var(--paper); }
+  .pill { padding: 9px 16px; border-radius: 999px; background: var(--paper); color: var(--ink) !important; font-weight: 500; }
+
+  /* Ticker */
+  .ticker {
+    --gap: 2.75rem;
+    border-block: 1px solid var(--line);
+    padding: 13px 0;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .dep { display: inline-flex; align-items: center; gap: 12px; white-space: nowrap; }
+  .dep-t { color: var(--amber); }
+  .dep-r { color: rgb(236 230 218 / 0.82); }
+  .dep-s { color: var(--muted); padding: 3px 7px; border: 1px solid var(--line); border-radius: 4px; }
+  .dep-s.late { color: #ff8e72; border-color: rgb(255 142 114 / 0.3); }
+  .dep::after { content: ''; width: 4px; height: 4px; border-radius: 50%; background: rgb(236 230 218 / 0.25); margin-left: calc(var(--gap) / 2 - 2px); margin-right: calc(var(--gap) / -2 - 2px); }
+
+  /* Hero copy */
+  .hero {
+    display: grid;
+    grid-template-columns: 1.35fr 1fr;
+    grid-template-areas: 'eye eye' 'h1 side';
+    column-gap: 4rem;
+    align-items: end;
+    padding: clamp(28px, 4.2vh, 48px) clamp(18px, 3vw, 40px) clamp(24px, 3.4vh, 40px);
+  }
+  .hero .eyebrow { grid-area: eye; }
+  .eyebrow {
+    justify-self: start; margin: 0 0 18px;
+    display: inline-flex; align-items: center; gap: 10px;
+    font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted);
+  }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--amber); box-shadow: 0 0 0 4px rgb(242 180 90 / 0.15); }
+  h1 {
+    grid-area: h1; margin: 0;
+    font-family: 'Instrument Serif', serif; font-weight: 400;
+    font-size: clamp(44px, 5.6vw, 84px); line-height: 0.98; letter-spacing: -0.02em;
+  }
+  h1 em { color: var(--amber); }
+  .hero-side { grid-area: side; max-width: 420px; justify-self: end; }
+  .hero-side p { margin: 0 0 20px; font-size: 16px; line-height: 1.55; color: rgb(236 230 218 / 0.7); }
+  .cta {
+    display: inline-flex; gap: 10px; align-items: center;
+    padding: 12px 20px; border-radius: 999px; border: 1px solid rgb(242 180 90 / 0.5); color: var(--amber); font-weight: 500;
+    transition: background 0.2s;
+  }
+  .cta:hover { background: rgb(242 180 90 / 0.1); }
+
+  /* Route cards — fixed width + height so the loop math never changes */
+  .routes { --gap: 18px; padding: 4px 0 18px; margin-top: auto; }
+  .card-slot { flex: none; }
+  .card {
+    position: relative; display: flex; flex-direction: column;
+    width: 300px; height: clamp(300px, 38vh, 360px);
+    box-sizing: border-box; border-radius: 14px; overflow: hidden;
+    border: 1px solid var(--line);
+  }
+  .photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s cubic-bezier(.2,.7,.2,1); }
+  .photo:hover img { transform: scale(1.04); }
+  .photo-shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgb(10 12 20 / 0.1) 30%, rgb(10 12 20 / 0.92)); }
+  .photo-top { position: relative; padding: 16px; display: flex; justify-content: flex-end; }
+  .chip {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.06em;
+    padding: 5px 9px; border-radius: 999px; background: rgb(10 12 20 / 0.6); border: 1px solid rgb(236 230 218 / 0.15);
+  }
+  .photo-body { position: relative; margin-top: auto; padding: 20px; display: grid; gap: 6px; }
+  .route { font-family: 'Instrument Serif', serif; font-size: 30px; line-height: 1; }
+  .route .arrow { color: var(--amber); font-family: 'Inter Tight', sans-serif; font-size: 20px; vertical-align: 4px; }
+  .note { font-size: 13px; color: rgb(236 230 218 / 0.65); }
+
+  .ticket { background: var(--paper); color: var(--ink); padding: 20px; border: 0; }
+  .ticket-head { display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: #6d675f; }
+  .ticket-route { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 22px 0 18px; }
+  .ticket-route b { display: block; font-family: 'Instrument Serif', serif; font-weight: 400; font-size: 44px; line-height: 1; }
+  .ticket-route small { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #6d675f; }
+  .ticket-route div:last-child { text-align: right; }
+  .ticket-route svg { flex: 1; height: 12px; color: #b07a2c; }
+  .ticket-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px; margin: 0; }
+  .ticket-grid dt { font-size: 11px; color: #6d675f; text-transform: uppercase; letter-spacing: 0.06em; }
+  .ticket-grid dd { margin: 2px 0 0; font-weight: 600; font-size: 15px; }
+  .ticket-perf { margin: auto -20px 14px; border-top: 2px dashed rgb(10 12 20 / 0.18); }
+  .barcode { height: 34px; background: repeating-linear-gradient(90deg, var(--ink) 0 2px, transparent 2px 4px, var(--ink) 4px 5px, transparent 5px 8px, var(--ink) 8px 11px, transparent 11px 13px); opacity: 0.85; }
+
+  .stat { background: linear-gradient(160deg, #1a2034, #0e111c); padding: 22px; }
+  .stat-label { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+  .stat-num { margin-top: 14px; font-family: 'Instrument Serif', serif; font-size: 96px; line-height: 0.9; color: var(--amber); }
+  .stat-num span { font-family: 'Inter Tight', sans-serif; font-size: 16px; color: var(--paper); margin-left: 6px; }
+  .bars { display: grid; gap: 8px; margin: 20px 0 auto; font-size: 11px; color: rgb(236 230 218 / 0.7); }
+  .bars span { position: relative; padding-top: 12px; }
+  .bars span::before { content: ''; position: absolute; top: 0; left: 0; height: 6px; width: var(--w); min-width: 18px; border-radius: 3px; background: rgb(236 230 218 / 0.22); }
+  .bars span:first-child::before { background: var(--amber); }
+  .stat p { margin: 0; font-size: 13px; line-height: 1.45; color: rgb(236 230 218 / 0.6); }
+
+  /* Quotes */
+  .quotes { --gap: 14px; }
+  .quote {
+    display: inline-flex; align-items: center; gap: 12px; white-space: nowrap;
+    padding: 7px 18px 7px 7px; border-radius: 999px;
+    background: rgb(236 230 218 / 0.04); border: 1px solid var(--line);
+    font-size: 14px; color: rgb(236 230 218 / 0.85);
+  }
+  .quote img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
+  .quote small { color: var(--muted); font-size: 12px; }
+
+  /* ---------------- Below the fold ---------------- */
+  .block { max-width: 1200px; margin: 0 auto; padding: clamp(64px, 10vw, 120px) 20px 0; }
+  .block-head { display: grid; gap: 4px; margin-bottom: 36px; }
+  h2 { margin: 0; font-family: 'Instrument Serif', serif; font-weight: 400; font-size: clamp(38px, 5vw, 64px); line-height: 1; letter-spacing: -0.015em; }
+  .muted { color: var(--muted); }
+  .block-head .muted { margin: 12px 0 0; max-width: 520px; line-height: 1.55; }
+  .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 14px; background: rgb(17 21 34 / 0.5); }
+  table { width: 100%; border-collapse: collapse; font-size: 15px; min-width: 720px; }
+  th { text-align: left; font-family: 'JetBrains Mono', monospace; font-weight: 400; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); padding: 16px 20px; border-bottom: 1px solid var(--line); }
+  td { padding: 18px 20px; border-bottom: 1px solid var(--line); }
+  tbody tr:last-child td { border-bottom: 0; }
+  tbody tr:hover { background: rgb(236 230 218 / 0.025); }
+  .mono { font-family: 'JetBrains Mono', monospace; color: var(--amber); }
+  td.muted { font-size: 13px; }
+  .status { font-size: 12px; padding: 4px 10px; border-radius: 999px; background: rgb(140 200 150 / 0.1); color: #a6d8ae; white-space: nowrap; }
+  .status.wait { background: rgb(255 142 114 / 0.1); color: #ff9f86; }
+
+  .cabins { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  .cabins article { padding: 28px; border: 1px solid var(--line); border-radius: 14px; background: rgb(17 21 34 / 0.5); display: grid; align-content: start; gap: 10px; }
+  .cabins article.featured { background: var(--paper); color: var(--ink); border-color: transparent; }
+  .cabins h3 { margin: 18px 0 0; font-family: 'Instrument Serif', serif; font-weight: 400; font-size: 36px; }
+  .cabins p { margin: 0; line-height: 1.55; font-size: 15px; opacity: 0.72; }
+  .price { font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.06em; color: var(--amber); }
+  .featured .price { color: #9a6418; }
+
+  .outro { margin-top: clamp(80px, 12vw, 140px); border-top: 1px solid var(--line); padding: 36px 0 90px; }
+  .words { --gap: 3rem; }
+  .words li { display: inline-flex; align-items: center; gap: 3rem; font-family: 'Instrument Serif', serif; font-size: clamp(56px, 9vw, 128px); line-height: 1.1; white-space: nowrap; color: transparent; -webkit-text-stroke: 1px rgb(236 230 218 / 0.45); }
+  .words li:nth-child(odd) { color: var(--paper); -webkit-text-stroke: 0; font-style: italic; }
+  .words svg { width: 0.32em; height: 0.32em; color: var(--amber); }
+  .fine { text-align: center; color: var(--muted); font-size: 12px; margin: 28px 20px 0; }
+
+  /* ---------------- Responsive ---------------- */
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; grid-template-areas: 'eye' 'h1' 'side'; row-gap: 22px; }
+    .hero-side { justify-self: start; }
+    .cabins { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 600px) {
+    .frame { margin: 10px; min-height: calc(100svh - 20px); }
+    .topbar ul li:not(:last-child) { display: none; }
+    .card { width: 250px; height: 300px; }
+    .eyebrow { font-size: 10.5px; letter-spacing: 0.05em; }
+    .route { font-size: 26px; }
+    .stat-num { font-size: 76px; }
+    .ticket-route b { font-size: 36px; }
+    .marquee { -webkit-mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent); mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent); }
+  }
+</style>

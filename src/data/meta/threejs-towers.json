@@ -1,0 +1,7 @@
+{
+  "title": "Three.js Towers",
+  "kind": "section",
+  "category": "3D & WebGL",
+  "concept": "Ardra Lights: three procedural lighthouses (a curved granite rock tower, a banded cast-iron octagon, a harbour light with keeper's cottage) built from one kit of parts, each assembling behind a rising clip plane with cut caps, scaffolding a lift ahead, staged captions, and a lantern that lights on completion.",
+  "notes": "No mesh files: face/box/prismN/ring/lathe/roofPoint builders, merged by material (17–33 draw calls, shown live). Light switcher, scaffold toggle, opt-in WebAudio (stage knocks and a foghorn), keyboard-scrubbable timeline, drag to orbit. ?shot freezes the build at 60 %; ?light=iron|harbour&u=0..1 pick a state. Reduced motion starts on the finished, lit tower with static beams."
+}

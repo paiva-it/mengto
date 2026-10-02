@@ -1,0 +1,729 @@
+---
+import '../../styles/global.css';
+import BackPill from '../../components/BackPill.astro';
+
+// Layout A (classic hero + sections): the product is legible from one screenshot — a re-costed plate.
+const title = 'Mise — Plate costing for independent kitchens | 30-day free trial';
+const description =
+  'Mise reads your supplier invoices and re-costs every recipe the same morning. Know what every plate costs before service. 30 days free, no card.';
+
+const kitchens = [
+  { name: 'The Salt Room', cls: 'k-serif' },
+  { name: 'ARDENT', cls: 'k-caps' },
+  { name: 'Pellow & Daughters', cls: 'k-italic' },
+  { name: 'Little Furnace', cls: 'k-sans' },
+  { name: 'brine.', cls: 'k-lower' },
+  { name: 'Osteria Gallo', cls: 'k-serif' },
+];
+
+const benefits = [
+  {
+    n: '01',
+    title: 'Re-costed by 9am',
+    body: 'Every invoice you forward or photograph updates every recipe that uses it — usually within four minutes of the delivery.',
+  },
+  {
+    n: '02',
+    title: 'Your Sunday back',
+    body: 'The weekly GP report goes from four hours of spreadsheet to a fifteen-minute read on the pass tablet.',
+  },
+  {
+    n: '03',
+    title: 'Rises flagged, with the fix',
+    body: 'When a dish crosses your target food cost, Mise shows the cheapest correction: price, portion or a swap.',
+  },
+  {
+    n: '04',
+    title: 'Allergens that keep up',
+    body: 'The fourteen allergens follow the ingredient. A supplier changes a spec, your menu matrix changes with it.',
+  },
+];
+
+const steps = [
+  {
+    title: 'Forward your invoices',
+    body: 'Point your suppliers at your kitchen’s Mise address, or snap the delivery note on the app. Fresh, dry, dairy and drinks — any format.',
+    meta: 'Day 1 · 10 minutes',
+  },
+  {
+    title: 'Build recipes once',
+    body: 'Import your costing spreadsheet or send us photos of your spec sheets. Our onboarding chefs map your first 40 recipes for free.',
+    meta: 'Days 2–5 · done for you',
+  },
+  {
+    title: 'Cook with the numbers',
+    body: 'A morning brief on the pass shows what moved overnight. A Monday email shows the week’s GP against target, dish by dish.',
+    meta: 'Every service after',
+  },
+];
+
+const faqs = [
+  {
+    q: 'Which suppliers can Mise read?',
+    a: 'Any supplier that sends a PDF, an emailed invoice or a paper delivery note. We read over 3,000 UK wholesalers and growers already, from national distributors to the fishmonger who still writes by hand.',
+  },
+  {
+    q: 'Do I have to re-type all my recipes?',
+    a: 'No. Send us your existing costing spreadsheet, or photos of your spec sheets, and our onboarding chefs build your first 40 recipes during the trial at no cost.',
+  },
+  {
+    q: 'How does Mise handle VAT and menu prices?',
+    a: 'Food cost is calculated against your menu price excluding VAT, the way your accountant reports it. You can show either figure on screen.',
+  },
+  {
+    q: 'How accurate is the invoice reading?',
+    a: 'Lines are matched automatically about 97% of the time. Anything Mise is unsure about waits in a short review queue rather than silently changing a recipe.',
+  },
+  {
+    q: 'We have more than one site. Does it work?',
+    a: 'Yes. Each site keeps its own suppliers and prices, and group owners see every site side by side. Pricing is per site.',
+  },
+  {
+    q: 'What happens when the 30 days end?',
+    a: 'Nothing, unless you choose a plan. We never ask for a card during the trial, so there is nothing to cancel and no surprise charge.',
+  },
+  {
+    q: 'Can I take my data with me?',
+    a: 'Always. Recipes, costings and invoice history export to CSV or Excel in one click, during the trial and after.',
+  },
+  {
+    q: 'Does it connect to our till?',
+    a: 'Mise reads sales from Square, Lightspeed, Tevalis and Zonal, so the weekly report weights each dish by how many you actually sold.',
+  },
+];
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
+};
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+
+    <header class="nav wrap">
+      <a href="#top" class="brand" aria-label="Mise home">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span>Mise</span>
+      </a>
+      <nav aria-label="Page sections" class="nav-links">
+        <a href="#how">How it works</a>
+        <a href="#proof">Kitchens</a>
+        <a href="#faq">FAQ</a>
+      </nav>
+      <a href="#start" class="btn btn-sm">Start free trial</a>
+    </header>
+
+    <main id="main">
+      <!-- 1 · HERO -->
+      <section class="hero wrap" id="top" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <p class="eyebrow"><span class="dot" aria-hidden="true"></span>Plate costing for independent kitchens</p>
+          <h1 id="hero-title">Know what every plate costs <em>before service</em>, not at month-end.</h1>
+          <p class="lede">
+            Mise reads your supplier invoices as they land and re-costs every recipe on your menu — so a price rise
+            reaches the pass the same morning, not your accountant’s report six weeks later.
+          </p>
+          <div class="cta-row">
+            <a href="#start" class="btn btn-lg">Start your 30-day free trial</a>
+            <a href="#how" class="btn-quiet">See how it works <span aria-hidden="true">→</span></a>
+          </div>
+          <ul class="assure" aria-label="Trial terms">
+            <li>No card needed</li>
+            <li>First 40 recipes built for you</li>
+            <li>Export everything, any time</li>
+          </ul>
+          <figure class="proof-mini">
+            <div class="avatars" aria-hidden="true"><span>RO</span><span>TK</span><span>MB</span></div>
+            <figcaption>
+              <strong>−3.1 points</strong> average food cost in the first 90 days, across 1,240 kitchens.
+            </figcaption>
+          </figure>
+        </div>
+
+        <div class="hero-visual" aria-label="Example: Mise re-costing a dish after a fish invoice arrives">
+          <div class="plate-card" data-state="before">
+            <div class="pc-head">
+              <div>
+                <p class="pc-kicker">Mains · Spec 14</p>
+                <p class="pc-title">Cornish hake, brown butter, samphire</p>
+              </div>
+              <span class="badge" data-badge>On target</span>
+            </div>
+            <table class="pc-table">
+              <caption class="sr">Ingredient costs per plate</caption>
+              <thead>
+                <tr><th scope="col">Ingredient</th><th scope="col">Qty</th><th scope="col">Unit</th><th scope="col">Cost</th></tr>
+              </thead>
+              <tbody>
+                <tr data-row="hake">
+                  <th scope="row">Cornish hake fillet</th><td>160 g</td><td data-unit>£16.50/kg</td><td data-cost>£2.64</td>
+                </tr>
+                <tr><th scope="row">Samphire</th><td>40 g</td><td>£22.00/kg</td><td>£0.88</td></tr>
+                <tr><th scope="row">Cultured butter</th><td>40 g</td><td>£7.40/kg</td><td>£0.30</td></tr>
+                <tr><th scope="row">New potatoes</th><td>150 g</td><td>£1.60/kg</td><td>£0.24</td></tr>
+                <tr><th scope="row">Capers, lemon, dill</th><td>—</td><td>—</td><td>£0.22</td></tr>
+              </tbody>
+            </table>
+            <div class="pc-foot">
+              <div class="pc-stat">
+                <span class="pc-label">Plate cost</span>
+                <span class="pc-num" data-total>£4.28</span>
+              </div>
+              <div class="pc-stat">
+                <span class="pc-label">Menu (ex VAT)</span>
+                <span class="pc-num">£16.50</span>
+              </div>
+              <div class="pc-stat pc-stat-main">
+                <span class="pc-label">Food cost <span class="muted">/ target 28%</span></span>
+                <span class="pc-num pc-big" data-pct>25.9%</span>
+              </div>
+              <div class="meter" aria-hidden="true">
+                <span class="meter-fill" data-meter style="--v: 25.9"></span>
+                <span class="meter-target"></span>
+              </div>
+            </div>
+            <div class="suggest" data-suggest>
+              <p class="suggest-title">Cheapest fix</p>
+              <ul>
+                <li><span>Reprice to £17.50</span><span class="muted">back to 26.9%</span></li>
+                <li><span>Trim hake to 145 g</span><span class="muted">back to 26.5%</span></li>
+              </ul>
+            </div>
+            <button type="button" class="replay" data-replay>Replay invoice</button>
+          </div>
+
+          <div class="toast" data-toast role="status" aria-live="polite">
+            <span class="toast-icon" aria-hidden="true">
+              <svg viewBox="0 0 20 20" width="16" height="16"><path d="M5 3h7l3 3v11H5z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M8 9h5M8 12h5M8 15h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </span>
+            <span>
+              <strong>Invoice read · Porthleven Fish Co. · 06:42</strong>
+              <span class="toast-line">Hake £16.50 → £19.20/kg <b>+16%</b> · 3 dishes re-costed</span>
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Proof strip, right under the hero claim -->
+      <section class="kitchens wrap" aria-label="Kitchens using Mise">
+        <p class="kitchens-label">Costing tonight’s menu in 1,240 independent kitchens</p>
+        <ul class="kitchens-list">
+          {kitchens.map((k) => <li class={k.cls}>{k.name}</li>)}
+        </ul>
+      </section>
+
+      <!-- 6 · PROBLEM → SOLUTION -->
+      <section class="problem wrap" aria-labelledby="problem-title">
+        <div class="section-head">
+          <p class="eyebrow">The problem</p>
+          <h2 id="problem-title">Your food cost is a number you find out <em>too late to change</em>.</h2>
+        </div>
+        <div class="compare">
+          <div class="col col-old">
+            <p class="col-label">Today</p>
+            <ul>
+              <li>Invoices pile up in a drawer until Sunday night.</li>
+              <li>The costing spreadsheet was last updated in spring.</li>
+              <li>Fish goes up 16% and you hear about it in the P&amp;L.</li>
+              <li>Four hours a week of typing, for a guess.</li>
+            </ul>
+          </div>
+          <div class="col col-new">
+            <p class="col-label">With Mise</p>
+            <ul>
+              <li>Every invoice is read the morning it arrives.</li>
+              <li>Every recipe carries yesterday’s real prices.</li>
+              <li>The rise is on the pass before the first ticket.</li>
+              <li>Fifteen minutes on Monday, for a fact.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- 7 · BENEFITS -->
+      <section class="benefits wrap" aria-labelledby="benefits-title">
+        <div class="section-head">
+          <p class="eyebrow">What changes</p>
+          <h2 id="benefits-title">Margin you can see, while there’s still time to act on it.</h2>
+        </div>
+        <ol class="benefit-grid">
+          {
+            benefits.map((b) => (
+              <li class="benefit">
+                <span class="benefit-n">{b.n}</span>
+                <h3>{b.title}</h3>
+                <p>{b.body}</p>
+              </li>
+            ))
+          }
+        </ol>
+      </section>
+
+      <!-- 8 · HOW IT WORKS -->
+      <section class="how" id="how" aria-labelledby="how-title">
+        <div class="wrap">
+          <div class="section-head">
+            <p class="eyebrow eyebrow-light">How it works</p>
+            <h2 id="how-title">Live in a week. Most of it done for you.</h2>
+          </div>
+          <ol class="steps">
+            {
+              steps.map((s, i) => (
+                <li class="step">
+                  <span class="step-n">{i + 1}</span>
+                  <h3>{s.title}</h3>
+                  <p>{s.body}</p>
+                  <p class="step-meta">{s.meta}</p>
+                </li>
+              ))
+            }
+          </ol>
+        </div>
+      </section>
+
+      <!-- 9 · SOCIAL PROOF -->
+      <section class="proof wrap" id="proof" aria-labelledby="proof-title">
+        <div class="section-head">
+          <p class="eyebrow">Kitchens on Mise</p>
+          <h2 id="proof-title" class="sr">What kitchens say</h2>
+        </div>
+        <div class="proof-grid">
+          <figure class="case">
+            <div class="case-stats">
+              <div><span class="case-num">33.8% → 29.6%</span><span class="case-label">food cost in 11 weeks</span></div>
+              <div><span class="case-num">£41,200</span><span class="case-label">margin recovered, first year</span></div>
+            </div>
+            <blockquote>
+              “We’d been eating a hake price rise for two months without knowing. Mise caught the next one at quarter to
+              seven in the morning, and we’d repriced before lunch.”
+            </blockquote>
+            <figcaption>
+              <span class="who-avatar" aria-hidden="true">RO</span>
+              <span><strong>Ruth Okafor</strong><br /><span class="muted">Chef-owner, Little Furnace · Bristol · 54 covers</span></span>
+            </figcaption>
+          </figure>
+          <div class="quotes">
+            <figure class="quote">
+              <blockquote>“Sunday nights used to be invoices. Now they’re Sunday nights.”</blockquote>
+              <figcaption><strong>Tomasz Kowal</strong> · Head chef, Brine · Whitstable</figcaption>
+            </figure>
+            <figure class="quote">
+              <blockquote>
+                “The allergen matrix updated itself when our bakery changed flour. That alone was worth the switch.”
+              </blockquote>
+              <figcaption><strong>Maeve Byrne</strong> · Owner, Pellow &amp; Daughters · Cork</figcaption>
+            </figure>
+          </div>
+        </div>
+      </section>
+
+      <!-- 10 · FAQ -->
+      <section class="faq wrap" id="faq" aria-labelledby="faq-title">
+        <div class="section-head faq-head">
+          <p class="eyebrow">Questions</p>
+          <h2 id="faq-title">Before you forward your first invoice.</h2>
+          <p class="muted">Still unsure? Write to <a href="#start">chefs@mise.example</a> — a former head chef answers.</p>
+        </div>
+        <div class="faq-list">
+          {
+            faqs.map((f, i) => (
+              <details name="faq" open={i === 0}>
+                <summary>{f.q}</summary>
+                <p>{f.a}</p>
+              </details>
+            ))
+          }
+        </div>
+      </section>
+
+      <!-- 11 + 12 · RISK REVERSAL + FINAL CTA -->
+      <section class="final" id="start" aria-labelledby="final-title">
+        <div class="wrap final-inner">
+          <div>
+            <p class="eyebrow eyebrow-light">30 days free · then £49 per site a month</p>
+            <h2 id="final-title">Know what every plate costs <em>before service</em>.</h2>
+            <p class="final-lede">
+              Forward a week of invoices and we’ll cost your menu for you. If Mise doesn’t find at least £49 of margin in
+              your first paid month, we refund it — no form, just an email.
+            </p>
+          </div>
+          <div class="final-cta">
+            <a href="#top" class="btn btn-lg btn-invert">Start your 30-day free trial</a>
+            <ul class="assure assure-light" aria-label="Trial terms">
+              <li>No card needed</li>
+              <li>Cancel in two clicks</li>
+              <li>Margin-back guarantee</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer wrap">
+      <span class="brand brand-small"><span class="brand-mark" aria-hidden="true"></span>Mise</span>
+      <span class="muted">Plate costing for independent kitchens · A fictional product for a design study.</span>
+    </footer>
+
+    <BackPill />
+  </body>
+</html>
+
+<script>
+  // One restrained interaction: an invoice arrives and the plate re-costs itself.
+  const card = document.querySelector<HTMLElement>('.plate-card');
+  const toast = document.querySelector<HTMLElement>('[data-toast]');
+  const replay = document.querySelector<HTMLButtonElement>('[data-replay]');
+
+  if (card && toast && replay) {
+    const $ = (sel: string) => card.querySelector<HTMLElement>(sel)!;
+    const gbp = new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' });
+    const pct = new Intl.NumberFormat('en-GB', { style: 'percent', minimumFractionDigits: 1, maximumFractionDigits: 1 });
+    const MENU = 16.5;
+    const OTHER = 0.88 + 0.296 + 0.24 + 0.22; // everything but the hake
+    const before = 16.5;
+    const after = 19.2;
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let timers: number[] = [];
+    let raf = 0;
+
+    const paint = (perKg: number) => {
+      const hake = perKg * 0.16;
+      const total = hake + OTHER;
+      const fc = total / MENU;
+      $('[data-unit]').textContent = `${gbp.format(perKg)}/kg`;
+      $('[data-cost]').textContent = gbp.format(hake);
+      $('[data-total]').textContent = gbp.format(total);
+      $('[data-pct]').textContent = pct.format(fc);
+      $('[data-meter]').style.setProperty('--v', String(fc * 100));
+      const over = fc > 0.28;
+      card.dataset.over = String(over);
+      $('[data-badge]').textContent = over ? 'Over target' : 'On target';
+    };
+
+    const reset = () => {
+      timers.forEach(clearTimeout);
+      cancelAnimationFrame(raf);
+      timers = [];
+      card.dataset.state = 'before';
+      toast.classList.remove('show');
+      paint(before);
+    };
+
+    const run = () => {
+      reset();
+      if (reduce) {
+        toast.classList.add('show');
+        card.dataset.state = 'after';
+        paint(after);
+        return;
+      }
+      timers.push(window.setTimeout(() => toast.classList.add('show'), 400));
+      timers.push(
+        window.setTimeout(() => {
+          card.dataset.state = 'changing';
+          const t0 = performance.now();
+          const tick = (now: number) => {
+            const k = Math.min(1, (now - t0) / 700);
+            const e = 1 - Math.pow(1 - k, 3);
+            paint(before + (after - before) * e);
+            if (k < 1) {
+              raf = requestAnimationFrame(tick);
+            } else {
+              card.dataset.state = 'after';
+            }
+          };
+          raf = requestAnimationFrame(tick);
+        }, 1000),
+      );
+    };
+
+    replay.addEventListener('click', run);
+    run();
+  }
+</script>
+
+<style is:global>
+  :root {
+    --paper: #f3efe6;
+    --paper-2: #ebe5d8;
+    --card: #fffdf8;
+    --ink: #1a1c18;
+    --ink-2: #4a4c45;
+    --ink-3: #7b7b72;
+    --line: rgb(26 28 24 / 0.12);
+    --forest: #1e3a2c;
+    --forest-2: #2b4d3b;
+    --tomato: #c8442a;
+    --tomato-soft: #f7dfd6;
+    --saffron: #e2a33a;
+    --sage: #dfe7d6;
+    --good: #2f7a4e;
+    --serif: 'Instrument Serif', ui-serif, Georgia, serif;
+    --sans: 'Inter Tight', ui-sans-serif, system-ui, sans-serif;
+    --mono: 'JetBrains Mono', ui-monospace, monospace;
+    --gut: clamp(20px, 4vw, 56px);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font: 400 17px/1.55 var(--sans);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: clip;
+  }
+  .wrap { width: 100%; max-width: 1360px; margin-inline: auto; padding-inline: var(--gut); }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .skip { position: absolute; left: 12px; top: 12px; transform: translateY(-200%); background: var(--ink); color: #fff; padding: 8px 12px; border-radius: 8px; z-index: 50; }
+  .skip:focus { transform: none; }
+  a { color: inherit; }
+  :focus-visible { outline: 2px solid var(--tomato); outline-offset: 3px; border-radius: 6px; }
+  .muted { color: var(--ink-3); }
+  em { font-style: italic; }
+
+  /* nav */
+  .nav { display: flex; align-items: center; justify-content: space-between; gap: 24px; height: 76px; }
+  .brand { display: inline-flex; align-items: center; gap: 10px; font: 400 28px/1 var(--serif); text-decoration: none; letter-spacing: -0.01em; }
+  .brand-small { font-size: 22px; }
+  .brand-mark { width: 22px; height: 22px; border-radius: 50%; background: radial-gradient(circle at 50% 50%, var(--card) 0 34%, var(--tomato) 35% 100%); box-shadow: inset 0 0 0 1.5px var(--ink); }
+  .nav-links { display: flex; gap: 32px; font-size: 15px; color: var(--ink-2); }
+  .nav-links a { text-decoration: none; }
+  .nav-links a:hover { color: var(--ink); }
+
+  /* buttons */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    background: var(--forest); color: #f6f3ea; text-decoration: none; font-weight: 500;
+    border-radius: 999px; transition: background 0.2s, transform 0.2s;
+    box-shadow: 0 1px 0 rgb(255 255 255 / 0.15) inset, 0 10px 24px -12px rgb(30 58 44 / 0.7);
+  }
+  .btn:hover { background: var(--forest-2); transform: translateY(-1px); }
+  .btn-sm { padding: 10px 18px; font-size: 14px; }
+  .btn-lg { padding: 17px 28px; font-size: 16.5px; }
+  .btn-invert { background: var(--paper); color: var(--forest); box-shadow: none; }
+  .btn-invert:hover { background: #fff; }
+  .btn-quiet { font-size: 16px; font-weight: 500; text-decoration: none; color: var(--ink-2); border-bottom: 1px solid var(--line); padding-bottom: 2px; }
+  .btn-quiet:hover { color: var(--ink); border-color: var(--ink); }
+
+  /* shared type */
+  .eyebrow { display: inline-flex; align-items: center; gap: 10px; margin: 0 0 20px; font: 500 12px/1.2 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-2); }
+  .eyebrow-light { color: rgb(246 243 234 / 0.7); }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--tomato); box-shadow: 0 0 0 4px rgb(200 68 42 / 0.15); }
+  h1, h2 { font-family: var(--serif); font-weight: 400; letter-spacing: -0.02em; margin: 0; }
+  h1 em, h2 em { color: var(--tomato); }
+  h2 { font-size: clamp(38px, 4.6vw, 64px); line-height: 1.02; max-width: 20ch; text-wrap: balance; }
+  h3 { font-size: 20px; font-weight: 600; letter-spacing: -0.01em; margin: 0 0 8px; }
+  .section-head { margin-bottom: clamp(36px, 5vw, 64px); }
+  section { scroll-margin-top: 24px; }
+
+  /* hero */
+  .hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.02fr); gap: clamp(32px, 5vw, 80px); align-items: center; padding-top: clamp(24px, 4vh, 48px); padding-bottom: 56px; }
+  .hero h1 { font-size: clamp(46px, 5.6vw, 84px); line-height: 0.98; max-width: 13ch; }
+  .lede { margin: 26px 0 0; font-size: clamp(17px, 1.35vw, 19px); color: var(--ink-2); max-width: 46ch; }
+  .cta-row { display: flex; flex-wrap: wrap; align-items: center; gap: 16px 28px; margin-top: 34px; }
+  .assure { display: flex; flex-wrap: wrap; gap: 8px 20px; list-style: none; padding: 0; margin: 20px 0 0; font-size: 14px; color: var(--ink-2); }
+  .assure li { display: inline-flex; align-items: center; gap: 7px; }
+  .assure li::before { content: ''; width: 14px; height: 14px; border-radius: 50%; background: var(--sage) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath d='M4 7.2l2 2 4-4.2' fill='none' stroke='%232f7a4e' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/14px no-repeat; }
+  .assure-light { color: rgb(246 243 234 / 0.8); }
+  .assure-light li::before { background-color: rgb(246 243 234 / 0.14); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath d='M4 7.2l2 2 4-4.2' fill='none' stroke='%23f6f3ea' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); }
+  .proof-mini { display: flex; align-items: center; gap: 14px; margin: 34px 0 0; padding-top: 24px; border-top: 1px solid var(--line); font-size: 14.5px; color: var(--ink-2); max-width: 470px; }
+  .proof-mini strong { color: var(--ink); font-weight: 600; }
+  .avatars { display: flex; flex-shrink: 0; }
+  .avatars span, .who-avatar { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font: 500 11px/1 var(--mono); color: var(--ink); border: 2px solid var(--paper); }
+  .avatars span + span { margin-left: -10px; }
+  .avatars span:nth-child(1), .who-avatar { background: #e9c9a8; }
+  .avatars span:nth-child(2) { background: var(--sage); }
+  .avatars span:nth-child(3) { background: #f0d9a0; }
+
+  /* hero visual */
+  .hero-visual { position: relative; padding: 64px 0 32px 36px; }
+  .hero-visual::before { content: ''; position: absolute; inset: 0 -40px 0 0; border-radius: 32px; background: radial-gradient(120% 90% at 70% 40%, var(--sage) 0%, transparent 62%), radial-gradient(60% 60% at 20% 90%, rgb(226 163 58 / 0.22), transparent 70%); z-index: -1; }
+  .plate-card { position: relative; background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 24px 24px 18px; box-shadow: 0 1px 0 #fff inset, 0 30px 60px -30px rgb(26 28 24 / 0.35), 0 8px 18px -10px rgb(26 28 24 / 0.15); }
+  .pc-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 14px; }
+  .pc-kicker { margin: 0 0 4px; font: 500 11px/1.2 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); }
+  .pc-title { margin: 0; font: 400 26px/1.1 var(--serif); letter-spacing: -0.01em; }
+  .badge { flex-shrink: 0; font: 500 12px/1 var(--sans); padding: 7px 11px; border-radius: 999px; background: var(--sage); color: var(--good); transition: background 0.3s, color 0.3s; }
+  .plate-card[data-over='true'] .badge { background: var(--tomato-soft); color: var(--tomato); }
+  .pc-table { width: 100%; border-collapse: collapse; font-size: 14px; font-variant-numeric: tabular-nums; }
+  .pc-table th, .pc-table td { padding: 8px 6px; text-align: right; border-top: 1px solid var(--line); white-space: nowrap; }
+  .pc-table thead th { border-top: 0; font: 500 10.5px/1 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); padding-bottom: 10px; }
+  .pc-table th:first-child { text-align: left; font-weight: 500; padding-left: 0; white-space: normal; }
+  .pc-table thead th:first-child { font-weight: 500; }
+  .pc-table td:last-child { padding-right: 0; font-weight: 500; }
+  .pc-table td { color: var(--ink-2); }
+  .pc-table tr[data-row] { transition: background 0.4s; }
+  .plate-card:not([data-state='before']) tr[data-row] { background: linear-gradient(90deg, rgb(200 68 42 / 0.09), rgb(200 68 42 / 0.03)); }
+  .plate-card:not([data-state='before']) tr[data-row] td { color: var(--tomato); }
+  .pc-foot { display: grid; grid-template-columns: 1fr 1fr 1.3fr; gap: 12px; margin-top: 14px; padding-top: 16px; border-top: 1px solid var(--ink); }
+  .pc-stat { display: flex; flex-direction: column; gap: 4px; }
+  .pc-label { font-size: 12px; color: var(--ink-3); }
+  .pc-num { font: 500 20px/1.1 var(--sans); font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+  .pc-big { font: 400 40px/1 var(--serif); letter-spacing: -0.02em; }
+  .pc-stat-main { text-align: right; }
+  .plate-card[data-over='true'] .pc-big { color: var(--tomato); }
+  .meter { grid-column: 1 / -1; position: relative; height: 6px; border-radius: 99px; background: var(--paper-2); margin-top: 4px; }
+  .meter-fill { position: absolute; inset: 0 auto 0 0; width: calc(var(--v) / 40 * 100%); border-radius: inherit; background: var(--good); }
+  .plate-card[data-over='true'] .meter-fill { background: var(--tomato); }
+  .meter-target { position: absolute; top: -4px; bottom: -4px; left: 70%; width: 2px; background: var(--ink); border-radius: 2px; }
+  .suggest { display: grid; grid-template-rows: 0fr; opacity: 0; transition: grid-template-rows 0.5s ease, opacity 0.5s ease, margin 0.5s; margin-top: 0; }
+  .suggest > * { overflow: hidden; }
+  .plate-card[data-state='after'] .suggest { grid-template-rows: 1fr; opacity: 1; margin-top: 16px; }
+  .suggest { background: var(--paper); border-radius: 12px; padding: 0 14px; }
+  .plate-card[data-state='after'] .suggest { padding: 12px 14px; }
+  .suggest-title { margin: 0 0 6px; font: 500 11px/1 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-2); }
+  .suggest ul { list-style: none; margin: 0; padding: 0; font-size: 14px; }
+  .suggest li { display: flex; justify-content: space-between; gap: 12px; padding: 4px 0; font-weight: 500; }
+  .suggest li .muted { font-weight: 400; }
+  .replay { margin-top: 12px; border: 0; background: none; padding: 4px 0; font: 500 12px/1 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); cursor: pointer; }
+  .replay:hover { color: var(--ink); }
+  .replay::before { content: '↻ '; }
+
+  .toast { position: absolute; top: 0; right: -12px; display: flex; gap: 12px; align-items: flex-start; max-width: 370px; padding: 12px 16px 12px 12px; border-radius: 14px; background: var(--ink); color: #f6f3ea; font-size: 13px; line-height: 1.35; box-shadow: 0 20px 40px -18px rgb(0 0 0 / 0.55); opacity: 0; transform: translateY(-8px) scale(0.98); transition: opacity 0.45s ease, transform 0.45s cubic-bezier(.2,.8,.2,1); z-index: 2; }
+  .toast.show { opacity: 1; transform: none; }
+  .toast strong { display: block; font-weight: 500; font-size: 12.5px; }
+  .toast-line { color: rgb(246 243 234 / 0.72); }
+  .toast b { color: #ffb19c; font-weight: 600; }
+  .toast-icon { display: grid; place-items: center; width: 30px; height: 30px; flex-shrink: 0; border-radius: 9px; background: rgb(255 255 255 / 0.1); color: var(--saffron); }
+  .good { color: var(--good); font-weight: 500; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .toast, .suggest, .badge, .btn, .pc-table tr[data-row] { transition: none; }
+  }
+
+  /* kitchens */
+  .kitchens { padding-top: 28px; padding-bottom: 40px; border-top: 1px solid var(--line); }
+  .kitchens-label { margin: 0 0 18px; font: 500 12px/1.2 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); }
+  .kitchens-list { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 18px 40px; color: var(--ink-2); }
+  .k-serif { font: 400 26px/1 var(--serif); }
+  .k-caps { font: 600 17px/1 var(--sans); letter-spacing: 0.32em; }
+  .k-italic { font: italic 400 25px/1 var(--serif); }
+  .k-sans { font: 500 20px/1 var(--sans); letter-spacing: -0.02em; }
+  .k-lower { font: 500 22px/1 var(--mono); letter-spacing: -0.04em; }
+
+  /* problem */
+  .problem { padding-top: clamp(80px, 10vw, 140px); padding-bottom: clamp(60px, 8vw, 110px); }
+  .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .col { border-radius: 22px; padding: clamp(24px, 3vw, 40px); }
+  .col ul { list-style: none; margin: 0; padding: 0; font-size: clamp(17px, 1.5vw, 20px); }
+  .col li { padding: 16px 0; border-top: 1px solid var(--line); }
+  .col li:first-child { border-top: 0; padding-top: 0; }
+  .col-label { margin: 0 0 22px; font: 500 12px/1 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; }
+  .col-old { background: var(--paper-2); color: var(--ink-2); }
+  .col-old li { text-decoration: line-through; text-decoration-color: rgb(200 68 42 / 0.45); text-decoration-thickness: 1.5px; }
+  .col-new { background: var(--card); border: 1px solid var(--line); }
+  .col-new .col-label { color: var(--good); }
+
+  /* benefits */
+  .benefits { padding-bottom: clamp(80px, 10vw, 140px); }
+  .benefit-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--ink); }
+  .benefit { padding: 28px 28px 8px 0; }
+  .benefit + .benefit { padding-left: 28px; border-left: 1px solid var(--line); }
+  .benefit-n { display: block; margin-bottom: 44px; font: 400 15px/1 var(--mono); color: var(--tomato); }
+  .benefit p { margin: 0; color: var(--ink-2); font-size: 16px; }
+
+  /* how */
+  .how { background: var(--forest); color: #f6f3ea; padding: clamp(80px, 10vw, 140px) 0; border-radius: clamp(24px, 3vw, 40px); margin-inline: clamp(8px, 1vw, 16px); }
+  .how h2 { color: #f6f3ea; }
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+  .step { position: relative; padding: 32px; border-radius: 20px; background: rgb(255 255 255 / 0.05); border: 1px solid rgb(255 255 255 / 0.1); display: flex; flex-direction: column; }
+  .step-n { display: grid; place-items: center; width: 44px; height: 44px; margin-bottom: 40px; border-radius: 50%; background: var(--saffron); color: var(--forest); font: 400 24px/1 var(--serif); }
+  .step p { margin: 0; color: rgb(246 243 234 / 0.75); font-size: 16px; }
+  .step .step-meta { margin-top: auto; padding-top: 28px; font: 500 12px/1 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--saffron); }
+
+  /* proof */
+  .proof { padding-top: clamp(80px, 10vw, 140px); padding-bottom: clamp(80px, 10vw, 140px); }
+  .proof .section-head { margin-bottom: 28px; }
+  .proof-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 20px; }
+  .case { margin: 0; padding: clamp(28px, 4vw, 48px); background: var(--card); border: 1px solid var(--line); border-radius: 24px; display: flex; flex-direction: column; gap: 32px; }
+  .case-stats { display: flex; flex-wrap: wrap; gap: 20px 56px; }
+  .case-stats div { display: flex; flex-direction: column; gap: 6px; }
+  .case-num { font: 400 clamp(36px, 4vw, 52px)/1 var(--serif); letter-spacing: -0.02em; color: var(--good); }
+  .case-label { font-size: 14px; color: var(--ink-3); }
+  .case blockquote { margin: 0; font: 400 clamp(24px, 2.4vw, 32px)/1.2 var(--serif); letter-spacing: -0.01em; max-width: 28ch; }
+  .case figcaption { display: flex; align-items: center; gap: 14px; font-size: 15px; margin-top: auto; }
+  .who-avatar { width: 44px; height: 44px; font-size: 12px; }
+  .quotes { display: grid; gap: 20px; }
+  .quote { margin: 0; padding: 28px; border-radius: 24px; background: var(--paper-2); display: flex; flex-direction: column; justify-content: space-between; gap: 20px; }
+  .quote blockquote { margin: 0; font: 400 22px/1.25 var(--serif); }
+  .quote figcaption { font-size: 14px; color: var(--ink-2); }
+  .quote strong { color: var(--ink); font-weight: 600; }
+
+  /* faq */
+  .faq { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: clamp(32px, 6vw, 96px); padding-bottom: clamp(80px, 10vw, 140px); }
+  .faq-head h2 { font-size: clamp(36px, 3.8vw, 52px); }
+  .faq-head .muted { margin-top: 20px; font-size: 15px; max-width: 34ch; }
+  .faq-list { border-top: 1px solid var(--ink); }
+  .faq details { border-bottom: 1px solid var(--line); }
+  .faq summary { list-style: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 22px 0; font-size: 18px; font-weight: 500; }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary::after { content: '+'; flex-shrink: 0; width: 28px; height: 28px; display: grid; place-items: center; border-radius: 50%; border: 1px solid var(--line); font: 400 18px/1 var(--sans); color: var(--ink-2); transition: transform 0.25s; }
+  .faq details[open] summary::after { transform: rotate(45deg); background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .faq details p { margin: -6px 0 22px; color: var(--ink-2); max-width: 60ch; }
+
+  /* final */
+  .final { background: var(--ink); color: #f6f3ea; padding: clamp(80px, 10vw, 140px) 0; border-radius: clamp(24px, 3vw, 40px); margin-inline: clamp(8px, 1vw, 16px); position: relative; overflow: hidden; }
+  .final::before { content: ''; position: absolute; width: 640px; height: 640px; right: -160px; top: -260px; border-radius: 50%; background: radial-gradient(circle, rgb(200 68 42 / 0.35), transparent 65%); pointer-events: none; }
+  .final-inner { position: relative; display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 48px; align-items: end; }
+  .final h2 { color: #f6f3ea; font-size: clamp(42px, 5.4vw, 80px); max-width: 15ch; text-wrap: pretty; }
+  .final h2 em { color: #ff9a80; }
+  .final-lede { margin: 24px 0 0; color: rgb(246 243 234 / 0.72); max-width: 50ch; font-size: 18px; }
+  .final-cta { display: flex; flex-direction: column; align-items: flex-start; }
+
+  .footer { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; padding-top: 36px; padding-bottom: 84px; font-size: 14px; }
+
+  /* responsive */
+  @media (max-width: 1100px) {
+    .benefit-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .benefit:nth-child(3) { padding-left: 0; border-left: 0; }
+    .benefit:nth-child(n + 3) { border-top: 1px solid var(--line); }
+  }
+  @media (max-width: 960px) {
+    .hero { grid-template-columns: minmax(0, 1fr); }
+    .hero h1 { max-width: 14ch; }
+    .hero-visual { padding-left: 0; max-width: 640px; }
+    .nav-links { display: none; }
+    .steps, .proof-grid, .faq, .final-inner { grid-template-columns: minmax(0, 1fr); }
+    .kitchens-list { justify-content: flex-start; }
+  }
+  @media (max-width: 640px) {
+    body { font-size: 16px; }
+    .compare { grid-template-columns: minmax(0, 1fr); }
+    .benefit-grid { grid-template-columns: minmax(0, 1fr); }
+    .benefit, .benefit + .benefit { padding: 24px 0; border-left: 0; }
+    .benefit + .benefit { border-top: 1px solid var(--line); }
+    .benefit-n { margin-bottom: 16px; }
+    .cta-row .btn-lg { width: 100%; }
+    .hero-visual { padding: 92px 0 0; }
+    .hero-visual::before { inset: 20px -20px -20px -20px; }
+    .toast { right: 0; left: 0; max-width: none; }
+    .plate-card { padding: 18px 16px 14px; }
+    .pc-title { font-size: 22px; }
+    .pc-table { font-size: 13px; }
+    .pc-table thead th:nth-child(3), .pc-table td:nth-child(3) { display: none; }
+    .pc-foot { grid-template-columns: 1fr 1fr; }
+    .pc-stat-main { grid-column: 1 / -1; text-align: left; }
+    .k-serif, .k-italic { font-size: 21px; }
+    .k-caps { font-size: 14px; }
+    .k-sans, .k-lower { font-size: 17px; }
+    .step { padding: 24px; }
+    .step-n { margin-bottom: 24px; }
+  }
+</style>
