@@ -27,3 +27,4 @@ pnpm-debug.log*
 .skills/
 # agent self-check screenshots
 .shots/
+.vercel
